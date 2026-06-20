@@ -76,34 +76,90 @@
         @keyframes ab3-drift { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(32px,-48px) scale(0.9)} }
 
         /* ── 달 글로우 ── */
-        .moon-wrap { position:relative;display:block;text-align:center;margin-bottom:6px;isolation:isolate; }
+        .moon-wrap { position:relative;display:inline-block;text-align:center;margin-bottom:6px;isolation:isolate; }
         .moon-wrap::before {
             content:'';position:absolute;top:50%;left:50%;
             transform:translate(-50%,-50%);
-            width:110px;height:110px;
-            background:radial-gradient(circle,rgba(160,140,255,.22) 0%,transparent 70%);
+            width:160px;height:160px;
+            background:radial-gradient(circle,rgba(180,160,255,.32) 0%,rgba(120,100,255,.12) 40%,transparent 70%);
             border-radius:50%;pointer-events:none;z-index:-1;
             animation:moon-glow 4s ease-in-out infinite;
         }
-        @keyframes moon-glow { 0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1)} 50%{opacity:1;transform:translate(-50%,-50%) scale(1.45)} }
+        @keyframes moon-glow { 0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(1)} 50%{opacity:1;transform:translate(-50%,-50%) scale(1.5)} }
+
+        /* ── 달 궤도 파티클 ── */
+        .moon-orbital {
+            position:absolute;border-radius:50%;pointer-events:none;
+            top:50%;left:50%;margin:-2px;
+            animation:orbit var(--dur,10s) linear infinite;
+        }
+        .mo1{width:6px;height:6px;background:rgba(180,200,255,.8);--dur:8s;--r:54px;box-shadow:0 0 8px rgba(180,200,255,.9);}
+        .mo2{width:4px;height:4px;background:rgba(255,200,220,.7);--dur:13s;--r:68px;margin:-1.5px;box-shadow:0 0 6px rgba(255,180,200,.8);}
+        .mo3{width:5px;height:5px;background:rgba(180,255,200,.65);--dur:9s;--r:60px;margin:-2px;box-shadow:0 0 7px rgba(160,255,180,.7);}
+        .mo4{width:3px;height:3px;background:rgba(255,220,140,.8);--dur:16s;--r:80px;margin:-1px;box-shadow:0 0 5px rgba(255,210,120,.9);}
+        .mo5{width:4px;height:4px;background:rgba(200,180,255,.7);--dur:11s;--r:72px;margin:-1.5px;box-shadow:0 0 6px rgba(180,160,255,.8);}
+        .mo2{animation-delay:-4s;}
+        .mo3{animation-delay:-2s;}
+        .mo4{animation-delay:-7s;}
+        .mo5{animation-delay:-5s;}
+        @keyframes orbit {
+            from{transform:rotate(0deg) translateX(var(--r)) rotate(0deg);}
+            to  {transform:rotate(360deg) translateX(var(--r)) rotate(-360deg);}
+        }
+
+        /* ── 리플 효과 ── */
+        .ripple-effect {
+            position:absolute;border-radius:50%;
+            width:4px;height:4px;margin:-2px 0 0 -2px;
+            background:rgba(255,255,255,.55);
+            animation:ripple-expand .6s ease-out forwards;
+            pointer-events:none;z-index:10;
+        }
+        @keyframes ripple-expand { to{transform:scale(70);opacity:0;} }
+
+        /* ── 꽃잎 파티클 ── */
+        .petal-particle {
+            position:fixed;pointer-events:none;z-index:999;
+            font-size:18px;line-height:1;
+            animation:petal-burst .9s ease-out forwards;
+        }
+        @keyframes petal-burst {
+            0%  {transform:translate(-50%,-50%) scale(1.2);opacity:1;}
+            100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(0);opacity:0;}
+        }
+
+        /* ── 축복 파티클 ── */
+        .blessing-particle {
+            position:fixed;pointer-events:none;z-index:999;
+            font-size:22px;line-height:1;
+            animation:blessing-fall linear forwards;
+        }
+        @keyframes blessing-fall {
+            0%  {transform:translate(0,0) rotate(0deg) scale(1);opacity:1;}
+            100%{transform:translate(var(--dx,0px),var(--dy,80vh)) rotate(720deg) scale(.5);opacity:0;}
+        }
 
         /* ── 공통 레이아웃 ── */
         .page-wrap { position:relative;z-index:1;max-width:460px;margin:0 auto;padding:0 16px calc(100px + env(safe-area-inset-bottom)); min-height:100vh; }
 
         /* ── 헤더 바 ── */
         .top-bar { display:flex;align-items:flex-start;justify-content:space-between;padding:18px 0 0; }
-        .top-center { flex:1;text-align:center; }
-        .top-side   { width:44px;flex-shrink:0; }
+        .top-center { flex:1;text-align:center;padding:0 8px; }
+        .top-side   { flex:1; }
         .top-icons  { display:flex;gap:6px;justify-content:flex-end;padding-top:4px; }
         .icon-btn {
-            width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.1);
-            border:1px solid rgba(255,255,255,0.15);cursor:pointer;font-size:16px;
-            display:flex;align-items:center;justify-content:center;color:#fff;
-            transition:background 0.2s;-webkit-tap-highlight-color:transparent;
+            display:flex;flex-direction:column;align-items:center;gap:2px;
+            background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);
+            border-radius:14px;padding:7px 11px;cursor:pointer;
+            color:rgba(255,255,255,.92);font-family:inherit;
+            transition:background .2s,border-color .2s;
+            -webkit-tap-highlight-color:transparent;min-width:52px;
         }
-        .icon-btn:hover { background:rgba(255,255,255,0.18); }
+        .icon-btn .icon-emoji { font-size:18px;line-height:1.1; }
+        .icon-btn .icon-label { font-size:10px;color:rgba(255,255,255,.78);letter-spacing:.3px; }
+        .icon-btn:hover,.icon-btn:active { background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.45); }
 
-        .moon-icon { font-size:34px;display:inline-block;animation:float 4s ease-in-out infinite; }
+        .moon-icon { font-size:62px;display:inline-block;animation:float 4s ease-in-out infinite; }
         @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
         .welcome-text { font-size:var(--fs-md);color:rgba(255,255,255,.85);letter-spacing:.3px;line-height:1.6; }
         .date-text    { font-size:var(--fs-xs);color:rgba(255,255,255,.6);margin-top:3px; }
@@ -168,24 +224,51 @@
         .s1-sub   { font-size:var(--fs-md);color:#999;text-align:center;margin-bottom:22px; }
         .emotion-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
         .btn-emotion {
-            display:flex;align-items:center;gap:9px;background:#faf8f4;border:1.5px solid #ede8de;
-            border-radius:16px;padding:14px 12px;cursor:pointer;font-size:var(--fs-btn);color:#333;
-            font-family:inherit;transition:all .2s ease;text-align:left;line-height:1.3;
-            -webkit-tap-highlight-color:transparent;
+            display:flex;flex-direction:column;align-items:center;gap:6px;
+            border:1.5px solid transparent;border-radius:20px;padding:18px 10px 16px;
+            cursor:pointer;font-size:var(--fs-sm);color:#333;font-family:inherit;
+            transition:all .22s cubic-bezier(.34,1.56,.64,1);
+            -webkit-tap-highlight-color:transparent;text-align:center;
+            position:relative;overflow:hidden;
         }
-        .btn-emotion:hover,.btn-emotion:active { background:#fff;border-color:#b8cef0;transform:translateY(-2px);box-shadow:0 5px 16px rgba(90,120,200,.14); }
+        .em-감사 { background:linear-gradient(145deg,#fff9f0,#fff0e0);border-color:#f0d8b0;color:#6a4020; }
+        .em-평안 { background:linear-gradient(145deg,#f0fdf8,#e0f8f0);border-color:#a0dcc8;color:#2a5a48; }
+        .em-걱정 { background:linear-gradient(145deg,#f5f0ff,#ede8ff);border-color:#c0b0e8;color:#4a3668; }
+        .em-지침 { background:linear-gradient(145deg,#f0f5ff,#e8eeff);border-color:#b0c4ee;color:#2a3860; }
+        .em-아픔 { background:linear-gradient(145deg,#fff5f8,#ffeef5);border-color:#e8b8cc;color:#7a2848; }
+        .em-기도 { background:linear-gradient(145deg,#f5fff0,#edfae8);border-color:#a8d8a0;color:#286828; }
+        .btn-emotion:hover,.btn-emotion:active { transform:translateY(-4px) scale(1.04);box-shadow:0 8px 24px rgba(0,0,0,.16); }
+        .e-decor { font-size:14px;line-height:1;opacity:.75; }
+        .e-emoji { font-size:28px;line-height:1;margin:2px 0; }
+        .e-text  { font-size:var(--fs-sm);font-weight:600;line-height:1.3; }
         .btn-emoji { font-size:20px;flex-shrink:0; }
 
         /* ── STEP 2·3 버튼 그리드 ── */
         .two-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
         .btn-choice {
-            display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
-            background:#faf8f4;border:1.5px solid #ede8de;border-radius:16px;padding:18px 12px;
-            cursor:pointer;font-size:var(--fs-btn);color:#333;font-family:inherit;
-            transition:all .2s ease;-webkit-tap-highlight-color:transparent;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+            border:1.5px solid #ede8de;border-radius:18px;padding:18px 12px;
+            cursor:pointer;font-size:var(--fs-sm);color:#333;font-family:inherit;
+            transition:all .22s cubic-bezier(.34,1.56,.64,1);
+            -webkit-tap-highlight-color:transparent;text-align:center;
+            position:relative;overflow:hidden;
         }
         .btn-choice:last-child:nth-child(odd) { grid-column:1/-1;flex-direction:row;gap:10px;padding:15px 24px;justify-content:center; }
-        .btn-choice:hover,.btn-choice:active { background:#fff;border-color:#b8cef0;transform:translateY(-2px);box-shadow:0 5px 16px rgba(90,120,200,.14); }
+        .btn-choice:hover,.btn-choice:active { transform:translateY(-3px) scale(1.03);box-shadow:0 6px 20px rgba(0,0,0,.14); }
+        .bc-decor { font-size:13px;line-height:1;opacity:.7; }
+        .bc-emoji { font-size:24px;line-height:1; }
+        .bc-text  { font-size:var(--fs-sm);font-weight:600;line-height:1.3; }
+        /* topic colors */
+        .bc-일   { background:linear-gradient(145deg,#fffbf0,#fff5dc);border-color:#e8d090;color:#6a5020; }
+        .bc-가족 { background:linear-gradient(145deg,#fff5f8,#ffedf5);border-color:#e8b8cc;color:#7a2848; }
+        .bc-공부 { background:linear-gradient(145deg,#f0fafa,#e5f8f8);border-color:#a0d8d8;color:#1a5858; }
+        .bc-사람 { background:linear-gradient(145deg,#f5fff0,#ebfce8);border-color:#a8d898;color:#286828; }
+        .bc-모름 { background:linear-gradient(145deg,#f8f8fa,#f0f0f5);border-color:#c0c0d0;color:#444460; }
+        /* need colors */
+        .bc-위로 { background:linear-gradient(145deg,#fff5f8,#ffedf5);border-color:#e8b8cc;color:#7a2848; }
+        .bc-힘   { background:linear-gradient(145deg,#fffbf0,#fff5dc);border-color:#e8d090;color:#6a5020; }
+        .bc-지혜 { background:linear-gradient(145deg,#f0faf5,#e8f8ee);border-color:#a0d8b0;color:#1a5838; }
+        .bc-쉼   { background:linear-gradient(145deg,#f5f0ff,#ede8ff);border-color:#c0b0e8;color:#4a3668; }
         .btn-choice .btn-emoji { font-size:22px; }
 
         /* ── STEP 4 결과 ── */
@@ -560,14 +643,27 @@
     <div class="top-bar">
         <div class="top-side"></div>
         <div class="top-center">
-            <div class="moon-wrap"><div class="moon-icon" id="main-icon">🌙</div></div>
+            <div class="moon-wrap">
+                <div class="moon-icon" id="main-icon">🌙</div>
+                <div class="moon-orbital mo1"></div>
+                <div class="moon-orbital mo2"></div>
+                <div class="moon-orbital mo3"></div>
+                <div class="moon-orbital mo4"></div>
+                <div class="moon-orbital mo5"></div>
+            </div>
             <div class="welcome-text" id="welcome-text">오늘도 수고하셨습니다.</div>
             <div class="date-text" id="date-text"></div>
         </div>
         <div class="top-side">
             <div class="top-icons">
-                <button class="icon-btn" onclick="openVault()"  title="보관함">📖</button>
-                <button class="icon-btn" onclick="openSettings()" title="설정">⚙️</button>
+                <button class="icon-btn" onclick="openVault()" title="보관함">
+                    <span class="icon-emoji">📖</span>
+                    <span class="icon-label">보관함</span>
+                </button>
+                <button class="icon-btn" onclick="openSettings()" title="설정">
+                    <span class="icon-emoji">⚙️</span>
+                    <span class="icon-label">설정</span>
+                </button>
             </div>
         </div>
     </div>
@@ -590,12 +686,36 @@
             <h1 class="s1-title">오늘은 어땠나요?</h1>
             <p class="s1-sub">하루를 돌아보는 작은 쉼표</p>
             <div class="emotion-grid">
-                <button class="btn-emotion" type="button" onclick="pick('emotion','감사')"><span class="btn-emoji">😊</span><span>감사했어요</span></button>
-                <button class="btn-emotion" type="button" onclick="pick('emotion','평안')"><span class="btn-emoji">😌</span><span>평안했어요</span></button>
-                <button class="btn-emotion" type="button" onclick="pick('emotion','걱정')"><span class="btn-emoji">😔</span><span>걱정이 있었어요</span></button>
-                <button class="btn-emotion" type="button" onclick="pick('emotion','지침')"><span class="btn-emoji">😞</span><span>지쳤어요</span></button>
-                <button class="btn-emotion" type="button" onclick="pick('emotion','아픔')"><span class="btn-emoji">😢</span><span>마음이 아팠어요</span></button>
-                <button class="btn-emotion" type="button" onclick="pick('emotion','기도')"><span class="btn-emoji">🙏</span><span>기도하고 싶어요</span></button>
+                <button class="btn-emotion em-감사" type="button" onclick="pickEmo('emotion','감사',event)">
+                    <span class="e-decor">🌸</span>
+                    <span class="e-emoji">😊</span>
+                    <span class="e-text">감사했어요</span>
+                </button>
+                <button class="btn-emotion em-평안" type="button" onclick="pickEmo('emotion','평안',event)">
+                    <span class="e-decor">🍃</span>
+                    <span class="e-emoji">😌</span>
+                    <span class="e-text">평안했어요</span>
+                </button>
+                <button class="btn-emotion em-걱정" type="button" onclick="pickEmo('emotion','걱정',event)">
+                    <span class="e-decor">🌧️</span>
+                    <span class="e-emoji">😔</span>
+                    <span class="e-text">걱정이 있었어요</span>
+                </button>
+                <button class="btn-emotion em-지침" type="button" onclick="pickEmo('emotion','지침',event)">
+                    <span class="e-decor">🌙</span>
+                    <span class="e-emoji">😞</span>
+                    <span class="e-text">지쳤어요</span>
+                </button>
+                <button class="btn-emotion em-아픔" type="button" onclick="pickEmo('emotion','아픔',event)">
+                    <span class="e-decor">🌷</span>
+                    <span class="e-emoji">😢</span>
+                    <span class="e-text">마음이 아팠어요</span>
+                </button>
+                <button class="btn-emotion em-기도" type="button" onclick="pickEmo('emotion','기도',event)">
+                    <span class="e-decor">✨</span>
+                    <span class="e-emoji">🙏</span>
+                    <span class="e-text">기도하고 싶어요</span>
+                </button>
             </div>
         </div>
     </div>
@@ -606,11 +726,31 @@
             <p class="step-title">무엇이 가장 마음에 남았나요?</p>
             <span class="context-badge" id="badge2"></span>
             <div class="two-grid">
-                <button class="btn-choice" type="button" onclick="pick('topic','일')"><span class="btn-emoji">💼</span><span>일</span></button>
-                <button class="btn-choice" type="button" onclick="pick('topic','가족')"><span class="btn-emoji">🏠</span><span>가족</span></button>
-                <button class="btn-choice" type="button" onclick="pick('topic','공부')"><span class="btn-emoji">📚</span><span>공부</span></button>
-                <button class="btn-choice" type="button" onclick="pick('topic','사람')"><span class="btn-emoji">🤝</span><span>사람</span></button>
-                <button class="btn-choice" type="button" onclick="pick('topic','모름')"><span class="btn-emoji">🌫️</span><span>잘 모르겠어요</span></button>
+                <button class="btn-choice bc-일" type="button" onclick="pick('topic','일')">
+                    <span class="bc-decor">🌾</span>
+                    <span class="bc-emoji">💼</span>
+                    <span class="bc-text">일</span>
+                </button>
+                <button class="btn-choice bc-가족" type="button" onclick="pick('topic','가족')">
+                    <span class="bc-decor">🌷</span>
+                    <span class="bc-emoji">🏠</span>
+                    <span class="bc-text">가족</span>
+                </button>
+                <button class="btn-choice bc-공부" type="button" onclick="pick('topic','공부')">
+                    <span class="bc-decor">🍀</span>
+                    <span class="bc-emoji">📚</span>
+                    <span class="bc-text">공부</span>
+                </button>
+                <button class="btn-choice bc-사람" type="button" onclick="pick('topic','사람')">
+                    <span class="bc-decor">🌼</span>
+                    <span class="bc-emoji">🤝</span>
+                    <span class="bc-text">사람</span>
+                </button>
+                <button class="btn-choice bc-모름" type="button" onclick="pick('topic','모름')">
+                    <span class="bc-decor">🌫️</span>
+                    <span class="bc-emoji">🤷</span>
+                    <span class="bc-text">잘 모르겠어요</span>
+                </button>
             </div>
         </div>
     </div>
@@ -621,10 +761,26 @@
             <p class="step-title">지금 어떤 마음이 드세요?</p>
             <span class="context-badge" id="badge3"></span>
             <div class="two-grid">
-                <button class="btn-choice" type="button" onclick="pick('need','위로')"><span class="btn-emoji">🌸</span><span>위로받고 싶어요</span></button>
-                <button class="btn-choice" type="button" onclick="pick('need','힘')"><span class="btn-emoji">💪</span><span>힘을 얻고 싶어요</span></button>
-                <button class="btn-choice" type="button" onclick="pick('need','지혜')"><span class="btn-emoji">💡</span><span>방향이 필요해요</span></button>
-                <button class="btn-choice" type="button" onclick="pick('need','쉼')"><span class="btn-emoji">🌙</span><span>그냥 쉬고 싶어요</span></button>
+                <button class="btn-choice bc-위로" type="button" onclick="pick('need','위로')">
+                    <span class="bc-decor">🌸</span>
+                    <span class="bc-emoji">💗</span>
+                    <span class="bc-text">위로받고 싶어요</span>
+                </button>
+                <button class="btn-choice bc-힘" type="button" onclick="pick('need','힘')">
+                    <span class="bc-decor">🌻</span>
+                    <span class="bc-emoji">💪</span>
+                    <span class="bc-text">힘을 얻고 싶어요</span>
+                </button>
+                <button class="btn-choice bc-지혜" type="button" onclick="pick('need','지혜')">
+                    <span class="bc-decor">🌿</span>
+                    <span class="bc-emoji">💡</span>
+                    <span class="bc-text">방향이 필요해요</span>
+                </button>
+                <button class="btn-choice bc-쉼" type="button" onclick="pick('need','쉼')">
+                    <span class="bc-decor">🌙</span>
+                    <span class="bc-emoji">🕊️</span>
+                    <span class="bc-text">그냥 쉬고 싶어요</span>
+                </button>
             </div>
         </div>
     </div>
@@ -1332,11 +1488,67 @@ function checkSeason() {
 /* ═══════════════════════════════════════
    스텝 전환
 ═══════════════════════════════════════ */
+/* ── 감정 선택 (리플 + 꽃잎 파티클) ── */
+function pickEmo(type, value, event) {
+    if (event && event.currentTarget) addRipple(event.currentTarget, event);
+    setTimeout(() => { if (event) spawnPetals(event); }, 80);
+    pick(type, value);
+}
+
+/* ── 리플 효과 ── */
+function addRipple(btn, event) {
+    const rect = btn.getBoundingClientRect();
+    const x = ((event && event.clientX) ? event.clientX : rect.left + rect.width/2) - rect.left;
+    const y = ((event && event.clientY) ? event.clientY : rect.top + rect.height/2) - rect.top;
+    const r = document.createElement('div');
+    r.className = 'ripple-effect';
+    r.style.cssText = `left:${x}px;top:${y}px;`;
+    btn.appendChild(r);
+    setTimeout(() => r.remove(), 650);
+}
+
+/* ── 꽃잎 파티클 ── */
+function spawnPetals(event) {
+    const pets = ['🌸','🌺','🌷','🌼','🍀','🌹','💐','🌻'];
+    const cx = event.clientX || window.innerWidth/2;
+    const cy = event.clientY || window.innerHeight/2;
+    for (let i=0;i<8;i++) {
+        const el = document.createElement('div');
+        el.className = 'petal-particle';
+        el.textContent = pets[i%pets.length];
+        const angle = (i/8)*360 + Math.random()*25;
+        const dist  = 50 + Math.random()*50;
+        const dx = Math.cos(angle*Math.PI/180)*dist;
+        const dy = Math.sin(angle*Math.PI/180)*dist;
+        el.style.cssText = `left:${cx}px;top:${cy}px;--dx:${dx}px;--dy:${dy}px;`;
+        document.body.appendChild(el);
+        setTimeout(()=>el.remove(),950);
+    }
+}
+
+/* ── 축복 파티클 (step 4 진입) ── */
+function spawnBlessing() {
+    const syms = ['✨','🌟','💫','⭐','🌸','🌺','💝','🎊','🌼','🌷'];
+    for (let i=0;i<14;i++) {
+        setTimeout(()=>{
+            const el = document.createElement('div');
+            el.className = 'blessing-particle';
+            el.textContent = syms[Math.floor(Math.random()*syms.length)];
+            const left = 5 + Math.random()*90;
+            const dx   = (Math.random()-.5)*80;
+            const dur  = 1.3 + Math.random()*1;
+            el.style.cssText = `left:${left}%;top:-30px;--dx:${dx}px;--dy:${70+Math.random()*30}vh;animation-duration:${dur}s;`;
+            document.body.appendChild(el);
+            setTimeout(()=>el.remove(),(dur*1000)+300);
+        }, i*65);
+    }
+}
+
 function pick(type, value) {
     sel[type] = value;
     if (type==='emotion') { document.getElementById('badge2').textContent=E_LABEL[value]; go('step1','step2'); }
     else if (type==='topic') { document.getElementById('badge3').textContent=E_LABEL[sel.emotion]+' · '+T_LABEL[value]; go('step2','step3'); }
-    else if (type==='need')  { buildResult(); go('step3','step4'); }
+    else if (type==='need')  { buildResult(); go('step3','step4'); setTimeout(spawnBlessing,400); }
 }
 
 function go(fromId, toId) {
@@ -1401,12 +1613,35 @@ function copyVerse() {
 ═══════════════════════════════════════ */
 function shareVerse() {
     if (!curVerse) return;
-    const text = `"${curVerse.v}"\n— ${curVerse.r}\n\n📱 오늘은 어땠나요?`;
+    const text = `"${curVerse.v}"\n— ${curVerse.r}\n\n📖 오늘은 어땠나요?`;
     if (navigator.share) {
-        navigator.share({ title: '오늘의 말씀', text, url: location.href }).catch(() => {});
+        navigator.share({ title: '오늘의 말씀', text, url: location.href })
+            .catch(err => { if (err && err.name !== 'AbortError') fallbackShare(text); });
     } else {
-        copyVerse();
+        fallbackShare(text);
     }
+}
+
+function fallbackShare(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+            .then(()=>toast('말씀이 복사되었습니다 📋'))
+            .catch(()=>legacyCopy(text));
+    } else {
+        legacyCopy(text);
+    }
+}
+
+function legacyCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-999px;left:-999px;opacity:0;pointer-events:none;';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch {}
+    ta.remove();
+    toast(ok ? '말씀이 복사되었습니다 📋' : '텍스트를 직접 선택하여 복사해주세요');
 }
 
 /* ═══════════════════════════════════════
