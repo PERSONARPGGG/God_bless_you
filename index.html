@@ -196,7 +196,10 @@
         }
 
         /* ── 공통 레이아웃 ── */
-        .page-wrap { position:relative;z-index:1;max-width:460px;margin:0 auto;padding:0 16px calc(100px + env(safe-area-inset-bottom)); min-height:100vh; }
+        .page-wrap { position:relative;z-index:1;max-width:460px;margin:0 auto;padding:max(env(safe-area-inset-top,0px),2vh) 16px calc(100px + env(safe-area-inset-bottom)); min-height:100vh; }
+        /* 스텝별 기본 마진 */
+        #step1,#step4 { margin-top:12px; }
+        #step2,#step3 { margin-top:16vh; }
 
         /* ── 헤더 바 ── */
         /* top-bar: 중앙 콘텐츠를 완전히 가운데 정렬, 아이콘은 absolute로 우상단 독립 */
@@ -629,7 +632,8 @@
             .bc-emoji     { font-size:20px; }
             .bc-decor     { font-size:11px; }
             .two-grid     { gap:8px; }
-            #step1,#step2,#step3 { margin-top:6px !important; }
+            #step1        { margin-top:6px; }
+            #step2,#step3 { margin-top:10vh; }
         }
         /* 더 작은 화면 (iPhone SE 등 667px) */
         @media (max-height:700px) {
@@ -642,6 +646,8 @@
             .btn-emotion  { padding:9px 6px 7px; }
             .e-emoji      { font-size:20px; }
             .btn-choice   { padding:11px 8px; }
+            #step1        { margin-top:2px; }
+            #step2,#step3 { margin-top:5vh; }
         }
 
         /* ── PWA 설치 배너 ── */
@@ -805,8 +811,8 @@
 <!-- ── 보관함 오버레이 ── -->
 <div id="overlay-vault" class="overlay hidden">
     <div class="overlay-inner">
-        <button class="overlay-back" onclick="hideOverlay('overlay-vault')">← 돌아가기</button>
-        <div class="overlay-title">📖 나의 보관함</div>
+        <button id="vault-back" class="overlay-back" onclick="hideOverlay('overlay-vault')">← 돌아가기</button>
+        <div id="vault-title" class="overlay-title">📖 나의 보관함</div>
         <div class="vault-tabs">
             <button class="vault-tab active" onclick="switchTab('saved')">즐겨찾기</button>
             <button class="vault-tab"        onclick="switchTab('mood')">감정 기록</button>
@@ -826,12 +832,12 @@
 <!-- ── 설정 오버레이 ── -->
 <div id="overlay-settings" class="overlay hidden">
     <div class="overlay-inner">
-        <button class="overlay-back" onclick="hideOverlay('overlay-settings')">← 돌아가기</button>
-        <div class="overlay-title">⚙️ 설정</div>
+        <button id="settings-back" class="overlay-back" onclick="hideOverlay('overlay-settings')">← 돌아가기</button>
+        <div id="settings-title" class="overlay-title">⚙️ 설정</div>
 
         <!-- 언어 -->
         <div class="settings-section">
-            <div class="settings-label">언어 / Language</div>
+            <div id="lbl-lang" class="settings-label">언어 / Language</div>
             <div class="settings-card">
                 <div class="lang-options">
                     <button class="lang-opt-btn" id="lo-ko" onclick="setLang('ko')">🇰🇷<br>한국어</button>
@@ -843,83 +849,83 @@
 
         <!-- 배경 테마 -->
         <div class="settings-section">
-            <div class="settings-label">배경 테마</div>
+            <div id="lbl-theme" class="settings-label">배경 테마</div>
             <div class="settings-card">
                 <div class="theme-options">
-                    <button class="theme-btn" id="th-night"  onclick="setTheme('night')">🌙<br>밤하늘</button>
-                    <button class="theme-btn" id="th-dawn"   onclick="setTheme('dawn')">🌅<br>새벽빛</button>
-                    <button class="theme-btn" id="th-forest" onclick="setTheme('forest')">🌿<br>숲속</button>
+                    <button class="theme-btn" id="th-night"  onclick="setTheme('night')">🌙<br><span id="th-night-txt">밤하늘</span></button>
+                    <button class="theme-btn" id="th-dawn"   onclick="setTheme('dawn')">🌅<br><span id="th-dawn-txt">새벽빛</span></button>
+                    <button class="theme-btn" id="th-forest" onclick="setTheme('forest')">🌿<br><span id="th-forest-txt">숲속</span></button>
                 </div>
             </div>
         </div>
 
         <!-- 글자 크기 -->
         <div class="settings-section">
-            <div class="settings-label">글자 크기</div>
+            <div id="lbl-font" class="settings-label">글자 크기</div>
             <div class="settings-card">
                 <div class="font-options">
-                    <button class="font-opt-btn" id="fo-sm" onclick="setFont(0)">가<br><span style="font-size:10px">기본</span></button>
-                    <button class="font-opt-btn" id="fo-md" onclick="setFont(1)"><span style="font-size:17px">가</span><br><span style="font-size:10px">크게</span></button>
-                    <button class="font-opt-btn" id="fo-lg" onclick="setFont(2)"><span style="font-size:21px">가</span><br><span style="font-size:10px">매우 크게</span></button>
+                    <button class="font-opt-btn" id="fo-sm" onclick="setFont(0)">가<br><span id="fo-sm-txt" style="font-size:10px">기본</span></button>
+                    <button class="font-opt-btn" id="fo-md" onclick="setFont(1)"><span style="font-size:17px">가</span><br><span id="fo-md-txt" style="font-size:10px">크게</span></button>
+                    <button class="font-opt-btn" id="fo-lg" onclick="setFont(2)"><span style="font-size:21px">가</span><br><span id="fo-lg-txt" style="font-size:10px">매우 크게</span></button>
                 </div>
             </div>
         </div>
 
         <!-- 개인 정보 -->
         <div class="settings-section">
-            <div class="settings-label">개인 정보</div>
+            <div id="lbl-personal" class="settings-label">개인 정보</div>
             <div class="settings-card">
                 <div class="setting-row">
                     <div>
-                        <div class="setting-row-label">이름 변경</div>
+                        <div id="row-name-label" class="setting-row-label">이름 변경</div>
                         <div class="setting-row-sub" id="current-name-display"></div>
                     </div>
-                    <button class="btn-setting-action" onclick="changeName()">변경</button>
+                    <button id="row-name-btn" class="btn-setting-action" onclick="changeName()">변경</button>
                 </div>
             </div>
         </div>
 
         <!-- 데이터 관리 -->
         <div class="settings-section">
-            <div class="settings-label">데이터 관리</div>
+            <div id="lbl-data" class="settings-label">데이터 관리</div>
             <div class="settings-card">
                 <div class="setting-row">
                     <div>
-                        <div class="setting-row-label">기록 내보내기</div>
-                        <div class="setting-row-sub">감정 기록 · 일기를 텍스트로 복사</div>
+                        <div id="row-export-label" class="setting-row-label">기록 내보내기</div>
+                        <div id="row-export-sub" class="setting-row-sub">감정 기록 · 일기를 텍스트로 복사</div>
                     </div>
-                    <button class="btn-setting-action" onclick="exportData()">내보내기</button>
+                    <button id="row-export-btn" class="btn-setting-action" onclick="exportData()">내보내기</button>
                 </div>
                 <div class="setting-row">
                     <div>
-                        <div class="setting-row-label">데이터 초기화</div>
-                        <div class="setting-row-sub">보관함 · 기록 · 방문 기록 삭제</div>
+                        <div id="row-reset-label" class="setting-row-label">데이터 초기화</div>
+                        <div id="row-reset-sub" class="setting-row-sub">보관함 · 기록 · 방문 기록 삭제</div>
                     </div>
-                    <button class="btn-setting-action btn-setting-danger" onclick="clearData()">초기화</button>
+                    <button id="row-reset-btn" class="btn-setting-action btn-setting-danger" onclick="clearData()">초기화</button>
                 </div>
             </div>
         </div>
 
         <!-- 앱 정보 + 업데이트 확인 -->
         <div class="settings-section">
-            <div class="settings-label">앱 정보</div>
+            <div id="lbl-app" class="settings-label">앱 정보</div>
             <div class="settings-card">
                 <div class="setting-row">
                     <div>
                         <div class="setting-row-label">오늘은 어땠나요?</div>
-                        <div class="setting-row-sub">하루를 마무리하는 작은 디지털 쉼터</div>
+                        <div id="row-app-desc" class="setting-row-sub">하루를 마무리하는 작은 디지털 쉼터</div>
                     </div>
-                    <span style="font-size:11px;color:rgba(255,255,255,.3);">v2.0</span>
+                    <span style="font-size:11px;color:rgba(255,255,255,.3);">v2.1</span>
                 </div>
                 <div class="setting-row">
                     <div>
-                        <div class="setting-row-label">업데이트 확인</div>
+                        <div id="row-update-label" class="setting-row-label">업데이트 확인</div>
                         <div class="setting-row-sub" id="update-status-text">최신 버전 확인 중...</div>
                     </div>
                     <button class="btn-setting-action" id="btn-check-update" onclick="checkUpdateManual()">확인</button>
                 </div>
                 <div style="margin-top:10px;padding:10px 14px;background:rgba(255,255,255,.05);border-radius:10px;">
-                    <div style="font-size:11px;color:rgba(255,255,255,.38);line-height:1.7;text-align:center;">
+                    <div id="privacy-text" style="font-size:11px;color:rgba(255,255,255,.38);line-height:1.7;text-align:center;">
                         🔒 저장된 기록은 기기 내에만 보관되며,<br>외부 서버로 수집되지 않습니다.
                     </div>
                 </div>
@@ -974,7 +980,7 @@
     <div id="season-banner"></div>
 
     <!-- STEP 1: 감정 -->
-    <div id="step1" class="step" style="margin-top:12px;">
+    <div id="step1" class="step">
         <div class="card">
             <p class="s1-decoline">✦ &nbsp; ✦ &nbsp; ✦</p>
             <h1 class="s1-title">오늘은 어땠나요?</h1>
@@ -1022,7 +1028,7 @@
     </div>
 
     <!-- STEP 2: 주제 -->
-    <div id="step2" class="step hidden" style="margin-top:12px;">
+    <div id="step2" class="step hidden">
         <div class="card">
             <p class="step-title">무엇이 가장 마음에 남았나요?</p>
             <span class="context-badge" id="badge2"></span>
@@ -1057,7 +1063,7 @@
     </div>
 
     <!-- STEP 3: 필요 -->
-    <div id="step3" class="step hidden" style="margin-top:12px;">
+    <div id="step3" class="step hidden">
         <div class="card">
             <p class="step-title">지금 어떤 마음이 드세요?</p>
             <span class="context-badge" id="badge3"></span>
@@ -1087,7 +1093,7 @@
     </div>
 
     <!-- STEP 4: 결과 -->
-    <div id="step4" class="step hidden" style="margin-top:12px;">
+    <div id="step4" class="step hidden">
         <p class="result-context" id="r-context"></p>
 
         <!-- 글자 크기 -->
@@ -1100,7 +1106,7 @@
 
         <!-- 말씀 -->
         <div class="card">
-            <div class="section-header"><span class="section-label">오늘의 말씀</span><div class="section-line"></div></div>
+            <div class="section-header"><span id="sec-verse" class="section-label">오늘의 말씀</span><div class="section-line"></div></div>
             <div class="verse-block">
                 <span class="verse-icon">✝️</span>
                 <p class="verse-text" id="r-verse"></p>
@@ -1115,19 +1121,19 @@
 
         <!-- 이야기 -->
         <div class="card">
-            <div class="section-header"><span class="section-label">오늘의 이야기</span><div class="section-line"></div></div>
+            <div class="section-header"><span id="sec-story" class="section-label">오늘의 이야기</span><div class="section-line"></div></div>
             <p class="reflect-text" id="r-reflection"></p>
         </div>
 
         <!-- 기도문 -->
         <div class="card">
-            <div class="section-header"><span class="section-label">오늘의 기도</span><div class="section-line"></div></div>
+            <div class="section-header"><span id="sec-prayer" class="section-label">오늘의 기도</span><div class="section-line"></div></div>
             <p class="prayer-text" id="r-prayer"></p>
         </div>
 
         <!-- 오늘의 한 문장 -->
         <div class="card">
-            <div class="section-header"><span class="section-label">오늘의 한 문장</span><div class="section-line"></div></div>
+            <div class="section-header"><span id="sec-sentence" class="section-label">오늘의 한 문장</span><div class="section-line"></div></div>
             <div class="sentence-wrap">
                 <span class="quote-mark">"</span>
                 <p class="sentence-text" id="r-sentence"></p>
@@ -1136,16 +1142,16 @@
 
         <!-- 감사 일기 -->
         <div class="card">
-            <div class="section-header"><span class="section-label">감사 한 줄 일기</span><div class="section-line"></div></div>
-            <p class="diary-label">오늘 감사한 것 한 가지를 적어보세요.</p>
+            <div class="section-header"><span id="sec-diary" class="section-label">감사 한 줄 일기</span><div class="section-line"></div></div>
+            <p id="diary-label" class="diary-label">오늘 감사한 것 한 가지를 적어보세요.</p>
             <textarea id="diary-input" class="diary-input" rows="3" placeholder="작은 것도 괜찮습니다..."></textarea>
-            <button class="diary-save-btn" onclick="saveDiary()">저장하기</button>
+            <button id="diary-save-btn" class="diary-save-btn" onclick="saveDiary()">저장하기</button>
             <p id="diary-saved-msg" class="diary-saved-msg">✓ 저장되었습니다. 감사한 마음이 아름답습니다.</p>
         </div>
 
         <!-- 응원 -->
         <div class="card">
-            <div class="section-header"><span class="section-label">당신을 위한 응원</span><div class="section-line"></div></div>
+            <div class="section-header"><span id="sec-enc" class="section-label">당신을 위한 응원</span><div class="section-line"></div></div>
             <p class="enc-text" id="r-enc"></p>
         </div>
 
@@ -1153,7 +1159,7 @@
     </div>
 </div>
 
-<div class="footer">🙏 오늘도 누군가를 위해 기도하는 마음으로</div>
+<div id="footer-text" class="footer">🙏 오늘도 누군가를 위해 기도하는 마음으로</div>
 
 <script>
 /* ═══════════════════════════════════════
@@ -1595,46 +1601,175 @@ function lsSet(k,v) { try { localStorage.setItem(k, typeof v==='object' ? JSON.s
 ═══════════════════════════════════════ */
 const LANG_DATA = {
     ko: {
-        wc_title:'오늘 밤, 하나님과 함께하세요',
-        wc_desc:'하루를 마무리하는 작은 디지털 쉼터',
-        wc_ask:'어떻게 불러드릴까요?',
-        wc_sub:'이름을 입력하시면\n더 따뜻하게 맞이할게요.',
+        /* 환영 */
+        wc_title:'오늘 밤, 하나님과 함께하세요', wc_desc:'하루를 마무리하는 작은 디지털 쉼터',
+        wc_ask:'어떻게 불러드릴까요?', wc_sub:'이름을 입력하시면\n더 따뜻하게 맞이할게요.',
         wc_ph:'이름을 입력해주세요', wc_start:'시작하기', wc_skip:'나중에 할게요',
+        /* 스텝 */
         s1_title:'오늘은 어땠나요?', s1_sub:'하루를 돌아보는 작은 쉼표',
         s2_title:'무엇이 가장 마음에 남았나요?', s3_title:'지금 어떤 마음이 드세요?',
         emo:['감사했어요','평안했어요','걱정이 있었어요','지쳤어요','마음이 아팠어요','기도하고 싶어요'],
         topic:['일','가족','공부','사람','잘 모르겠어요'],
         need:['위로받고 싶어요','힘을 얻고 싶어요','방향이 필요해요','그냥 쉬고 싶어요'],
-        btn_copy:'📋 복사', btn_share:'📤 공유', btn_save:'⭐ 즐겨찾기', btn_saved:'★ 저장됨',
-        btn_restart:'🌙 다시 시작하기', v_tab1:'즐겨찾기', v_tab2:'감정 기록',
+        /* 결과 버튼 */
+        btn_copy:'📋 복사', btn_share:'📤 공유', btn_save:'⭐ 즐겨찾기', btn_saved:'★ 저장됨', btn_restart:'🌙 다시 시작하기',
+        /* 보관함 */
+        vault_title:'📖 나의 보관함', vault_back:'← 돌아가기',
+        v_tab1:'즐겨찾기', v_tab2:'감정 기록',
+        vault_empty_saved:'아직 즐겨찾기한 항목이 없어요.<br>말씀 카드의 ⭐ 버튼을 눌러 저장해 보세요.',
+        vault_empty_mood:'아직 기록이 없어요.<br>매일 방문하면 여기에 쌓입니다.',
+        pag_prev:'← 이전', pag_next:'다음 →',
+        /* 설정 */
+        settings_title:'⚙️ 설정', settings_back:'← 돌아가기',
+        lbl_lang:'언어 / Language', lbl_theme:'배경 테마', lbl_font:'글자 크기',
+        lbl_personal:'개인 정보', lbl_data:'데이터 관리', lbl_app:'앱 정보',
+        th_night:'밤하늘', th_dawn:'새벽빛', th_forest:'숲속',
+        fo_sm:'기본', fo_md:'크게', fo_lg:'매우 크게',
+        row_name:'이름 변경', name_prefix:'현재: ', name_none:'설정되지 않음', row_name_btn:'변경',
+        row_export:'기록 내보내기', row_export_sub:'감정 기록 · 일기를 텍스트로 복사', row_export_btn:'내보내기',
+        row_reset:'데이터 초기화', row_reset_sub:'보관함 · 기록 · 방문 기록 삭제', row_reset_btn:'초기화',
+        row_update:'업데이트 확인', row_update_btn:'확인', row_app_desc:'하루를 마무리하는 작은 디지털 쉼터',
+        privacy:'🔒 저장된 기록은 기기 내에만 보관되며,<br>외부 서버로 수집되지 않습니다.',
+        /* 결과 섹션 */
+        sec_verse:'오늘의 말씀', sec_story:'오늘의 이야기', sec_prayer:'오늘의 기도',
+        sec_sentence:'오늘의 한 문장', sec_diary:'감사 한 줄 일기', sec_enc:'당신을 위한 응원',
+        /* 일기 */
+        diary_label:'오늘 감사한 것 한 가지를 적어보세요.',
+        diary_ph:'작은 것도 괜찮습니다...', diary_save:'저장하기',
+        diary_saved:'✓ 저장되었습니다. 감사한 마음이 아름답습니다.',
+        /* 체크인 */
+        cp_text:'오늘 출석 완료', streak_unit:'일 연속',
+        /* 날짜·환영 */
+        locale:'ko-KR', footer:'🙏 오늘도 누군가를 위해 기도하는 마음으로',
+        welcome_msgs:['오늘도 수고하셨습니다.','천천히 하루를 돌아보세요.','당신의 하루는 소중합니다.','잠시 쉬어가도 괜찮습니다.','오늘 하루도 잘 버티셨습니다.','하나님 앞에서 잠시 쉬어가세요.','당신의 이야기를 들을게요.'],
+        month_names:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+        day_names:['일','월','화','수','목','금','토'],
+        /* 업데이트 */
+        upd_btn:'확인', upd_btn_checking:'확인 중...', upd_btn_apply:'지금 업데이트',
+        upd_ready:'새 버전이 준비됐어요!', upd_latest:'최신 버전입니다.', upd_latest_v:'✓ 현재 최신 버전입니다.',
+        upd_file:'PC 로컬 파일 실행 중 (웹 환경에서만 지원)', upd_checking:'서버에서 최신 버전 확인 중...',
+        upd_ready_msg:'새 버전이 준비됐어요! 아래 버튼으로 적용하세요.',
+        upd_fail:'확인 실패. 네트워크를 확인해주세요.', upd_no_sw:'앱이 설치되지 않았습니다.',
+        upd_manual:'모바일 또는 웹 환경에서만 지원됩니다.', upd_click:'확인하려면 버튼을 누르세요.',
+        /* 토스트·확인창 */
+        toast_copied:'말씀이 복사되었습니다 📋', toast_saved_verse:'즐겨찾기에 저장되었습니다 ⭐',
+        toast_diary_saved:'감사 일기가 저장되었습니다 ✨', toast_diary_empty:'한 줄을 적어주세요 🌸',
+        toast_exported:'클립보드에 복사되었습니다 📋', toast_reset:'초기화되었습니다',
+        confirm_reset:'저장된 말씀, 감정 기록이 모두 삭제됩니다. 계속하시겠어요?',
     },
     en: {
-        wc_title:'Tonight, rest in God\'s presence',
-        wc_desc:'A little digital sanctuary for your day',
-        wc_ask:'What shall we call you?',
-        wc_sub:'Enter your name for\na warmer welcome.',
+        /* 환영 */
+        wc_title:'Tonight, rest in God\'s presence', wc_desc:'A little digital sanctuary for your day',
+        wc_ask:'What shall we call you?', wc_sub:'Enter your name for\na warmer welcome.',
         wc_ph:'Your name', wc_start:'Get Started', wc_skip:'Skip for now',
+        /* 스텝 */
         s1_title:'How was your day?', s1_sub:'A moment to reflect',
         s2_title:'What stayed on your mind?', s3_title:'What do you need right now?',
         emo:['Grateful','At peace','Worried','Exhausted','Heartbroken','Need prayer'],
         topic:['Work','Family','Study','People','Not sure'],
         need:['Comfort','Strength','Direction','Rest'],
-        btn_copy:'📋 Copy', btn_share:'📤 Share', btn_save:'⭐ Bookmark', btn_saved:'★ Saved',
-        btn_restart:'🌙 Start Over', v_tab1:'Saved', v_tab2:'History',
+        /* 결과 버튼 */
+        btn_copy:'📋 Copy', btn_share:'📤 Share', btn_save:'⭐ Bookmark', btn_saved:'★ Saved', btn_restart:'🌙 Start Over',
+        /* 보관함 */
+        vault_title:'📖 My Vault', vault_back:'← Back',
+        v_tab1:'Saved', v_tab2:'History',
+        vault_empty_saved:'No bookmarks yet.<br>Tap ⭐ on a verse card to save one.',
+        vault_empty_mood:'No history yet.<br>Come back daily to build your record.',
+        pag_prev:'← Prev', pag_next:'Next →',
+        /* 설정 */
+        settings_title:'⚙️ Settings', settings_back:'← Back',
+        lbl_lang:'Language', lbl_theme:'Theme', lbl_font:'Font Size',
+        lbl_personal:'Personal', lbl_data:'Data', lbl_app:'App Info',
+        th_night:'Night', th_dawn:'Dawn', th_forest:'Forest',
+        fo_sm:'Regular', fo_md:'Large', fo_lg:'X-Large',
+        row_name:'Change Name', name_prefix:'Current: ', name_none:'Not set', row_name_btn:'Change',
+        row_export:'Export Data', row_export_sub:'Copy mood log & diary as text', row_export_btn:'Export',
+        row_reset:'Reset Data', row_reset_sub:'Delete vault, history & visits', row_reset_btn:'Reset',
+        row_update:'Check Updates', row_update_btn:'Check', row_app_desc:'A little digital sanctuary for your day',
+        privacy:'🔒 Your data stays on this device only.<br>Nothing is sent to external servers.',
+        /* 결과 섹션 */
+        sec_verse:'Today\'s Verse', sec_story:'Today\'s Story', sec_prayer:'Today\'s Prayer',
+        sec_sentence:'A Word for Today', sec_diary:'Gratitude Journal', sec_enc:'Encouragement for You',
+        /* 일기 */
+        diary_label:'Write one thing you\'re grateful for today.',
+        diary_ph:'Even small things count...', diary_save:'Save',
+        diary_saved:'✓ Saved. A grateful heart is beautiful.',
+        /* 체크인 */
+        cp_text:'Checked in today', streak_unit:'-day streak',
+        /* 날짜·환영 */
+        locale:'en-US', footer:'🙏 Praying for someone today',
+        welcome_msgs:['Well done today.','Take a moment to look back at your day.','Your day matters.','It\'s okay to rest a while.','You made it through today.','Rest a moment with God.','I\'m here to listen.'],
+        month_names:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+        day_names:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+        /* 업데이트 */
+        upd_btn:'Check', upd_btn_checking:'Checking...', upd_btn_apply:'Update Now',
+        upd_ready:'A new version is ready!', upd_latest:'Up to date.', upd_latest_v:'✓ You have the latest version.',
+        upd_file:'Running as local file (web only)', upd_checking:'Checking server for updates...',
+        upd_ready_msg:'New version ready! Tap the button below to apply.',
+        upd_fail:'Check failed. Please check your network.', upd_no_sw:'App is not installed.',
+        upd_manual:'Only supported in web/mobile environments.', upd_click:'Press the button to check.',
+        /* 토스트·확인창 */
+        toast_copied:'Verse copied 📋', toast_saved_verse:'Added to bookmarks ⭐',
+        toast_diary_saved:'Gratitude saved ✨', toast_diary_empty:'Please write something first 🌸',
+        toast_exported:'Copied to clipboard 📋', toast_reset:'Data cleared',
+        confirm_reset:'All saved verses and mood history will be deleted. Continue?',
     },
     ja: {
-        wc_title:'今夜、神様とともに',
-        wc_desc:'一日を締めくくる小さな安らぎ',
-        wc_ask:'お名前を教えてください',
-        wc_sub:'名前を入力すると\nより温かくお迎えします。',
+        /* 환영 */
+        wc_title:'今夜、神様とともに', wc_desc:'一日を締めくくる小さな安らぎ',
+        wc_ask:'お名前を教えてください', wc_sub:'名前を入力すると\nより温かくお迎えします。',
         wc_ph:'お名前', wc_start:'はじめる', wc_skip:'あとで',
+        /* 스텝 */
         s1_title:'今日はどんな一日でしたか？', s1_sub:'一日を振り返るひととき',
         s2_title:'一番心に残ったことは？', s3_title:'今、どんな気持ちですか？',
         emo:['感謝した','平和だった','心配があった','疲れた','悲しかった','祈りたい'],
         topic:['仕事','家族','勉強','人間関係','わからない'],
         need:['慰めがほしい','力がほしい','方向が必要','ただ休みたい'],
-        btn_copy:'📋 コピー', btn_share:'📤 共有', btn_save:'⭐ お気に入り', btn_saved:'★ 保存済み',
-        btn_restart:'🌙 もう一度', v_tab1:'お気に入り', v_tab2:'記録',
+        /* 결과 버튼 */
+        btn_copy:'📋 コピー', btn_share:'📤 共有', btn_save:'⭐ お気に入り', btn_saved:'★ 保存済み', btn_restart:'🌙 もう一度',
+        /* 보관함 */
+        vault_title:'📖 ボールト', vault_back:'← 戻る',
+        v_tab1:'お気に入り', v_tab2:'記録',
+        vault_empty_saved:'まだお気に入りがありません。<br>みことばカードの⭐で保存できます。',
+        vault_empty_mood:'まだ記録がありません。<br>毎日訪れると記録が増えていきます。',
+        pag_prev:'← 前へ', pag_next:'次へ →',
+        /* 설정 */
+        settings_title:'⚙️ 設定', settings_back:'← 戻る',
+        lbl_lang:'言語 / Language', lbl_theme:'背景テーマ', lbl_font:'文字サイズ',
+        lbl_personal:'個人情報', lbl_data:'データ管理', lbl_app:'アプリ情報',
+        th_night:'夜空', th_dawn:'夜明け', th_forest:'森',
+        fo_sm:'標準', fo_md:'大きく', fo_lg:'とても大きく',
+        row_name:'名前を変更', name_prefix:'現在: ', name_none:'未設定', row_name_btn:'変更',
+        row_export:'データを書き出す', row_export_sub:'記録と日記をテキストでコピー', row_export_btn:'書き出す',
+        row_reset:'データを初期化', row_reset_sub:'ボールト・記録・訪問履歴を削除', row_reset_btn:'初期化',
+        row_update:'アップデートを確認', row_update_btn:'確認', row_app_desc:'一日を締めくくる小さな安らぎ',
+        privacy:'🔒 保存された記録はこのデバイス内にのみ保管され、<br>外部サーバーには送信されません。',
+        /* 결과 섹션 */
+        sec_verse:'今日のみことば', sec_story:'今日のお話', sec_prayer:'今日のお祈り',
+        sec_sentence:'今日の一言', sec_diary:'感謝の日記', sec_enc:'あなたへの励まし',
+        /* 일기 */
+        diary_label:'今日感謝したことを一つ書いてみましょう。',
+        diary_ph:'小さなことでも大丈夫...', diary_save:'保存する',
+        diary_saved:'✓ 保存されました。感謝の心は美しいです。',
+        /* 체크인 */
+        cp_text:'今日のチェックイン完了', streak_unit:'日連続',
+        /* 날짜·환영 */
+        locale:'ja-JP', footer:'🙏 今日も誰かのために祈る心で',
+        welcome_msgs:['今日もお疲れ様でした。','ゆっくり今日を振り返りましょう。','あなたの一日は大切です。','少し休んでも大丈夫です。','今日もよく頑張りました。','神様の前でひと息つきましょう。','あなたのお話を聞かせてください。'],
+        month_names:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+        day_names:['日','月','火','水','木','金','土'],
+        /* 업데이트 */
+        upd_btn:'確認', upd_btn_checking:'確認中...', upd_btn_apply:'今すぐ更新',
+        upd_ready:'新しいバージョンが準備できています！', upd_latest:'最新版です。', upd_latest_v:'✓ 最新バージョンです。',
+        upd_file:'ローカルファイルとして実行中 (ウェブのみ対応)', upd_checking:'サーバーで最新バージョンを確認中...',
+        upd_ready_msg:'新しいバージョンが準備できています！ボタンで適用してください。',
+        upd_fail:'確認失敗。ネットワークを確認してください。', upd_no_sw:'アプリがインストールされていません。',
+        upd_manual:'モバイルまたはウェブ環境でのみ対応しています。', upd_click:'ボタンを押して確認してください。',
+        /* 토스트·확인창 */
+        toast_copied:'みことばをコピーしました 📋', toast_saved_verse:'お気に入りに保存しました ⭐',
+        toast_diary_saved:'感謝の日記を保存しました ✨', toast_diary_empty:'一行書いてください 🌸',
+        toast_exported:'クリップボードにコピーしました 📋', toast_reset:'初期化しました',
+        confirm_reset:'保存されたみことばと記録がすべて削除されます。続けますか？',
     }
 };
 let appLang = 'ko';
@@ -1655,24 +1790,51 @@ function applyLang(lang) {
     appLang = lang;
     const L = LANG_DATA[lang]||LANG_DATA.ko;
     const q=(sel,cb)=>document.querySelectorAll(sel).forEach(cb);
-    // Step titles
+    const s=(id,t)=>{ const el=document.getElementById(id); if(el) el.textContent=t; };
+    const sh=(id,t)=>{ const el=document.getElementById(id); if(el) el.innerHTML=t; };
+    // 스텝 제목
     const s1t=document.querySelector('#step1 .s1-title'), s1s=document.querySelector('#step1 .s1-sub');
     const s2t=document.querySelector('#step2 .step-title'), s3t=document.querySelector('#step3 .step-title');
     if(s1t) s1t.textContent=L.s1_title; if(s1s) s1s.textContent=L.s1_sub;
     if(s2t) s2t.textContent=L.s2_title; if(s3t) s3t.textContent=L.s3_title;
-    // 감정/주제/필요 버튼 텍스트
+    // 감정/주제/필요 버튼
     q('.e-text',(el,i)=>{ if(L.emo[i]) el.textContent=L.emo[i]; });
     const bcAll=[...document.querySelectorAll('#step2 .bc-text'),...document.querySelectorAll('#step3 .bc-text')];
     [...L.topic,...L.need].forEach((t,i)=>{ if(bcAll[i]) bcAll[i].textContent=t; });
-    // 액션 버튼
+    // 결과 액션 버튼
     const bc=document.getElementById('btn-copy'), bs=document.getElementById('btn-share');
     const bsv=document.getElementById('btn-save'), br=document.querySelector('.btn-restart');
     if(bc) bc.textContent=L.btn_copy; if(bs) bs.textContent=L.btn_share;
     if(bsv&&!bsv.classList.contains('saved')) bsv.textContent=L.btn_save;
     if(br) br.textContent=L.btn_restart;
-    // 보관함 탭
+    // 보관함 오버레이
+    s('vault-title',L.vault_title); s('vault-back',L.vault_back);
     const tabs=document.querySelectorAll('.vault-tab');
     if(tabs[0]) tabs[0].textContent=L.v_tab1; if(tabs[1]) tabs[1].textContent=L.v_tab2;
+    // 설정 오버레이
+    s('settings-title',L.settings_title); s('settings-back',L.settings_back);
+    s('lbl-lang',L.lbl_lang); s('lbl-theme',L.lbl_theme); s('lbl-font',L.lbl_font);
+    s('lbl-personal',L.lbl_personal); s('lbl-data',L.lbl_data); s('lbl-app',L.lbl_app);
+    s('th-night-txt',L.th_night); s('th-dawn-txt',L.th_dawn); s('th-forest-txt',L.th_forest);
+    s('fo-sm-txt',L.fo_sm); s('fo-md-txt',L.fo_md); s('fo-lg-txt',L.fo_lg);
+    s('row-name-label',L.row_name); s('row-name-btn',L.row_name_btn);
+    s('row-export-label',L.row_export); s('row-export-sub',L.row_export_sub); s('row-export-btn',L.row_export_btn);
+    s('row-reset-label',L.row_reset); s('row-reset-sub',L.row_reset_sub); s('row-reset-btn',L.row_reset_btn);
+    s('row-update-label',L.row_update); s('row-app-desc',L.row_app_desc);
+    sh('privacy-text',L.privacy);
+    // 결과 섹션 라벨
+    s('sec-verse',L.sec_verse); s('sec-story',L.sec_story); s('sec-prayer',L.sec_prayer);
+    s('sec-sentence',L.sec_sentence); s('sec-diary',L.sec_diary); s('sec-enc',L.sec_enc);
+    // 일기
+    s('diary-label',L.diary_label); s('diary-save-btn',L.diary_save); s('diary-saved-msg',L.diary_saved);
+    const di=document.getElementById('diary-input'); if(di) di.placeholder=L.diary_ph;
+    // 업데이트 버튼 (특수 상태가 아닐 때만)
+    const ubtn=document.getElementById('btn-check-update');
+    if(ubtn&&!ubtn.disabled&&ubtn.textContent!==L.upd_btn_apply) ubtn.textContent=L.row_update_btn;
+    // 푸터
+    s('footer-text',L.footer);
+    // 날짜·환영 갱신
+    setDate(); setWelcome();
 }
 
 function startWelcomeParticles() {
@@ -1703,8 +1865,6 @@ function init() {
     updateStreak();
     initHeroTeaser();
     checkSeason();
-    setWelcome();
-    setDate();
     applyLang(appLang);
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').then(reg => {
@@ -1808,16 +1968,23 @@ function changeName() {
 
 /* ── 환영 문구 ── */
 function setWelcome() {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const name = lsGet('userName');
-    const base = rand(WELCOME);
-    const text = name ? `${name}님, ${base}` : base;
+    const base = rand(L.welcome_msgs||WELCOME);
+    let text;
+    if (name) {
+        text = appLang==='en' ? `${name}, ${base}` : appLang==='ja' ? `${name}さん、${base}` : `${name}님, ${base}`;
+    } else {
+        text = base;
+    }
     document.getElementById('welcome-text').textContent = text;
 }
 
 function setDate() {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const now = new Date();
     document.getElementById('date-text').textContent =
-        now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+        now.toLocaleDateString(L.locale||'ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
 }
 
 /* ═══════════════════════════════════════
@@ -1858,10 +2025,11 @@ function updateStreak() {
     const pill = document.getElementById('checkin-pill');
     if (!pill) return;
 
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const icon = streak >= 7 ? '🔥' : streak >= 3 ? '🌟' : '🌱';
     document.getElementById('cp-icon').textContent   = icon;
-    document.getElementById('cp-text').textContent   = '오늘 출석 완료';
-    document.getElementById('cp-streak').textContent = streak + '일 연속';
+    document.getElementById('cp-text').textContent   = L.cp_text;
+    document.getElementById('cp-streak').textContent = streak + L.streak_unit;
     pill.classList.remove('hidden');
 }
 
@@ -2027,10 +2195,11 @@ function saveMood() {
 ═══════════════════════════════════════ */
 function copyVerse() {
     if (!curVerse) return;
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const text = `"${curVerse.v}"\n${curVerse.r}`;
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text)
-            .then(()=>toast('말씀이 복사되었습니다 📋'))
+            .then(()=>toast(L.toast_copied))
             .catch(()=>legacyCopy(text));
     } else {
         legacyCopy(text);
@@ -2062,6 +2231,7 @@ function fallbackShare(text) {
 }
 
 function legacyCopy(text) {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const ta = document.createElement('textarea');
     ta.value = text;
     ta.style.cssText = 'position:fixed;top:-999px;left:-999px;opacity:0;pointer-events:none;';
@@ -2070,7 +2240,7 @@ function legacyCopy(text) {
     let ok = false;
     try { ok = document.execCommand('copy'); } catch {}
     ta.remove();
-    toast(ok ? '말씀이 복사되었습니다 📋' : '텍스트를 직접 선택하여 복사해주세요');
+    toast(ok ? L.toast_copied : (appLang==='en' ? 'Please select and copy the text manually' : appLang==='ja' ? 'テキストを手動でコピーしてください' : '텍스트를 직접 선택하여 복사해주세요'));
 }
 
 /* ═══════════════════════════════════════
@@ -2078,10 +2248,11 @@ function legacyCopy(text) {
 ═══════════════════════════════════════ */
 function toggleSave() {
     if (!curVerse||verseSaved) return;
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const {emotion,topic,need}=sel;
     const saved = lsGet('savedVerses') || [];
     saved.unshift({
-        date: new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric'}),
+        date: new Date().toLocaleDateString(L.locale||'ko-KR',{month:'long',day:'numeric'}),
         context: E_LABEL[emotion]+' · '+N_LABEL[need],
         verse: curVerse.v, ref: curVerse.r,
         sentence: document.getElementById('r-sentence').textContent
@@ -2089,22 +2260,23 @@ function toggleSave() {
     lsSet('savedVerses', saved.slice(0,50));
     verseSaved=true;
     const btn=document.getElementById('btn-save');
-    btn.textContent=(LANG_DATA[appLang]||LANG_DATA.ko).btn_saved; btn.classList.add('saved');
-    toast('즐겨찾기에 저장되었습니다 ⭐');
+    btn.textContent=L.btn_saved; btn.classList.add('saved');
+    toast(L.toast_saved_verse);
 }
 
 /* ═══════════════════════════════════════
    감사 일기
 ═══════════════════════════════════════ */
 function saveDiary() {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const text = document.getElementById('diary-input').value.trim();
-    if (!text) { toast('한 줄을 적어주세요 🌸'); return; }
+    if (!text) { toast(L.toast_diary_empty); return; }
     const hist = lsGet('moodHistory') || [];
     if (hist.length) { hist[0].diary = text; lsSet('moodHistory', hist); }
     document.getElementById('diary-saved-msg').style.display='block';
-    const saveBtn = document.querySelector('.diary-save-btn');
+    const saveBtn = document.getElementById('diary-save-btn');
     if (saveBtn) saveBtn.disabled = true;
-    toast('감사 일기가 저장되었습니다 ✨');
+    toast(L.toast_diary_saved);
 }
 
 /* ═══════════════════════════════════════
@@ -2114,17 +2286,18 @@ let moodPage = 0, savedPage = 0;
 const MOOD_PER_PAGE = 7, SAVED_PER_PAGE = 5;
 
 function renderPagination(containerId, cur, total, onChange) {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const el = document.getElementById(containerId);
     if (!el) return;
     el.innerHTML = '';
     if (total <= 1) return;
     const prev = document.createElement('button');
-    prev.className = 'vpag-btn'; prev.textContent = '← 이전'; prev.disabled = cur === 0;
+    prev.className = 'vpag-btn'; prev.textContent = L.pag_prev; prev.disabled = cur === 0;
     prev.onclick = () => onChange(cur - 1);
     const info = document.createElement('span');
     info.className = 'vpag-info'; info.textContent = `${cur + 1} / ${total}`;
     const next = document.createElement('button');
-    next.className = 'vpag-btn'; next.textContent = '다음 →'; next.disabled = cur >= total - 1;
+    next.className = 'vpag-btn'; next.textContent = L.pag_next; next.disabled = cur >= total - 1;
     next.onclick = () => onChange(cur + 1);
     el.append(prev, info, next);
 }
@@ -2148,8 +2321,9 @@ function renderSaved() {
     const list = lsGet('savedVerses') || [];
     const el   = document.getElementById('saved-list');
     el.innerHTML = '';
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     if (!list.length) {
-        el.innerHTML = '<div class="vault-empty">아직 즐겨찾기한 항목이 없어요.<br>말씀 카드의 ⭐ 버튼을 눌러 저장해 보세요.</div>';
+        el.innerHTML = `<div class="vault-empty">${L.vault_empty_saved}</div>`;
         renderPagination('saved-pagination', 0, 0, ()=>{});
         return;
     }
@@ -2199,12 +2373,23 @@ function renderMood() {
     const jumpEl = document.getElementById('mood-month-jump');
     el.innerHTML = '';
 
-    const dayNames = ['일','월','화','수','목','금','토'];
-    const fmtDate  = str => { const d = new Date(str); return `${d.getMonth()+1}월 ${d.getDate()}일 (${dayNames[d.getDay()]})`; };
-    const fmtMonth = str => { const d = new Date(str); return `${d.getFullYear()}년 ${d.getMonth()+1}월`; };
+    const L2 = LANG_DATA[appLang]||LANG_DATA.ko;
+    const dn = L2.day_names, mn = L2.month_names;
+    const fmtDate = str => {
+        const d = new Date(str);
+        if (appLang==='en') return `${mn[d.getMonth()]} ${d.getDate()} (${dn[d.getDay()]})`;
+        if (appLang==='ja') return `${mn[d.getMonth()]}${d.getDate()}日 (${dn[d.getDay()]})`;
+        return `${d.getMonth()+1}월 ${d.getDate()}일 (${dn[d.getDay()]})`;
+    };
+    const fmtMonth = str => {
+        const d = new Date(str);
+        if (appLang==='en') return `${mn[d.getMonth()]} ${d.getFullYear()}`;
+        if (appLang==='ja') return `${d.getFullYear()}年 ${mn[d.getMonth()]}`;
+        return `${d.getFullYear()}년 ${d.getMonth()+1}월`;
+    };
 
     if (!hist.length) {
-        el.innerHTML = '<div class="vault-empty">아직 기록이 없어요.<br>매일 방문하면 여기에 쌓입니다.</div>';
+        el.innerHTML = `<div class="vault-empty">${L2.vault_empty_mood}</div>`;
         if (jumpEl) jumpEl.innerHTML = '';
         renderPagination('mood-pagination', 0, 0, ()=>{});
         return;
@@ -2274,8 +2459,9 @@ function renderMood() {
    설정
 ═══════════════════════════════════════ */
 function openSettings() {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const name = lsGet('userName');
-    document.getElementById('current-name-display').textContent = name ? `현재: ${name}` : '설정되지 않음';
+    document.getElementById('current-name-display').textContent = name ? `${L.name_prefix}${name}` : L.name_none;
     applyFont(fontLevel);
     // 언어 버튼 active 동기화
     ['lo-ko','lo-en','lo-ja'].forEach(id => {
@@ -2290,19 +2476,19 @@ function openSettings() {
     });
     // 업데이트 상태 초기화
     const btn = document.getElementById('btn-check-update');
-    if (btn) { btn.disabled = false; btn.textContent = '확인'; btn.onclick = checkUpdateManual; }
+    if (btn) { btn.disabled = false; btn.textContent = L.upd_btn; btn.onclick = checkUpdateManual; }
     // 대기 중인 SW 상태 표시 (http/https 환경에서만)
     if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.getRegistration().then(reg => {
             if (reg && reg.waiting) {
-                _setUpdateStatus('새 버전이 준비됐어요!');
-                if (btn) { btn.textContent = '지금 업데이트'; btn.onclick = () => { applyUpdate(); hideOverlay('overlay-settings'); }; }
+                _setUpdateStatus(L.upd_ready);
+                if (btn) { btn.textContent = L.upd_btn_apply; btn.onclick = () => { applyUpdate(); hideOverlay('overlay-settings'); }; }
             } else {
-                _setUpdateStatus('최신 버전입니다.');
+                _setUpdateStatus(L.upd_latest);
             }
-        }).catch(()=>{ _setUpdateStatus('확인하려면 버튼을 누르세요.'); });
+        }).catch(()=>{ _setUpdateStatus(L.upd_click); });
     } else {
-        _setUpdateStatus(location.protocol === 'file:' ? 'PC 로컬 파일 실행 중 (웹 환경에서만 지원)' : '확인하려면 버튼을 누르세요.');
+        _setUpdateStatus(location.protocol === 'file:' ? L.upd_file : L.upd_click);
     }
     showOverlay('overlay-settings');
 }
@@ -2312,7 +2498,6 @@ function setLang(lang) {
     appLang = lang;
     lsSet('appLang', lang);
     applyLang(lang);
-    setWelcome();
     ['lo-ko','lo-en','lo-ja'].forEach(id => {
         document.getElementById(id).classList.toggle('active', id.replace('lo-','') === lang);
     });
@@ -2355,9 +2540,10 @@ function exportData() {
         hist.forEach(h => lines.push(`${h.date}  ${h.emoji||''} ${h.emotion||''} · ${h.topic||''} · ${h.need||''}`));
     }
     const text = lines.join('\n');
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text)
-            .then(()=>toast('클립보드에 복사되었습니다 📋'))
+            .then(()=>toast(L.toast_exported))
             .catch(()=>legacyCopy(text));
     } else {
         legacyCopy(text);
@@ -2365,36 +2551,37 @@ function exportData() {
 }
 
 function clearData() {
-    if (!confirm('저장된 말씀, 감정 기록이 모두 삭제됩니다. 계속하시겠어요?')) return;
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    if (!confirm(L.confirm_reset)) return;
     ['savedVerses','moodHistory','visitDates'].forEach(k=>localStorage.removeItem(k));
-    toast('초기화되었습니다');
+    toast(L.toast_reset);
     hideOverlay('overlay-settings');
 }
 
 /* 수동 업데이트 확인 */
 function checkUpdateManual() {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     if (!('serviceWorker' in navigator) || location.protocol === 'file:') {
-        _setUpdateStatus('모바일 또는 웹 환경에서만 지원됩니다.');
+        _setUpdateStatus(L.upd_manual);
         _resetUpdateBtn();
         return;
     }
     const btn = document.getElementById('btn-check-update');
-    if (btn) { btn.disabled = true; btn.textContent = '확인 중...'; }
-    _setUpdateStatus('서버에서 최신 버전 확인 중...');
+    if (btn) { btn.disabled = true; btn.textContent = L.upd_btn_checking; }
+    _setUpdateStatus(L.upd_checking);
 
     navigator.serviceWorker.getRegistration().then(reg => {
-        if (!reg) { _setUpdateStatus('앱이 설치되지 않았습니다.'); _resetUpdateBtn(); return; }
+        if (!reg) { _setUpdateStatus(L.upd_no_sw); _resetUpdateBtn(); return; }
         reg.update().then(() => {
-            // waiting에 SW가 있으면 업데이트 대기 중
             if (reg.waiting) {
-                _setUpdateStatus('새 버전이 준비됐어요! 아래 버튼으로 적용하세요.');
-                if (btn) { btn.disabled = false; btn.textContent = '지금 업데이트'; btn.onclick = () => { applyUpdate(); hideOverlay('overlay-settings'); }; }
+                _setUpdateStatus(L.upd_ready_msg);
+                if (btn) { btn.disabled = false; btn.textContent = L.upd_btn_apply; btn.onclick = () => { applyUpdate(); hideOverlay('overlay-settings'); }; }
                 document.getElementById('update-banner').classList.remove('hidden');
             } else {
-                _setUpdateStatus('✓ 현재 최신 버전입니다.');
+                _setUpdateStatus(L.upd_latest_v);
                 _resetUpdateBtn();
             }
-        }).catch(() => { _setUpdateStatus('확인 실패. 네트워크를 확인해주세요.'); _resetUpdateBtn(); });
+        }).catch(() => { _setUpdateStatus(L.upd_fail); _resetUpdateBtn(); });
     });
 }
 
@@ -2403,8 +2590,9 @@ function _setUpdateStatus(msg) {
     if (el) el.textContent = msg;
 }
 function _resetUpdateBtn() {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const btn = document.getElementById('btn-check-update');
-    if (btn) { btn.disabled = false; btn.textContent = '확인'; btn.onclick = checkUpdateManual; }
+    if (btn) { btn.disabled = false; btn.textContent = L.upd_btn; btn.onclick = checkUpdateManual; }
 }
 
 /* ═══════════════════════════════════════
