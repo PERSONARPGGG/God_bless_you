@@ -6,6 +6,7 @@
     <title>오늘은 어땠나요?</title>
     <meta name="description" content="하루를 마무리하는 작은 디지털 쉼터">
     <meta name="theme-color" content="#0e1842">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="오늘은 어땠나요">
@@ -195,7 +196,7 @@
         }
 
         /* ── 공통 레이아웃 ── */
-        .page-wrap { position:relative;z-index:1;max-width:460px;margin:0 auto;padding:max(env(safe-area-inset-top,0px),2vh) 16px calc(100px + env(safe-area-inset-bottom)); min-height:100vh; }
+        .page-wrap { position:relative;z-index:1;max-width:460px;margin:0 auto;padding:max(env(safe-area-inset-top,0px),2vh) 16px calc(36px + env(safe-area-inset-bottom)); min-height:100vh; }
         /* 스텝별 기본 마진 */
         #step1,#step4 { margin-top:12px; }
         #step2,#step3 { margin-top:16vh; }
@@ -1199,6 +1200,40 @@ const SENTENCES = [
     '기도하는 마음으로 하루를 마무리하세요.',
     '하나님은 당신의 눈물도 기억하고 계십니다.'
 ];
+const SENTENCES_EN = [
+    'Enduring today was courage enough.',
+    'Prayer changes the heart before it changes the situation.',
+    'God is never in a hurry.',
+    'Waiting is also a form of faith.',
+    'Even when you can\'t see it, the path is being made.',
+    'Even small faith is precious to God.',
+    'Today too was lived within grace.',
+    'God knows the effort you put in.',
+    'It\'s okay not to find every answer today.',
+    'God sees your steps, not just the outcome.',
+    'This very moment is within God\'s plan.',
+    'Remember the grace you received today, even tomorrow.',
+    'Faith is the eye that sees what is unseen.',
+    'God\'s timing is always perfect.',
+    'You are not alone.',
+    'Resting is also God\'s will.',
+    'Where there is gratitude, God is present.',
+    'Today\'s prayer opens tomorrow\'s path.',
+    'Small obedience creates great miracles.',
+    'God has not given up on you.',
+    'If you\'re struggling right now, God is drawing closer.',
+    'Every morning brings new grace.',
+    'God knows your name.',
+    'Today becomes tomorrow\'s testimony.',
+    'God\'s love never grows tired.',
+    'Little by little, steadily — that is God\'s way.',
+    'God walks alongside you on every path you take.',
+    'Peace is not from circumstances, but given by God.',
+    'If today was painful, tomorrow you will be stronger.',
+    'Your life is a story God is writing.',
+    'Close your day with a prayerful heart.',
+    'God remembers your tears too.'
+];
 
 const E_EMOJI = { 감사:'😊', 평안:'😌', 걱정:'😔', 지침:'😞', 아픔:'😢', 기도:'🙏' };
 const _EMO_IDX = { 감사:0, 평안:1, 걱정:2, 지침:3, 아픔:4, 기도:5 };
@@ -1406,6 +1441,200 @@ const VERSE_POOL = {
         {v:'내 영혼아 잠잠히 하나님만 바라라 무릇 나의 소망이 그로부터 나오는도다',r:'시편 62:5'}
     ]
 };
+const VERSE_POOL_EN = {
+    '감사_위로':[
+        {v:'You have turned for me my mourning into dancing; you have loosed my sackcloth and clothed me with gladness',r:'Psalm 30:11'},
+        {v:'The LORD is my strength and my shield; in him my heart trusts, and I am helped; my heart exults, and with my song I give thanks to him.',r:'Psalm 28:7'},
+        {v:'Give thanks to the LORD, for he is good, for his steadfast love endures forever.',r:'Psalm 136:1'},
+        {v:'I lift up my eyes to the hills. From where does my help come? My help comes from the LORD, who made heaven and earth.',r:'Psalm 121:1-2'},
+        {v:'He heals the brokenhearted and binds up their wounds.',r:'Psalm 147:3'},
+        {v:'Weeping may tarry for the night, but joy comes with the morning.',r:'Psalm 30:5'}
+    ],
+    '감사_힘':[
+        {v:'I can do all things through him who strengthens me.',r:'Philippians 4:13'},
+        {v:'But they who wait for the LORD shall renew their strength; they shall mount up with wings like eagles',r:'Isaiah 40:31'},
+        {v:'And my God will supply every need of yours according to his riches in glory in Christ Jesus.',r:'Philippians 4:19'},
+        {v:'Be strong and courageous. Do not be frightened, and do not be dismayed, for the LORD your God is with you wherever you go.',r:'Joshua 1:9'},
+        {v:'God is our refuge and strength, a very present help in trouble.',r:'Psalm 46:1'},
+        {v:'Rejoice in the Lord always; again I will say, rejoice.',r:'Philippians 4:4'}
+    ],
+    '감사_지혜':[
+        {v:'For the LORD gives wisdom; from his mouth come knowledge and understanding',r:'Proverbs 2:6'},
+        {v:'If any of you lacks wisdom, let him ask God, who gives generously to all without reproach, and it will be given him.',r:'James 1:5'},
+        {v:'In all your ways acknowledge him, and he will make straight your paths.',r:'Proverbs 3:6'},
+        {v:'Your word is a lamp to my feet and a light to my path.',r:'Psalm 119:105'},
+        {v:'The beginning of wisdom is this: Get wisdom, and whatever you get, get insight.',r:'Proverbs 4:7'},
+        {v:'The fear of the LORD is the beginning of wisdom, and knowledge of the Holy One is insight.',r:'Proverbs 9:10'}
+    ],
+    '감사_쉼':[
+        {v:'He makes me lie down in green pastures. He leads me beside still waters.',r:'Psalm 23:2'},
+        {v:'Give thanks in all circumstances; for this is the will of God in Christ Jesus for you.',r:'1 Thessalonians 5:18'},
+        {v:'In peace I will both lie down and sleep; for you alone, O LORD, make me dwell in safety.',r:'Psalm 4:8'},
+        {v:'For God alone, O my soul, wait in silence, for my hope is from him.',r:'Psalm 62:5'},
+        {v:'Come to me, all who labor and are heavy laden, and I will give you rest.',r:'Matthew 11:28'},
+        {v:'He will tend his flock like a shepherd; he will gather the lambs in his arms',r:'Isaiah 40:11'}
+    ],
+    '평안_위로':[
+        {v:'Peace I leave with you; my peace I give to you. Not as the world gives do I give to you.',r:'John 14:27'},
+        {v:'And the peace of God, which surpasses all understanding, will guard your hearts and your minds in Christ Jesus.',r:'Philippians 4:7'},
+        {v:'You keep him in perfect peace whose mind is stayed on you, because he trusts in you.',r:'Isaiah 26:3'},
+        {v:'Who comforts us in all our affliction, so that we may be able to comfort those who are in any affliction',r:'2 Corinthians 1:4'},
+        {v:'He heals the brokenhearted and binds up their wounds.',r:'Psalm 147:3'},
+        {v:'Fear not, for I am with you; be not dismayed, for I am your God; I will strengthen you, I will help you',r:'Isaiah 41:10'}
+    ],
+    '평안_힘':[
+        {v:'The LORD is my light and my salvation; whom shall I fear? The LORD is the stronghold of my life; of whom shall I be afraid?',r:'Psalm 27:1'},
+        {v:'For God gave us a spirit not of fear but of power and love and self-control.',r:'2 Timothy 1:7'},
+        {v:'I can do all things through him who strengthens me.',r:'Philippians 4:13'},
+        {v:'But they who wait for the LORD shall renew their strength; they shall mount up with wings like eagles',r:'Isaiah 40:31'},
+        {v:'Be strong and courageous. Do not be frightened, and do not be dismayed, for the LORD your God is with you wherever you go.',r:'Joshua 1:9'},
+        {v:'God is our refuge and strength, a very present help in trouble.',r:'Psalm 46:1'}
+    ],
+    '평안_지혜':[
+        {v:'Trust in the LORD with all your heart, and do not lean on your own understanding. In all your ways acknowledge him, and he will make straight your paths.',r:'Proverbs 3:5-6'},
+        {v:'Let the words of my mouth and the meditation of my heart be acceptable in your sight, O LORD, my rock and my redeemer.',r:'Psalm 19:14'},
+        {v:'She is a tree of life to those who lay hold of her; those who hold her fast are called blessed.',r:'Proverbs 3:18'},
+        {v:'Your word is a lamp to my feet and a light to my path.',r:'Psalm 119:105'},
+        {v:'The fear of the LORD is the beginning of wisdom, and knowledge of the Holy One is insight.',r:'Proverbs 9:10'},
+        {v:'For God alone my soul waits in silence; from him comes my salvation.',r:'Psalm 62:1'}
+    ],
+    '평안_쉼':[
+        {v:'The LORD is my shepherd; I shall not want. He makes me lie down in green pastures.',r:'Psalm 23:1-2'},
+        {v:'For God alone my soul waits in silence; from him comes my salvation.',r:'Psalm 62:1'},
+        {v:'In peace I will both lie down and sleep; for you alone, O LORD, make me dwell in safety.',r:'Psalm 4:8'},
+        {v:'For God alone, O my soul, wait in silence, for my hope is from him.',r:'Psalm 62:5'},
+        {v:'Peace I leave with you; my peace I give to you.',r:'John 14:27'},
+        {v:'Come to me, all who labor and are heavy laden, and I will give you rest. Take my yoke upon you, and learn from me, and you will find rest for your souls.',r:'Matthew 11:28-29'}
+    ],
+    '걱정_위로':[
+        {v:'The LORD is near to the brokenhearted and saves the crushed in spirit.',r:'Psalm 34:18'},
+        {v:'Casting all your anxieties on him, because he cares for you.',r:'1 Peter 5:7'},
+        {v:'Fear not, for I am with you; be not dismayed, for I am your God; I will strengthen you, I will help you',r:'Isaiah 41:10'},
+        {v:'The LORD is my shepherd; I shall not want.',r:'Psalm 23:1'},
+        {v:'For I am sure that neither death nor life, nor angels nor rulers, nor things present nor things to come, nor powers will be able to separate us from the love of God',r:'Romans 8:38-39'},
+        {v:'Cast your burden on the LORD, and he will sustain you; he will never permit the righteous to be moved.',r:'Psalm 55:22'}
+    ],
+    '걱정_힘':[
+        {v:'When I am afraid, I put my trust in you.',r:'Psalm 56:3'},
+        {v:'Wait for the LORD; be strong, and let your heart take courage; wait for the LORD!',r:'Psalm 27:14'},
+        {v:'For I am sure that neither death nor life, nor angels nor rulers will be able to separate us from the love of God in Christ Jesus our Lord.',r:'Romans 8:38-39'},
+        {v:'If God is for us, who can be against us?',r:'Romans 8:31'},
+        {v:'Fear not, for I am with you; be not dismayed, for I am your God.',r:'Isaiah 41:10'},
+        {v:'The LORD is my light and my salvation; whom shall I fear?',r:'Psalm 27:1'}
+    ],
+    '걱정_지혜':[
+        {v:'Do not be anxious about anything, but in everything by prayer and supplication with thanksgiving let your requests be made known to God.',r:'Philippians 4:6'},
+        {v:'Do not be anxious about tomorrow, for tomorrow will be anxious for itself. Sufficient for the day is its own trouble.',r:'Matthew 6:34'},
+        {v:'So you will walk in the way of the good and keep to the paths of the righteous.',r:'Proverbs 2:20'},
+        {v:'Trust in the LORD with all your heart, and do not lean on your own understanding.',r:'Proverbs 3:5'},
+        {v:'Your word is a lamp to my feet and a light to my path.',r:'Psalm 119:105'},
+        {v:'The fear of the LORD is the beginning of wisdom, and knowledge of the Holy One is insight.',r:'Proverbs 9:10'}
+    ],
+    '걱정_쉼':[
+        {v:'Come to me, all who labor and are heavy laden, and I will give you rest. Take my yoke upon you, and learn from me, and you will find rest for your souls.',r:'Matthew 11:28-29'},
+        {v:'The LORD is my shepherd; I shall not want.',r:'Psalm 23:1'},
+        {v:'In peace I will both lie down and sleep; for you alone, O LORD, make me dwell in safety.',r:'Psalm 4:8'},
+        {v:'Casting all your anxieties on him, because he cares for you.',r:'1 Peter 5:7'},
+        {v:'For God alone, O my soul, wait in silence, for my hope is from him.',r:'Psalm 62:5'},
+        {v:'And the peace of God, which surpasses all understanding, will guard your hearts and your minds in Christ Jesus.',r:'Philippians 4:7'}
+    ],
+    '지침_위로':[
+        {v:'Come to me, all who labor and are heavy laden, and I will give you rest.',r:'Matthew 11:28'},
+        {v:'He heals the brokenhearted and binds up their wounds.',r:'Psalm 147:3'},
+        {v:'For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.',r:'John 3:16'},
+        {v:'Who comforts us in all our affliction, so that we may be able to comfort those who are in any affliction',r:'2 Corinthians 1:4'},
+        {v:'Fear not, for I am with you; be not dismayed, for I am your God.',r:'Isaiah 41:10'},
+        {v:'Weeping may tarry for the night, but joy comes with the morning.',r:'Psalm 30:5'}
+    ],
+    '지침_힘':[
+        {v:'But they who wait for the LORD shall renew their strength; they shall mount up with wings like eagles; they shall run and not be weary; they shall walk and not faint.',r:'Isaiah 40:31'},
+        {v:'And let us not grow weary of doing good, for in due season we will reap, if we do not give up.',r:'Galatians 6:9'},
+        {v:'I can do all things through him who strengthens me.',r:'Philippians 4:13'},
+        {v:'On the day I called, you answered me; my strength of soul you increased.',r:'Psalm 138:3'},
+        {v:'Be strong and courageous. Do not be frightened, and do not be dismayed, for the LORD your God is with you wherever you go.',r:'Joshua 1:9'},
+        {v:'For God gave us a spirit not of fear but of power and love and self-control.',r:'2 Timothy 1:7'}
+    ],
+    '지침_지혜':[
+        {v:'Trust in the LORD with all your heart, and do not lean on your own understanding. In all your ways acknowledge him, and he will make straight your paths.',r:'Proverbs 3:5-6'},
+        {v:'For God alone my soul waits in silence; from him comes my salvation.',r:'Psalm 62:1'},
+        {v:'And God is able to make all grace abound to you, so that having all sufficiency in all things at all times, you may abound in every good work.',r:'2 Corinthians 9:8'},
+        {v:'Your word is a lamp to my feet and a light to my path.',r:'Psalm 119:105'},
+        {v:'My flesh and my heart may fail, but God is the strength of my heart and my portion forever.',r:'Psalm 73:26'},
+        {v:'The fear of the LORD is the beginning of wisdom, and knowledge of the Holy One is insight.',r:'Proverbs 9:10'}
+    ],
+    '지침_쉼':[
+        {v:'He makes me lie down in green pastures. He leads me beside still waters. He restores my soul.',r:'Psalm 23:2-3'},
+        {v:'In peace I will both lie down and sleep; for you alone, O LORD, make me dwell in safety.',r:'Psalm 4:8'},
+        {v:'As a deer pants for flowing streams, so pants my soul for you, O God.',r:'Psalm 42:1'},
+        {v:'Come to me, all who labor and are heavy laden, and I will give you rest.',r:'Matthew 11:28'},
+        {v:'For God alone, O my soul, wait in silence, for my hope is from him.',r:'Psalm 62:5'},
+        {v:'I wait for the LORD, my soul waits, and in his word I hope.',r:'Psalm 130:5'}
+    ],
+    '아픔_위로':[
+        {v:'The LORD is near to the brokenhearted and saves the crushed in spirit.',r:'Psalm 34:18'},
+        {v:'Weeping may tarry for the night, but joy comes with the morning.',r:'Psalm 30:5'},
+        {v:'Who comforts us in all our affliction, so that we may be able to comfort those who are in any affliction',r:'2 Corinthians 1:4'},
+        {v:'Fear not, for I am with you; be not dismayed, for I am your God; I will strengthen you, I will help you',r:'Isaiah 41:10'},
+        {v:'Even though I walk through the valley of the shadow of death, I will fear no evil, for you are with me',r:'Psalm 23:4'},
+        {v:'You are my hiding place and my shield; I hope in your word.',r:'Psalm 119:114'}
+    ],
+    '아픔_힘':[
+        {v:'In the world you will have tribulation. But take heart; I have overcome the world.',r:'John 16:33'},
+        {v:'We are afflicted in every way, but not crushed; perplexed, but not driven to despair',r:'2 Corinthians 4:8'},
+        {v:'And let steadfastness have its full effect, that you may be perfect and complete, lacking in nothing.',r:'James 1:4'},
+        {v:'I can do all things through him who strengthens me.',r:'Philippians 4:13'},
+        {v:'Many are the afflictions of the righteous, but the LORD delivers him out of them all.',r:'Psalm 34:19'},
+        {v:'For God gave us a spirit not of fear but of power and love and self-control.',r:'2 Timothy 1:7'}
+    ],
+    '아픔_지혜':[
+        {v:'And we know that for those who love God all things work together for good, for those who are called according to his purpose.',r:'Romans 8:28'},
+        {v:'For this light momentary affliction is preparing for us an eternal weight of glory beyond all comparison',r:'2 Corinthians 4:17'},
+        {v:'This God — his way is perfect; the word of the LORD proves true; he is a shield for all those who take refuge in him.',r:'Psalm 18:30'},
+        {v:'Teach me your way, O LORD, that I may walk in your truth; unite my heart to fear your name.',r:'Psalm 86:11'},
+        {v:'Trust in the LORD with all your heart, and do not lean on your own understanding.',r:'Proverbs 3:5'},
+        {v:'My flesh and my heart may fail, but God is the strength of my heart and my portion forever.',r:'Psalm 73:26'}
+    ],
+    '아픔_쉼':[
+        {v:'Come to me, all who labor and are heavy laden, and I will give you rest.',r:'Matthew 11:28'},
+        {v:'From the end of the earth I call to you when my heart is faint. Lead me to the rock that is higher than I.',r:'Psalm 61:2'},
+        {v:'The LORD is my shepherd; I shall not want.',r:'Psalm 23:1'},
+        {v:'In peace I will both lie down and sleep; for you alone, O LORD, make me dwell in safety.',r:'Psalm 4:8'},
+        {v:'As a deer pants for flowing streams, so pants my soul for you, O God.',r:'Psalm 42:1'},
+        {v:'Fear not, for I am with you; be not dismayed, for I am your God.',r:'Isaiah 41:10'}
+    ],
+    '기도_위로':[
+        {v:'The LORD is near to all who call on him, to all who call on him in truth.',r:'Psalm 145:18'},
+        {v:'Likewise the Spirit helps us in our weakness. For we do not know what to pray for as we ought, but the Spirit himself intercedes for us with groanings too deep for words.',r:'Romans 8:26'},
+        {v:'Ask, and it will be given to you; seek, and you will find; knock, and it will be opened to you.',r:'Matthew 7:7'},
+        {v:'The LORD is near to the brokenhearted and saves the crushed in spirit.',r:'Psalm 34:18'},
+        {v:'And this is the confidence that we have toward him, that if we ask anything according to his will he hears us.',r:'1 John 5:14'},
+        {v:'Call to me and I will answer you, and will tell you great and hidden things that you have not known.',r:'Jeremiah 33:3'}
+    ],
+    '기도_힘':[
+        {v:'On the day I called, you answered me; my strength of soul you increased.',r:'Psalm 138:3'},
+        {v:'Again I say to you, if two of you agree on earth about anything they ask, it will be done for them by my Father in heaven.',r:'Matthew 18:19'},
+        {v:'Continue steadfastly in prayer, being watchful in it with thanksgiving.',r:'Colossians 4:2'},
+        {v:'I can do all things through him who strengthens me.',r:'Philippians 4:13'},
+        {v:'Call to me and I will answer you, and will tell you great and hidden things that you have not known.',r:'Jeremiah 33:3'},
+        {v:'Pray without ceasing.',r:'1 Thessalonians 5:17'}
+    ],
+    '기도_지혜':[
+        {v:'If any of you lacks wisdom, let him ask God, who gives generously to all without reproach, and it will be given him.',r:'James 1:5'},
+        {v:'Trust in the LORD with all your heart, and do not lean on your own understanding. In all your ways acknowledge him, and he will make straight your paths.',r:'Proverbs 3:5-6'},
+        {v:'Let the words of my mouth and the meditation of my heart be acceptable in your sight, O LORD, my rock and my redeemer.',r:'Psalm 19:14'},
+        {v:'Your word is a lamp to my feet and a light to my path.',r:'Psalm 119:105'},
+        {v:'Call to me and I will answer you, and will tell you great and hidden things that you have not known.',r:'Jeremiah 33:3'},
+        {v:'The fear of the LORD is the beginning of wisdom, and knowledge of the Holy One is insight.',r:'Proverbs 9:10'}
+    ],
+    '기도_쉼':[
+        {v:'Do not be anxious about anything, but in everything by prayer and supplication with thanksgiving let your requests be made known to God. And the peace of God, which surpasses all understanding, will guard your hearts and your minds in Christ Jesus.',r:'Philippians 4:6-7'},
+        {v:'For God alone my soul waits in silence; from him comes my salvation.',r:'Psalm 62:1'},
+        {v:'Peace I leave with you; my peace I give to you. Let not your hearts be troubled, neither let them be afraid.',r:'John 14:27'},
+        {v:'Come to me, all who labor and are heavy laden, and I will give you rest.',r:'Matthew 11:28'},
+        {v:'In peace I will both lie down and sleep; for you alone, O LORD, make me dwell in safety.',r:'Psalm 4:8'},
+        {v:'For God alone, O my soul, wait in silence, for my hope is from him.',r:'Psalm 62:5'}
+    ]
+};
 
 /* 묵상 (30개) */
 const REFLECTIONS = {
@@ -1440,6 +1669,38 @@ const REFLECTIONS = {
     '기도_사람':'누군가를 위해 기도하고 싶으셨군요. 그 사람을 위해 기도할 마음이 생긴 것, 그것 자체가 하나님의 일하심입니다. 지금 그 마음으로 기도하세요.',
     '기도_모름':'무엇을 위해 기도해야 할지 모르지만 기도하고 싶으셨군요. 기도의 말이 없어도 괜찮습니다. 성령님이 당신의 마음을 아시고 하나님께 전해주실 것입니다.'
 };
+const REFLECTIONS_EN = {
+    '감사_일':'You found gratitude in your work today. That thankfulness is a quiet sign that God sees your effort. Nothing you did today was in vain.',
+    '감사_가족':'You felt gratitude through your family today. Family is the closest gift God has given us. Recognizing that gift today — what a blessed day it was.',
+    '감사_공부':'You found gratitude in learning today. Thank God for the chance to gain knowledge and the gift of understanding. Learning itself is grace.',
+    '감사_사람':'You felt grateful for someone today. Did someone warm your day? That person may have been sent by God.',
+    '감사_모름':'You felt grateful, even if you weren\'t sure why. That nameless thankfulness is a beautiful prayer before God. Just feeling grateful — that\'s enough.',
+    '평안_일':'You felt peace in the midst of your work today. On what must have been a busy day, finding peace within it is God\'s gift. You guarded your day well.',
+    '평안_가족':'A peaceful day with family. The peace in your home is a greater blessing than you may know. What a thankful day, having felt that peace.',
+    '평안_공부':'You found peace while studying today. Being able to approach learning without being driven by pressure — that too is the Lord watching over you.',
+    '평안_사람':'You felt peace in your relationships today. Finding peace with people is not easy. If today was such a day, it\'s a truly thankful one.',
+    '평안_모름':'You don\'t know why, but today was peaceful. That unnamed peace is also the Lord\'s gift. Today you received a peace the world cannot give.',
+    '걱정_일':'Work made your heart heavy today. Things unresolved, tasks ahead — did they weigh on you? You don\'t need every answer today. Doing what you could was enough.',
+    '걱정_가족':'You worried about your family today. It\'s because you love them. Lay that heart before God. He sees the person you\'re worried about.',
+    '걱정_공부':'You had worries about your studies today. Were you anxious about keeping up? God knows the path you\'re walking. He watches your steps, not just the results.',
+    '걱정_사람':'Someone is weighing on your heart today. Did their words or actions stay with you? Things between people sometimes take time. But God holds those relationships too.',
+    '걱정_모름':'There\'s a worry in your heart, even if you can\'t name it. Sometimes we don\'t even know what we\'re worried about. You can bring that heart to God just as it is.',
+    '지침_일':'Work wore you out today. You really gave it your all. Being tired means you lived hard. Now you may rest.',
+    '지침_가족':'You poured yourself out for your family today. Your efforts for them may go unnoticed by others, but God sees them. You did more than enough today.',
+    '지침_공부':'Studying wore you out today. The road of learning is never easy. But what you\'re doing is not in vain. God knows your faithfulness.',
+    '지침_사람':'Being with people drained you today. Meeting and caring for many people takes so much out of you. Tonight, simply be still before God.',
+    '지침_모름':'You\'re just tired, and you\'re not even sure why. There are days like that — not tired because of one thing, just tired. That\'s okay.',
+    '아픔_일':'Work left your heart hurting today. Did you go unrecognized, or face a hard situation? God sees your wounded heart up close.',
+    '아픔_가족':'Family left your heart aching today. Pain caused by someone you love is the deepest kind. God knows that heart. This moment too is in His hands.',
+    '아픔_공부':'Studying brought you heartache today. Were you struggling to keep up, or did results fall short? Today\'s pain passes tonight. New light comes in the morning.',
+    '아픔_사람':'Someone hurt you today. Did one word or glance stay with you all day? God is the One who comforts that pain.',
+    '아픔_모름':'Your heart aches, even if you don\'t know why. Sometimes a sadness comes that can\'t be put into words. There are days like that. You are not alone in this.',
+    '기도_일':'You wanted to pray about your work today. Do you need wisdom for a situation? God gives generously to those who ask. Pray just as you feel right now.',
+    '기도_가족':'You wanted to pray for your family today. That heart is already reaching God. Your prayer for your family is the most beautiful expression of love in the world.',
+    '기도_공부':'You wanted to pray about your studies today. The moment you feel you can\'t do it on your own — that\'s when the door of prayer opens. God will guide your path of learning.',
+    '기도_사람':'You wanted to pray for someone today. The desire to pray for them arising in you — that itself is God at work. Pray with that heart right now.',
+    '기도_모름':'You don\'t know what to pray, but you wanted to pray. That\'s okay. The Spirit knows your heart and will carry it to God for you.'
+};
 
 /* 응원 (24개) */
 const ENCS = {
@@ -1468,6 +1729,32 @@ const ENCS = {
     '기도_지혜':'모든 지혜의 근원이신 하나님께 구하세요. 반드시 응답하십니다.',
     '기도_쉼'  :'기도한 후에는 쉬어도 됩니다. 맡겨드렸으니, 이제 하나님이 일하실 것입니다.'
 };
+const ENCS_EN = {
+    '감사_위로':'The fact that you felt grateful today is itself a gift from God. Carry that heart with you as you sleep tonight.',
+    '감사_힘'  :'Where there is gratitude, there is strength. You did enough today.',
+    '감사_지혜':'A grateful heart is the beginning of wisdom. See the world through that same lens tomorrow.',
+    '감사_쉼'  :'You have worked enough. Rest well, holding the grace you received today.',
+    '평안_위로':'Remember that today\'s peace was God\'s hand at work. That same hand will be with you tomorrow.',
+    '평안_힘'  :'A peaceful heart is the greatest strength. Go forward tomorrow on the peace of today.',
+    '평안_지혜':'Wisdom is heard when the heart is still. Today\'s peace becomes tomorrow\'s direction.',
+    '평안_쉼'  :'You felt peace today — rest fully in that peace tonight as well.',
+    '걱정_위로':'Worry is also an expression of love. Give that heart to God and rest tonight.',
+    '걱정_힘'  :'You made it through the day, even with worry. That alone is enough courage.',
+    '걱정_지혜':'When answers seem out of reach, prayer begins. Entrust tonight\'s worry to God.',
+    '걱정_쉼'  :'Set down your worries and rest tonight. Tomorrow\'s concerns belong to tomorrow.',
+    '지침_위로':'Being tired means you lived with all your heart. God knows that effort.',
+    '지침_힘'  :'Enduring today was already a great strength. Start fresh tomorrow with renewed energy.',
+    '지침_지혜':'Knowing when to stop when you\'re tired is wisdom too. Rest before God tonight.',
+    '지침_쉼'  :'You may rest now. You worked enough, and God will take care of the rest.',
+    '아픔_위로':'God sees your hurting heart up close. You are not alone.',
+    '아픔_힘'  :'The more it hurts, the more you lean on God. That is true strength.',
+    '아픔_지혜':'This pain will one day become wisdom that comforts others. Trust God\'s plan.',
+    '아픔_쉼'  :'If you hurt today, you need to rest fully today. God is beside you.',
+    '기도_위로':'The very desire to pray is God\'s sign calling you to Him.',
+    '기도_힘'  :'Prayer is borrowing God\'s strength. Seek that strength tonight.',
+    '기도_지혜':'Ask the God who is the source of all wisdom. He will surely answer.',
+    '기도_쉼'  :'After praying, you may rest. You\'ve entrusted it — now God will work.'
+};
 
 /* 기도문 (24개) */
 const PRAYERS = {
@@ -1495,6 +1782,32 @@ const PRAYERS = {
     '기도_힘'  :'주님, 기도로 새 힘을 얻게 하소서.\n주님의 응답을 기다리며 담대하게 서게 하소서.',
     '기도_지혜':'주님, 무엇을 위해 기도해야 할지 가르쳐 주소서.\n성령님이 인도하시는 기도를 드리게 하소서.',
     '기도_쉼'  :'주님, 기도를 드리고 이제 주님께 맡깁니다.\n맡긴 후에는 평안히 쉬게 하소서.'
+};
+const PRAYERS_EN = {
+    '감사_위로':'Lord, thank you for the grateful heart you gave me today.\nHelp me hold onto this grace and keep going tomorrow.',
+    '감사_힘'  :'Lord, you gave me a thankful today.\nMay this gratitude become new strength to live by tomorrow.',
+    '감사_지혜':'Lord, may the gratitude you granted today continue as wisdom.\nLead me to walk in your guidance.',
+    '감사_쉼'  :'Lord, thank you for the grateful heart you gave me today.\nHelp me rest well now and look forward to tomorrow.',
+    '평안_위로':'Lord, thank you for the peace you gave me today.\nMay that peace continue into tomorrow and hold me.',
+    '평안_힘'  :'Lord, you gave me a peaceful day.\nHelp me stand firm and move forward tomorrow on this peace.',
+    '평안_지혜':'Lord, may I hear your voice in a quiet heart.\nGuide me with your wisdom tomorrow as well.',
+    '평안_쉼'  :'Lord, you gave me peace, so help me rest in that peace tonight.\nI trust that your hand is with me.',
+    '걱정_위로':'Lord, I had many worries today.\nI bring this heart to you. Help me trust that you are watching over me.',
+    '걱정_힘'  :'Lord, I endured the day even amid worries.\nGive me strength to step forward more boldly tomorrow.',
+    '걱정_지혜':'Lord, give wisdom to a heart full of worry.\nHelp me seek your peace before seeking solutions.',
+    '걱정_쉼'  :'Lord, I entrust all of today\'s worries to you.\nHelp me rest peacefully tonight.',
+    '지침_위로':'Lord, I was very tired today.\nI lay this weary heart before you. Please comfort me.',
+    '지침_힘'  :'Lord, I was exhausted, but I made it here.\nGive me new strength at dawn. Help me soar like an eagle.',
+    '지침_지혜':'Lord, give me wisdom to know when to stop when I\'m tired.\nGive me eyes to see what truly matters.',
+    '지침_쉼'  :'Lord, I will rest now.\nI entrust my body and heart to you, who know what I labored through today.',
+    '아픔_위로':'Lord, my heart hurt a lot today.\nI hold onto your word that you are near the brokenhearted. Please comfort me.',
+    '아픔_힘'  :'Lord, I was hurting, but I endured this far.\nGive me strength to overcome this pain. Help me be courageous.',
+    '아픔_지혜':'Lord, I believe even this pain has meaning.\nGive me wisdom to see your plan within this situation.',
+    '아픔_쉼'  :'Lord, I lie before you carrying my aching heart.\nGrant me your healing touch tonight.',
+    '기도_위로':'Lord, thank you for giving me the heart to pray.\nReceive this heart that has come before you.',
+    '기도_힘'  :'Lord, let me gain new strength through prayer.\nHelp me stand boldly as I await your answer.',
+    '기도_지혜':'Lord, teach me what to pray for.\nHelp me pray led by the Holy Spirit.',
+    '기도_쉼'  :'Lord, I have prayed and now I entrust it all to you.\nAfter entrusting it, help me rest in peace.'
 };
 
 /* ═══════════════════════════════════════
@@ -1584,6 +1897,7 @@ function getVerseForMood(emotion, need) {
 
     const picked = avail[Math.floor(Math.random() * avail.length)];
     lsSet(storeKey, [...shown, picked]);
+    if (appLang==='en' && VERSE_POOL_EN[key]) return VERSE_POOL_EN[key][picked] || pool[picked];
     return pool[picked];
 }
 const todayStr = () => new Date().toISOString().slice(0,10);
@@ -1924,18 +2238,18 @@ function init() {
 
 /* ── 히어로 묵상 초기화 ── */
 const TEASER_POOL = [
-    { t:'여호와는 나의 목자시니 내게 부족함이 없으리로다', r:'시편 23:1' },
-    { t:'수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라', r:'마태복음 11:28' },
-    { t:'내가 너희에게 평안을 끼치노니 곧 나의 평안을 너희에게 주노라', r:'요한복음 14:27' },
-    { t:'모든 것이 협력하여 선을 이루느니라', r:'로마서 8:28' },
-    { t:'하나님은 우리의 피난처시요 힘이시니 환난 중에 만날 큰 도움이시라', r:'시편 46:1' },
-    { t:'내가 세상 끝날까지 너희와 항상 함께 있으리라', r:'마태복음 28:20' },
-    { t:'주님의 인자하심이 영원하시며 그의 진실하심이 대대에 이르리로다', r:'시편 100:5' },
-    { t:'너희는 마음에 근심하지 말라 하나님을 믿으니 또 나를 믿으라', r:'요한복음 14:1' },
-    { t:'여호와를 앙망하는 자는 새 힘을 얻으리니', r:'이사야 40:31' },
-    { t:'주의 말씀은 내 발에 등이요 내 길에 빛이니이다', r:'시편 119:105' },
-    { t:'사랑은 오래 참고 사랑은 온유하며 시기하지 아니하며', r:'고린도전서 13:4' },
-    { t:'항상 기뻐하라 쉬지 말고 기도하라 범사에 감사하라', r:'데살로니가전서 5:16-18' },
+    { t:'여호와는 나의 목자시니 내게 부족함이 없으리로다', r:'시편 23:1', te:'The LORD is my shepherd; I shall not want.', re:'Psalm 23:1' },
+    { t:'수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라', r:'마태복음 11:28', te:'Come to me, all who labor and are heavy laden, and I will give you rest.', re:'Matthew 11:28' },
+    { t:'내가 너희에게 평안을 끼치노니 곧 나의 평안을 너희에게 주노라', r:'요한복음 14:27', te:'Peace I leave with you; my peace I give to you.', re:'John 14:27' },
+    { t:'모든 것이 협력하여 선을 이루느니라', r:'로마서 8:28', te:'All things work together for good for those who love God.', re:'Romans 8:28' },
+    { t:'하나님은 우리의 피난처시요 힘이시니 환난 중에 만날 큰 도움이시라', r:'시편 46:1', te:'God is our refuge and strength, a very present help in trouble.', re:'Psalm 46:1' },
+    { t:'내가 세상 끝날까지 너희와 항상 함께 있으리라', r:'마태복음 28:20', te:'I am with you always, to the end of the age.', re:'Matthew 28:20' },
+    { t:'주님의 인자하심이 영원하시며 그의 진실하심이 대대에 이르리로다', r:'시편 100:5', te:'The LORD is good; his steadfast love endures forever, and his faithfulness to all generations.', re:'Psalm 100:5' },
+    { t:'너희는 마음에 근심하지 말라 하나님을 믿으니 또 나를 믿으라', r:'요한복음 14:1', te:'Let not your hearts be troubled. Believe in God; believe also in me.', re:'John 14:1' },
+    { t:'여호와를 앙망하는 자는 새 힘을 얻으리니', r:'이사야 40:31', te:'They who wait for the LORD shall renew their strength.', re:'Isaiah 40:31' },
+    { t:'주의 말씀은 내 발에 등이요 내 길에 빛이니이다', r:'시편 119:105', te:'Your word is a lamp to my feet and a light to my path.', re:'Psalm 119:105' },
+    { t:'사랑은 오래 참고 사랑은 온유하며 시기하지 아니하며', r:'고린도전서 13:4', te:'Love is patient and kind; love does not envy or boast', re:'1 Corinthians 13:4' },
+    { t:'항상 기뻐하라 쉬지 말고 기도하라 범사에 감사하라', r:'데살로니가전서 5:16-18', te:'Rejoice always, pray without ceasing, give thanks in all circumstances.', re:'1 Thessalonians 5:16-18' },
 ];
 
 function initHeroTeaser() {
@@ -1949,8 +2263,9 @@ function initHeroTeaser() {
     const item = TEASER_POOL[picked];
     const tEl = document.getElementById('ht-text');
     const rEl = document.getElementById('ht-ref');
-    if (tEl) tEl.textContent = `"${item.t}"`;
-    if (rEl) rEl.textContent = `— ${item.r}`;
+    const useEn = appLang==='en' && item.te;
+    if (tEl) tEl.textContent = `"${useEn ? item.te : item.t}"`;
+    if (rEl) rEl.textContent = `— ${useEn ? item.re : item.r}`;
 }
 
 /* ── 별 생성 ── */
@@ -2189,10 +2504,12 @@ function buildResult() {
     document.getElementById('r-context').textContent = eLabel(emotion)+' · '+tLabel(topic)+' · '+nLabel(need);
     document.getElementById('r-verse').textContent      = curVerse.v;
     document.getElementById('r-ref').textContent        = '— '+curVerse.r;
-    document.getElementById('r-reflection').textContent = REFLECTIONS[emotion+'_'+topic] || '';
-    document.getElementById('r-prayer').textContent     = PRAYERS[emotion+'_'+need] || '';
-    document.getElementById('r-sentence').textContent   = rand(SENTENCES);
-    document.getElementById('r-enc').textContent        = ENCS[emotion+'_'+need] || '';
+    const isEn = appLang==='en';
+    const rKey = emotion+'_'+topic, nKey = emotion+'_'+need;
+    document.getElementById('r-reflection').textContent = (isEn ? (REFLECTIONS_EN[rKey]||REFLECTIONS[rKey]) : REFLECTIONS[rKey]) || '';
+    document.getElementById('r-prayer').textContent     = (isEn ? (PRAYERS_EN[nKey]||PRAYERS[nKey]) : PRAYERS[nKey]) || '';
+    document.getElementById('r-sentence').textContent   = rand(isEn ? SENTENCES_EN : SENTENCES);
+    document.getElementById('r-enc').textContent        = (isEn ? (ENCS_EN[nKey]||ENCS[nKey]) : ENCS[nKey]) || '';
 
     // 일기 초기화
     document.getElementById('diary-input').value = '';
