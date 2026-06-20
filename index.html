@@ -200,7 +200,9 @@
 
         /* ── 헤더 바 ── */
         .top-bar { display:flex;align-items:flex-start;justify-content:space-between;padding:18px 0 0; }
-        .top-side { flex:1; }
+        /* 왼쪽 빈 spacer는 0으로 — 중앙이 나머지 공간 차지, 오른쪽 아이콘은 자연 크기 */
+        .top-side { flex:0 0 auto; }
+        .top-center { flex:1; }
         .top-icons  { display:flex;gap:6px;justify-content:flex-end;padding-top:4px; }
         .icon-btn {
             display:flex;flex-direction:column;align-items:center;gap:2px;
@@ -216,10 +218,10 @@
 
         .moon-icon { font-size:62px;display:inline-block;animation:float 4s ease-in-out infinite;will-change:transform; }
         @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
-        .welcome-text { font-size:var(--fs-md);color:rgba(255,255,255,.88);letter-spacing:.3px;line-height:1.6;font-weight:500; }
+        .welcome-text { font-size:var(--fs-md);color:rgba(255,255,255,.88);letter-spacing:.3px;line-height:1.6;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
         .date-text    { font-size:var(--fs-xs);color:rgba(255,255,255,.55);margin-top:3px; }
         .top-center {
-            flex:1;text-align:center;padding:0 8px;position:relative;
+            text-align:center;padding:0 8px;position:relative;
         }
         .top-center::after {
             content:'';position:absolute;bottom:-24px;left:50%;
@@ -2285,8 +2287,8 @@ function openSettings() {
     // 업데이트 상태 초기화
     const btn = document.getElementById('btn-check-update');
     if (btn) { btn.disabled = false; btn.textContent = '확인'; btn.onclick = checkUpdateManual; }
-    // 대기 중인 SW가 있으면 즉시 "새 버전" 상태 표시
-    if ('serviceWorker' in navigator) {
+    // 대기 중인 SW 상태 표시 (http/https 환경에서만)
+    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.getRegistration().then(reg => {
             if (reg && reg.waiting) {
                 _setUpdateStatus('새 버전이 준비됐어요!');
@@ -2296,7 +2298,7 @@ function openSettings() {
             }
         }).catch(()=>{ _setUpdateStatus('확인하려면 버튼을 누르세요.'); });
     } else {
-        _setUpdateStatus('확인하려면 버튼을 누르세요.');
+        _setUpdateStatus(location.protocol === 'file:' ? 'PC 로컬 파일 실행 중 (웹 환경에서만 지원)' : '확인하려면 버튼을 누르세요.');
     }
     showOverlay('overlay-settings');
 }
@@ -2367,8 +2369,9 @@ function clearData() {
 
 /* 수동 업데이트 확인 */
 function checkUpdateManual() {
-    if (!('serviceWorker' in navigator)) {
-        _setUpdateStatus('이 브라우저는 업데이트 확인을 지원하지 않습니다.');
+    if (!('serviceWorker' in navigator) || location.protocol === 'file:') {
+        _setUpdateStatus('모바일 또는 웹 환경에서만 지원됩니다.');
+        _resetUpdateBtn();
         return;
     }
     const btn = document.getElementById('btn-check-update');
@@ -2419,10 +2422,10 @@ function toast(msg) {
 /* 업데이트 배너 → 새 SW 활성화 요청 */
 function applyUpdate() {
     document.getElementById('update-banner').classList.add('hidden');
-    if ('serviceWorker' in navigator) {
+    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
         navigator.serviceWorker.getRegistration().then(reg => {
             if (reg && reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
-        });
+        }).catch(()=>{});
     }
 }
 
