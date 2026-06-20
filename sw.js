@@ -1,4 +1,4 @@
-const CACHE = 'god-app-v3';
+const CACHE = 'god-app-v4';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {

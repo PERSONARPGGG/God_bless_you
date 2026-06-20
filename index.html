@@ -39,6 +39,8 @@
         body.season-christmas { background: linear-gradient(170deg,#1a0a30 0%,#2a1050 40%,#0a0820 100%); }
         body.season-easter    { background: linear-gradient(170deg,#0e2030 0%,#152840 40%,#050e1e 100%); }
         body.season-newyear   { background: linear-gradient(170deg,#0a1838 0%,#101e4a 40%,#050818 100%); }
+        body.season-chuseok   { background: linear-gradient(170deg,#1a1500 0%,#261e00 40%,#080600 100%); }
+        body.season-chuseok .star { background: #ffd700; }
 
         /* ── 별 ── */
         #stars { position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden; }
@@ -256,8 +258,9 @@
         .svi-context { font-size:10px;color:#c0a880;letter-spacing:.8px;margin-bottom:8px; }
         .svi-verse   { font-size:var(--fs-md);color:#2c2840;line-height:1.8;font-weight:500;margin-bottom:4px; }
         .svi-ref     { font-size:var(--fs-xs);color:#a07850;font-style:italic; }
-        .svi-del     { position:absolute;top:12px;right:14px;background:none;border:none;color:#ddd;font-size:16px;cursor:pointer;line-height:1; }
+        .svi-del      { position:absolute;top:12px;right:14px;background:none;border:none;color:#ddd;font-size:16px;cursor:pointer;line-height:1; }
         .svi-del:hover { color:#c88; }
+        .svi-sentence  { font-size:var(--fs-xs);color:#b09070;margin-top:8px;font-style:italic;line-height:1.6;border-top:1px solid #f0ece4;padding-top:8px; }
         .vault-empty { text-align:center;color:rgba(255,255,255,.4);font-size:var(--fs-md);padding:40px 20px;line-height:2; }
 
         /* 주간 감정 기록 */
@@ -349,7 +352,7 @@
         <button class="overlay-back" onclick="hideOverlay('overlay-vault')">← 돌아가기</button>
         <div class="overlay-title">📖 나의 보관함</div>
         <div class="vault-tabs">
-            <button class="vault-tab active" onclick="switchTab('saved')">저장된 말씀</button>
+            <button class="vault-tab active" onclick="switchTab('saved')">즐겨찾기</button>
             <button class="vault-tab"        onclick="switchTab('mood')">감정 기록</button>
         </div>
         <div id="vault-saved" class="vault-pane active">
@@ -487,7 +490,7 @@
             </div>
             <div class="verse-actions">
                 <button class="action-btn" id="btn-copy" onclick="copyVerse()">📋 복사</button>
-                <button class="action-btn" id="btn-save" onclick="toggleSave()">♡ 저장</button>
+                <button class="action-btn" id="btn-save" onclick="toggleSave()">⭐ 즐겨찾기</button>
             </div>
         </div>
 
@@ -908,7 +911,7 @@ function buildResult() {
 
     // 저장 버튼 초기화
     const btn=document.getElementById('btn-save');
-    btn.textContent='♡ 저장'; btn.classList.remove('saved');
+    btn.textContent='⭐ 즐겨찾기'; btn.classList.remove('saved');
 
     // 감정 기록 저장
     saveMood();
@@ -927,13 +930,9 @@ function saveMood() {
 function copyVerse() {
     if (!curVerse) return;
     const text = `"${curVerse.v}"\n${curVerse.r}`;
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(()=>toast('말씀이 복사되었습니다 📋'));
-    } else {
-        const ta=document.createElement('textarea'); ta.value=text;
-        document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-        document.body.removeChild(ta); toast('말씀이 복사되었습니다 📋');
-    }
+    navigator.clipboard.writeText(text)
+        .then(()=>toast('말씀이 복사되었습니다 📋'))
+        .catch(()=>toast('복사에 실패했습니다'));
 }
 
 /* ═══════════════════════════════════════
@@ -946,13 +945,14 @@ function toggleSave() {
     saved.unshift({
         date: new Date().toLocaleDateString('ko-KR',{month:'long',day:'numeric'}),
         context: E_LABEL[emotion]+' · '+N_LABEL[need],
-        verse: curVerse.v, ref: curVerse.r
+        verse: curVerse.v, ref: curVerse.r,
+        sentence: document.getElementById('r-sentence').textContent
     });
     lsSet('savedVerses', saved.slice(0,50));
     verseSaved=true;
     const btn=document.getElementById('btn-save');
-    btn.textContent='♥ 저장됨'; btn.classList.add('saved');
-    toast('말씀이 보관함에 저장되었습니다 📖');
+    btn.textContent='★ 저장됨'; btn.classList.add('saved');
+    toast('즐겨찾기에 저장되었습니다 ⭐');
 }
 
 /* ═══════════════════════════════════════
@@ -964,7 +964,8 @@ function saveDiary() {
     const hist = lsGet('moodHistory') || [];
     if (hist.length) { hist[0].diary = text; lsSet('moodHistory', hist); }
     document.getElementById('diary-saved-msg').style.display='block';
-    document.getElementById('diary-save-btn') && (document.querySelector('.diary-save-btn').disabled=true);
+    const saveBtn = document.querySelector('.diary-save-btn');
+    if (saveBtn) saveBtn.disabled = true;
     toast('감사 일기가 저장되었습니다 ✨');
 }
 
@@ -986,15 +987,50 @@ function switchTab(tab) {
 function renderSaved() {
     const list = lsGet('savedVerses') || [];
     const el   = document.getElementById('saved-list');
-    if (!list.length) { el.innerHTML='<div class="vault-empty">아직 저장된 말씀이 없어요.<br>말씀 카드의 ♡ 버튼을 눌러 저장해 보세요.</div>'; return; }
-    el.innerHTML = list.map((v,i)=>`
-        <div class="saved-verse-item">
-            <button class="svi-del" onclick="deleteSaved(${i})">×</button>
-            <div class="svi-date">${v.date}</div>
-            <div class="svi-context">${v.context}</div>
-            <div class="svi-verse">${v.verse}</div>
-            <div class="svi-ref">— ${v.ref}</div>
-        </div>`).join('');
+    el.innerHTML = '';
+    if (!list.length) {
+        const empty = document.createElement('div');
+        empty.className = 'vault-empty';
+        empty.innerHTML = '아직 즐겨찾기한 항목이 없어요.<br>말씀 카드의 ⭐ 버튼을 눌러 저장해 보세요.';
+        el.appendChild(empty);
+        return;
+    }
+    list.forEach((v, i) => {
+        const item = document.createElement('div');
+        item.className = 'saved-verse-item';
+
+        const del = document.createElement('button');
+        del.className = 'svi-del';
+        del.textContent = '×';
+        del.addEventListener('click', () => deleteSaved(i));
+
+        const date = document.createElement('div');
+        date.className = 'svi-date';
+        date.textContent = v.date;
+
+        const ctx = document.createElement('div');
+        ctx.className = 'svi-context';
+        ctx.textContent = v.context;
+
+        const verse = document.createElement('div');
+        verse.className = 'svi-verse';
+        verse.textContent = v.verse;
+
+        const ref = document.createElement('div');
+        ref.className = 'svi-ref';
+        ref.textContent = '— ' + v.ref;
+
+        item.append(del, date, ctx, verse, ref);
+
+        if (v.sentence) {
+            const sent = document.createElement('div');
+            sent.className = 'svi-sentence';
+            sent.textContent = '"' + v.sentence + '"';
+            item.appendChild(sent);
+        }
+
+        el.appendChild(item);
+    });
 }
 
 function deleteSaved(idx) {
@@ -1006,16 +1042,48 @@ function deleteSaved(idx) {
 function renderMood() {
     const hist = lsGet('moodHistory') || [];
     const el   = document.getElementById('mood-list');
-    if (!hist.length) { el.innerHTML='<div class="vault-empty">아직 기록이 없어요.<br>매일 방문하면 여기에 쌓입니다.</div>'; return; }
-    el.innerHTML = '<div class="mood-row">'+hist.slice(0,14).map(h=>`
-        <div class="mood-item">
-            <div class="mood-emoji">${h.emoji}</div>
-            <div class="mood-info">
-                <div class="mood-date">${h.date}</div>
-                <div class="mood-tags">${E_LABEL[h.emotion]||''} · ${T_LABEL[h.topic]||''} · ${N_LABEL[h.need]||''}</div>
-                ${h.diary?`<div class="mood-diary">"${h.diary}"</div>`:''}
-            </div>
-        </div>`).join('')+'</div>';
+    el.innerHTML = '';
+    if (!hist.length) {
+        const empty = document.createElement('div');
+        empty.className = 'vault-empty';
+        empty.innerHTML = '아직 기록이 없어요.<br>매일 방문하면 여기에 쌓입니다.';
+        el.appendChild(empty);
+        return;
+    }
+    const row = document.createElement('div');
+    row.className = 'mood-row';
+    hist.slice(0, 14).forEach(h => {
+        const item = document.createElement('div');
+        item.className = 'mood-item';
+
+        const emoji = document.createElement('div');
+        emoji.className = 'mood-emoji';
+        emoji.textContent = h.emoji;
+
+        const info = document.createElement('div');
+        info.className = 'mood-info';
+
+        const date = document.createElement('div');
+        date.className = 'mood-date';
+        date.textContent = h.date;
+
+        const tags = document.createElement('div');
+        tags.className = 'mood-tags';
+        tags.textContent = (E_LABEL[h.emotion]||'') + ' · ' + (T_LABEL[h.topic]||'') + ' · ' + (N_LABEL[h.need]||'');
+
+        info.append(date, tags);
+
+        if (h.diary) {
+            const diary = document.createElement('div');
+            diary.className = 'mood-diary';
+            diary.textContent = '"' + h.diary + '"';
+            info.appendChild(diary);
+        }
+
+        item.append(emoji, info);
+        row.appendChild(item);
+    });
+    el.appendChild(row);
 }
 
 /* ═══════════════════════════════════════
