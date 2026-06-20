@@ -127,6 +127,7 @@
         }
 
         /* ── 히어로 묵상 카드 ── */
+        .hero-teaser.hidden { display:none; }
         .hero-teaser {
             position:relative;margin:10px 0 18px;padding:15px 20px 14px;
             background:rgba(255,255,255,.07);
@@ -564,6 +565,47 @@
             .s1-title { font-size:calc(var(--fs-2xl) - 2px); }
             .btn-emotion { font-size:calc(var(--fs-btn) - 1px);padding:13px 10px; }
             .card { padding:20px 16px; }
+        }
+
+        /* ── 세로 공간 최적화: step 1·2·3 한 화면에 맞추기 ── */
+        @media (max-height:820px) {
+            .moon-icon    { font-size:46px; }
+            .top-bar      { padding-top:8px; }
+            .moon-wrap    { margin-bottom:3px; }
+            .welcome-text { font-size:var(--fs-sm);line-height:1.4; }
+            .date-text    { margin-top:1px; }
+            .top-center::after { display:none; }
+            .hero-teaser  { margin:6px 0 8px;padding:9px 14px 7px; }
+            .ht-label     { margin-bottom:5px; }
+            .ht-text      { font-size:12px;line-height:1.5;margin-bottom:2px; }
+            .s1-decoline  { display:none; }
+            .s1-title     { font-size:var(--fs-xl);margin-bottom:3px; }
+            .s1-sub       { font-size:var(--fs-sm);margin-bottom:10px; }
+            .card         { padding:15px 14px;margin-bottom:10px; }
+            .btn-emotion  { padding:11px 8px 9px;gap:3px;border-radius:16px; }
+            .e-emoji      { font-size:22px; }
+            .e-decor      { font-size:11px;line-height:1; }
+            .emotion-grid { gap:8px; }
+            .checkin-pill { margin-top:8px;padding:6px 12px; }
+            .step-title   { font-size:var(--fs-lg);margin-bottom:3px; }
+            .context-badge{ padding:5px 12px;margin-bottom:10px;font-size:var(--fs-sm); }
+            .btn-choice   { padding:13px 10px;gap:3px;border-radius:15px; }
+            .bc-emoji     { font-size:20px; }
+            .bc-decor     { font-size:11px; }
+            .two-grid     { gap:8px; }
+            #step1,#step2,#step3 { margin-top:6px !important; }
+        }
+        /* 더 작은 화면 (iPhone SE 등 667px) */
+        @media (max-height:700px) {
+            .moon-icon    { font-size:38px; }
+            .top-bar      { padding-top:4px; }
+            .date-text    { display:none; }
+            .hero-teaser  { margin:4px 0 6px;padding:7px 12px 6px; }
+            .s1-sub       { display:none; }
+            .card         { padding:12px 12px; }
+            .btn-emotion  { padding:9px 6px 7px; }
+            .e-emoji      { font-size:20px; }
+            .btn-choice   { padding:11px 8px; }
         }
 
         /* ── PWA 설치 배너 ── */
@@ -1875,6 +1917,9 @@ function go(fromId, toId) {
         from.classList.add('hidden'); from.style.opacity='';
         to.classList.remove('hidden'); to.classList.add('entering');
         setTimeout(()=>to.classList.remove('entering'),420);
+        // step1에서만 히어로 묵상 카드 표시, 나머지 스텝에서는 숨겨서 화면 공간 확보
+        const teaser = document.querySelector('.hero-teaser');
+        if (teaser) teaser.classList.toggle('hidden', toId !== 'step1');
         window.scrollTo({top:0,behavior:'smooth'});
     },320);
 }
