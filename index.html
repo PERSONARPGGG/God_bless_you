@@ -9,7 +9,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="오늘은 어땠나요">
-    <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
     <style>
         /* ── 기본 변수 ── */
@@ -1165,15 +1164,6 @@
 /* ═══════════════════════════════════════
    데이터
 ═══════════════════════════════════════ */
-const WELCOME = [
-    '오늘도 수고하셨습니다.',
-    '천천히 하루를 돌아보세요.',
-    '당신의 하루는 소중합니다.',
-    '잠시 쉬어가도 괜찮습니다.',
-    '오늘 하루도 잘 버티셨습니다.',
-    '하나님 앞에서 잠시 쉬어가세요.',
-    '당신의 이야기를 들을게요.'
-];
 
 const SENTENCES = [
     '오늘 버티신 것도 충분한 용기였습니다.',
@@ -1210,10 +1200,16 @@ const SENTENCES = [
     '하나님은 당신의 눈물도 기억하고 계십니다.'
 ];
 
-const E_LABEL = { 감사:'😊 감사했어요', 평안:'😌 평안했어요', 걱정:'😔 걱정이 있었어요', 지침:'😞 지쳤어요', 아픔:'😢 마음이 아팠어요', 기도:'🙏 기도하고 싶어요' };
-const T_LABEL = { 일:'💼 일', 가족:'🏠 가족', 공부:'📚 공부', 사람:'🤝 사람', 모름:'🌫️ 잘 모르겠어요' };
-const N_LABEL = { 위로:'🌸 위로받고 싶어요', 힘:'💪 힘을 얻고 싶어요', 지혜:'💡 방향이 필요해요', 쉼:'🌙 그냥 쉬고 싶어요' };
 const E_EMOJI = { 감사:'😊', 평안:'😌', 걱정:'😔', 지침:'😞', 아픔:'😢', 기도:'🙏' };
+const _EMO_IDX = { 감사:0, 평안:1, 걱정:2, 지침:3, 아픔:4, 기도:5 };
+const _EMO_ICON = ['😊','😌','😔','😞','😢','🙏'];
+const _TOP_IDX  = { 일:0, 가족:1, 공부:2, 사람:3, 모름:4 };
+const _TOP_ICON = ['💼','🏠','📚','🤝','🌫️'];
+const _NEE_IDX  = { 위로:0, 힘:1, 지혜:2, 쉼:3 };
+const _NEE_ICON = ['🌸','💪','💡','🌙'];
+function eLabel(k){ const L=LANG_DATA[appLang]||LANG_DATA.ko; const i=_EMO_IDX[k]; return i!=null?_EMO_ICON[i]+' '+L.emo[i]:k; }
+function tLabel(k){ const L=LANG_DATA[appLang]||LANG_DATA.ko; const i=_TOP_IDX[k];  return i!=null?_TOP_ICON[i]+' '+L.topic[i]:k; }
+function nLabel(k){ const L=LANG_DATA[appLang]||LANG_DATA.ko; const i=_NEE_IDX[k];  return i!=null?_NEE_ICON[i]+' '+L.need[i]:k; }
 
 /* 성경 구절 풀 (감정_필요 → 6개, 중복 방지 로직 사용) */
 const VERSE_POOL = {
@@ -1656,6 +1652,15 @@ const LANG_DATA = {
         toast_diary_saved:'감사 일기가 저장되었습니다 ✨', toast_diary_empty:'한 줄을 적어주세요 🌸',
         toast_exported:'클립보드에 복사되었습니다 📋', toast_reset:'초기화되었습니다',
         confirm_reset:'저장된 말씀, 감정 기록이 모두 삭제됩니다. 계속하시겠어요?',
+        /* 공유 */
+        share_title:'오늘의 말씀', share_app:'📖 오늘은 어땠나요?',
+        /* 절기 */
+        season_msg:{
+            christmas:'🎄 예수님의 탄생을 기다리는 계절입니다.\n오늘 밤도 그 빛 안에서 쉬어가세요.',
+            newyear:'🎊 새해가 밝았습니다.\n하나님과 함께하는 새로운 시작을 축복합니다.',
+            easter:'🌷 주님의 부활을 묵상하는 계절입니다.\n생명과 소망이 당신과 함께합니다.',
+            chuseok:'🌾 풍성한 추석입니다.\n가족과 감사의 마음을 나누는 날 되세요.',
+        },
     },
     en: {
         /* 환영 */
@@ -1713,6 +1718,15 @@ const LANG_DATA = {
         toast_diary_saved:'Gratitude saved ✨', toast_diary_empty:'Please write something first 🌸',
         toast_exported:'Copied to clipboard 📋', toast_reset:'Data cleared',
         confirm_reset:'All saved verses and mood history will be deleted. Continue?',
+        /* 공유 */
+        share_title:'Today\'s Verse', share_app:'📖 How Was Your Day?',
+        /* 절기 */
+        season_msg:{
+            christmas:'🎄 The season of awaiting Jesus\'s birth.\nRest in His light tonight.',
+            newyear:'🎊 Happy New Year!\nBlessed new beginnings with God.',
+            easter:'🌷 The season of the resurrection.\nLife and hope are with you.',
+            chuseok:'🌾 A season of gratitude.\nShare thanks with your family.',
+        },
     },
     ja: {
         /* 환영 */
@@ -1770,6 +1784,15 @@ const LANG_DATA = {
         toast_diary_saved:'感謝の日記を保存しました ✨', toast_diary_empty:'一行書いてください 🌸',
         toast_exported:'クリップボードにコピーしました 📋', toast_reset:'初期化しました',
         confirm_reset:'保存されたみことばと記録がすべて削除されます。続けますか？',
+        /* 공유 */
+        share_title:'今日のみことば', share_app:'📖 今日はどんな一日でしたか？',
+        /* 절기 */
+        season_msg:{
+            christmas:'🎄 イエス様の誕生を待ち望む季節です。\n今夜もその光の中で安らいでください。',
+            newyear:'🎊 あけましておめでとうございます。\n神様とともに新しい始まりをお祝いします。',
+            easter:'🌷 主の復活を黙想する季節です。\n命と希望があなたとともにあります。',
+            chuseok:'🌾 感謝の季節です。\n家族と感謝を分かち合いましょう。',
+        },
     }
 };
 let appLang = 'ko';
@@ -1831,6 +1854,10 @@ function applyLang(lang) {
     // 업데이트 버튼 (특수 상태가 아닐 때만)
     const ubtn=document.getElementById('btn-check-update');
     if(ubtn&&!ubtn.disabled&&ubtn.textContent!==L.upd_btn_apply) ubtn.textContent=L.row_update_btn;
+    // 체크인 필 텍스트
+    const cpTxt=document.getElementById('cp-text'), cpStr=document.getElementById('cp-streak');
+    if(cpTxt) cpTxt.textContent=L.cp_text;
+    if(cpStr){ const n=(cpStr.textContent.match(/\d+/)||['1'])[0]; cpStr.textContent=n+L.streak_unit; }
     // 푸터
     s('footer-text',L.footer);
     // 날짜·환영 갱신
@@ -1856,6 +1883,12 @@ function startWelcomeParticles() {
    초기화
 ═══════════════════════════════════════ */
 function init() {
+    // file:// 환경에서 manifest CORS 오류 방지: http/https일 때만 동적 추가
+    if (location.protocol !== 'file:') {
+        const ml = document.createElement('link');
+        ml.rel = 'manifest'; ml.href = 'manifest.json';
+        document.head.appendChild(ml);
+    }
     generateStars();
     appLang  = lsGet('appLang')  || 'ko';
     fontLevel = parseInt(lsGet('fontLevel') || '0');
@@ -1970,7 +2003,7 @@ function changeName() {
 function setWelcome() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const name = lsGet('userName');
-    const base = rand(L.welcome_msgs||WELCOME);
+    const base = rand(L.welcome_msgs);
     let text;
     if (name) {
         text = appLang==='en' ? `${name}, ${base}` : appLang==='ja' ? `${name}さん、${base}` : `${name}님, ${base}`;
@@ -2049,16 +2082,16 @@ function calcStreak(dates) {
 ═══════════════════════════════════════ */
 function checkSeason() {
     const now=new Date(), m=now.getMonth()+1, d=now.getDate();
-    let season=null, icon='🌙', msg='';
-
-    if (m===12&&d>=20&&d<=26) { season='christmas'; icon='⭐'; msg='🎄 예수님의 탄생을 기다리는 계절입니다.\n오늘 밤도 그 빛 안에서 쉬어가세요.'; }
-    else if (m===1&&d<=5)     { season='newyear';   icon='🌟'; msg='🎊 새해가 밝았습니다.\n하나님과 함께하는 새로운 시작을 축복합니다.'; }
-    else if ((m===3&&d>=28)||(m===4&&d<=10)) { season='easter'; icon='🌸'; msg='🌷 주님의 부활을 묵상하는 계절입니다.\n생명과 소망이 당신과 함께합니다.'; }
-    else if (m===9&&d>=14&&d<=17) { season='chuseok'; icon='🌕'; msg='🌾 풍성한 추석입니다.\n가족과 감사의 마음을 나누는 날 되세요.'; }
-
+    let season=null, icon='🌙';
+    if (m===12&&d>=20&&d<=26)              { season='christmas'; icon='⭐'; }
+    else if (m===1&&d<=5)                  { season='newyear';   icon='🌟'; }
+    else if ((m===3&&d>=28)||(m===4&&d<=10)){ season='easter';   icon='🌸'; }
+    else if (m===9&&d>=14&&d<=17)          { season='chuseok';   icon='🌕'; }
     if (season) {
         document.body.classList.add('season-'+season);
         document.getElementById('main-icon').textContent = icon;
+        const L = LANG_DATA[appLang]||LANG_DATA.ko;
+        const msg = (L.season_msg||LANG_DATA.ko.season_msg)[season]||'';
         const banner = document.getElementById('season-banner');
         banner.innerHTML = msg.replace('\n','<br>');
         banner.classList.add('visible');
@@ -2126,8 +2159,8 @@ function spawnBlessing() {
 
 function pick(type, value) {
     sel[type] = value;
-    if (type==='emotion') { document.getElementById('badge2').textContent=E_LABEL[value]; go('step1','step2'); }
-    else if (type==='topic') { document.getElementById('badge3').textContent=E_LABEL[sel.emotion]+' · '+T_LABEL[value]; go('step2','step3'); }
+    if (type==='emotion') { document.getElementById('badge2').textContent=eLabel(value); go('step1','step2'); }
+    else if (type==='topic') { document.getElementById('badge3').textContent=eLabel(sel.emotion)+' · '+tLabel(value); go('step2','step3'); }
     else if (type==='need')  { buildResult(); go('step3','step4'); setTimeout(spawnBlessing,400); }
 }
 
@@ -2153,7 +2186,7 @@ function buildResult() {
     curVerse = getVerseForMood(emotion, need);
     verseSaved = false;
 
-    document.getElementById('r-context').textContent = E_LABEL[emotion]+' · '+T_LABEL[topic]+' · '+N_LABEL[need];
+    document.getElementById('r-context').textContent = eLabel(emotion)+' · '+tLabel(topic)+' · '+nLabel(need);
     document.getElementById('r-verse').textContent      = curVerse.v;
     document.getElementById('r-ref').textContent        = '— '+curVerse.r;
     document.getElementById('r-reflection').textContent = REFLECTIONS[emotion+'_'+topic] || '';
@@ -2211,9 +2244,10 @@ function copyVerse() {
 ═══════════════════════════════════════ */
 function shareVerse() {
     if (!curVerse) return;
-    const text = `"${curVerse.v}"\n— ${curVerse.r}\n\n📖 오늘은 어땠나요?`;
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    const text = `"${curVerse.v}"\n— ${curVerse.r}\n\n${L.share_app}`;
     if (navigator.share) {
-        navigator.share({ title: '오늘의 말씀', text, url: location.href })
+        navigator.share({ title: L.share_title, text, url: location.href })
             .catch(err => { if (err && err.name !== 'AbortError') fallbackShare(text); });
     } else {
         fallbackShare(text);
@@ -2221,9 +2255,10 @@ function shareVerse() {
 }
 
 function fallbackShare(text) {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text)
-            .then(()=>toast('말씀이 복사되었습니다 📋'))
+            .then(()=>toast(L.toast_copied))
             .catch(()=>legacyCopy(text));
     } else {
         legacyCopy(text);
@@ -2253,7 +2288,7 @@ function toggleSave() {
     const saved = lsGet('savedVerses') || [];
     saved.unshift({
         date: new Date().toLocaleDateString(L.locale||'ko-KR',{month:'long',day:'numeric'}),
-        context: E_LABEL[emotion]+' · '+N_LABEL[need],
+        context: eLabel(emotion)+' · '+nLabel(need),
         verse: curVerse.v, ref: curVerse.r,
         sentence: document.getElementById('r-sentence').textContent
     });
@@ -2373,8 +2408,8 @@ function renderMood() {
     const jumpEl = document.getElementById('mood-month-jump');
     el.innerHTML = '';
 
-    const L2 = LANG_DATA[appLang]||LANG_DATA.ko;
-    const dn = L2.day_names, mn = L2.month_names;
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    const dn = L.day_names, mn = L.month_names;
     const fmtDate = str => {
         const d = new Date(str);
         if (appLang==='en') return `${mn[d.getMonth()]} ${d.getDate()} (${dn[d.getDay()]})`;
@@ -2389,7 +2424,7 @@ function renderMood() {
     };
 
     if (!hist.length) {
-        el.innerHTML = `<div class="vault-empty">${L2.vault_empty_mood}</div>`;
+        el.innerHTML = `<div class="vault-empty">${L.vault_empty_mood}</div>`;
         if (jumpEl) jumpEl.innerHTML = '';
         renderPagination('mood-pagination', 0, 0, ()=>{});
         return;
@@ -2433,9 +2468,9 @@ function renderMood() {
         const emoji = document.createElement('div'); emoji.className = 'mood-emoji'; emoji.textContent = h.emoji;
         const info  = document.createElement('div'); info.className  = 'mood-info';
         const date  = document.createElement('div'); date.className  = 'mood-date'; date.textContent = fmtDate(h.date);
-        const emoTag  = document.createElement('div'); emoTag.className  = 'mood-emo-tag';  emoTag.textContent  = E_LABEL[h.emotion] || '';
-        const needTag = document.createElement('div'); needTag.className = 'mood-need-tag'; needTag.textContent = N_LABEL[h.need]    || '';
-        const topicTag= document.createElement('div'); topicTag.className= 'mood-topic-tag';topicTag.textContent= T_LABEL[h.topic]   || '';
+        const emoTag  = document.createElement('div'); emoTag.className  = 'mood-emo-tag';  emoTag.textContent  = eLabel(h.emotion);
+        const needTag = document.createElement('div'); needTag.className = 'mood-need-tag'; needTag.textContent = nLabel(h.need);
+        const topicTag= document.createElement('div'); topicTag.className= 'mood-topic-tag';topicTag.textContent= tLabel(h.topic);
         info.append(date, emoTag, needTag, topicTag);
         if (h.diary) {
             const diary = document.createElement('div');
