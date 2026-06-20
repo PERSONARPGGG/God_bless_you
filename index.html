@@ -334,7 +334,7 @@
             font-size:90px;color:rgba(200,168,112,.06);line-height:1;pointer-events:none;
         }
         .verse-icon  { font-size:14px;display:block;margin-bottom:10px; }
-        .verse-text  { font-size:var(--fs-verse);color:#1e1830;line-height:2.0;font-weight:500;margin-bottom:10px; }
+        .verse-text  { font-size:var(--fs-verse);color:#1e1830;line-height:2.0;font-weight:500;margin-bottom:10px;word-break:keep-all;letter-spacing:.2px; }
         .verse-ref   { font-size:var(--fs-sm);color:#a07850;font-style:italic; }
         .verse-actions { display:flex;gap:8px;margin-top:12px;justify-content:flex-end; }
         .action-btn {
@@ -347,14 +347,26 @@
         .action-btn.saved { background:#fdf0e8;border-color:#c8a870;color:#c8784a; }
 
         /* 묵상·기도·응원 */
-        .reflect-text { font-size:var(--fs-reflect);color:#333;line-height:2.1; }
-        .prayer-text  { font-size:var(--fs-reflect);color:#333;line-height:2.1;white-space:pre-line; }
-        .enc-text     { font-size:var(--fs-reflect);color:#333;line-height:2.1;text-align:center; }
+        .reflect-text {
+            font-size:var(--fs-reflect);color:#2a2440;line-height:2.1;
+            word-break:keep-all;text-indent:1em;letter-spacing:.15px;
+        }
+        .prayer-text {
+            font-size:var(--fs-reflect);color:#3a2840;line-height:2.2;
+            white-space:pre-line;word-break:keep-all;
+            padding:14px 16px;border-radius:14px;
+            background:linear-gradient(135deg,rgba(200,168,112,.08),rgba(180,140,80,.04));
+            border-left:3px solid rgba(200,168,112,.5);
+        }
+        .enc-text {
+            font-size:var(--fs-reflect);color:#3a2460;line-height:2.1;
+            text-align:center;font-weight:500;word-break:keep-all;letter-spacing:.2px;
+        }
 
         /* 오늘의 한 문장 */
         .sentence-wrap { text-align:center;padding:4px 6px; }
         .quote-mark    { font-size:40px;color:#ddd6c8;line-height:.6;display:block;margin-bottom:12px;font-family:Georgia,serif; }
-        .sentence-text { font-size:var(--fs-lg);color:#1e1830;line-height:1.9;font-weight:600; }
+        .sentence-text { font-size:var(--fs-lg);color:#1e1830;line-height:1.9;font-weight:600;word-break:keep-all;text-align:center; }
 
         /* 감사 일기 카드 */
         .diary-label  { font-size:var(--fs-sm);color:#666;margin-bottom:10px;font-weight:500; }
@@ -489,12 +501,34 @@
         }
         .svi-date    { font-size:var(--fs-xs);color:rgba(255,255,255,.4);margin-bottom:5px; }
         .svi-context { font-size:11px;color:rgba(255,200,100,.8);letter-spacing:.6px;margin-bottom:10px;font-weight:600; }
-        .svi-verse   { font-size:var(--fs-md);color:rgba(255,255,255,.9);line-height:1.9;font-weight:500;margin-bottom:7px; }
+        .svi-verse   { font-size:var(--fs-md);color:rgba(255,255,255,.9);line-height:1.9;font-weight:500;margin-bottom:7px;word-break:keep-all; }
         .svi-ref     { font-size:var(--fs-sm);color:rgba(200,168,112,.85);font-style:italic; }
         .svi-del     { position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,.25);font-size:18px;cursor:pointer;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center; }
         .svi-del:hover { color:rgba(255,140,130,.8); }
         .svi-sentence { font-size:var(--fs-xs);color:rgba(255,220,160,.55);margin-top:10px;font-style:italic;line-height:1.7;border-top:1px solid rgba(255,255,255,.1);padding-top:10px; }
         .vault-empty { text-align:center;color:rgba(255,255,255,.4);font-size:var(--fs-md);padding:48px 20px;line-height:2.2; }
+
+        /* ── 보관함 페이지네이션 ── */
+        .vault-pagination { display:flex;justify-content:center;align-items:center;gap:14px;margin-top:18px;padding:4px 0 8px; }
+        .vpag-btn {
+            padding:8px 18px;border-radius:14px;border:1px solid rgba(255,255,255,.15);
+            background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);
+            font-size:var(--fs-sm);cursor:pointer;font-family:inherit;
+            transition:all .2s;-webkit-tap-highlight-color:transparent;min-height:40px;
+        }
+        .vpag-btn:not(:disabled):hover { background:rgba(255,255,255,.16);color:#fff; }
+        .vpag-btn:disabled { opacity:.3;cursor:default; }
+        .vpag-info { font-size:12px;color:rgba(255,255,255,.4);min-width:44px;text-align:center; }
+        /* ── 월별 빠른 이동 ── */
+        .mood-month-jump { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px; }
+        .mmj-btn {
+            padding:5px 13px;border-radius:20px;font-size:11px;font-weight:600;
+            background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+            color:rgba(255,255,255,.55);cursor:pointer;font-family:inherit;
+            transition:all .18s;-webkit-tap-highlight-color:transparent;
+        }
+        .mmj-btn.active { background:rgba(200,168,112,.22);border-color:rgba(200,168,112,.5);color:rgba(255,220,150,.9); }
+        .mmj-btn:hover  { background:rgba(255,255,255,.14);color:rgba(255,255,255,.85); }
 
         /* 감정 기록 */
         .mood-month-header {
@@ -515,7 +549,7 @@
         .mood-emo-tag   { font-size:var(--fs-sm);color:rgba(255,255,255,.88);font-weight:600;margin-bottom:3px; }
         .mood-need-tag  { font-size:var(--fs-xs);color:rgba(255,200,150,.7); }
         .mood-topic-tag { font-size:var(--fs-xs);color:rgba(255,255,255,.38);margin-top:2px; }
-        .mood-diary     { font-size:var(--fs-xs);color:rgba(255,220,160,.6);margin-top:8px;font-style:italic;line-height:1.6;border-top:1px solid rgba(255,255,255,.08);padding-top:8px; }
+        .mood-diary     { font-size:var(--fs-xs);color:rgba(255,220,160,.6);margin-top:8px;font-style:italic;line-height:1.6;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;word-break:keep-all; }
 
         /* 설정 */
         .settings-section { margin-bottom:18px; }
@@ -777,9 +811,12 @@
         </div>
         <div id="vault-saved" class="vault-pane active">
             <div id="saved-list"></div>
+            <div id="saved-pagination" class="vault-pagination"></div>
         </div>
         <div id="vault-mood" class="vault-pane">
+            <div id="mood-month-jump" class="mood-month-jump"></div>
             <div id="mood-list"></div>
+            <div id="mood-pagination" class="vault-pagination"></div>
         </div>
     </div>
 </div>
@@ -1657,17 +1694,19 @@ function init() {
     applyLang(appLang);
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').then(reg => {
-            // 새 SW가 설치 완료되면 업데이트 배너 표시
+            // 페이지 로드 시 즉시 업데이트 확인 (기본 24시간 간격 보완)
+            reg.update();
             reg.addEventListener('updatefound', () => {
                 const newSW = reg.installing;
                 newSW.addEventListener('statechange', () => {
+                    // 기존 SW 위에 새 SW가 설치 완료된 경우에만 배너 표시
                     if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
                         document.getElementById('update-banner').classList.remove('hidden');
                     }
                 });
             });
         }).catch(()=>{});
-        // SW가 skipWaiting 후 새로 활성화되면 자동 새로고침
+        // SKIP_WAITING 후 새 SW가 활성화되면 자동 새로고침
         let refreshing = false;
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             if (!refreshing) { refreshing = true; location.reload(); }
@@ -2057,7 +2096,27 @@ function saveDiary() {
 /* ═══════════════════════════════════════
    보관함
 ═══════════════════════════════════════ */
+let moodPage = 0, savedPage = 0;
+const MOOD_PER_PAGE = 7, SAVED_PER_PAGE = 5;
+
+function renderPagination(containerId, cur, total, onChange) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = '';
+    if (total <= 1) return;
+    const prev = document.createElement('button');
+    prev.className = 'vpag-btn'; prev.textContent = '← 이전'; prev.disabled = cur === 0;
+    prev.onclick = () => onChange(cur - 1);
+    const info = document.createElement('span');
+    info.className = 'vpag-info'; info.textContent = `${cur + 1} / ${total}`;
+    const next = document.createElement('button');
+    next.className = 'vpag-btn'; next.textContent = '다음 →'; next.disabled = cur >= total - 1;
+    next.onclick = () => onChange(cur + 1);
+    el.append(prev, info, next);
+}
+
 function openVault() {
+    moodPage = 0; savedPage = 0;
     renderSaved();
     renderMood();
     showOverlay('overlay-vault');
@@ -2067,6 +2126,8 @@ function switchTab(tab) {
     document.querySelectorAll('.vault-tab').forEach((t,i)=>t.classList.toggle('active', (i===0&&tab==='saved')||(i===1&&tab==='mood')));
     document.getElementById('vault-saved').classList.toggle('active', tab==='saved');
     document.getElementById('vault-mood').classList.toggle('active',  tab==='mood');
+    if (tab==='saved') { savedPage=0; renderSaved(); }
+    if (tab==='mood')  { moodPage=0;  renderMood();  }
 }
 
 function renderSaved() {
@@ -2074,84 +2135,93 @@ function renderSaved() {
     const el   = document.getElementById('saved-list');
     el.innerHTML = '';
     if (!list.length) {
-        const empty = document.createElement('div');
-        empty.className = 'vault-empty';
-        empty.innerHTML = '아직 즐겨찾기한 항목이 없어요.<br>말씀 카드의 ⭐ 버튼을 눌러 저장해 보세요.';
-        el.appendChild(empty);
+        el.innerHTML = '<div class="vault-empty">아직 즐겨찾기한 항목이 없어요.<br>말씀 카드의 ⭐ 버튼을 눌러 저장해 보세요.</div>';
+        renderPagination('saved-pagination', 0, 0, ()=>{});
         return;
     }
     const EMO_BORDER = { '😊':'rgba(240,190,60,.65)', '😌':'rgba(80,200,160,.55)', '😔':'rgba(120,150,255,.6)', '😞':'rgba(160,130,255,.6)', '😢':'rgba(255,120,150,.55)', '🙏':'rgba(80,210,200,.55)' };
-    list.forEach((v, i) => {
+    const totalPages = Math.ceil(list.length / SAVED_PER_PAGE);
+    if (savedPage >= totalPages) savedPage = 0;
+    const start = savedPage * SAVED_PER_PAGE;
+
+    list.slice(start, start + SAVED_PER_PAGE).forEach((v, pi) => {
+        const idx = start + pi;
         const item = document.createElement('div');
         item.className = 'saved-verse-item';
         const emoKey = Object.keys(EMO_BORDER).find(em => (v.context||'').includes(em));
         if (emoKey) item.style.borderLeftColor = EMO_BORDER[emoKey];
 
         const del = document.createElement('button');
-        del.className = 'svi-del';
-        del.textContent = '×';
-        del.addEventListener('click', () => deleteSaved(i));
+        del.className = 'svi-del'; del.textContent = '×';
+        del.addEventListener('click', () => deleteSaved(idx));
 
-        const date = document.createElement('div');
-        date.className = 'svi-date';
-        date.textContent = v.date;
-
-        const ctx = document.createElement('div');
-        ctx.className = 'svi-context';
-        ctx.textContent = v.context;
-
-        const verse = document.createElement('div');
-        verse.className = 'svi-verse';
-        verse.textContent = v.verse;
-
-        const ref = document.createElement('div');
-        ref.className = 'svi-ref';
-        ref.textContent = '— ' + v.ref;
+        const date = document.createElement('div'); date.className = 'svi-date'; date.textContent = v.date;
+        const ctx  = document.createElement('div'); ctx.className  = 'svi-context'; ctx.textContent = v.context;
+        const verse = document.createElement('div'); verse.className = 'svi-verse'; verse.textContent = v.verse;
+        const ref   = document.createElement('div'); ref.className   = 'svi-ref'; ref.textContent = '— ' + v.ref;
 
         item.append(del, date, ctx, verse, ref);
-
         if (v.sentence) {
             const sent = document.createElement('div');
             sent.className = 'svi-sentence';
             sent.textContent = '"' + v.sentence + '"';
             item.appendChild(sent);
         }
-
         el.appendChild(item);
     });
+    renderPagination('saved-pagination', savedPage, totalPages, p => { savedPage = p; renderSaved(); });
 }
 
 function deleteSaved(idx) {
     const list = lsGet('savedVerses') || [];
     list.splice(idx,1); lsSet('savedVerses',list);
+    if (savedPage > 0 && savedPage >= Math.ceil(list.length / SAVED_PER_PAGE)) savedPage--;
     renderSaved();
 }
 
 function renderMood() {
     const hist = lsGet('moodHistory') || [];
     const el   = document.getElementById('mood-list');
+    const jumpEl = document.getElementById('mood-month-jump');
     el.innerHTML = '';
+
+    const dayNames = ['일','월','화','수','목','금','토'];
+    const fmtDate  = str => { const d = new Date(str); return `${d.getMonth()+1}월 ${d.getDate()}일 (${dayNames[d.getDay()]})`; };
+    const fmtMonth = str => { const d = new Date(str); return `${d.getFullYear()}년 ${d.getMonth()+1}월`; };
+
     if (!hist.length) {
-        const empty = document.createElement('div');
-        empty.className = 'vault-empty';
-        empty.innerHTML = '아직 기록이 없어요.<br>매일 방문하면 여기에 쌓입니다.';
-        el.appendChild(empty);
+        el.innerHTML = '<div class="vault-empty">아직 기록이 없어요.<br>매일 방문하면 여기에 쌓입니다.</div>';
+        if (jumpEl) jumpEl.innerHTML = '';
+        renderPagination('mood-pagination', 0, 0, ()=>{});
         return;
     }
 
-    const dayNames = ['일','월','화','수','목','금','토'];
-    const fmtDate = str => {
-        const d = new Date(str);
-        return `${d.getMonth()+1}월 ${d.getDate()}일 (${dayNames[d.getDay()]})`;
-    };
-    const fmtMonth = str => {
-        const d = new Date(str);
-        return `${d.getFullYear()}년 ${d.getMonth()+1}월`;
-    };
+    // 월별 빠른 이동 버튼
+    const months = [...new Set(hist.map(h => fmtMonth(h.date)))];
+    if (jumpEl) {
+        jumpEl.innerHTML = '';
+        months.forEach(m => {
+            const btn = document.createElement('button');
+            btn.className = 'mmj-btn';
+            btn.textContent = m.replace(/^\d{4}년 /, '');
+            btn.onclick = () => {
+                const firstIdx = hist.findIndex(h => fmtMonth(h.date) === m);
+                moodPage = Math.floor(firstIdx / MOOD_PER_PAGE);
+                renderMood();
+            };
+            jumpEl.appendChild(btn);
+        });
+    }
 
-    // 월별 그룹핑
+    // 페이지네이션
+    const totalPages = Math.ceil(hist.length / MOOD_PER_PAGE);
+    if (moodPage >= totalPages) moodPage = 0;
+    const start = moodPage * MOOD_PER_PAGE;
+    const pageItems = hist.slice(start, start + MOOD_PER_PAGE);
+
+    // 현재 페이지 기록 렌더링 (월 헤더 포함)
     let curMonth = null;
-    hist.slice(0, 30).forEach(h => {
+    pageItems.forEach(h => {
         const month = fmtMonth(h.date);
         if (month !== curMonth) {
             curMonth = month;
@@ -2160,45 +2230,30 @@ function renderMood() {
             header.textContent = month;
             el.appendChild(header);
         }
-
-        const item = document.createElement('div');
-        item.className = 'mood-item';
-
-        const emoji = document.createElement('div');
-        emoji.className = 'mood-emoji';
-        emoji.textContent = h.emoji;
-
-        const info = document.createElement('div');
-        info.className = 'mood-info';
-
-        const date = document.createElement('div');
-        date.className = 'mood-date';
-        date.textContent = fmtDate(h.date);
-
-        const emoTag = document.createElement('div');
-        emoTag.className = 'mood-emo-tag';
-        emoTag.textContent = E_LABEL[h.emotion] || '';
-
-        const needTag = document.createElement('div');
-        needTag.className = 'mood-need-tag';
-        needTag.textContent = N_LABEL[h.need] || '';
-
-        const topicTag = document.createElement('div');
-        topicTag.className = 'mood-topic-tag';
-        topicTag.textContent = T_LABEL[h.topic] || '';
-
+        const item = document.createElement('div'); item.className = 'mood-item';
+        const emoji = document.createElement('div'); emoji.className = 'mood-emoji'; emoji.textContent = h.emoji;
+        const info  = document.createElement('div'); info.className  = 'mood-info';
+        const date  = document.createElement('div'); date.className  = 'mood-date'; date.textContent = fmtDate(h.date);
+        const emoTag  = document.createElement('div'); emoTag.className  = 'mood-emo-tag';  emoTag.textContent  = E_LABEL[h.emotion] || '';
+        const needTag = document.createElement('div'); needTag.className = 'mood-need-tag'; needTag.textContent = N_LABEL[h.need]    || '';
+        const topicTag= document.createElement('div'); topicTag.className= 'mood-topic-tag';topicTag.textContent= T_LABEL[h.topic]   || '';
         info.append(date, emoTag, needTag, topicTag);
-
         if (h.diary) {
             const diary = document.createElement('div');
-            diary.className = 'mood-diary';
-            diary.textContent = '"' + h.diary + '"';
+            diary.className = 'mood-diary'; diary.textContent = '"' + h.diary + '"';
             info.appendChild(diary);
         }
-
         item.append(emoji, info);
         el.appendChild(item);
     });
+
+    // 월 버튼 active 표시 (현재 페이지에 보이는 월들)
+    if (jumpEl) {
+        const visible = new Set(pageItems.map(h => fmtMonth(h.date)));
+        jumpEl.querySelectorAll('.mmj-btn').forEach((btn, i) => btn.classList.toggle('active', visible.has(months[i])));
+    }
+
+    renderPagination('mood-pagination', moodPage, totalPages, p => { moodPage = p; renderMood(); });
 }
 
 /* ═══════════════════════════════════════
