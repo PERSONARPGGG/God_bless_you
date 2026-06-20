@@ -200,10 +200,11 @@
 
         /* ── 헤더 바 ── */
         /* top-bar: 중앙 콘텐츠를 완전히 가운데 정렬, 아이콘은 absolute로 우상단 독립 */
-        .top-bar    { display:flex;justify-content:center;padding:18px 0 0;position:relative; }
-        .top-side   { display:none; }  /* 양쪽 spacer 제거 */
-        .top-center { text-align:center;padding:0 8px;position:relative;width:100%; }
-        .top-icons  { position:absolute;top:18px;right:0;display:flex;gap:6px; }
+        .top-bar             { display:flex;justify-content:center;padding:18px 0 0;position:relative; }
+        .top-side:first-child{ display:none; }             /* 왼쪽 빈 spacer만 숨김 */
+        .top-side:last-child { position:absolute;top:18px;right:0; }  /* 아이콘 div 우상단 고정 */
+        .top-center          { text-align:center;padding:0 8px;position:relative;width:100%; }
+        .top-icons           { display:flex;gap:6px; }
         .icon-btn {
             display:flex;flex-direction:column;align-items:center;gap:2px;
             background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);
@@ -605,7 +606,7 @@
         @media (max-height:820px) {
             .moon-icon    { font-size:46px; }
             .top-bar      { padding-top:8px; }
-            .top-icons    { top:8px; }
+            .top-side:last-child { top:8px; }
             .moon-wrap    { margin-bottom:3px; }
             .welcome-text { font-size:var(--fs-sm);line-height:1.4; }
             .date-text    { margin-top:1px; }
@@ -916,6 +917,11 @@
                         <div class="setting-row-sub" id="update-status-text">최신 버전 확인 중...</div>
                     </div>
                     <button class="btn-setting-action" id="btn-check-update" onclick="checkUpdateManual()">확인</button>
+                </div>
+                <div style="margin-top:10px;padding:10px 14px;background:rgba(255,255,255,.05);border-radius:10px;">
+                    <div style="font-size:11px;color:rgba(255,255,255,.38);line-height:1.7;text-align:center;">
+                        🔒 저장된 기록은 기기 내에만 보관되며,<br>외부 서버로 수집되지 않습니다.
+                    </div>
                 </div>
             </div>
         </div>
