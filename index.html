@@ -107,17 +107,6 @@
             to  {transform:rotate(360deg) translateX(var(--r)) rotate(-360deg);}
         }
 
-        /* ── 달 빛 광선 ── */
-        .moon-rays {
-            position:absolute;top:50%;left:50%;
-            transform:translate(-50%,-50%);
-            width:220px;height:220px;
-            background:repeating-conic-gradient(rgba(200,180,255,.06) 0deg 3deg,transparent 3deg 14deg);
-            border-radius:50%;pointer-events:none;z-index:-2;will-change:transform;
-            animation:rays-spin 50s linear infinite;
-        }
-        @keyframes rays-spin { to{transform:translate(-50%,-50%) rotate(360deg);} }
-
         /* ── 히어로 플로팅 파티클 ── */
         .hero-floats {
             position:absolute;top:0;left:0;right:0;height:300px;
@@ -407,101 +396,131 @@
         .overlay {
             position:fixed;inset:0;z-index:200;overflow-y:auto;
             background:linear-gradient(170deg,#0e1842 0%,#132050 35%,#0a1030 65%,#050a1e 100%);
-            padding:24px 16px calc(100px + env(safe-area-inset-bottom));
+            padding:20px 16px calc(100px + env(safe-area-inset-bottom));
         }
         .overlay.hidden { display:none; }
         .overlay-inner { max-width:460px;margin:0 auto; }
+        .overlay-header {
+            display:flex;align-items:center;gap:12px;margin-bottom:20px;
+        }
         .overlay-title {
             font-size:var(--fs-xl);font-weight:700;color:#fff;text-align:center;
-            margin-bottom:20px;padding-top:8px;
+            margin-bottom:20px;padding-top:4px;
+            text-shadow:0 2px 16px rgba(180,160,255,.35);
         }
         .overlay-back {
-            display:flex;align-items:center;gap:6px;background:none;border:none;
-            color:rgba(255,255,255,.75);font-size:var(--fs-sm);cursor:pointer;
-            font-family:inherit;margin-bottom:16px;padding:8px 0;
-            -webkit-tap-highlight-color:transparent;min-height:44px;
+            display:inline-flex;align-items:center;gap:6px;
+            background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+            border-radius:14px;color:rgba(255,255,255,.82);font-size:var(--fs-sm);cursor:pointer;
+            font-family:inherit;margin-bottom:16px;padding:9px 16px;
+            -webkit-tap-highlight-color:transparent;min-height:44px;transition:background .2s;
         }
-        .overlay-back:hover { color:rgba(255,255,255,.95); }
+        .overlay-back:hover { background:rgba(255,255,255,.2);color:#fff; }
 
         /* 이름 설정 오버레이 */
+        .name-overlay-center { display:flex;align-items:center;min-height:80vh; }
+        .name-overlay-icon { text-align:center;margin-bottom:28px; }
+        .name-overlay-icon-emoji { font-size:40px;display:block;margin-bottom:10px; }
+        .name-overlay-hint { font-size:14px;color:rgba(255,255,255,.5); }
         #overlay-name .name-card {
-            background:rgba(255,252,248,.97);border-radius:24px;padding:32px 24px;
-            box-shadow:0 20px 60px rgba(0,0,0,.42);text-align:center;
+            background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.15);
+            backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+            border-radius:24px;padding:32px 24px;text-align:center;
         }
-        .name-title { font-size:var(--fs-xl);font-weight:700;color:#1a1a2e;margin-bottom:8px;line-height:1.4; }
-        .name-sub   { font-size:var(--fs-md);color:#888;margin-bottom:24px;line-height:1.6; }
+        .name-title { font-size:var(--fs-xl);font-weight:700;color:rgba(255,255,255,.95);margin-bottom:8px;line-height:1.4; }
+        .name-sub   { font-size:var(--fs-md);color:rgba(255,255,255,.55);margin-bottom:24px;line-height:1.6; }
         .name-input {
-            width:100%;border:1.5px solid #ede8de;border-radius:16px;padding:14px 18px;
-            font-size:var(--fs-lg);font-family:inherit;color:#333;background:#faf8f4;
+            width:100%;border:1.5px solid rgba(255,255,255,.2);border-radius:16px;padding:14px 18px;
+            font-size:var(--fs-lg);font-family:inherit;color:rgba(255,255,255,.9);
+            background:rgba(255,255,255,.1);
             outline:none;text-align:center;transition:border-color .2s;margin-bottom:14px;
         }
-        .name-input:focus { border-color:#b8cef0;background:#fff; }
-        .name-input::placeholder { color:#ccc; }
+        .name-input:focus { border-color:rgba(180,160,255,.6);background:rgba(255,255,255,.14); }
+        .name-input::placeholder { color:rgba(255,255,255,.3); }
         .btn-name-save {
-            display:block;width:100%;background:linear-gradient(135deg,#2a4578,#1e3460);
+            display:block;width:100%;background:linear-gradient(135deg,#3a5598,#2a4478);
             color:#fff;border:none;border-radius:16px;padding:16px;
             font-size:var(--fs-base);font-family:inherit;font-weight:600;cursor:pointer;
-            -webkit-tap-highlight-color:transparent;
+            -webkit-tap-highlight-color:transparent;transition:opacity .2s;
         }
-        .btn-name-skip { background:none;border:none;color:#aaa;font-size:var(--fs-sm);cursor:pointer;margin-top:12px;font-family:inherit; }
+        .btn-name-save:hover { opacity:.88; }
+        .btn-name-skip { background:none;border:none;color:rgba(255,255,255,.38);font-size:var(--fs-sm);cursor:pointer;margin-top:12px;font-family:inherit; }
 
-        /* 보관함 오버레이 */
-        .vault-tabs { display:flex;gap:8px;margin-bottom:16px; }
+        /* 보관함 탭 */
+        .vault-tabs { display:flex;gap:4px;margin-bottom:18px;background:rgba(255,255,255,.05);border-radius:16px;padding:4px; }
         .vault-tab {
-            flex:1;padding:10px;border:1.5px solid rgba(255,255,255,.15);border-radius:14px;
-            background:rgba(255,255,255,.07);color:rgba(255,255,255,.55);
+            flex:1;padding:10px;border:none;border-radius:12px;
+            background:transparent;color:rgba(255,255,255,.5);
             font-size:var(--fs-sm);font-family:inherit;cursor:pointer;text-align:center;
-            transition:all .2s;-webkit-tap-highlight-color:transparent;
+            transition:all .22s;-webkit-tap-highlight-color:transparent;font-weight:500;
         }
-        .vault-tab.active { background:rgba(255,255,255,.18);color:#fff;border-color:rgba(255,255,255,.3); }
+        .vault-tab.active { background:rgba(255,255,255,.16);color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.25); }
         .vault-pane { display:none; }
         .vault-pane.active { display:block; }
 
+        /* 즐겨찾기 카드 */
         .saved-verse-item {
-            background:rgba(255,252,248,.95);border-radius:18px;padding:16px 18px;margin-bottom:10px;
-            position:relative;
+            background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.11);
+            backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+            border-radius:18px;padding:16px 18px 16px 20px;margin-bottom:10px;
+            position:relative;border-left-width:3px;border-left-style:solid;
+            border-left-color:rgba(200,168,112,.55);
         }
-        .svi-date    { font-size:var(--fs-xs);color:#888;margin-bottom:6px; }
-        .svi-context { font-size:12px;color:#a08850;letter-spacing:.6px;margin-bottom:8px;font-weight:600; }
-        .svi-verse   { font-size:var(--fs-md);color:#1e1830;line-height:1.9;font-weight:500;margin-bottom:6px; }
-        .svi-ref     { font-size:var(--fs-sm);color:#a07850;font-style:italic; }
-        .svi-del      { position:absolute;top:12px;right:14px;background:none;border:none;color:#ccc;font-size:20px;cursor:pointer;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center; }
-        .svi-del:hover { color:#c88; }
-        .svi-sentence  { font-size:var(--fs-xs);color:#a08060;margin-top:10px;font-style:italic;line-height:1.7;border-top:1px solid #f0ece4;padding-top:10px; }
-        .vault-empty { text-align:center;color:rgba(255,255,255,.55);font-size:var(--fs-md);padding:40px 20px;line-height:2; }
+        .svi-date    { font-size:var(--fs-xs);color:rgba(255,255,255,.4);margin-bottom:5px; }
+        .svi-context { font-size:11px;color:rgba(255,200,100,.8);letter-spacing:.6px;margin-bottom:10px;font-weight:600; }
+        .svi-verse   { font-size:var(--fs-md);color:rgba(255,255,255,.9);line-height:1.9;font-weight:500;margin-bottom:7px; }
+        .svi-ref     { font-size:var(--fs-sm);color:rgba(200,168,112,.85);font-style:italic; }
+        .svi-del     { position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,.25);font-size:18px;cursor:pointer;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center; }
+        .svi-del:hover { color:rgba(255,140,130,.8); }
+        .svi-sentence { font-size:var(--fs-xs);color:rgba(255,220,160,.55);margin-top:10px;font-style:italic;line-height:1.7;border-top:1px solid rgba(255,255,255,.1);padding-top:10px; }
+        .vault-empty { text-align:center;color:rgba(255,255,255,.4);font-size:var(--fs-md);padding:48px 20px;line-height:2.2; }
 
-        /* 주간 감정 기록 */
-        .mood-row { display:flex;flex-direction:column;gap:8px; }
-        .mood-item { background:rgba(255,252,248,.95);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px; }
-        .mood-emoji { font-size:24px;flex-shrink:0; }
-        .mood-info  { flex:1; }
-        .mood-date  { font-size:var(--fs-xs);color:#888;margin-bottom:3px; }
-        .mood-tags  { font-size:var(--fs-sm);color:#444;line-height:1.6; }
-        .mood-diary { font-size:var(--fs-sm);color:#666;margin-top:5px;font-style:italic;line-height:1.6; }
+        /* 감정 기록 */
+        .mood-month-header {
+            font-size:10px;font-weight:700;letter-spacing:2px;
+            color:rgba(255,200,100,.65);padding:14px 4px 8px;
+            border-bottom:1px solid rgba(255,255,255,.09);margin-bottom:10px;
+        }
+        .mood-month-header:first-child { padding-top:2px; }
+        .mood-item {
+            background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+            backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+            border-radius:16px;padding:14px 16px;
+            display:flex;align-items:flex-start;gap:14px;margin-bottom:8px;
+        }
+        .mood-emoji     { font-size:26px;flex-shrink:0;margin-top:2px; }
+        .mood-info      { flex:1;min-width:0; }
+        .mood-date      { font-size:var(--fs-xs);color:rgba(255,255,255,.5);font-weight:700;margin-bottom:5px; }
+        .mood-emo-tag   { font-size:var(--fs-sm);color:rgba(255,255,255,.88);font-weight:600;margin-bottom:3px; }
+        .mood-need-tag  { font-size:var(--fs-xs);color:rgba(255,200,150,.7); }
+        .mood-topic-tag { font-size:var(--fs-xs);color:rgba(255,255,255,.38);margin-top:2px; }
+        .mood-diary     { font-size:var(--fs-xs);color:rgba(255,220,160,.6);margin-top:8px;font-style:italic;line-height:1.6;border-top:1px solid rgba(255,255,255,.08);padding-top:8px; }
 
-        /* 설정 오버레이 */
+        /* 설정 */
         .settings-section { margin-bottom:18px; }
-        .settings-label { font-size:var(--fs-xs);color:rgba(255,255,255,.65);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px; }
-        .settings-card  { background:rgba(255,252,248,.97);border-radius:18px;padding:18px 20px; }
+        .settings-label { font-size:10px;font-weight:700;color:rgba(255,200,100,.65);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px; }
+        .settings-card  { background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:18px 20px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px); }
         .font-options   { display:flex;gap:8px; }
         .font-opt-btn {
-            flex:1;padding:10px 6px;border:1.5px solid #ede8de;border-radius:12px;
-            background:#faf8f4;color:#666;font-family:inherit;cursor:pointer;text-align:center;
+            flex:1;padding:10px 6px;border:1.5px solid rgba(255,255,255,.15);border-radius:12px;
+            background:rgba(255,255,255,.06);color:rgba(255,255,255,.65);
+            font-family:inherit;cursor:pointer;text-align:center;
             transition:all .2s;-webkit-tap-highlight-color:transparent;
         }
-        .font-opt-btn.active { background:#fdf8f0;border-color:#c8a870;color:#a07850; }
-        .setting-row { display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f0ece4; }
+        .font-opt-btn.active { background:rgba(255,255,255,.18);border-color:rgba(200,168,112,.6);color:rgba(255,220,150,.95); }
+        .setting-row { display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.09); }
         .setting-row:last-child { border-bottom:none; }
-        .setting-row-label { font-size:var(--fs-base);color:#222; }
-        .setting-row-sub   { font-size:var(--fs-sm);color:#888;margin-top:3px; }
+        .setting-row-label { font-size:var(--fs-base);color:rgba(255,255,255,.9); }
+        .setting-row-sub   { font-size:var(--fs-sm);color:rgba(255,255,255,.4);margin-top:3px; }
         .btn-setting-action {
-            padding:10px 18px;border:1.5px solid #ede8de;border-radius:10px;background:#faf8f4;
-            color:#666;font-size:var(--fs-sm);font-family:inherit;cursor:pointer;transition:all .2s;
+            padding:10px 18px;border:1.5px solid rgba(255,255,255,.18);border-radius:12px;
+            background:rgba(255,255,255,.1);color:rgba(255,255,255,.75);
+            font-size:var(--fs-sm);font-family:inherit;cursor:pointer;transition:all .2s;
             -webkit-tap-highlight-color:transparent;min-height:42px;
         }
-        .btn-setting-action:hover { background:#f5f0e8;color:#666; }
-        .btn-setting-danger { border-color:#f0c0b0;color:#c08070; }
-        .btn-setting-danger:hover { background:#fdf0ec;color:#c06050; }
+        .btn-setting-action:hover { background:rgba(255,255,255,.2);color:#fff; }
+        .btn-setting-danger { border-color:rgba(255,140,120,.3);color:rgba(255,180,160,.8); }
+        .btn-setting-danger:hover { background:rgba(255,80,60,.14);color:rgba(255,160,140,.95); }
 
         /* ── Toast ── */
         #toast {
@@ -619,11 +638,11 @@
 
 <!-- ── 이름 설정 오버레이 ── -->
 <div id="overlay-name" class="overlay hidden">
-    <div class="overlay-inner" style="display:flex;align-items:center;min-height:80vh;">
+    <div class="overlay-inner name-overlay-center">
         <div style="width:100%">
-            <div style="text-align:center;margin-bottom:28px;">
-                <div style="font-size:40px;margin-bottom:10px;">🌙</div>
-                <div style="font-size:14px;color:rgba(255,255,255,.55);">처음 오셨군요. 환영합니다.</div>
+            <div class="name-overlay-icon">
+                <span class="name-overlay-icon-emoji">🌙</span>
+                <span class="name-overlay-hint">처음 오셨군요. 환영합니다.</span>
             </div>
             <div class="name-card">
                 <p class="name-title">어떻게 불러드릴까요?</p>
@@ -707,7 +726,6 @@
         <div class="top-side"></div>
         <div class="top-center">
             <div class="moon-wrap">
-                <div class="moon-rays"></div>
                 <div class="moon-icon" id="main-icon">🌙</div>
                 <div class="moon-orbital mo1"></div>
                 <div class="moon-orbital mo2"></div>
@@ -1766,9 +1784,12 @@ function renderSaved() {
         el.appendChild(empty);
         return;
     }
+    const EMO_BORDER = { '😊':'rgba(240,190,60,.65)', '😌':'rgba(80,200,160,.55)', '😔':'rgba(120,150,255,.6)', '😞':'rgba(160,130,255,.6)', '😢':'rgba(255,120,150,.55)', '🙏':'rgba(80,210,200,.55)' };
     list.forEach((v, i) => {
         const item = document.createElement('div');
         item.className = 'saved-verse-item';
+        const emoKey = Object.keys(EMO_BORDER).find(em => (v.context||'').includes(em));
+        if (emoKey) item.style.borderLeftColor = EMO_BORDER[emoKey];
 
         const del = document.createElement('button');
         del.className = 'svi-del';
@@ -1821,9 +1842,29 @@ function renderMood() {
         el.appendChild(empty);
         return;
     }
-    const row = document.createElement('div');
-    row.className = 'mood-row';
-    hist.slice(0, 14).forEach(h => {
+
+    const dayNames = ['일','월','화','수','목','금','토'];
+    const fmtDate = str => {
+        const d = new Date(str);
+        return `${d.getMonth()+1}월 ${d.getDate()}일 (${dayNames[d.getDay()]})`;
+    };
+    const fmtMonth = str => {
+        const d = new Date(str);
+        return `${d.getFullYear()}년 ${d.getMonth()+1}월`;
+    };
+
+    // 월별 그룹핑
+    let curMonth = null;
+    hist.slice(0, 30).forEach(h => {
+        const month = fmtMonth(h.date);
+        if (month !== curMonth) {
+            curMonth = month;
+            const header = document.createElement('div');
+            header.className = 'mood-month-header';
+            header.textContent = month;
+            el.appendChild(header);
+        }
+
         const item = document.createElement('div');
         item.className = 'mood-item';
 
@@ -1836,13 +1877,21 @@ function renderMood() {
 
         const date = document.createElement('div');
         date.className = 'mood-date';
-        date.textContent = h.date;
+        date.textContent = fmtDate(h.date);
 
-        const tags = document.createElement('div');
-        tags.className = 'mood-tags';
-        tags.textContent = (E_LABEL[h.emotion]||'') + ' · ' + (T_LABEL[h.topic]||'') + ' · ' + (N_LABEL[h.need]||'');
+        const emoTag = document.createElement('div');
+        emoTag.className = 'mood-emo-tag';
+        emoTag.textContent = E_LABEL[h.emotion] || '';
 
-        info.append(date, tags);
+        const needTag = document.createElement('div');
+        needTag.className = 'mood-need-tag';
+        needTag.textContent = N_LABEL[h.need] || '';
+
+        const topicTag = document.createElement('div');
+        topicTag.className = 'mood-topic-tag';
+        topicTag.textContent = T_LABEL[h.topic] || '';
+
+        info.append(date, emoTag, needTag, topicTag);
 
         if (h.diary) {
             const diary = document.createElement('div');
@@ -1852,9 +1901,8 @@ function renderMood() {
         }
 
         item.append(emoji, info);
-        row.appendChild(item);
+        el.appendChild(item);
     });
-    el.appendChild(row);
 }
 
 /* ═══════════════════════════════════════
