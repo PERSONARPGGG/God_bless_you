@@ -146,6 +146,7 @@
         .ht-text {
             font-size:var(--fs-sm);color:rgba(255,255,255,.84);
             line-height:1.75;font-style:italic;margin-bottom:5px;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
         }
         .ht-ref {
             font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.5px;
@@ -898,7 +899,7 @@
             </div>
         </div>
 
-        <!-- 앱 정보 -->
+        <!-- 앱 정보 + 업데이트 확인 -->
         <div class="settings-section">
             <div class="settings-label">앱 정보</div>
             <div class="settings-card">
@@ -908,6 +909,13 @@
                         <div class="setting-row-sub">하루를 마무리하는 작은 디지털 쉼터</div>
                     </div>
                     <span style="font-size:11px;color:rgba(255,255,255,.3);">v2.0</span>
+                </div>
+                <div class="setting-row">
+                    <div>
+                        <div class="setting-row-label">업데이트 확인</div>
+                        <div class="setting-row-sub" id="update-status-text">최신 버전 확인 중...</div>
+                    </div>
+                    <button class="btn-setting-action" id="btn-check-update" onclick="checkUpdateManual()">확인</button>
                 </div>
             </div>
         </div>
@@ -2274,6 +2282,22 @@ function openSettings() {
         const t = id.replace('th-','');
         document.getElementById(id).classList.toggle('active', t === theme);
     });
+    // 업데이트 상태 초기화
+    const btn = document.getElementById('btn-check-update');
+    if (btn) { btn.disabled = false; btn.textContent = '확인'; btn.onclick = checkUpdateManual; }
+    // 대기 중인 SW가 있으면 즉시 "새 버전" 상태 표시
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistration().then(reg => {
+            if (reg && reg.waiting) {
+                _setUpdateStatus('새 버전이 준비됐어요!');
+                if (btn) { btn.textContent = '지금 업데이트'; btn.onclick = () => { applyUpdate(); hideOverlay('overlay-settings'); }; }
+            } else {
+                _setUpdateStatus('최신 버전입니다.');
+            }
+        }).catch(()=>{ _setUpdateStatus('확인하려면 버튼을 누르세요.'); });
+    } else {
+        _setUpdateStatus('확인하려면 버튼을 누르세요.');
+    }
     showOverlay('overlay-settings');
 }
 
@@ -2339,6 +2363,41 @@ function clearData() {
     ['savedVerses','moodHistory','visitDates'].forEach(k=>localStorage.removeItem(k));
     toast('초기화되었습니다');
     hideOverlay('overlay-settings');
+}
+
+/* 수동 업데이트 확인 */
+function checkUpdateManual() {
+    if (!('serviceWorker' in navigator)) {
+        _setUpdateStatus('이 브라우저는 업데이트 확인을 지원하지 않습니다.');
+        return;
+    }
+    const btn = document.getElementById('btn-check-update');
+    if (btn) { btn.disabled = true; btn.textContent = '확인 중...'; }
+    _setUpdateStatus('서버에서 최신 버전 확인 중...');
+
+    navigator.serviceWorker.getRegistration().then(reg => {
+        if (!reg) { _setUpdateStatus('앱이 설치되지 않았습니다.'); _resetUpdateBtn(); return; }
+        reg.update().then(() => {
+            // waiting에 SW가 있으면 업데이트 대기 중
+            if (reg.waiting) {
+                _setUpdateStatus('새 버전이 준비됐어요! 아래 버튼으로 적용하세요.');
+                if (btn) { btn.disabled = false; btn.textContent = '지금 업데이트'; btn.onclick = () => { applyUpdate(); hideOverlay('overlay-settings'); }; }
+                document.getElementById('update-banner').classList.remove('hidden');
+            } else {
+                _setUpdateStatus('✓ 현재 최신 버전입니다.');
+                _resetUpdateBtn();
+            }
+        }).catch(() => { _setUpdateStatus('확인 실패. 네트워크를 확인해주세요.'); _resetUpdateBtn(); });
+    });
+}
+
+function _setUpdateStatus(msg) {
+    const el = document.getElementById('update-status-text');
+    if (el) el.textContent = msg;
+}
+function _resetUpdateBtn() {
+    const btn = document.getElementById('btn-check-update');
+    if (btn) { btn.disabled = false; btn.textContent = '확인'; btn.onclick = checkUpdateManual; }
 }
 
 /* ═══════════════════════════════════════
