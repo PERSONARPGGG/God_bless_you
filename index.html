@@ -214,6 +214,10 @@
         @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         .step.entering { animation:fadeUp .38s ease forwards; }
 
+        /* ── 결과 카드 순차 shimmer ── */
+        @keyframes card-shimmer { 0%{opacity:0;transform:translateY(14px)} 100%{opacity:1;transform:translateY(0)} }
+        .card-reveal { animation:card-shimmer .5s cubic-bezier(.22,1,.36,1) both; }
+
         /* ── 공통 타이틀 ── */
         .step-title    { font-size:var(--fs-xl);font-weight:700;color:#1a1a2e;text-align:center;margin-bottom:5px;line-height:1.45; }
         .step-sub      { font-size:var(--fs-md);color:#999;text-align:center;margin-bottom:20px; }
@@ -1588,6 +1592,16 @@ function buildResult() {
 
     // 감정 기록 저장
     saveMood();
+
+    // 결과 카드 순차 shimmer
+    setTimeout(() => {
+        document.querySelectorAll('#step4 .card').forEach((el, i) => {
+            el.classList.remove('card-reveal');
+            void el.offsetWidth; // reflow
+            el.style.animationDelay = `${i * 80}ms`;
+            el.classList.add('card-reveal');
+        });
+    }, 50);
 }
 
 function saveMood() {
