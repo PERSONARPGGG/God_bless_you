@@ -417,34 +417,54 @@
         }
         .overlay-back:hover { background:rgba(255,255,255,.2);color:#fff; }
 
-        /* 이름 설정 오버레이 */
-        .name-overlay-center { display:flex;align-items:center;min-height:80vh; }
-        .name-overlay-icon { text-align:center;margin-bottom:28px; }
-        .name-overlay-icon-emoji { font-size:40px;display:block;margin-bottom:10px; }
-        .name-overlay-hint { font-size:14px;color:rgba(255,255,255,.5); }
-        #overlay-name .name-card {
-            background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.15);
-            backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-            border-radius:24px;padding:32px 24px;text-align:center;
-        }
-        .name-title { font-size:var(--fs-xl);font-weight:700;color:rgba(255,255,255,.95);margin-bottom:8px;line-height:1.4; }
-        .name-sub   { font-size:var(--fs-md);color:rgba(255,255,255,.55);margin-bottom:24px;line-height:1.6; }
-        .name-input {
-            width:100%;border:1.5px solid rgba(255,255,255,.2);border-radius:16px;padding:14px 18px;
-            font-size:var(--fs-lg);font-family:inherit;color:rgba(255,255,255,.9);
-            background:rgba(255,255,255,.1);
-            outline:none;text-align:center;transition:border-color .2s;margin-bottom:14px;
-        }
-        .name-input:focus { border-color:rgba(180,160,255,.6);background:rgba(255,255,255,.14); }
-        .name-input::placeholder { color:rgba(255,255,255,.3); }
-        .btn-name-save {
-            display:block;width:100%;background:linear-gradient(135deg,#3a5598,#2a4478);
-            color:#fff;border:none;border-radius:16px;padding:16px;
-            font-size:var(--fs-base);font-family:inherit;font-weight:600;cursor:pointer;
-            -webkit-tap-highlight-color:transparent;transition:opacity .2s;
-        }
-        .btn-name-save:hover { opacity:.88; }
-        .btn-name-skip { background:none;border:none;color:rgba(255,255,255,.38);font-size:var(--fs-sm);cursor:pointer;margin-top:12px;font-family:inherit; }
+        /* ── 첫 방문 환영 특별 디자인 ── */
+        .welcome-overlay { background:linear-gradient(170deg,#05061e 0%,#0a0d35 30%,#06081e 65%,#020410 100%) !important; }
+        /* 강화 오로라 */
+        .welcome-aurora { position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden; }
+        .wa1 { position:absolute;border-radius:50%;filter:blur(85px);will-change:transform;width:80vw;height:80vw;max-width:660px;max-height:660px;background:radial-gradient(circle,rgba(80,50,245,.42) 0%,transparent 70%);top:-25%;left:-25%;animation:wa1-drift 14s ease-in-out infinite alternate; }
+        .wa2 { position:absolute;border-radius:50%;filter:blur(95px);will-change:transform;width:70vw;height:70vw;max-width:570px;max-height:570px;background:radial-gradient(circle,rgba(190,30,200,.3) 0%,transparent 70%);bottom:-18%;right:-22%;animation:wa2-drift 18s 3s ease-in-out infinite alternate; }
+        .wa3 { position:absolute;border-radius:50%;filter:blur(70px);will-change:transform;width:55vw;height:55vw;max-width:450px;max-height:450px;background:radial-gradient(circle,rgba(20,185,240,.22) 0%,transparent 70%);top:32%;left:22%;animation:wa3-drift 11s 6s ease-in-out infinite alternate; }
+        @keyframes wa1-drift { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(75px,55px) scale(1.28)} }
+        @keyframes wa2-drift { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(-65px,-44px) scale(1.35)} }
+        @keyframes wa3-drift { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(42px,-58px) scale(.82)} }
+        /* 파티클 */
+        #welcome-particles { position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden; }
+        .wp { position:absolute;pointer-events:none;animation:wp-fall linear forwards;opacity:0; }
+        @keyframes wp-fall { 0%{opacity:0;transform:translateY(-20px) rotate(0deg);} 8%{opacity:1;} 90%{opacity:.75;} 100%{opacity:0;transform:translateY(108vh) rotate(540deg);} }
+        /* 레이아웃 */
+        .welcome-center { position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;max-width:420px;margin:0 auto;padding:28px 16px 36px; }
+        /* 달 + 제목 */
+        .welcome-hero { text-align:center;margin-bottom:22px; }
+        .welcome-moon-wrap { position:relative;display:inline-block;margin-bottom:14px; }
+        .welcome-moon-wrap::before { content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;background:radial-gradient(circle,rgba(180,160,255,.45) 0%,rgba(120,100,255,.18) 40%,transparent 70%);border-radius:50%;pointer-events:none;animation:moon-glow 4s ease-in-out infinite; }
+        .welcome-moon { font-size:88px;display:block;animation:wm-in .9s cubic-bezier(.22,1,.36,1) both,float 4s 1s ease-in-out infinite;will-change:transform; }
+        @keyframes wm-in { from{opacity:0;transform:scale(.28) translateY(50px);} to{opacity:1;transform:scale(1) translateY(0);} }
+        .welcome-title { font-size:var(--fs-2xl);font-weight:700;color:#fff;margin-bottom:10px;line-height:1.45;letter-spacing:.3px;text-shadow:0 4px 28px rgba(180,160,255,.6);animation:wt-slide .7s .32s cubic-bezier(.22,1,.36,1) both; }
+        .welcome-desc  { font-size:var(--fs-sm);color:rgba(255,255,255,.55);line-height:1.75;animation:wt-slide .7s .52s cubic-bezier(.22,1,.36,1) both; }
+        @keyframes wt-slide { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+        /* 언어 선택 */
+        .lang-select { display:flex;gap:8px;margin-bottom:22px;animation:wt-slide .7s .68s cubic-bezier(.22,1,.36,1) both; }
+        .lang-btn { padding:8px 14px;border:1.5px solid rgba(255,255,255,.18);border-radius:22px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.62);font-size:12px;font-family:inherit;cursor:pointer;transition:all .22s;-webkit-tap-highlight-color:transparent; }
+        .lang-btn.active { background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.48);color:#fff;font-weight:600; }
+        .lang-btn:hover  { background:rgba(255,255,255,.16);color:rgba(255,255,255,.9); }
+        /* 카드 */
+        .welcome-card { width:100%;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.17);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-radius:28px;padding:30px 24px 24px;text-align:center;position:relative;overflow:hidden;animation:wt-slide .7s .88s cubic-bezier(.22,1,.36,1) both; }
+        .welcome-card::before { content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(180,160,255,.08) 0%,rgba(80,200,255,.05) 100%);pointer-events:none; }
+        .welcome-card-title { font-size:var(--fs-xl);font-weight:700;color:rgba(255,255,255,.96);margin-bottom:8px;line-height:1.4;position:relative; }
+        .welcome-card-sub   { font-size:var(--fs-sm);color:rgba(255,255,255,.5);margin-bottom:22px;line-height:1.75;white-space:pre-line;position:relative; }
+        /* 입력 */
+        .welcome-input { width:100%;border:1.5px solid rgba(255,255,255,.2);border-radius:18px;padding:15px 20px;font-size:var(--fs-lg);font-family:inherit;color:rgba(255,255,255,.92);background:rgba(255,255,255,.1);outline:none;text-align:center;transition:all .3s;margin-bottom:14px;position:relative; }
+        .welcome-input:focus { border-color:rgba(180,160,255,.68);background:rgba(180,160,255,.13);box-shadow:0 0 0 4px rgba(180,160,255,.14); }
+        .welcome-input::placeholder { color:rgba(255,255,255,.3); }
+        /* 시작 버튼 */
+        .welcome-start-btn { width:100%;background:linear-gradient(135deg,#4a68d4,#2e4898);color:#fff;border:none;border-radius:18px;padding:17px;font-size:var(--fs-base);font-family:inherit;font-weight:700;cursor:pointer;position:relative;overflow:hidden;transition:all .22s;letter-spacing:.5px;-webkit-tap-highlight-color:transparent; }
+        .welcome-start-btn::after { content:'';position:absolute;top:0;left:-130%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);animation:ws-shimmer 3s 1.5s ease-in-out infinite; }
+        @keyframes ws-shimmer { 0%{left:-130%} 55%{left:160%} 100%{left:160%} }
+        .welcome-start-btn:hover { transform:translateY(-2px);box-shadow:0 12px 36px rgba(60,90,210,.55); }
+        .welcome-start-btn:active { transform:translateY(0); }
+        /* 건너뛰기 */
+        .welcome-skip-btn { background:none;border:none;color:rgba(255,255,255,.3);font-size:12px;cursor:pointer;margin-top:14px;font-family:inherit;display:block;width:100%;text-align:center;padding:6px;transition:color .2s;-webkit-tap-highlight-color:transparent; }
+        .welcome-skip-btn:hover { color:rgba(255,255,255,.65); }
 
         /* 보관함 탭 */
         .vault-tabs { display:flex;gap:4px;margin-bottom:18px;background:rgba(255,255,255,.05);border-radius:16px;padding:4px; }
@@ -636,22 +656,30 @@
     </div>
 </div>
 
-<!-- ── 이름 설정 오버레이 ── -->
-<div id="overlay-name" class="overlay hidden">
-    <div class="overlay-inner name-overlay-center">
-        <div style="width:100%">
-            <div class="name-overlay-icon">
-                <span class="name-overlay-icon-emoji">🌙</span>
-                <span class="name-overlay-hint">처음 오셨군요. 환영합니다.</span>
-            </div>
-            <div class="name-card">
-                <p class="name-title">어떻게 불러드릴까요?</p>
-                <p class="name-sub">이름을 입력하시면<br>더 따뜻하게 맞이할게요.</p>
-                <input id="name-input" class="name-input" type="text" placeholder="이름을 입력해주세요" maxlength="10">
-                <button class="btn-name-save" onclick="saveName()">시작하기</button>
-                <br>
-                <button class="btn-name-skip" onclick="skipName()">나중에 할게요</button>
-            </div>
+<!-- ── 첫 방문 환영 오버레이 ── -->
+<div id="overlay-name" class="overlay welcome-overlay hidden">
+    <div class="welcome-aurora" aria-hidden="true">
+        <div class="wa1"></div><div class="wa2"></div><div class="wa3"></div>
+    </div>
+    <div id="welcome-particles" aria-hidden="true"></div>
+    <div class="welcome-center">
+        <div class="welcome-hero">
+            <div class="welcome-moon-wrap"><div class="welcome-moon">🌙</div></div>
+            <h1 class="welcome-title" id="wc-title">오늘 밤, 하나님과 함께하세요</h1>
+            <p class="welcome-desc" id="wc-desc">하루를 마무리하는 작은 디지털 쉼터</p>
+        </div>
+        <div class="lang-select">
+            <button class="lang-btn active" onclick="setWelcomeLang('ko')">🇰🇷 한국어</button>
+            <button class="lang-btn" onclick="setWelcomeLang('en')">🌐 English</button>
+            <button class="lang-btn" onclick="setWelcomeLang('ja')">🇯🇵 日本語</button>
+        </div>
+        <div class="welcome-card">
+            <p class="welcome-card-title" id="wc-ask">어떻게 불러드릴까요?</p>
+            <p class="welcome-card-sub" id="wc-sub">이름을 입력하시면
+더 따뜻하게 맞이할게요.</p>
+            <input id="name-input" class="welcome-input" type="text" placeholder="이름을 입력해주세요" maxlength="12" autocomplete="off">
+            <button class="welcome-start-btn" id="wc-start" onclick="saveName()">시작하기</button>
+            <button class="welcome-skip-btn" id="wc-skip" onclick="skipName()">나중에 할게요</button>
         </div>
     </div>
 </div>
@@ -1376,10 +1404,111 @@ function lsGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { 
 function lsSet(k,v) { try { localStorage.setItem(k, typeof v==='object' ? JSON.stringify(v) : String(v)); } catch {} }
 
 /* ═══════════════════════════════════════
+   다국어 (i18n)
+═══════════════════════════════════════ */
+const LANG_DATA = {
+    ko: {
+        wc_title:'오늘 밤, 하나님과 함께하세요',
+        wc_desc:'하루를 마무리하는 작은 디지털 쉼터',
+        wc_ask:'어떻게 불러드릴까요?',
+        wc_sub:'이름을 입력하시면\n더 따뜻하게 맞이할게요.',
+        wc_ph:'이름을 입력해주세요', wc_start:'시작하기', wc_skip:'나중에 할게요',
+        s1_title:'오늘은 어땠나요?', s1_sub:'하루를 돌아보는 작은 쉼표',
+        s2_title:'무엇이 가장 마음에 남았나요?', s3_title:'지금 어떤 마음이 드세요?',
+        emo:['감사했어요','평안했어요','걱정이 있었어요','지쳤어요','마음이 아팠어요','기도하고 싶어요'],
+        topic:['일','가족','공부','사람','잘 모르겠어요'],
+        need:['위로받고 싶어요','힘을 얻고 싶어요','방향이 필요해요','그냥 쉬고 싶어요'],
+        btn_copy:'📋 복사', btn_share:'📤 공유', btn_save:'⭐ 즐겨찾기', btn_saved:'★ 저장됨',
+        btn_restart:'🌙 다시 시작하기', v_tab1:'즐겨찾기', v_tab2:'감정 기록',
+    },
+    en: {
+        wc_title:'Tonight, rest in God\'s presence',
+        wc_desc:'A little digital sanctuary for your day',
+        wc_ask:'What shall we call you?',
+        wc_sub:'Enter your name for\na warmer welcome.',
+        wc_ph:'Your name', wc_start:'Get Started', wc_skip:'Skip for now',
+        s1_title:'How was your day?', s1_sub:'A moment to reflect',
+        s2_title:'What stayed on your mind?', s3_title:'What do you need right now?',
+        emo:['Grateful','At peace','Worried','Exhausted','Heartbroken','Need prayer'],
+        topic:['Work','Family','Study','People','Not sure'],
+        need:['Comfort','Strength','Direction','Rest'],
+        btn_copy:'📋 Copy', btn_share:'📤 Share', btn_save:'⭐ Bookmark', btn_saved:'★ Saved',
+        btn_restart:'🌙 Start Over', v_tab1:'Saved', v_tab2:'History',
+    },
+    ja: {
+        wc_title:'今夜、神様とともに',
+        wc_desc:'一日を締めくくる小さな安らぎ',
+        wc_ask:'お名前を教えてください',
+        wc_sub:'名前を入力すると\nより温かくお迎えします。',
+        wc_ph:'お名前', wc_start:'はじめる', wc_skip:'あとで',
+        s1_title:'今日はどんな一日でしたか？', s1_sub:'一日を振り返るひととき',
+        s2_title:'一番心に残ったことは？', s3_title:'今、どんな気持ちですか？',
+        emo:['感謝した','平和だった','心配があった','疲れた','悲しかった','祈りたい'],
+        topic:['仕事','家族','勉強','人間関係','わからない'],
+        need:['慰めがほしい','力がほしい','方向が必要','ただ休みたい'],
+        btn_copy:'📋 コピー', btn_share:'📤 共有', btn_save:'⭐ お気に入り', btn_saved:'★ 保存済み',
+        btn_restart:'🌙 もう一度', v_tab1:'お気に入り', v_tab2:'記録',
+    }
+};
+let appLang = 'ko';
+let _wpTimer = null;
+
+function setWelcomeLang(lang) {
+    appLang = lang;
+    document.querySelectorAll('.lang-btn').forEach((btn,i)=>btn.classList.toggle('active',['ko','en','ja'][i]===lang));
+    const L = LANG_DATA[lang]||LANG_DATA.ko;
+    const s=(id,t)=>{ const el=document.getElementById(id); if(el) el.textContent=t; };
+    s('wc-title', L.wc_title); s('wc-desc', L.wc_desc);
+    s('wc-ask', L.wc_ask); s('wc-start', L.wc_start); s('wc-skip', L.wc_skip);
+    const sub=document.getElementById('wc-sub'); if(sub) sub.textContent=L.wc_sub;
+    const inp=document.getElementById('name-input'); if(inp) inp.placeholder=L.wc_ph;
+}
+
+function applyLang(lang) {
+    appLang = lang;
+    const L = LANG_DATA[lang]||LANG_DATA.ko;
+    const q=(sel,cb)=>document.querySelectorAll(sel).forEach(cb);
+    // Step titles
+    const s1t=document.querySelector('#step1 .s1-title'), s1s=document.querySelector('#step1 .s1-sub');
+    const s2t=document.querySelector('#step2 .step-title'), s3t=document.querySelector('#step3 .step-title');
+    if(s1t) s1t.textContent=L.s1_title; if(s1s) s1s.textContent=L.s1_sub;
+    if(s2t) s2t.textContent=L.s2_title; if(s3t) s3t.textContent=L.s3_title;
+    // 감정/주제/필요 버튼 텍스트
+    q('.e-text',(el,i)=>{ if(L.emo[i]) el.textContent=L.emo[i]; });
+    const bcAll=[...document.querySelectorAll('#step2 .bc-text'),...document.querySelectorAll('#step3 .bc-text')];
+    [...L.topic,...L.need].forEach((t,i)=>{ if(bcAll[i]) bcAll[i].textContent=t; });
+    // 액션 버튼
+    const bc=document.getElementById('btn-copy'), bs=document.getElementById('btn-share');
+    const bsv=document.getElementById('btn-save'), br=document.querySelector('.btn-restart');
+    if(bc) bc.textContent=L.btn_copy; if(bs) bs.textContent=L.btn_share;
+    if(bsv&&!bsv.classList.contains('saved')) bsv.textContent=L.btn_save;
+    if(br) br.textContent=L.btn_restart;
+    // 보관함 탭
+    const tabs=document.querySelectorAll('.vault-tab');
+    if(tabs[0]) tabs[0].textContent=L.v_tab1; if(tabs[1]) tabs[1].textContent=L.v_tab2;
+}
+
+function startWelcomeParticles() {
+    const c=document.getElementById('welcome-particles'); if(!c) return;
+    const sym=['🌸','✨','⭐','🌟','💫','🌷','🌺','🍀','🌼','💐'];
+    function spawn() {
+        if(document.getElementById('overlay-name').classList.contains('hidden')) return;
+        const el=document.createElement('div'); el.className='wp';
+        const sz=11+Math.random()*15, dur=5+Math.random()*5;
+        el.textContent=sym[Math.floor(Math.random()*sym.length)];
+        el.style.cssText=`left:${3+Math.random()*94}%;font-size:${sz}px;animation-duration:${dur}s;`;
+        c.appendChild(el); setTimeout(()=>el.remove(),(dur+.5)*1000);
+        _wpTimer=setTimeout(spawn,260+Math.random()*340);
+    }
+    spawn();
+}
+
+/* ═══════════════════════════════════════
    초기화
 ═══════════════════════════════════════ */
 function init() {
     generateStars();
+    appLang = lsGet('appLang') || 'ko';
     fontLevel = parseInt(lsGet('fontLevel') || '0');
     applyFont(fontLevel);
     checkFirstVisit();
@@ -1388,11 +1517,10 @@ function init() {
     checkSeason();
     setWelcome();
     setDate();
-    // 서비스워커 등록
+    applyLang(appLang);
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').catch(()=>{});
     }
-    // iOS 홈화면 추가 배너 (Android는 beforeinstallprompt에서 자동 처리)
     if (isIOS() && !isStandalone()) scheduleInstallBanner();
 }
 
@@ -1443,25 +1571,34 @@ function generateStars() {
    이름 설정
 ═══════════════════════════════════════ */
 function checkFirstVisit() {
-    if (!lsGet('userName')) showOverlay('overlay-name');
+    if (localStorage.getItem('userName') === null) {
+        showOverlay('overlay-name');
+        setTimeout(startWelcomeParticles, 600);
+    }
 }
 
 function saveName() {
     const val = document.getElementById('name-input').value.trim();
     lsSet('userName', val || '');
+    lsSet('appLang', appLang);
     hideOverlay('overlay-name');
+    applyLang(appLang);
     setWelcome();
 }
 
 function skipName() {
     lsSet('userName', '');
+    lsSet('appLang', appLang);
     hideOverlay('overlay-name');
+    applyLang(appLang);
 }
 
 function changeName() {
     hideOverlay('overlay-settings');
     document.getElementById('name-input').value = lsGet('userName') || '';
+    setWelcomeLang(appLang);
     showOverlay('overlay-name');
+    setTimeout(startWelcomeParticles, 400);
 }
 
 /* ── 환영 문구 ── */
@@ -1654,7 +1791,7 @@ function buildResult() {
 
     // 저장 버튼 초기화
     const btn=document.getElementById('btn-save');
-    btn.textContent='⭐ 즐겨찾기'; btn.classList.remove('saved');
+    btn.textContent=(LANG_DATA[appLang]||LANG_DATA.ko).btn_save; btn.classList.remove('saved');
 
     // 감정 기록 저장
     saveMood();
@@ -1740,7 +1877,7 @@ function toggleSave() {
     lsSet('savedVerses', saved.slice(0,50));
     verseSaved=true;
     const btn=document.getElementById('btn-save');
-    btn.textContent='★ 저장됨'; btn.classList.add('saved');
+    btn.textContent=(LANG_DATA[appLang]||LANG_DATA.ko).btn_saved; btn.classList.add('saved');
     toast('즐겨찾기에 저장되었습니다 ⭐');
 }
 
