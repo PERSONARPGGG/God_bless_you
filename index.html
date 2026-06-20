@@ -51,21 +51,21 @@
         /* ── 오로라 ── */
         .aurora { position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden; }
         .ab1 {
-            position:absolute;border-radius:50%;filter:blur(100px);
+            position:absolute;border-radius:50%;filter:blur(100px);will-change:transform;
             width:70vw;height:70vw;max-width:560px;max-height:560px;
             background:radial-gradient(circle,rgba(40,70,210,.2) 0%,transparent 70%);
             top:-15%;left:-20%;
             animation:ab1-drift 32s ease-in-out infinite alternate;
         }
         .ab2 {
-            position:absolute;border-radius:50%;filter:blur(110px);
+            position:absolute;border-radius:50%;filter:blur(110px);will-change:transform;
             width:60vw;height:60vw;max-width:480px;max-height:480px;
             background:radial-gradient(circle,rgba(90,20,190,.14) 0%,transparent 70%);
             bottom:-15%;right:-15%;
             animation:ab2-drift 40s 5s ease-in-out infinite alternate;
         }
         .ab3 {
-            position:absolute;border-radius:50%;filter:blur(90px);
+            position:absolute;border-radius:50%;filter:blur(90px);will-change:transform;
             width:45vw;height:45vw;max-width:360px;max-height:360px;
             background:radial-gradient(circle,rgba(180,140,30,.08) 0%,transparent 70%);
             top:38%;left:28%;
@@ -107,6 +107,71 @@
             to  {transform:rotate(360deg) translateX(var(--r)) rotate(-360deg);}
         }
 
+        /* ── 달 빛 광선 ── */
+        .moon-rays {
+            position:absolute;top:50%;left:50%;
+            transform:translate(-50%,-50%);
+            width:220px;height:220px;
+            background:repeating-conic-gradient(rgba(200,180,255,.06) 0deg 3deg,transparent 3deg 14deg);
+            border-radius:50%;pointer-events:none;z-index:-2;will-change:transform;
+            animation:rays-spin 50s linear infinite;
+        }
+        @keyframes rays-spin { to{transform:translate(-50%,-50%) rotate(360deg);} }
+
+        /* ── 히어로 플로팅 파티클 ── */
+        .hero-floats {
+            position:absolute;top:0;left:0;right:0;height:300px;
+            pointer-events:none;overflow:hidden;z-index:0;
+        }
+        .hf {
+            position:absolute;font-size:18px;opacity:.22;
+            animation:hf-drift var(--d,7s) var(--dl,0s) ease-in-out infinite;
+        }
+        .hf-p1{top:18%;left:4%;--d:6s;--dl:0s;}
+        .hf-p2{top:50%;right:5%;--d:8.5s;--dl:1.8s;}
+        .hf-p3{top:28%;left:91%;--d:5.5s;--dl:3.2s;}
+        .hf-p4{top:72%;left:2%;--d:9s;--dl:0.7s;}
+        .hf-p5{top:38%;right:14%;--d:7s;--dl:2.5s;font-size:14px;opacity:.18;}
+        @keyframes hf-drift {
+            0%,100%{transform:translateY(0) rotate(0deg);}
+            50%{transform:translateY(-20px) rotate(15deg);}
+        }
+
+        /* ── 히어로 묵상 카드 ── */
+        .hero-teaser {
+            position:relative;margin:10px 0 18px;padding:15px 20px 14px;
+            background:rgba(255,255,255,.07);
+            backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+            border:1px solid rgba(255,255,255,.13);border-radius:20px;
+            text-align:center;overflow:hidden;
+        }
+        .hero-teaser::before {
+            content:'';position:absolute;inset:0;pointer-events:none;
+            background:linear-gradient(135deg,rgba(180,160,255,.06) 0%,rgba(255,200,150,.04) 100%);
+        }
+        .ht-label {
+            display:block;font-size:10px;font-weight:700;letter-spacing:2.5px;
+            color:rgba(255,200,100,.65);margin-bottom:8px;
+        }
+        .ht-text {
+            font-size:var(--fs-sm);color:rgba(255,255,255,.84);
+            line-height:1.75;font-style:italic;margin-bottom:5px;
+        }
+        .ht-ref {
+            font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.5px;
+        }
+
+        /* ── 출석 체크인 필 (step1 하단) ── */
+        .checkin-pill {
+            display:flex;align-items:center;justify-content:center;gap:7px;
+            margin-top:16px;padding:9px 16px;
+            background:linear-gradient(135deg,rgba(255,210,80,.1),rgba(255,160,50,.07));
+            border:1px solid rgba(255,200,80,.22);border-radius:14px;
+            font-size:var(--fs-sm);color:#7a5818;font-weight:600;
+        }
+        .checkin-pill.hidden{display:none;}
+        .cp-dot{color:rgba(160,120,40,.45);font-weight:400;}
+
         /* ── 리플 효과 ── */
         .ripple-effect {
             position:absolute;border-radius:50%;
@@ -144,8 +209,7 @@
 
         /* ── 헤더 바 ── */
         .top-bar { display:flex;align-items:flex-start;justify-content:space-between;padding:18px 0 0; }
-        .top-center { flex:1;text-align:center;padding:0 8px; }
-        .top-side   { flex:1; }
+        .top-side { flex:1; }
         .top-icons  { display:flex;gap:6px;justify-content:flex-end;padding-top:4px; }
         .icon-btn {
             display:flex;flex-direction:column;align-items:center;gap:2px;
@@ -159,37 +223,26 @@
         .icon-btn .icon-label { font-size:10px;color:rgba(255,255,255,.78);letter-spacing:.3px; }
         .icon-btn:hover,.icon-btn:active { background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.45); }
 
-        .moon-icon { font-size:62px;display:inline-block;animation:float 4s ease-in-out infinite; }
+        .moon-icon { font-size:62px;display:inline-block;animation:float 4s ease-in-out infinite;will-change:transform; }
         @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
-        .welcome-text { font-size:var(--fs-md);color:rgba(255,255,255,.85);letter-spacing:.3px;line-height:1.6; }
-        .date-text    { font-size:var(--fs-xs);color:rgba(255,255,255,.6);margin-top:3px; }
+        .welcome-text { font-size:var(--fs-md);color:rgba(255,255,255,.88);letter-spacing:.3px;line-height:1.6;font-weight:500; }
+        .date-text    { font-size:var(--fs-xs);color:rgba(255,255,255,.55);margin-top:3px; }
+        .top-center {
+            flex:1;text-align:center;padding:0 8px;position:relative;
+        }
+        .top-center::after {
+            content:'';position:absolute;bottom:-24px;left:50%;
+            transform:translateX(-50%);
+            width:180px;height:50px;
+            background:radial-gradient(ellipse,rgba(180,160,255,.18) 0%,transparent 70%);
+            pointer-events:none;
+        }
 
-        /* ── 출석 스트릭 섹션 ── */
-        .streak-section {
-            background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
-            border-radius:18px;padding:14px 16px 12px;margin:8px 0 6px;
+        /* ── s1 카드 데코 라인 ── */
+        .s1-decoline {
+            text-align:center;color:rgba(160,120,50,.45);font-size:10px;
+            letter-spacing:9px;margin-bottom:12px;
         }
-        .streak-section.hidden { display:none; }
-        .streak-top { display:flex;align-items:center;gap:8px;margin-bottom:12px; }
-        .streak-top-icon  { font-size:20px; }
-        .streak-top-count { font-size:var(--fs-sm);font-weight:700;color:#fff; }
-        .streak-top-label { font-size:var(--fs-xs);color:rgba(255,255,255,.7);flex:1;text-align:right; }
-        .streak-dots { display:flex;justify-content:space-between;gap:4px;margin-bottom:10px; }
-        .streak-dot  { flex:1;text-align:center; }
-        .streak-dot-circle {
-            width:30px;height:30px;border-radius:50%;margin:0 auto 4px;
-            display:flex;align-items:center;justify-content:center;
-            font-size:11px;font-weight:700;
-        }
-        .sdc-hit   { background:linear-gradient(135deg,#f0a040,#c07020);color:#fff; }
-        .sdc-today { background:linear-gradient(135deg,#ff6020,#e04010);color:#fff;box-shadow:0 0 10px rgba(255,100,30,.5); }
-        .sdc-miss  { background:rgba(255,255,255,.1); }
-        .streak-dot-day { font-size:11px;color:rgba(255,255,255,.6); }
-        .streak-next {
-            font-size:var(--fs-xs);color:rgba(255,210,100,.9);text-align:center;
-            border-top:1px solid rgba(255,255,255,.12);padding-top:9px;line-height:1.6;
-        }
-        .streak-next.hidden { display:none; }
 
         /* ── 절기 배너 ── */
         #season-banner {
@@ -472,7 +525,6 @@
             .s1-title { font-size:calc(var(--fs-2xl) - 2px); }
             .btn-emotion { font-size:calc(var(--fs-btn) - 1px);padding:13px 10px; }
             .card { padding:20px 16px; }
-            .streak-dot-circle { width:28px;height:28px; }
         }
 
         /* ── PWA 설치 배너 ── */
@@ -644,10 +696,18 @@
 
 <!-- ── 메인 ── -->
 <div class="page-wrap">
+    <div class="hero-floats" aria-hidden="true">
+        <span class="hf hf-p1">🌸</span>
+        <span class="hf hf-p2">✨</span>
+        <span class="hf hf-p3">🍃</span>
+        <span class="hf hf-p4">🌷</span>
+        <span class="hf hf-p5">🌟</span>
+    </div>
     <div class="top-bar">
         <div class="top-side"></div>
         <div class="top-center">
             <div class="moon-wrap">
+                <div class="moon-rays"></div>
                 <div class="moon-icon" id="main-icon">🌙</div>
                 <div class="moon-orbital mo1"></div>
                 <div class="moon-orbital mo2"></div>
@@ -672,21 +732,18 @@
         </div>
     </div>
 
-    <!-- 출석 스트릭 -->
-    <div id="streak-section" class="streak-section hidden">
-        <div class="streak-top">
-            <span class="streak-top-icon" id="streak-icon">🌱</span>
-            <span class="streak-top-count" id="streak-count"></span>
-            <span class="streak-top-label" id="streak-label"></span>
-        </div>
-        <div class="streak-dots" id="streak-dots"></div>
-        <div class="streak-next" id="streak-next"></div>
+    <!-- 히어로 묵상 카드 -->
+    <div class="hero-teaser">
+        <span class="ht-label">✦ 오늘의 묵상 ✦</span>
+        <p class="ht-text" id="ht-text"></p>
+        <p class="ht-ref" id="ht-ref"></p>
     </div>
     <div id="season-banner"></div>
 
     <!-- STEP 1: 감정 -->
     <div id="step1" class="step" style="margin-top:12px;">
         <div class="card">
+            <p class="s1-decoline">✦ &nbsp; ✦ &nbsp; ✦</p>
             <h1 class="s1-title">오늘은 어땠나요?</h1>
             <p class="s1-sub">하루를 돌아보는 작은 쉼표</p>
             <div class="emotion-grid">
@@ -720,6 +777,13 @@
                     <span class="e-emoji">🙏</span>
                     <span class="e-text">기도하고 싶어요</span>
                 </button>
+            </div>
+            <!-- 출석 체크인 (하단) -->
+            <div id="checkin-pill" class="checkin-pill hidden">
+                <span id="cp-icon">🌱</span>
+                <span id="cp-text">오늘 출석 완료</span>
+                <span class="cp-dot">·</span>
+                <span id="cp-streak">1일 연속</span>
             </div>
         </div>
     </div>
@@ -1302,6 +1366,7 @@ function init() {
     applyFont(fontLevel);
     checkFirstVisit();
     updateStreak();
+    initHeroTeaser();
     checkSeason();
     setWelcome();
     setDate();
@@ -1313,10 +1378,41 @@ function init() {
     if (isIOS() && !isStandalone()) scheduleInstallBanner();
 }
 
+/* ── 히어로 묵상 초기화 ── */
+const TEASER_POOL = [
+    { t:'여호와는 나의 목자시니 내게 부족함이 없으리로다', r:'시편 23:1' },
+    { t:'수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라', r:'마태복음 11:28' },
+    { t:'내가 너희에게 평안을 끼치노니 곧 나의 평안을 너희에게 주노라', r:'요한복음 14:27' },
+    { t:'모든 것이 협력하여 선을 이루느니라', r:'로마서 8:28' },
+    { t:'하나님은 우리의 피난처시요 힘이시니 환난 중에 만날 큰 도움이시라', r:'시편 46:1' },
+    { t:'내가 세상 끝날까지 너희와 항상 함께 있으리라', r:'마태복음 28:20' },
+    { t:'주님의 인자하심이 영원하시며 그의 진실하심이 대대에 이르리로다', r:'시편 100:5' },
+    { t:'너희는 마음에 근심하지 말라 하나님을 믿으니 또 나를 믿으라', r:'요한복음 14:1' },
+    { t:'여호와를 앙망하는 자는 새 힘을 얻으리니', r:'이사야 40:31' },
+    { t:'주의 말씀은 내 발에 등이요 내 길에 빛이니이다', r:'시편 119:105' },
+    { t:'사랑은 오래 참고 사랑은 온유하며 시기하지 아니하며', r:'고린도전서 13:4' },
+    { t:'항상 기뻐하라 쉬지 말고 기도하라 범사에 감사하라', r:'데살로니가전서 5:16-18' },
+];
+
+function initHeroTeaser() {
+    const storeKey = 'shownTeaser';
+    let shown = lsGet(storeKey) || [];
+    const allIdx = TEASER_POOL.map((_,i)=>i);
+    let avail = allIdx.filter(i=>!shown.includes(i));
+    if (!avail.length) { shown=[]; avail=allIdx; lsSet(storeKey,[]); }
+    const picked = avail[Math.floor(Math.random()*avail.length)];
+    lsSet(storeKey, [...shown, picked]);
+    const item = TEASER_POOL[picked];
+    const tEl = document.getElementById('ht-text');
+    const rEl = document.getElementById('ht-ref');
+    if (tEl) tEl.textContent = `"${item.t}"`;
+    if (rEl) rEl.textContent = `— ${item.r}`;
+}
+
 /* ── 별 생성 ── */
 function generateStars() {
     const frag = document.createDocumentFragment();
-    for (let i=0;i<88;i++) {
+    for (let i=0;i<65;i++) {
         const el=document.createElement('div'); el.className='star';
         const big=Math.random()<.12, sz=big?(Math.random()*1.8+2.4):(Math.random()*1.4+0.5);
         el.style.cssText=`left:${(Math.random()*100).toFixed(2)}%;top:${(Math.random()*100).toFixed(2)}%;width:${sz.toFixed(2)}px;height:${sz.toFixed(2)}px;--dur:${(Math.random()*3+2).toFixed(1)}s;--delay:${(Math.random()*5).toFixed(1)}s;--mop:${(Math.random()*.45+.5).toFixed(2)};`;
@@ -1388,7 +1484,7 @@ function cycleFont(dir) {
 }
 
 /* ═══════════════════════════════════════
-   스트릭
+   스트릭 (컴팩트 체크인)
 ═══════════════════════════════════════ */
 function updateStreak() {
     const today = todayStr();
@@ -1399,62 +1495,14 @@ function updateStreak() {
     lsSet('visitDates', dates);
 
     const streak = calcStreak(dates);
-    const section = document.getElementById('streak-section');
-    if (!section || !dates.length) return;
+    const pill = document.getElementById('checkin-pill');
+    if (!pill) return;
 
-    document.getElementById('streak-icon').textContent  = streak >= 2 ? '🔥' : '🌱';
-    document.getElementById('streak-count').textContent = streak + '일 연속 출석';
-    document.getElementById('streak-label').textContent = getStreakLabel(streak);
-    document.getElementById('streak-next').textContent  = getNextGoal(streak);
-    buildStreakDots(dates);
-    section.classList.remove('hidden');
-}
-
-function getStreakLabel(n) {
-    if (n >= 100) return '전설적인 꾸준함이에요 🏆';
-    if (n >= 50)  return '놀라운 헌신이에요 🌟';
-    if (n >= 30)  return '한 달 개근! 최고예요 👑';
-    if (n >= 14)  return '신앙의 습관이 생겼어요 🌱';
-    if (n >= 7)   return '일주일 개근! 대단해요 🎖️';
-    if (n >= 3)   return '잘 오고 계세요 ✨';
-    if (n >= 2)   return '이틀 연속이에요!';
-    return '오늘 첫 방문이에요 👣';
-}
-
-function getNextGoal(n) {
-    const next = [3,7,14,30,50,100].find(g => g > n);
-    if (!next) return '100일 달성! 당신은 전설이에요 🌟';
-    return `🎯 다음 목표: ${next}일 연속까지 ${next - n}일 남았어요`;
-}
-
-function buildStreakDots(dates) {
-    const container = document.getElementById('streak-dots');
-    if (!container) return;
-    container.innerHTML = '';
-    const dateSet  = new Set(dates);
-    const dayNames = ['일','월','화','수','목','금','토'];
-    for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const str     = d.toISOString().slice(0, 10);
-        const visited = dateSet.has(str);
-        const isToday = i === 0;
-
-        const dot = document.createElement('div');
-        dot.className = 'streak-dot';
-
-        const circle = document.createElement('div');
-        circle.className = 'streak-dot-circle ' +
-            (visited && isToday ? 'sdc-today' : visited ? 'sdc-hit' : 'sdc-miss');
-        if (visited) circle.textContent = '✓';
-
-        const day = document.createElement('div');
-        day.className = 'streak-dot-day';
-        day.textContent = dayNames[d.getDay()];
-
-        dot.append(circle, day);
-        container.appendChild(dot);
-    }
+    const icon = streak >= 7 ? '🔥' : streak >= 3 ? '🌟' : '🌱';
+    document.getElementById('cp-icon').textContent   = icon;
+    document.getElementById('cp-text').textContent   = '오늘 출석 완료';
+    document.getElementById('cp-streak').textContent = streak + '일 연속';
+    pill.classList.remove('hidden');
 }
 
 function calcStreak(dates) {
