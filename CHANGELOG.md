@@ -5,6 +5,21 @@
 
 ---
 
+## [v2.3] — 2026-06-21 · 모바일 최종 점검 + 다국어 완성도 향상
+
+### 수정
+- 영어 모드에서 긴 단어 줄바꿈: `word-break:keep-all` → `word-break:break-word;overflow-wrap:break-word` (전체 적용)
+- 히어로 티저 구절 2줄 클램핑: `white-space:nowrap` 제거, `-webkit-line-clamp:2` 적용
+- 업데이트 배너 좁은 화면 넘침 방지: `white-space:nowrap` 제거, `max-width:min(90vw,380px)` 적용
+- iOS Safari 주소바 높이 이슈: `min-height:100svh` 추가 (100vh fallback 유지)
+
+### 추가
+- 히어로 티저 라벨 다국어 처리: `ht_label` (ko/en/ja) + `applyLang()`에서 동적 업데이트
+- 언어 변경 시 `<html lang>` 속성 자동 갱신 (ko/en/ja)
+- 언어 변경 시 `<body>` 에 `lang-ko/en/ja` 클래스 자동 적용
+
+---
+
 ## [v2.2] — 2026-06-21 · 영어 콘텐츠 + QR 공유 + 최적화
 
 ### 추가

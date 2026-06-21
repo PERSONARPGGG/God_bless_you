@@ -146,7 +146,8 @@
         .ht-text {
             font-size:var(--fs-sm);color:rgba(255,255,255,.84);
             line-height:1.75;font-style:italic;margin-bottom:5px;
-            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+            display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+            overflow:hidden;
         }
         .ht-ref {
             font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.5px;
@@ -196,7 +197,7 @@
         }
 
         /* ── 공통 레이아웃 ── */
-        .page-wrap { position:relative;z-index:1;max-width:460px;margin:0 auto;padding:max(env(safe-area-inset-top,0px),2vh) 16px calc(36px + env(safe-area-inset-bottom)); min-height:100vh; }
+        .page-wrap { position:relative;z-index:1;max-width:460px;margin:0 auto;padding:max(env(safe-area-inset-top,0px),2vh) 16px calc(36px + env(safe-area-inset-bottom)); min-height:100vh; min-height:100svh; }
         /* 스텝별 기본 마진 */
         #step1,#step4 { margin-top:12px; }
         #step2,#step3 { margin-top:16vh; }
@@ -338,7 +339,7 @@
             font-size:90px;color:rgba(200,168,112,.06);line-height:1;pointer-events:none;
         }
         .verse-icon  { font-size:14px;display:block;margin-bottom:10px; }
-        .verse-text  { font-size:var(--fs-verse);color:#1e1830;line-height:2.0;font-weight:500;margin-bottom:10px;word-break:keep-all;letter-spacing:.2px; }
+        .verse-text  { font-size:var(--fs-verse);color:#1e1830;line-height:2.0;font-weight:500;margin-bottom:10px;word-break:break-word;overflow-wrap:break-word;letter-spacing:.2px; }
         .verse-ref   { font-size:var(--fs-sm);color:#a07850;font-style:italic; }
         .verse-actions { display:flex;gap:8px;margin-top:12px;justify-content:flex-end; }
         .action-btn {
@@ -353,24 +354,24 @@
         /* 묵상·기도·응원 */
         .reflect-text {
             font-size:var(--fs-reflect);color:#2a2440;line-height:2.1;
-            word-break:keep-all;text-indent:1em;letter-spacing:.15px;
+            word-break:break-word;overflow-wrap:break-word;text-indent:1em;letter-spacing:.15px;
         }
         .prayer-text {
             font-size:var(--fs-reflect);color:#3a2840;line-height:2.2;
-            white-space:pre-line;word-break:keep-all;
+            white-space:pre-line;word-break:break-word;overflow-wrap:break-word;
             padding:14px 16px;border-radius:14px;
             background:linear-gradient(135deg,rgba(200,168,112,.08),rgba(180,140,80,.04));
             border-left:3px solid rgba(200,168,112,.5);
         }
         .enc-text {
             font-size:var(--fs-reflect);color:#3a2460;line-height:2.1;
-            text-align:center;font-weight:500;word-break:keep-all;letter-spacing:.2px;
+            text-align:center;font-weight:500;word-break:break-word;overflow-wrap:break-word;letter-spacing:.2px;
         }
 
         /* 오늘의 한 문장 */
         .sentence-wrap { text-align:center;padding:4px 6px; }
         .quote-mark    { font-size:40px;color:#ddd6c8;line-height:.6;display:block;margin-bottom:12px;font-family:Georgia,serif; }
-        .sentence-text { font-size:var(--fs-lg);color:#1e1830;line-height:1.9;font-weight:600;word-break:keep-all;text-align:center; }
+        .sentence-text { font-size:var(--fs-lg);color:#1e1830;line-height:1.9;font-weight:600;word-break:break-word;overflow-wrap:break-word;text-align:center; }
 
         /* 감사 일기 카드 */
         .diary-label  { font-size:var(--fs-sm);color:#666;margin-bottom:10px;font-weight:500; }
@@ -505,7 +506,7 @@
         }
         .svi-date    { font-size:var(--fs-xs);color:rgba(255,255,255,.4);margin-bottom:5px; }
         .svi-context { font-size:11px;color:rgba(255,200,100,.8);letter-spacing:.6px;margin-bottom:10px;font-weight:600; }
-        .svi-verse   { font-size:var(--fs-md);color:rgba(255,255,255,.9);line-height:1.9;font-weight:500;margin-bottom:7px;word-break:keep-all; }
+        .svi-verse   { font-size:var(--fs-md);color:rgba(255,255,255,.9);line-height:1.9;font-weight:500;margin-bottom:7px;word-break:break-word;overflow-wrap:break-word; }
         .svi-ref     { font-size:var(--fs-sm);color:rgba(200,168,112,.85);font-style:italic; }
         .svi-del     { position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,.25);font-size:18px;cursor:pointer;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center; }
         .svi-del:hover { color:rgba(255,140,130,.8); }
@@ -553,7 +554,7 @@
         .mood-emo-tag   { font-size:var(--fs-sm);color:rgba(255,255,255,.88);font-weight:600;margin-bottom:3px; }
         .mood-need-tag  { font-size:var(--fs-xs);color:rgba(255,200,150,.7); }
         .mood-topic-tag { font-size:var(--fs-xs);color:rgba(255,255,255,.38);margin-top:2px; }
-        .mood-diary     { font-size:var(--fs-xs);color:rgba(255,220,160,.6);margin-top:8px;font-style:italic;line-height:1.6;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;word-break:keep-all; }
+        .mood-diary     { font-size:var(--fs-xs);color:rgba(255,220,160,.6);margin-top:8px;font-style:italic;line-height:1.6;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;word-break:break-word;overflow-wrap:break-word; }
 
         /* 설정 */
         .settings-section { margin-bottom:18px; }
@@ -713,7 +714,7 @@
             padding:12px 16px;display:flex;align-items:center;gap:12px;
             box-shadow:0 4px 24px rgba(0,0,0,.5);z-index:9000;
             font-size:13px;color:rgba(255,255,255,.85);
-            transition:opacity .3s;white-space:nowrap;
+            transition:opacity .3s;white-space:normal;max-width:min(90vw,380px);
         }
         #update-banner.hidden { display:none; }
         #update-banner button {
@@ -915,7 +916,7 @@
                         <div class="setting-row-label">오늘은 어땠나요?</div>
                         <div id="row-app-desc" class="setting-row-sub">하루를 마무리하는 작은 디지털 쉼터</div>
                     </div>
-                    <span id="app-version" style="font-size:11px;color:rgba(255,255,255,.3);">v2.2</span>
+                    <span id="app-version" style="font-size:11px;color:rgba(255,255,255,.3);">v2.3</span>
                 </div>
                 <div class="setting-row">
                     <div>
@@ -986,7 +987,7 @@
 
     <!-- 히어로 묵상 카드 -->
     <div class="hero-teaser">
-        <span class="ht-label">✦ 오늘의 묵상 ✦</span>
+        <span class="ht-label" id="ht-label">✦ 오늘의 묵상 ✦</span>
         <p class="ht-text" id="ht-text"></p>
         <p class="ht-ref" id="ht-ref"></p>
     </div>
@@ -1881,7 +1882,7 @@ function dismissInstall() {
 /* ═══════════════════════════════════════
    상태
 ═══════════════════════════════════════ */
-const APP_VERSION = '2.2';
+const APP_VERSION = '2.3';
 const SHARE_URL = 'https://personarpggg.github.io/God_bless_you/';
 
 let sel = { emotion:null, topic:null, need:null };
@@ -1932,6 +1933,7 @@ const LANG_DATA = {
         wc_ask:'어떻게 불러드릴까요?', wc_sub:'이름을 입력하시면\n더 따뜻하게 맞이할게요.',
         wc_ph:'이름을 입력해주세요', wc_start:'시작하기', wc_skip:'나중에 할게요',
         /* 스텝 */
+        ht_label:'✦ 오늘의 묵상 ✦',
         s1_title:'오늘은 어땠나요?', s1_sub:'하루를 돌아보는 작은 쉼표',
         s2_title:'무엇이 가장 마음에 남았나요?', s3_title:'지금 어떤 마음이 드세요?',
         emo:['감사했어요','평안했어요','걱정이 있었어요','지쳤어요','마음이 아팠어요','기도하고 싶어요'],
@@ -2001,6 +2003,7 @@ const LANG_DATA = {
         wc_ask:'What shall we call you?', wc_sub:'Enter your name for\na warmer welcome.',
         wc_ph:'Your name', wc_start:'Get Started', wc_skip:'Skip for now',
         /* 스텝 */
+        ht_label:'✦ Today\'s Verse ✦',
         s1_title:'How was your day?', s1_sub:'A moment to reflect',
         s2_title:'What stayed on your mind?', s3_title:'What do you need right now?',
         emo:['Grateful','At peace','Worried','Exhausted','Heartbroken','Need prayer'],
@@ -2070,6 +2073,7 @@ const LANG_DATA = {
         wc_ask:'お名前を教えてください', wc_sub:'名前を入力すると\nより温かくお迎えします。',
         wc_ph:'お名前', wc_start:'はじめる', wc_skip:'あとで',
         /* 스텝 */
+        ht_label:'✦ 今日のみことば ✦',
         s1_title:'今日はどんな一日でしたか？', s1_sub:'一日を振り返るひととき',
         s2_title:'一番心に残ったことは？', s3_title:'今、どんな気持ちですか？',
         emo:['感謝した','平和だった','心配があった','疲れた','悲しかった','祈りたい'],
@@ -2154,6 +2158,11 @@ function applyLang(lang) {
     const q=(sel,cb)=>document.querySelectorAll(sel).forEach(cb);
     const s=(id,t)=>{ const el=document.getElementById(id); if(el) el.textContent=t; };
     const sh=(id,t)=>{ const el=document.getElementById(id); if(el) el.innerHTML=t; };
+    // HTML lang 속성 + body 언어 클래스
+    document.documentElement.lang = lang==='en'?'en':lang==='ja'?'ja':'ko';
+    document.body.className = document.body.className.replace(/\blang-\S+/g,'').trim() + ' lang-'+lang;
+    // 히어로 티저 라벨
+    if(L.ht_label) s('ht-label', L.ht_label);
     // 스텝 제목
     const s1t=document.querySelector('#step1 .s1-title'), s1s=document.querySelector('#step1 .s1-sub');
     const s2t=document.querySelector('#step2 .step-title'), s3t=document.querySelector('#step3 .step-title');
