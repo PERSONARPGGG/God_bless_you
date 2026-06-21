@@ -933,6 +933,13 @@
                 </div>
                 <div class="setting-row">
                     <div>
+                        <div id="row-feedback-label" class="setting-row-label">의견 남기기</div>
+                        <div id="row-feedback-sub" class="setting-row-sub">베타 피드백을 보내주세요</div>
+                    </div>
+                    <button class="btn-setting-action" onclick="openFeedback()">보내기</button>
+                </div>
+                <div class="setting-row">
+                    <div>
                         <div id="row-update-label" class="setting-row-label">업데이트 확인</div>
                         <div class="setting-row-sub" id="update-status-text">최신 버전 확인 중...</div>
                     </div>
@@ -1883,7 +1890,7 @@ function dismissInstall() {
    상태
 ═══════════════════════════════════════ */
 const APP_VERSION = '2.3';
-const SHARE_URL = 'https://personarpggg.github.io/God_bless_you/';
+const SHARE_URL = 'https://god-bless-you.vercel.app/';
 
 let sel = { emotion:null, topic:null, need:null };
 let curVerse = null;
@@ -1987,6 +1994,8 @@ const LANG_DATA = {
         /* QR 공유 */
         row_qr:'QR로 공유', row_qr_sub:'QR 코드로 앱을 공유하세요',
         qr_copied:'링크가 복사되었습니다 📋',
+        row_feedback:'의견 남기기', row_feedback_sub:'베타 피드백을 보내주세요',
+        row_feedback_btn:'보내기',
         /* 공유 */
         share_title:'오늘의 말씀', share_app:'📖 오늘은 어땠나요?',
         /* 절기 */
@@ -2057,6 +2066,8 @@ const LANG_DATA = {
         /* QR 공유 */
         row_qr:'Share via QR', row_qr_sub:'Share the app with a QR code',
         qr_copied:'Link copied 📋',
+        row_feedback:'Leave Feedback', row_feedback_sub:'Send us your beta feedback',
+        row_feedback_btn:'Send',
         /* 공유 */
         share_title:'Today\'s Verse', share_app:'📖 How Was Your Day?',
         /* 절기 */
@@ -2127,6 +2138,8 @@ const LANG_DATA = {
         /* QR 공유 */
         row_qr:'QRで共有', row_qr_sub:'QRコードでアプリを共有',
         qr_copied:'リンクをコピーしました 📋',
+        row_feedback:'ご意見を送る', row_feedback_sub:'ベータフィードバックをお送りください',
+        row_feedback_btn:'送信',
         /* 공유 */
         share_title:'今日のみことば', share_app:'📖 今日はどんな一日でしたか？',
         /* 절기 */
@@ -2193,6 +2206,7 @@ function applyLang(lang) {
     s('row-reset-label',L.row_reset); s('row-reset-sub',L.row_reset_sub); s('row-reset-btn',L.row_reset_btn);
     s('row-update-label',L.row_update); s('row-app-desc',L.row_app_desc);
     s('row-qr-label',L.row_qr); s('row-qr-sub',L.row_qr_sub);
+    s('row-feedback-label',L.row_feedback); s('row-feedback-sub',L.row_feedback_sub);
     sh('privacy-text',L.privacy);
     // 결과 섹션 라벨
     s('sec-verse',L.sec_verse); s('sec-story',L.sec_story); s('sec-prayer',L.sec_prayer);
@@ -2614,6 +2628,10 @@ function copyShareLink() {
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(SHARE_URL).then(()=>toast(L.qr_copied)).catch(()=>legacyCopyText(SHARE_URL));
     } else { legacyCopyText(SHARE_URL); }
+}
+
+function openFeedback() {
+    window.open('https://docs.google.com/forms/d/e/1FAIpQLSdQIVJq7-VipFJMVBsCZnU8KpCA35WaXd0xMEWXSade8Jz8SA/viewform?usp=header', '_blank', 'noopener,noreferrer');
 }
 
 function legacyCopyText(text) {
