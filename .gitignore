@@ -1,0 +1,49 @@
+# ──────────────────────────────────────────
+#  오늘은 어땠나요? — .gitignore
+# ──────────────────────────────────────────
+
+# 환경변수 / 비밀키 (절대 올리지 말 것!)
+.env
+.env.local
+.env.*.local
+*.key
+secrets.json
+
+# 개인 공부 & 기획 메모 (로컬 전용)
+STUDY_NOTES.md
+PLANNING.md
+docs/STUDY_NOTES.md
+docs/PLANNING.md
+
+# 의존성
+node_modules/
+.pnp
+.pnp.js
+
+# 빌드 결과물
+dist/
+build/
+.next/
+out/
+
+# Vercel 배포 캐시
+.vercel/
+
+# OS 자동 생성 파일
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 에디터 설정
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 로그
+*.log
+npm-debug.log*
+
+# 임시 파일
+*.tmp
+*.bak

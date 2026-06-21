@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘은 어땠나요? — 서비스 기획서 v1.0</title>
+<style>
+  /* ── 변수 ── */
+  :root {
+    --navy:   #0e1842;
+    --navy2:  #1a2560;
+    --gold:   #c8a86b;
+    --gold2:  #e8c98a;
+    --white:  #f8f6f0;
+    --gray:   #6b7280;
+    --light:  #f3f4f6;
+    --accent: #3b5bdb;
+    --green:  #2d9648;
+    --red:    #c0392b;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    background: #f0f2f5;
+    color: #1a1a2e;
+    line-height: 1.7;
+    font-size: 14px;
+  }
+
+  /* ── 인쇄 버튼 (화면 전용) ── */
+  .print-btn {
+    position: fixed;
+    bottom: 32px; right: 32px;
+    background: var(--navy);
+    color: var(--gold);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,.25);
+    z-index: 999;
+    transition: transform .15s;
+  }
+  .print-btn:hover { transform: scale(1.05); }
+
+  /* ── 페이지 래퍼 ── */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 24px auto;
+    background: #fff;
+    box-shadow: 0 4px 32px rgba(0,0,0,.12);
+    page-break-after: always;
+    position: relative;
+    overflow: hidden;
+  }
+  .page:last-of-type { page-break-after: auto; }
+
+  /* ── 표지 ── */
+  .cover {
+    background: linear-gradient(145deg, var(--navy) 0%, var(--navy2) 60%, #2a3a8a 100%);
+    min-height: 297mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 60px 48px;
+    position: relative;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 20%, rgba(200,168,107,.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(59,91,219,.15) 0%, transparent 50%);
+  }
+  .cover-badge {
+    background: rgba(200,168,107,.15);
+    border: 1px solid rgba(200,168,107,.4);
+    color: var(--gold);
+    padding: 6px 20px;
+    border-radius: 50px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    position: relative;
+  }
+  .cover h1 {
+    font-size: 42px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .cover-sub {
+    font-size: 16px;
+    color: rgba(255,255,255,.6);
+    margin-bottom: 56px;
+    position: relative;
+  }
+  .cover-divider {
+    width: 60px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 0 auto 56px;
+    position: relative;
+  }
+  .cover-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+  }
+  .cover-meta-item {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: left;
+  }
+  .cover-meta-label { font-size: 10px; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .cover-meta-value { font-size: 13px; color: rgba(255,255,255,.85); font-weight: 600; }
+  .cover-footer {
+    position: absolute;
+    bottom: 32px;
+    color: rgba(255,255,255,.25);
+    font-size: 11px;
+  }
+
+  /* ── 내부 페이지 레이아웃 ── */
+  .inner { padding: 52px 56px; }
+
+  /* ── 섹션 헤더 ── */
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--navy);
+    color: var(--gold);
+    padding: 4px 14px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--navy);
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .section-desc {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  /* ── 카드 ── */
+  .card {
+    background: var(--light);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+  .card p { font-size: 13px; color: #374151; line-height: 1.8; }
+
+  /* ── 하이라이트 박스 ── */
+  .highlight {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+    border-radius: 12px;
+    padding: 24px 28px;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+  .highlight .hl-label { font-size: 10px; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .highlight .hl-text { font-size: 20px; font-weight: 800; line-height: 1.4; }
+
+  /* ── 그리드 ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+
+  /* ── 문제/솔루션 ── */
+  .prob-sol { display: grid; grid-template-columns: 1fr 40px 1fr; gap: 0; align-items: start; margin-bottom: 16px; }
+  .prob-block { background: #fff0f0; border: 1px solid #fecaca; border-radius: 12px; padding: 20px 22px; }
+  .sol-block  { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px 22px; }
+  .arrow-mid  { display: flex; align-items: center; justify-content: center; font-size: 22px; padding-top: 20px; }
+  .pb-label   { font-size: 10px; font-weight: 700; color: var(--red); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+  .sl-label   { font-size: 10px; font-weight: 700; color: var(--green); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+  .pb-item, .sl-item { font-size: 12px; color: #374151; margin-bottom: 6px; display: flex; gap: 6px; }
+  .pb-item::before { content: '✗'; color: var(--red); flex-shrink: 0; }
+  .sl-item::before { content: '✓'; color: var(--green); flex-shrink: 0; }
+
+  /* ── 기능 목록 ── */
+  .feat-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .feat-card .feat-icon { font-size: 22px; margin-bottom: 8px; }
+  .feat-card .feat-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 6px; }
+  .feat-card .feat-desc { font-size: 12px; color: var(--gray); line-height: 1.6; }
+  .feat-badge { display:inline-block; background:var(--navy); color:var(--gold); font-size:9px; padding:2px 8px; border-radius:4px; font-weight:700; letter-spacing:1px; margin-top:8px; }
+  .feat-badge.soon { background:#e5e7eb; color:#6b7280; }
+
+  /* ── 기술 스택 테이블 ── */
+  .stack-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .stack-table th { background:var(--navy); color:var(--gold); padding:10px 16px; text-align:left; font-size:10px; letter-spacing:1px; text-transform:uppercase; }
+  .stack-table th:first-child { border-radius:8px 0 0 0; }
+  .stack-table th:last-child { border-radius:0 8px 0 0; }
+  .stack-table td { padding:10px 16px; border-bottom:1px solid #e5e7eb; color:#374151; }
+  .stack-table tr:last-child td { border-bottom:none; }
+  .stack-table tr:nth-child(even) td { background:#f9fafb; }
+  .tag { display:inline-block; background:#dbeafe; color:#1d4ed8; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:600; }
+  .tag.green { background:#dcfce7; color:#166534; }
+  .tag.purple { background:#f3e8ff; color:#7c3aed; }
+
+  /* ── DB 스키마 ── */
+  .schema-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .schema-table { background:#fff; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden; }
+  .schema-table .table-name { background:var(--navy); color:var(--gold); padding:8px 14px; font-size:11px; font-weight:700; letter-spacing:1px; }
+  .schema-row { display:flex; justify-content:space-between; padding:7px 14px; border-bottom:1px solid #f3f4f6; font-size:11px; }
+  .schema-row:last-child { border-bottom:none; }
+  .schema-col { color:#374151; }
+  .schema-type { color:#9ca3af; font-family:monospace; }
+  .schema-pk { background:#fef9c3; color:#854d0e; padding:1px 6px; border-radius:3px; font-size:9px; font-weight:700; margin-left:4px; }
+  .schema-fk { background:#dbeafe; color:#1e40af; padding:1px 6px; border-radius:3px; font-size:9px; font-weight:700; margin-left:4px; }
+
+  /* ── 수익화 ── */
+  .revenue-tier {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .revenue-tier.featured { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(200,168,107,.2); }
+  .rev-header { padding: 14px 20px; display:flex; justify-content:space-between; align-items:center; }
+  .rev-header.free   { background:#f9fafb; }
+  .rev-header.basic  { background:var(--navy); }
+  .rev-header.pro    { background:linear-gradient(135deg,#c8a86b,#e8c98a); }
+  .rev-header.church { background:#1a2560; }
+  .rev-name   { font-size:15px; font-weight:800; }
+  .rev-price  { font-size:18px; font-weight:900; }
+  .rev-name.light, .rev-price.light { color:#fff; }
+  .rev-body   { padding:14px 20px; display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .rev-feat   { font-size:12px; color:#374151; display:flex; gap:6px; }
+  .rev-feat::before { content:'·'; color:var(--gray); }
+
+  /* ── 로드맵 타임라인 ── */
+  .timeline { position:relative; padding-left:32px; }
+  .timeline::before { content:''; position:absolute; left:10px; top:8px; bottom:8px; width:2px; background:#e5e7eb; }
+  .tl-item { position:relative; margin-bottom:24px; }
+  .tl-dot {
+    position:absolute; left:-27px; top:4px;
+    width:14px; height:14px;
+    border-radius:50%;
+    background:#e5e7eb;
+    border:2px solid #fff;
+    box-shadow:0 0 0 2px #e5e7eb;
+  }
+  .tl-dot.done { background:var(--green); box-shadow:0 0 0 2px #bbf7d0; }
+  .tl-dot.active { background:var(--gold); box-shadow:0 0 0 2px rgba(200,168,107,.3); }
+  .tl-label { font-size:10px; font-weight:700; color:var(--gray); letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+  .tl-title { font-size:14px; font-weight:700; color:var(--navy); margin-bottom:4px; }
+  .tl-desc  { font-size:12px; color:var(--gray); }
+
+  /* ── 보안 체크리스트 ── */
+  .check-item { display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; font-size:12px; }
+  .check-ok  { color:var(--green); font-weight:700; flex-shrink:0; }
+  .check-warn{ color:#d97706; font-weight:700; flex-shrink:0; }
+  .check-text { color:#374151; line-height:1.6; }
+
+  /* ── 페이지 넘버 ── */
+  .page-num { position:absolute; bottom:28px; right:40px; font-size:10px; color:#d1d5db; }
+
+  /* ── 인쇄 최적화 ── */
+  @media print {
+    body { background:#fff; }
+    .print-btn { display:none; }
+    .page { margin:0; box-shadow:none; width:100%; }
+    .cover { min-height:100vh; }
+    @page { size:A4; margin:0; }
+  }
+</style>
+</head>
+<body>
+
+<button class="print-btn" onclick="window.print()">🖨 PDF로 저장</button>
+
+<!-- ══════════════════════════════════
+     표지
+════════════════════════════════════ -->
+<div class="page">
+  <div class="cover">
+    <div class="cover-badge">Service Plan · v1.0 · 2026</div>
+    <h1>오늘은 어땠나요?</h1>
+    <p class="cover-sub">How Was Your Day? — 크리스천 묵상 PWA</p>
+    <div class="cover-divider"></div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">서비스 유형</div>
+        <div class="cover-meta-value">PWA · 크리스천 묵상</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">현재 버전</div>
+        <div class="cover-meta-value">v2.5 (2026.06)</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">기술 스택</div>
+        <div class="cover-meta-value">Vanilla JS · Supabase</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">배포 환경</div>
+        <div class="cover-meta-value">Vercel · GitHub Pages</div>
+      </div>
+    </div>
+    <div class="cover-footer">Confidential — For Internal Use Only</div>
+  </div>
+  <div class="page-num">1</div>
+</div>
+
+<!-- ══════════════════════════════════
+     서비스 개요 + 문제 정의
+════════════════════════════════════ -->
+<div class="page">
+  <div class="inner">
+    <div class="section-tag">01 · Overview</div>
+    <div class="section-title">서비스 개요</div>
+    <div class="section-desc">하루를 마무리하는 감정 기반 말씀 묵상 앱</div>
+
+    <div class="highlight">
+      <div class="hl-label">Core Value Proposition</div>
+      <div class="hl-text">"감정을 선택하면 나에게 맞는<br>성경 말씀과 묵상이 찾아온다"</div>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-title">🎯 핵심 플로우</div>
+        <p>감정 선택 → 주제 → 필요 → 맞춤 말씀 + 묵상 + 기도문 + 감사 일기</p>
+      </div>
+      <div class="card">
+        <div class="card-title">🌍 지원 언어</div>
+        <p>한국어 · English · 日本語<br>ESV 성경 말씀 영문 지원</p>
+      </div>
+      <div class="card">
+        <div class="card-title">📱 접근성</div>
+        <p>PWA — 앱스토어 없이 설치<br>iOS · Android · 데스크탑</p>
+      </div>
+    </div>
+
+    <div style="margin-top:32px;">
+      <div class="section-tag">02 · Problem</div>
+      <div class="section-title">문제 정의</div>
+      <div class="section-desc">기존 크리스천 앱이 해결하지 못한 것들</div>
+
+      <div class="prob-sol">
+        <div class="prob-block">
+          <div class="pb-label">기존 방식의 한계</div>
+          <div class="pb-item">묵상 앱은 정해진 본문만 제공</div>
+          <div class="pb-item">오늘 내 감정과 무관한 말씀</div>
+          <div class="pb-item">기기 바꾸면 기록이 사라짐</div>
+          <div class="pb-item">복잡한 UX — 진입 장벽 높음</div>
+          <div class="pb-item">한국어 앱 대부분 광고 범람</div>
+        </div>
+        <div class="arrow-mid">→</div>
+        <div class="sol-block">
+          <div class="sl-label">이 앱의 솔루션</div>
+          <div class="sl-item">감정 → 말씀 매핑 (24조합)</div>
+          <div class="sl-item">오늘 상태에 맞는 위로</div>
+          <div class="sl-item">Supabase 클라우드 동기화</div>
+          <div class="sl-item">3탭 4스텝 직관적 UX</div>
+          <div class="sl-item">광고 없는 깨끗한 경험</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">2</div>
+</div>
+
+<!-- ══════════════════════════════════
+     MVP 기능
+════════════════════════════════════ -->
+<div class="page">
+  <div class="inner">
+    <div class="section-tag">03 · Features</div>
+    <div class="section-title">MVP 기능</div>
+    <div class="section-desc">현재 구현된 기능과 예정 기능</div>
+
+    <div class="grid-3">
+      <div class="feat-card">
+        <div class="feat-icon">🙏</div>
+        <div class="feat-title">감정 기반 말씀</div>
+        <div class="feat-desc">6감정 × 4필요 = 24조합<br>각 144개 한국어 / ESV 말씀</div>
+        <span class="feat-badge">LIVE</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📖</div>
+        <div class="feat-title">말씀 보관함</div>
+        <div class="feat-desc">마음에 드는 말씀 저장<br>최대 50개 · 페이지네이션</div>
+        <span class="feat-badge">LIVE</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📅</div>
+        <div class="feat-title">방문 스트릭</div>
+        <div class="feat-desc">연속 방문일 카운트<br>🌱→🌟→🔥 단계별 아이콘</div>
+        <span class="feat-badge">LIVE</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">☁️</div>
+        <div class="feat-title">클라우드 동기화</div>
+        <div class="feat-desc">Google 로그인 후<br>멀티 디바이스 데이터 유지</div>
+        <span class="feat-badge">LIVE</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">✏️</div>
+        <div class="feat-title">감사 일기</div>
+        <div class="feat-desc">하루 한 줄 감사 기록<br>감정 기록과 연동 저장</div>
+        <span class="feat-badge">LIVE</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🌙</div>
+        <div class="feat-title">5종 테마</div>
+        <div class="feat-desc">밤하늘·새벽빛·숲속·바다·노을<br>Aurora 애니메이션 배경</div>
+        <span class="feat-badge">LIVE</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📊</div>
+        <div class="feat-title">감정 통계</div>
+        <div class="feat-desc">월별 감정 패턴 분석<br>주간 묵상 리포트 이메일</div>
+        <span class="feat-badge soon">v3.0</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔔</div>
+        <div class="feat-title">웹 푸시 알림</div>
+        <div class="feat-desc">저녁 묵상 시간 알림<br>사용자 설정 시간대 지원</div>
+        <span class="feat-badge soon">v3.0</span>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">⛪</div>
+        <div class="feat-title">소그룹 플랜</div>
+        <div class="feat-desc">교회·셀그룹 공동 묵상<br>단체 감사 일기 공유</div>
+        <span class="feat-badge soon">v4.0</span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:8px; background:linear-gradient(135deg,#f0f9ff,#e0f2fe);">
+      <div class="card-title">📦 콘텐츠 현황</div>
+      <p>말씀 Pool: 한국어 144개 · ESV 144개 | 묵상 Pool: 30개 | 격려문 Pool: 24개 | 기도문 Pool: 24개 | 오늘의 말씀: 12개</p>
+    </div>
+  </div>
+  <div class="page-num">3</div>
+</div>
+
+<!-- ══════════════════════════════════
+     기술 스택 + DB 스키마
+════════════════════════════════════ -->
+<div class="page">
+  <div class="inner">
+    <div class="section-tag">04 · Tech Stack</div>
+    <div class="section-title">기술 스택</div>
+    <div class="section-desc">단일 파일 아키텍처 + BaaS 조합</div>
+
+    <table class="stack-table" style="margin-bottom:32px;">
+      <thead>
+        <tr>
+          <th>역할</th>
+          <th>기술</th>
+          <th>선택 이유</th>
+          <th>상태</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>프론트엔드</td>
+          <td>Vanilla JS · HTML · CSS</td>
+          <td>의존성 제로, 단일 파일 PWA 유지</td>
+          <td><span class="tag green">운영 중</span></td>
+        </tr>
+        <tr>
+          <td>DB + Auth + API</td>
+          <td>Supabase (PostgreSQL)</td>
+          <td>Google OAuth 내장, RLS 보안, 무료 티어</td>
+          <td><span class="tag green">운영 중</span></td>
+        </tr>
+        <tr>
+          <td>인증</td>
+          <td>Google OAuth 2.0</td>
+          <td>사용자 마찰 최소화, 별도 회원가입 불필요</td>
+          <td><span class="tag green">운영 중</span></td>
+        </tr>
+        <tr>
+          <td>배포</td>
+          <td>Vercel</td>
+          <td>GitHub 연동 자동 배포, 글로벌 CDN</td>
+          <td><span class="tag green">운영 중</span></td>
+        </tr>
+        <tr>
+          <td>오프라인 지원</td>
+          <td>Service Worker (PWA)</td>
+          <td>네트워크 없이도 앱 실행 가능</td>
+          <td><span class="tag green">운영 중</span></td>
+        </tr>
+        <tr>
+          <td>푸시 알림</td>
+          <td>Web Push API</td>
+          <td>앱스토어 없이 알림 발송</td>
+          <td><span class="tag purple">v3.0 예정</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-tag">05 · Database</div>
+    <div class="section-title">DB 스키마</div>
+    <div class="section-desc">PostgreSQL · RLS 적용 · 4개 테이블</div>
+
+    <div class="schema-grid">
+      <div class="schema-table">
+        <div class="table-name">📋 profiles</div>
+        <div class="schema-row"><span class="schema-col">id <span class="schema-pk">PK</span></span><span class="schema-type">uuid → auth.users</span></div>
+        <div class="schema-row"><span class="schema-col">name</span><span class="schema-type">text</span></div>
+        <div class="schema-row"><span class="schema-col">lang</span><span class="schema-type">text (ko/en/ja)</span></div>
+        <div class="schema-row"><span class="schema-col">theme</span><span class="schema-type">text</span></div>
+        <div class="schema-row"><span class="schema-col">font_level</span><span class="schema-type">int</span></div>
+        <div class="schema-row"><span class="schema-col">updated_at</span><span class="schema-type">timestamptz</span></div>
+      </div>
+      <div class="schema-table">
+        <div class="table-name">📅 visit_dates</div>
+        <div class="schema-row"><span class="schema-col">id <span class="schema-pk">PK</span></span><span class="schema-type">bigint (auto)</span></div>
+        <div class="schema-row"><span class="schema-col">user_id <span class="schema-fk">FK</span></span><span class="schema-type">uuid</span></div>
+        <div class="schema-row"><span class="schema-col">visit_date</span><span class="schema-type">date NOT NULL</span></div>
+        <div class="schema-row" style="background:#fef9c3; font-size:10px; color:#92400e; padding:6px 14px;">UNIQUE(user_id, visit_date)</div>
+      </div>
+      <div class="schema-table">
+        <div class="table-name">💭 mood_history</div>
+        <div class="schema-row"><span class="schema-col">id <span class="schema-pk">PK</span></span><span class="schema-type">bigint (auto)</span></div>
+        <div class="schema-row"><span class="schema-col">user_id <span class="schema-fk">FK</span></span><span class="schema-type">uuid</span></div>
+        <div class="schema-row"><span class="schema-col">date</span><span class="schema-type">date</span></div>
+        <div class="schema-row"><span class="schema-col">emotion / topic / need</span><span class="schema-type">text</span></div>
+        <div class="schema-row"><span class="schema-col">diary_text</span><span class="schema-type">text</span></div>
+        <div class="schema-row"><span class="schema-col">created_at</span><span class="schema-type">timestamptz</span></div>
+      </div>
+      <div class="schema-table">
+        <div class="table-name">📖 saved_verses</div>
+        <div class="schema-row"><span class="schema-col">id <span class="schema-pk">PK</span></span><span class="schema-type">bigint (auto)</span></div>
+        <div class="schema-row"><span class="schema-col">user_id <span class="schema-fk">FK</span></span><span class="schema-type">uuid</span></div>
+        <div class="schema-row"><span class="schema-col">verse_text</span><span class="schema-type">text NOT NULL</span></div>
+        <div class="schema-row"><span class="schema-col">verse_ref</span><span class="schema-type">text</span></div>
+        <div class="schema-row"><span class="schema-col">emotion / need</span><span class="schema-type">text</span></div>
+        <div class="schema-row"><span class="schema-col">saved_at</span><span class="schema-type">timestamptz</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">4</div>
+</div>
+
+<!-- ══════════════════════════════════
+     수익화 전략
+════════════════════════════════════ -->
+<div class="page">
+  <div class="inner">
+    <div class="section-tag">06 · Monetization</div>
+    <div class="section-title">수익화 전략</div>
+    <div class="section-desc">광고 없는 경험 유지 + 지속 가능한 운영 모델</div>
+
+    <div class="highlight" style="margin-bottom:24px;">
+      <div class="hl-label">핵심 원칙</div>
+      <div class="hl-text" style="font-size:16px;">"무료로 충분히 쓸 수 있되, 더 깊이 쓰고 싶은 사람을 위한 프리미엄"</div>
+    </div>
+
+    <div class="revenue-tier">
+      <div class="rev-header free">
+        <span class="rev-name">🌱 Free</span>
+        <span class="rev-price">₩0 / 월</span>
+      </div>
+      <div class="rev-body">
+        <div class="rev-feat">감정 기반 말씀 무제한</div>
+        <div class="rev-feat">감사 일기 (최근 30일)</div>
+        <div class="rev-feat">말씀 보관함 (최대 50개)</div>
+        <div class="rev-feat">방문 스트릭 기록</div>
+        <div class="rev-feat">3언어 지원</div>
+        <div class="rev-feat">5종 배경 테마</div>
+      </div>
+    </div>
+
+    <div class="revenue-tier featured">
+      <div class="rev-header basic">
+        <span class="rev-name light">✨ Premium</span>
+        <span class="rev-price light">₩1,900 / 월</span>
+      </div>
+      <div class="rev-body">
+        <div class="rev-feat">Free 모든 기능 포함</div>
+        <div class="rev-feat">감정 통계 대시보드</div>
+        <div class="rev-feat">주간 묵상 리포트 이메일</div>
+        <div class="rev-feat">말씀 보관함 무제한</div>
+        <div class="rev-feat">일기 무제한 저장</div>
+        <div class="rev-feat">저녁 묵상 알림 설정</div>
+        <div class="rev-feat">프리미엄 전용 테마</div>
+        <div class="rev-feat">광고 영원히 없음</div>
+      </div>
+    </div>
+
+    <div class="revenue-tier">
+      <div class="rev-header church">
+        <span class="rev-name light">⛪ Church / 소그룹</span>
+        <span class="rev-price light">₩9,900 / 월 (10인)</span>
+      </div>
+      <div class="rev-body">
+        <div class="rev-feat">Premium 모든 기능</div>
+        <div class="rev-feat">소그룹 공동 묵상 공유</div>
+        <div class="rev-feat">단체 감사 일기 피드</div>
+        <div class="rev-feat">셀장 통계 대시보드</div>
+        <div class="rev-feat">10인 이상 볼륨 할인</div>
+        <div class="rev-feat">교회 로고 커스터마이징</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:16px;">
+      <div class="card">
+        <div class="card-title">🙏 후원 모델 (병행)</div>
+        <p>자발적 후원 — "오늘도 은혜 받으셨나요?" Buy Me a Coffee / 카카오 선물. 강요 없이 앱 하단에 조용히 노출. 신앙 기반 사용자층의 후원 의향이 높은 편.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">📈 수익 예상 (보수적)</div>
+        <p>MAU 1,000명 기준<br>
+        전환율 5% → 유료 50명<br>
+        월 수익 ≈ ₩95,000<br>
+        Supabase 무료 티어: MAU 50,000 이하 $0<br>
+        Vercel: 무료 플랜으로 충분</p>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">5</div>
+</div>
+
+<!-- ══════════════════════════════════
+     로드맵 + 보안
+════════════════════════════════════ -->
+<div class="page">
+  <div class="inner">
+    <div class="section-tag">07 · Roadmap</div>
+    <div class="section-title">개발 로드맵</div>
+    <div class="section-desc">단계적 성장 계획</div>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot done"></div>
+        <div class="tl-label">완료 · 2026.06</div>
+        <div class="tl-title">v2.5 — 백엔드 연동 MVP</div>
+        <div class="tl-desc">Supabase Google OAuth · 클라우드 동기화 · 멀티 디바이스 지원</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot active"></div>
+        <div class="tl-label">진행 중 · 2026 Q3</div>
+        <div class="tl-title">v3.0 — 통계 + 알림</div>
+        <div class="tl-desc">감정 통계 대시보드 · 주간 리포트 · 웹 푸시 알림 · Premium 플랜 도입</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-label">예정 · 2026 Q4</div>
+        <div class="tl-title">v3.5 — 콘텐츠 확장</div>
+        <div class="tl-desc">말씀 Pool 300개+  · 일본어 콘텐츠 강화 · 새벽 묵상 시리즈 추가</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-label">예정 · 2027 Q1</div>
+        <div class="tl-title">v4.0 — 소그룹 플랜</div>
+        <div class="tl-desc">교회/셀그룹 단체 계정 · 공동 묵상 · Church 플랜 출시</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-label">장기 · 2027+</div>
+        <div class="tl-title">v5.0 — AI 묵상 도우미</div>
+        <div class="tl-desc">감정 분석 기반 개인화 말씀 추천 · AI 기도문 생성</div>
+      </div>
+    </div>
+
+    <div style="margin-top:36px;">
+      <div class="section-tag">08 · Security</div>
+      <div class="section-title">보안 고려사항</div>
+      <div class="section-desc">데이터 보호 및 키 관리 체계</div>
+
+      <div class="grid-2">
+        <div>
+          <div class="check-item"><span class="check-ok">✓</span><span class="check-text"><strong>RLS (Row-Level Security)</strong> — 모든 테이블에 user_id = auth.uid() 정책 적용. anon key가 유출돼도 타 사용자 데이터 접근 불가</span></div>
+          <div class="check-item"><span class="check-ok">✓</span><span class="check-text"><strong>Google OAuth</strong> — 비밀번호 저장 없음. 구글이 인증 책임. JWT 토큰 자동 갱신</span></div>
+          <div class="check-item"><span class="check-ok">✓</span><span class="check-text"><strong>anon key 공개</strong> — RLS 보호 하에 프론트에 노출 가능 (설계상 안전)</span></div>
+        </div>
+        <div>
+          <div class="check-item"><span class="check-warn">⚠</span><span class="check-text"><strong>service_role key</strong> — 절대 코드/GitHub에 노출 금지. 서버 전용</span></div>
+          <div class="check-item"><span class="check-warn">⚠</span><span class="check-text"><strong>OAuth redirect URI</strong> — Google Cloud Console + Supabase 양쪽에 정확히 등록 필요</span></div>
+          <div class="check-item"><span class="check-ok">✓</span><span class="check-text"><strong>.gitignore</strong> — .env, service_role key, 개인 메모 파일 깃 추적 제외</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="page-num">6</div>
+</div>
+
+</body>
+</html>

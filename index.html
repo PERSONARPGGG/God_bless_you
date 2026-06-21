@@ -2476,14 +2476,20 @@ function updateAuthUI() {
     const rowLogin  = document.getElementById('row-login');
     const rowLogout = document.getElementById('row-logout');
     const emailEl   = document.getElementById('auth-email');
+    const privEl    = document.getElementById('privacy-text');
     if (!rowLogin) return;
     if (sbUser) {
         rowLogin.style.display  = 'none';
         rowLogout.style.display = 'flex';
         if (emailEl) emailEl.textContent = sbUser.email;
+        if (privEl) privEl.innerHTML = '☁️ 데이터가 클라우드에 안전하게 저장됩니다.<br>로그아웃 시 이 기기에만 보관됩니다.';
     } else {
         rowLogin.style.display  = 'flex';
         rowLogout.style.display = 'none';
+        if (privEl) {
+            const L = LANG_DATA[appLang]||LANG_DATA.ko;
+            privEl.innerHTML = L.privacy;
+        }
     }
 }
 
@@ -3319,6 +3325,11 @@ function clearData() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     if (!confirm(L.confirm_reset)) return;
     ['savedVerses','moodHistory','visitDates'].forEach(k=>localStorage.removeItem(k));
+    if (sbUser && sb) {
+        sb.from('mood_history').delete().eq('user_id', sbUser.id).then();
+        sb.from('saved_verses').delete().eq('user_id', sbUser.id).then();
+        sb.from('visit_dates').delete().eq('user_id', sbUser.id).then();
+    }
     toast(L.toast_reset);
     hideOverlay('overlay-settings');
 }
