@@ -3024,7 +3024,7 @@ function setTheme(theme) {
 /* 전체화면 */
 function toggleFullscreen() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    if (!document.fullscreenEnabled) {
+    if (location.protocol === 'file:' || !document.fullscreenEnabled) {
         toast(L.fullscreen_unsupported); return;
     }
     if (!document.fullscreenElement) {
