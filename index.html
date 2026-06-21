@@ -915,7 +915,20 @@
                         <div class="setting-row-label">오늘은 어땠나요?</div>
                         <div id="row-app-desc" class="setting-row-sub">하루를 마무리하는 작은 디지털 쉼터</div>
                     </div>
-                    <span style="font-size:11px;color:rgba(255,255,255,.3);">v2.1</span>
+                    <span id="app-version" style="font-size:11px;color:rgba(255,255,255,.3);">v2.2</span>
+                </div>
+                <div class="setting-row">
+                    <div>
+                        <div id="row-qr-label" class="setting-row-label">QR로 공유</div>
+                        <div id="row-qr-sub" class="setting-row-sub">QR 코드로 앱을 공유하세요</div>
+                    </div>
+                    <button class="btn-setting-action" onclick="toggleQR()">QR</button>
+                </div>
+                <div id="qr-panel" style="display:none;margin-top:6px;padding:14px;background:rgba(255,255,255,.06);border-radius:12px;text-align:center;">
+                    <img id="qr-img" src="" alt="QR" style="width:180px;height:180px;border-radius:10px;background:#fff;padding:6px;">
+                    <div style="margin-top:10px;display:flex;gap:8px;justify-content:center;">
+                        <button onclick="copyShareLink()" style="background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:10px;padding:7px 16px;font-size:13px;font-family:inherit;cursor:pointer;">🔗 링크 복사</button>
+                    </div>
                 </div>
                 <div class="setting-row">
                     <div>
@@ -1868,6 +1881,9 @@ function dismissInstall() {
 /* ═══════════════════════════════════════
    상태
 ═══════════════════════════════════════ */
+const APP_VERSION = '2.2';
+const SHARE_URL = 'https://personarpggg.github.io/God_bless_you/';
+
 let sel = { emotion:null, topic:null, need:null };
 let curVerse = null;
 let verseSaved = false;
@@ -1966,6 +1982,9 @@ const LANG_DATA = {
         toast_diary_saved:'감사 일기가 저장되었습니다 ✨', toast_diary_empty:'한 줄을 적어주세요 🌸',
         toast_exported:'클립보드에 복사되었습니다 📋', toast_reset:'초기화되었습니다',
         confirm_reset:'저장된 말씀, 감정 기록이 모두 삭제됩니다. 계속하시겠어요?',
+        /* QR 공유 */
+        row_qr:'QR로 공유', row_qr_sub:'QR 코드로 앱을 공유하세요',
+        qr_copied:'링크가 복사되었습니다 📋',
         /* 공유 */
         share_title:'오늘의 말씀', share_app:'📖 오늘은 어땠나요?',
         /* 절기 */
@@ -2032,6 +2051,9 @@ const LANG_DATA = {
         toast_diary_saved:'Gratitude saved ✨', toast_diary_empty:'Please write something first 🌸',
         toast_exported:'Copied to clipboard 📋', toast_reset:'Data cleared',
         confirm_reset:'All saved verses and mood history will be deleted. Continue?',
+        /* QR 공유 */
+        row_qr:'Share via QR', row_qr_sub:'Share the app with a QR code',
+        qr_copied:'Link copied 📋',
         /* 공유 */
         share_title:'Today\'s Verse', share_app:'📖 How Was Your Day?',
         /* 절기 */
@@ -2098,6 +2120,9 @@ const LANG_DATA = {
         toast_diary_saved:'感謝の日記を保存しました ✨', toast_diary_empty:'一行書いてください 🌸',
         toast_exported:'クリップボードにコピーしました 📋', toast_reset:'初期化しました',
         confirm_reset:'保存されたみことばと記録がすべて削除されます。続けますか？',
+        /* QR 공유 */
+        row_qr:'QRで共有', row_qr_sub:'QRコードでアプリを共有',
+        qr_copied:'リンクをコピーしました 📋',
         /* 공유 */
         share_title:'今日のみことば', share_app:'📖 今日はどんな一日でしたか？',
         /* 절기 */
@@ -2158,6 +2183,7 @@ function applyLang(lang) {
     s('row-export-label',L.row_export); s('row-export-sub',L.row_export_sub); s('row-export-btn',L.row_export_btn);
     s('row-reset-label',L.row_reset); s('row-reset-sub',L.row_reset_sub); s('row-reset-btn',L.row_reset_btn);
     s('row-update-label',L.row_update); s('row-app-desc',L.row_app_desc);
+    s('row-qr-label',L.row_qr); s('row-qr-sub',L.row_qr_sub);
     sh('privacy-text',L.privacy);
     // 결과 섹션 라벨
     s('sec-verse',L.sec_verse); s('sec-story',L.sec_story); s('sec-prayer',L.sec_prayer);
@@ -2204,6 +2230,8 @@ function init() {
         document.head.appendChild(ml);
     }
     generateStars();
+    const verEl = document.getElementById('app-version');
+    if (verEl) verEl.textContent = 'v' + APP_VERSION;
     appLang  = lsGet('appLang')  || 'ko';
     fontLevel = parseInt(lsGet('fontLevel') || '0');
     applyFont(fontLevel);
@@ -2554,6 +2582,39 @@ function copyVerse() {
     } else {
         legacyCopy(text);
     }
+}
+
+/* ═══════════════════════════════════════
+   QR 공유
+═══════════════════════════════════════ */
+function toggleQR() {
+    const panel = document.getElementById('qr-panel');
+    if (!panel) return;
+    const open = panel.style.display !== 'none';
+    if (open) { panel.style.display = 'none'; return; }
+    const img = document.getElementById('qr-img');
+    if (img && !img.dataset.loaded) {
+        img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=' + encodeURIComponent(SHARE_URL);
+        img.dataset.loaded = '1';
+    }
+    panel.style.display = 'block';
+}
+
+function copyShareLink() {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(SHARE_URL).then(()=>toast(L.qr_copied)).catch(()=>legacyCopyText(SHARE_URL));
+    } else { legacyCopyText(SHARE_URL); }
+}
+
+function legacyCopyText(text) {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-999px;left:-999px;opacity:0;';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); toast(L.qr_copied); } catch {}
+    document.body.removeChild(ta);
 }
 
 /* ═══════════════════════════════════════
