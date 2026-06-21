@@ -694,9 +694,19 @@
         body.theme-forest .ab2 { background:radial-gradient(circle,rgba(40,170,85,.2) 0%,transparent 70%); }
         body.theme-forest .ab3 { background:radial-gradient(circle,rgba(60,210,140,.14) 0%,transparent 70%); }
         body.theme-forest .star { background:rgba(180,255,200,.7); }
+        body.theme-ocean  { background:linear-gradient(170deg,#010e1e 0%,#021628 35%,#010c18 65%,#010810 100%); }
+        body.theme-ocean  .ab1 { background:radial-gradient(circle,rgba(20,100,210,.3) 0%,transparent 70%); }
+        body.theme-ocean  .ab2 { background:radial-gradient(circle,rgba(0,160,200,.22) 0%,transparent 70%); }
+        body.theme-ocean  .ab3 { background:radial-gradient(circle,rgba(30,210,230,.14) 0%,transparent 70%); }
+        body.theme-ocean  .star { background:rgba(180,230,255,.75); }
+        body.theme-ember  { background:linear-gradient(170deg,#180404 0%,#240a06 35%,#1a0402 65%,#0e0202 100%); }
+        body.theme-ember  .ab1 { background:radial-gradient(circle,rgba(220,55,20,.3) 0%,transparent 70%); }
+        body.theme-ember  .ab2 { background:radial-gradient(circle,rgba(255,110,30,.22) 0%,transparent 70%); }
+        body.theme-ember  .ab3 { background:radial-gradient(circle,rgba(255,170,50,.14) 0%,transparent 70%); }
 
         /* ── 설정 언어/테마 선택 ── */
         .lang-options, .theme-options { display:flex;gap:8px; }
+        .theme-options { flex-wrap:wrap; }
         .lang-opt-btn, .theme-btn {
             flex:1;padding:11px 4px;border:1.5px solid rgba(255,255,255,.14);border-radius:12px;
             background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);font-family:inherit;
@@ -856,6 +866,8 @@
                     <button class="theme-btn" id="th-night"  onclick="setTheme('night')">🌙<br><span id="th-night-txt">밤하늘</span></button>
                     <button class="theme-btn" id="th-dawn"   onclick="setTheme('dawn')">🌅<br><span id="th-dawn-txt">새벽빛</span></button>
                     <button class="theme-btn" id="th-forest" onclick="setTheme('forest')">🌿<br><span id="th-forest-txt">숲속</span></button>
+                    <button class="theme-btn" id="th-ocean"  onclick="setTheme('ocean')">🌊<br><span id="th-ocean-txt">바다</span></button>
+                    <button class="theme-btn" id="th-ember"  onclick="setTheme('ember')">🔥<br><span id="th-ember-txt">노을</span></button>
                 </div>
             </div>
         </div>
@@ -930,6 +942,20 @@
                     <div style="margin-top:10px;display:flex;gap:8px;justify-content:center;">
                         <button onclick="copyShareLink()" style="background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:10px;padding:7px 16px;font-size:13px;font-family:inherit;cursor:pointer;">🔗 링크 복사</button>
                     </div>
+                </div>
+                <div class="setting-row">
+                    <div>
+                        <div id="row-fullscreen-label" class="setting-row-label">전체화면 보기</div>
+                        <div id="row-fullscreen-sub" class="setting-row-sub">앱을 전체화면으로 전환</div>
+                    </div>
+                    <button class="btn-setting-action" id="btn-fullscreen" onclick="toggleFullscreen()">켜기</button>
+                </div>
+                <div class="setting-row">
+                    <div>
+                        <div id="row-install-label" class="setting-row-label">홈 화면에 추가</div>
+                        <div id="row-install-sub" class="setting-row-sub">스마트폰 아이콘으로 설치하기</div>
+                    </div>
+                    <button class="btn-setting-action" id="btn-install" onclick="triggerInstall()">추가</button>
                 </div>
                 <div class="setting-row">
                     <div>
@@ -1958,7 +1984,7 @@ const LANG_DATA = {
         settings_title:'⚙️ 설정', settings_back:'← 돌아가기',
         lbl_lang:'언어 / Language', lbl_theme:'배경 테마', lbl_font:'글자 크기',
         lbl_personal:'개인 정보', lbl_data:'데이터 관리', lbl_app:'앱 정보',
-        th_night:'밤하늘', th_dawn:'새벽빛', th_forest:'숲속',
+        th_night:'밤하늘', th_dawn:'새벽빛', th_forest:'숲속', th_ocean:'바다', th_ember:'노을',
         fo_sm:'기본', fo_md:'크게', fo_lg:'매우 크게',
         row_name:'이름 변경', name_prefix:'현재: ', name_none:'설정되지 않음', row_name_btn:'변경',
         row_export:'기록 내보내기', row_export_sub:'감정 기록 · 일기를 텍스트로 복사', row_export_btn:'내보내기',
@@ -1994,6 +2020,12 @@ const LANG_DATA = {
         /* QR 공유 */
         row_qr:'QR로 공유', row_qr_sub:'QR 코드로 앱을 공유하세요',
         qr_copied:'링크가 복사되었습니다 📋',
+        row_fullscreen:'전체화면 보기', row_fullscreen_sub:'앱을 전체화면으로 전환',
+        fullscreen_on:'켜기', fullscreen_off:'끄기',
+        fullscreen_unsupported:'홈 화면에 추가하면 자동으로 전체화면으로 실행됩니다',
+        row_install:'홈 화면에 추가', row_install_sub:'스마트폰 아이콘으로 설치하기', row_install_btn:'추가',
+        install_unavailable:'이미 설치되어 있거나 지원되지 않는 환경입니다',
+        already_installed:'이미 앱으로 실행 중입니다 ✓',
         row_feedback:'의견 남기기', row_feedback_sub:'베타 피드백을 보내주세요',
         row_feedback_btn:'보내기',
         /* 공유 */
@@ -2030,7 +2062,7 @@ const LANG_DATA = {
         settings_title:'⚙️ Settings', settings_back:'← Back',
         lbl_lang:'Language', lbl_theme:'Theme', lbl_font:'Font Size',
         lbl_personal:'Personal', lbl_data:'Data', lbl_app:'App Info',
-        th_night:'Night', th_dawn:'Dawn', th_forest:'Forest',
+        th_night:'Night', th_dawn:'Dawn', th_forest:'Forest', th_ocean:'Ocean', th_ember:'Ember',
         fo_sm:'Regular', fo_md:'Large', fo_lg:'X-Large',
         row_name:'Change Name', name_prefix:'Current: ', name_none:'Not set', row_name_btn:'Change',
         row_export:'Export Data', row_export_sub:'Copy mood log & diary as text', row_export_btn:'Export',
@@ -2066,6 +2098,12 @@ const LANG_DATA = {
         /* QR 공유 */
         row_qr:'Share via QR', row_qr_sub:'Share the app with a QR code',
         qr_copied:'Link copied 📋',
+        row_fullscreen:'Full Screen', row_fullscreen_sub:'Switch to fullscreen mode',
+        fullscreen_on:'On', fullscreen_off:'Off',
+        fullscreen_unsupported:'Add to Home Screen to run fullscreen on iOS',
+        row_install:'Add to Home Screen', row_install_sub:'Install as an app icon', row_install_btn:'Add',
+        install_unavailable:'Already installed or not supported in this environment',
+        already_installed:'Already running as an app ✓',
         row_feedback:'Leave Feedback', row_feedback_sub:'Send us your beta feedback',
         row_feedback_btn:'Send',
         /* 공유 */
@@ -2102,7 +2140,7 @@ const LANG_DATA = {
         settings_title:'⚙️ 設定', settings_back:'← 戻る',
         lbl_lang:'言語 / Language', lbl_theme:'背景テーマ', lbl_font:'文字サイズ',
         lbl_personal:'個人情報', lbl_data:'データ管理', lbl_app:'アプリ情報',
-        th_night:'夜空', th_dawn:'夜明け', th_forest:'森',
+        th_night:'夜空', th_dawn:'夜明け', th_forest:'森', th_ocean:'海', th_ember:'夕焼け',
         fo_sm:'標準', fo_md:'大きく', fo_lg:'とても大きく',
         row_name:'名前を変更', name_prefix:'現在: ', name_none:'未設定', row_name_btn:'変更',
         row_export:'データを書き出す', row_export_sub:'記録と日記をテキストでコピー', row_export_btn:'書き出す',
@@ -2138,6 +2176,12 @@ const LANG_DATA = {
         /* QR 공유 */
         row_qr:'QRで共有', row_qr_sub:'QRコードでアプリを共有',
         qr_copied:'リンクをコピーしました 📋',
+        row_fullscreen:'全画面表示', row_fullscreen_sub:'アプリを全画面で表示',
+        fullscreen_on:'オン', fullscreen_off:'オフ',
+        fullscreen_unsupported:'ホーム画面に追加すると自動で全画面になります',
+        row_install:'ホーム画面に追加', row_install_sub:'アプリアイコンとしてインストール', row_install_btn:'追加',
+        install_unavailable:'インストール済みまたは対応環境ではありません',
+        already_installed:'アプリとして実行中です ✓',
         row_feedback:'ご意見を送る', row_feedback_sub:'ベータフィードバックをお送りください',
         row_feedback_btn:'送信',
         /* 공유 */
@@ -2200,12 +2244,18 @@ function applyLang(lang) {
     s('lbl-lang',L.lbl_lang); s('lbl-theme',L.lbl_theme); s('lbl-font',L.lbl_font);
     s('lbl-personal',L.lbl_personal); s('lbl-data',L.lbl_data); s('lbl-app',L.lbl_app);
     s('th-night-txt',L.th_night); s('th-dawn-txt',L.th_dawn); s('th-forest-txt',L.th_forest);
+    s('th-ocean-txt',L.th_ocean); s('th-ember-txt',L.th_ember);
     s('fo-sm-txt',L.fo_sm); s('fo-md-txt',L.fo_md); s('fo-lg-txt',L.fo_lg);
     s('row-name-label',L.row_name); s('row-name-btn',L.row_name_btn);
     s('row-export-label',L.row_export); s('row-export-sub',L.row_export_sub); s('row-export-btn',L.row_export_btn);
     s('row-reset-label',L.row_reset); s('row-reset-sub',L.row_reset_sub); s('row-reset-btn',L.row_reset_btn);
     s('row-update-label',L.row_update); s('row-app-desc',L.row_app_desc);
     s('row-qr-label',L.row_qr); s('row-qr-sub',L.row_qr_sub);
+    s('row-fullscreen-label',L.row_fullscreen); s('row-fullscreen-sub',L.row_fullscreen_sub);
+    s('row-install-label',L.row_install); s('row-install-sub',L.row_install_sub);
+    const ib=document.getElementById('btn-install'); if(ib) ib.textContent=L.row_install_btn;
+    const fb=document.getElementById('btn-fullscreen');
+    if(fb) fb.textContent=document.fullscreenElement?L.fullscreen_off:L.fullscreen_on;
     s('row-feedback-label',L.row_feedback); s('row-feedback-sub',L.row_feedback_sub);
     sh('privacy-text',L.privacy);
     // 결과 섹션 라벨
@@ -2910,10 +2960,20 @@ function openSettings() {
     });
     // 테마 버튼 active 동기화
     const theme = lsGet('appTheme') || 'night';
-    ['th-night','th-dawn','th-forest'].forEach(id => {
+    ['th-night','th-dawn','th-forest','th-ocean','th-ember'].forEach(id => {
         const t = id.replace('th-','');
         document.getElementById(id).classList.toggle('active', t === theme);
     });
+    // 전체화면 버튼 상태 동기화
+    const L2 = LANG_DATA[appLang]||LANG_DATA.ko;
+    const fbtn = document.getElementById('btn-fullscreen');
+    if (fbtn) fbtn.textContent = document.fullscreenElement ? L2.fullscreen_off : L2.fullscreen_on;
+    // 설치 버튼 상태 동기화
+    const instBtn = document.getElementById('btn-install');
+    if (instBtn) {
+        if (isStandalone()) { instBtn.textContent = L2.already_installed; instBtn.disabled = true; }
+        else { instBtn.textContent = L2.row_install_btn; instBtn.disabled = false; }
+    }
     // 업데이트 상태 초기화
     const btn = document.getElementById('btn-check-update');
     if (btn) { btn.disabled = false; btn.textContent = L.upd_btn; btn.onclick = checkUpdateManual; }
@@ -2946,17 +3006,50 @@ function setLang(lang) {
 
 /* 배경 테마 */
 function applyTheme(theme) {
-    document.body.classList.remove('theme-dawn','theme-forest');
+    document.body.classList.remove('theme-dawn','theme-forest','theme-ocean','theme-ember');
     if (theme === 'dawn')   document.body.classList.add('theme-dawn');
     if (theme === 'forest') document.body.classList.add('theme-forest');
+    if (theme === 'ocean')  document.body.classList.add('theme-ocean');
+    if (theme === 'ember')  document.body.classList.add('theme-ember');
 }
 
 function setTheme(theme) {
     applyTheme(theme);
     lsSet('appTheme', theme);
-    ['th-night','th-dawn','th-forest'].forEach(id => {
+    ['th-night','th-dawn','th-forest','th-ocean','th-ember'].forEach(id => {
         document.getElementById(id).classList.toggle('active', id.replace('th-','') === theme);
     });
+}
+
+/* 전체화면 */
+function toggleFullscreen() {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    if (!document.fullscreenEnabled) {
+        toast(L.fullscreen_unsupported); return;
+    }
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(()=>{});
+    } else {
+        document.exitFullscreen();
+    }
+}
+document.addEventListener('fullscreenchange', () => {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    const btn = document.getElementById('btn-fullscreen');
+    if (btn) btn.textContent = document.fullscreenElement ? L.fullscreen_off : L.fullscreen_on;
+});
+
+/* 홈 화면 추가 */
+function triggerInstall() {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    if (isStandalone()) { toast(L.already_installed); return; }
+    if (isIOS()) { hideOverlay('overlay-settings'); showOverlay('ios-install-guide'); return; }
+    if (deferredInstall) {
+        deferredInstall.prompt();
+        deferredInstall.userChoice.then(r => { if (r.outcome==='accepted') deferredInstall=null; });
+    } else {
+        toast(L.install_unavailable);
+    }
 }
 
 /* 데이터 내보내기 */
