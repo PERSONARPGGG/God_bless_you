@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘은 어땠나요? — 창업 전략 기획서</title>
+<style>
+:root{--navy:#080f2e;--navy2:#0e1842;--navy3:#1a2560;--gold:#c8a86b;--gold2:#e8c98a;--gray:#6b7280;--light:#f3f4f6;--green:#059669;--red:#dc2626;--amber:#d97706;--blue:#3b5bdb;--violet:#7c3aed;--teal:#0891b2;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;background:#e8eaf0;color:#1a1a2e;line-height:1.7;font-size:14px;}
+.print-btn{position:fixed;bottom:28px;right:28px;background:var(--navy);color:var(--gold);border:none;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 24px rgba(0,0,0,.3);z-index:999;}
+.page{width:210mm;min-height:297mm;margin:24px auto;background:#fff;box-shadow:0 8px 48px rgba(0,0,0,.15);page-break-after:always;position:relative;overflow:hidden;}
+.page:last-of-type{page-break-after:auto;}
+
+/* 표지 */
+.cover{min-height:297mm;background:linear-gradient(155deg,#050b1e 0%,#0d1f3c 45%,#1a2d5a 100%);display:flex;flex-direction:column;justify-content:space-between;padding:56px 52px;position:relative;overflow:hidden;}
+.cov-grid{position:absolute;inset:0;opacity:.03;background-image:linear-gradient(rgba(255,255,255,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.3) 1px,transparent 1px);background-size:32px 32px;}
+.cov-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(200,168,107,.06),transparent 70%);top:-150px;right:-150px;}
+.c-rel{position:relative;}
+.cov-eyebrow{color:var(--gold);font-size:10px;letter-spacing:4px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.cov-eyebrow::before{content:'';display:block;width:28px;height:1px;background:var(--gold);}
+.cov-h1{font-size:46px;font-weight:900;color:#fff;letter-spacing:-2px;line-height:1.1;margin-bottom:10px;}
+.cov-h1 span{display:block;background:linear-gradient(90deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.cov-tagline{font-size:13px;color:rgba(255,255,255,.45);margin-bottom:48px;}
+.vision-box{background:rgba(255,255,255,.04);border:1px solid rgba(200,168,107,.2);border-radius:14px;padding:22px 26px;margin-bottom:40px;}
+.vb-lbl{font-size:9px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;}
+.vb-mission{font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;}
+.vb-vision{font-size:12px;color:rgba(255,255,255,.55);}
+.cov-bottom{border-top:1px solid rgba(255,255,255,.08);padding-top:22px;display:grid;grid-template-columns:repeat(4,1fr);}
+.cb-n{font-size:18px;font-weight:900;color:#fff;}
+.cb-l{font-size:9px;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+
+/* 내부 */
+.inner{padding:44px 50px;}
+.sl{display:inline-flex;align-items:center;gap:6px;color:var(--navy);font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;padding-bottom:4px;border-bottom:2px solid var(--gold);}
+.st{font-size:26px;font-weight:900;color:var(--navy);letter-spacing:-0.5px;margin-bottom:6px;}
+.sd{font-size:12px;color:var(--gray);margin-bottom:22px;padding-bottom:18px;border-bottom:2px solid var(--light);}
+.div{height:1px;background:linear-gradient(90deg,transparent,#e5e7eb,transparent);margin:20px 0;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.card{background:var(--light);border-radius:12px;padding:18px 22px;margin-bottom:12px;}
+.ct{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.card p,.card li{font-size:11px;color:#374151;line-height:1.8;}
+.card ul{padding-left:16px;}
+.hl{background:linear-gradient(135deg,var(--navy),var(--navy3));border-radius:14px;padding:22px 28px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden;}
+.hl::after{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(200,168,107,.1),transparent 70%);}
+.hl-lbl{font-size:9px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;}
+.hl-txt{font-size:15px;font-weight:800;line-height:1.5;}
+.pn{position:absolute;bottom:22px;right:34px;font-size:10px;color:#d1d5db;display:flex;align-items:center;gap:6px;}
+.pn::before{content:'';display:block;width:20px;height:1px;background:#e5e7eb;}
+
+/* TAM/SAM/SOM */
+.tam-grid{display:flex;flex-direction:column;gap:0;margin-bottom:16px;}
+.tam-item{display:grid;grid-template-columns:100px 1fr 120px;gap:12px;align-items:center;padding:10px 16px;border-radius:10px;margin-bottom:6px;}
+.tam-total{background:linear-gradient(135deg,var(--navy),var(--navy3));}.tam-total .tam-lbl,.tam-total .tam-num{color:#fff;}
+.tam-sam{background:#eff6ff;border:1px solid #bfdbfe;}
+.tam-som{background:#f0fdf4;border:1px solid #bbf7d0;}
+.tam-lbl{font-size:12px;font-weight:700;}
+.tam-desc{font-size:11px;color:var(--gray);}
+.tam-num{font-size:16px;font-weight:900;text-align:right;}
+.tam-total .tam-desc{color:rgba(255,255,255,.6);}
+
+/* 페르소나 */
+.persona{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:18px 20px;margin-bottom:12px;}
+.persona-header{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
+.persona-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.pa-blue{background:#dbeafe;}
+.pa-pink{background:#fce7f3;}
+.pa-green{background:#dcfce7;}
+.persona-name{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:2px;}
+.persona-meta{font-size:11px;color:var(--gray);}
+.persona-body{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.pb-item{font-size:11px;}
+.pb-item strong{color:var(--navy);display:block;font-size:10px;margin-bottom:2px;letter-spacing:0.5px;}
+
+/* 경쟁사 테이블 */
+.comp-tbl{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:16px;}
+.comp-tbl th{background:var(--navy);color:var(--gold);padding:8px 12px;text-align:center;font-size:9px;letter-spacing:2px;text-transform:uppercase;}
+.comp-tbl th:first-child{border-radius:7px 0 0 0;text-align:left;}
+.comp-tbl th:last-child{border-radius:0 7px 0 0;}
+.comp-tbl td{padding:8px 12px;border-bottom:1px solid #e5e7eb;text-align:center;}
+.comp-tbl td:first-child{text-align:left;font-weight:600;}
+.comp-tbl tr:nth-child(even) td{background:#f9fafb;}
+.comp-tbl tr.us td{background:#fefce8;font-weight:700;}
+.comp-ok{color:var(--green);font-weight:700;}
+.comp-no{color:var(--red);}
+.comp-par{color:var(--amber);}
+
+/* 마케팅 채널 */
+.mkt-channel{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #f3f4f6;}
+.mkt-channel:last-child{border-bottom:none;}
+.mkt-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.mkt-body{}
+.mkt-name{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:3px;}
+.mkt-desc{font-size:11px;color:var(--gray);line-height:1.5;}
+.mkt-tag{display:inline-block;padding:1px 8px;border-radius:4px;font-size:9px;font-weight:700;margin-top:4px;}
+.mt-free{background:#dcfce7;color:#166534;}
+.mt-low{background:#fef3c7;color:#92400e;}
+.mt-paid{background:#fee2e2;color:#991b1b;}
+
+/* 재무 차트 */
+.fin-bars{display:flex;gap:0;align-items:flex-end;height:120px;margin-bottom:10px;}
+.fin-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.fin-bar{width:32px;border-radius:6px 6px 0 0;position:relative;min-height:4px;}
+.fin-y1{background:linear-gradient(180deg,#e5e7eb,#d1d5db);height:8px;}
+.fin-y2{background:linear-gradient(180deg,#93c5fd,#3b82f6);height:40px;}
+.fin-y3{background:linear-gradient(180deg,var(--gold2),var(--gold));height:100px;}
+.fin-lbl{font-size:10px;color:var(--gray);}
+.fin-val{font-size:11px;font-weight:700;color:var(--navy);}
+.fin-axis{border-top:2px solid #e5e7eb;margin-bottom:6px;}
+
+@media print{
+  body{background:#fff;}
+  .print-btn{display:none;}
+  .page{margin:0;box-shadow:none;width:100%;}
+  .cover{min-height:100vh;}
+  @page{size:A4;margin:0;}
+}
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">🖨 PDF 저장</button>
+
+<!-- 표지 -->
+<div class="page">
+<div class="cover">
+  <div class="cov-grid"></div><div class="cov-glow"></div>
+  <div class="c-rel">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:64px;">
+      <div style="width:40px;height:40px;background:linear-gradient(135deg,var(--gold),var(--gold2));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;">🚀</div>
+      <span style="color:rgba(255,255,255,.4);font-size:11px;letter-spacing:3px;text-transform:uppercase;">Startup Strategy</span>
+    </div>
+    <div class="cov-eyebrow">Business Strategy Document</div>
+    <div class="cov-h1">창업 전략<br><span>기획서</span></div>
+    <div class="cov-tagline">오늘은 어땠나요? · 시장 진입 전략 · 수익화 · 성장 로드맵</div>
+    <div class="vision-box">
+      <div class="vb-lbl">Mission & Vision</div>
+      <div class="vb-mission">🙏 Mission — 모든 크리스천이 오늘 자신의 감정으로 하나님을 만나도록 돕는다</div>
+      <div class="vb-vision">🌟 Vision — 2027년까지 한국·일본 크리스천 묵상 앱 1위</div>
+    </div>
+  </div>
+  <div class="c-rel">
+    <div class="cov-bottom">
+      <div><div class="cb-n">800만</div><div class="cb-l">잠재 사용자</div></div>
+      <div><div class="cb-n">₩1,900</div><div class="cb-l">구독 시작가</div></div>
+      <div><div class="cb-n">3개국</div><div class="cb-l">목표 시장</div></div>
+      <div><div class="cb-n">2027</div><div class="cb-l">시장 1위 목표</div></div>
+    </div>
+  </div>
+</div>
+<div class="pn">1</div>
+</div>
+
+<!-- 시장 규모 + 페르소나 -->
+<div class="page">
+<div class="inner">
+  <div class="sl">01 · Market Size</div>
+  <div class="st">시장 규모 (TAM / SAM / SOM)</div>
+  <div class="sd">크리스천 디지털 묵상 앱 시장 — 한국 중심, 글로벌 확장 가능</div>
+
+  <div class="tam-grid">
+    <div class="tam-item tam-total">
+      <div><div class="tam-lbl">TAM · 전체 시장</div><div class="tam-desc">한국 크리스천 스마트폰 사용자 (약 800만 명)</div></div>
+      <div></div>
+      <div class="tam-num" style="color:var(--gold2);">~800만 명</div>
+    </div>
+    <div class="tam-item tam-sam">
+      <div><div class="tam-lbl" style="color:#1d4ed8;">SAM · 서비스 가능 시장</div><div class="tam-desc">20~45세 · 스마트폰 · 앱 결제 경험 · 묵상 관심</div></div>
+      <div></div>
+      <div class="tam-num" style="color:#1d4ed8;">~200만 명</div>
+    </div>
+    <div class="tam-item tam-som">
+      <div><div class="tam-lbl" style="color:#166534;">SOM · 현실적 목표 (2년)</div><div class="tam-desc">PWA·입소문 도달 가능 규모 · 유료 전환 5%</div></div>
+      <div></div>
+      <div class="tam-num" style="color:#166534;">10,000명 MAU</div>
+    </div>
+  </div>
+
+  <div class="div"></div>
+  <div class="sl">02 · Persona</div>
+  <div class="st">핵심 사용자 페르소나</div>
+
+  <div class="persona">
+    <div class="persona-header">
+      <div class="persona-avatar pa-blue">🙍‍♀️</div>
+      <div>
+        <div class="persona-name">김지은 (27세) · 직장인 크리스천</div>
+        <div class="persona-meta">대기업 마케터 · 서울 · 주일 예배 규칙적 · 큐티 의지는 있지만 바빠서 못 함</div>
+      </div>
+    </div>
+    <div class="persona-body">
+      <div class="pb-item"><strong>페인 포인트</strong>퇴근 후 큐티 책 펼칠 에너지 없음. 오늘 힘들었는데 적절한 말씀이 뭔지 모름</div>
+      <div class="pb-item"><strong>이 앱 사용 이유</strong>퇴근 후 5분. 감정 선택 → 말씀 → 짧은 감사 일기. "부담 없는 묵상"</div>
+      <div class="pb-item"><strong>결제 의향</strong>월 1,900원 = 커피 한 잔. 감정 통계로 "내가 주로 언제 힘든지" 알고 싶음</div>
+      <div class="pb-item"><strong>추천 채널</strong>교회 청년부 카톡방 공유. 인스타그램 스토리</div>
+    </div>
+  </div>
+
+  <div class="persona">
+    <div class="persona-header">
+      <div class="persona-avatar pa-green">👨‍💼</div>
+      <div>
+        <div class="persona-name">박민준 (35세) · 소그룹 리더</div>
+        <div class="persona-meta">IT 스타트업 개발자 · 교회 청년 셀리더 · 10명 셀원 관리</div>
+      </div>
+    </div>
+    <div class="persona-body">
+      <div class="pb-item"><strong>페인 포인트</strong>셀원들 감정 상태 모름. 매주 나눔 주제 선정이 어려움</div>
+      <div class="pb-item"><strong>이 앱 사용 이유</strong>셀원들 주간 감정 통계 → 이번 주 나눔 주제 자동 추천</div>
+      <div class="pb-item"><strong>결제 의향</strong>Church 플랜 (₩9,900/10인) · 교회 비용 처리 가능</div>
+      <div class="pb-item"><strong>추천 채널</strong>기독교 커뮤니티 (두란노·CGN 등) · 교역자 추천</div>
+    </div>
+  </div>
+</div>
+<div class="pn">2</div>
+</div>
+
+<!-- 경쟁사 분석 + GTM -->
+<div class="page">
+<div class="inner">
+  <div class="sl">03 · Competition</div>
+  <div class="st">경쟁사 분석</div>
+  <div class="sd">주요 크리스천 앱과의 기능 비교 — 감정 통계는 독보적 차별화</div>
+
+  <table class="comp-tbl">
+    <thead><tr>
+      <th>앱</th><th>감정 기반<br>말씀</th><th>클라우드<br>동기화</th><th>감정<br>통계</th><th>광고<br>없음</th><th>PWA<br>설치</th><th>한국어<br>특화</th><th>무료<br>시작</th>
+    </tr></thead>
+    <tbody>
+      <tr class="us"><td>🙏 오늘은 어땠나요?</td><td class="comp-ok">✓</td><td class="comp-ok">✓</td><td class="comp-ok">★ v3.0</td><td class="comp-ok">✓</td><td class="comp-ok">✓</td><td class="comp-ok">✓</td><td class="comp-ok">✓</td></tr>
+      <tr><td>YouVersion Bible</td><td class="comp-no">✗</td><td class="comp-ok">✓</td><td class="comp-no">✗</td><td class="comp-no">✗</td><td class="comp-no">✗</td><td class="comp-par">△</td><td class="comp-ok">✓</td></tr>
+      <tr><td>매일성경 (성서유니온)</td><td class="comp-no">✗</td><td class="comp-par">△</td><td class="comp-no">✗</td><td class="comp-no">✗</td><td class="comp-no">✗</td><td class="comp-ok">✓</td><td class="comp-no">✗</td></tr>
+      <tr><td>두란노 큐티</td><td class="comp-no">✗</td><td class="comp-par">△</td><td class="comp-no">✗</td><td class="comp-no">✗</td><td class="comp-no">✗</td><td class="comp-ok">✓</td><td class="comp-no">✗</td></tr>
+      <tr><td>Glorify</td><td class="comp-no">✗</td><td class="comp-ok">✓</td><td class="comp-no">✗</td><td class="comp-no">✗</td><td class="comp-no">✗</td><td class="comp-no">✗</td><td class="comp-no">✗</td></tr>
+    </tbody>
+  </table>
+
+  <div class="hl">
+    <div class="hl-lbl">경쟁 우위 요약</div>
+    <div class="hl-txt">감정 기반 말씀 + 감정 통계 대시보드 = 국내 유일<br>모든 경쟁사가 "오늘 내 감정과 맞는 말씀"을 제공하지 못한다</div>
+  </div>
+
+  <div class="div"></div>
+  <div class="sl">04 · Go-to-Market</div>
+  <div class="st">시장 진입 전략</div>
+
+  <div class="card" style="margin-bottom:8px;">
+    <div class="mkt-channel">
+      <div class="mkt-icon">⛪</div>
+      <div class="mkt-body"><div class="mkt-name">교회 청년부 바이럴</div><div class="mkt-desc">셀리더·간사에게 직접 소개 → 청년부 단톡방 공유 → 교회 단위 바이럴 확산. 가장 신뢰도 높은 채널</div><span class="mkt-tag mt-free">무료</span></div>
+    </div>
+    <div class="mkt-channel">
+      <div class="mkt-icon">📱</div>
+      <div class="mkt-body"><div class="mkt-name">인스타그램 · 스레드</div><div class="mkt-desc">"오늘의 말씀 카드" 자동 생성 공유 기능 → 사용자가 자발적 SNS 업로드 → 바이럴 루프</div><span class="mkt-tag mt-free">무료</span></div>
+    </div>
+    <div class="mkt-channel">
+      <div class="mkt-icon">✍️</div>
+      <div class="mkt-body"><div class="mkt-name">크리스천 블로그 · 브런치</div><div class="mkt-desc">묵상 관련 SEO 블로그 게시 · "크리스천 추천 앱" 키워드 공략 · 기독교 미디어 협업</div><span class="mkt-tag mt-free">무료</span></div>
+    </div>
+    <div class="mkt-channel">
+      <div class="mkt-icon">🤝</div>
+      <div class="mkt-body"><div class="mkt-name">교역자 · 목사 어필</div><div class="mkt-desc">Church 플랜 조기 접근 제공 → 설교 중 앱 언급 → 교인 전파. 1명 교역자 = 100명+ 전파력</div><span class="mkt-tag mt-low">저비용</span></div>
+    </div>
+    <div class="mkt-channel">
+      <div class="mkt-icon">🌸</div>
+      <div class="mkt-body"><div class="mkt-name">벚꽃·크리스마스 시즌 캠페인</div><div class="mkt-desc">계절별 특별 말씀 테마 · "부활절 40일 묵상 챌린지" · SNS 해시태그 캠페인</div><span class="mkt-tag mt-low">저비용</span></div>
+    </div>
+  </div>
+</div>
+<div class="pn">3</div>
+</div>
+
+<!-- 재무 계획 + 팀 + 투자 -->
+<div class="page">
+<div class="inner">
+  <div class="sl">05 · Financial Plan</div>
+  <div class="st">3년 재무 계획 (보수적 시나리오)</div>
+  <div class="sd">인프라 비용 최소화 + 구독 수익 중심 + 후원 병행</div>
+
+  <div class="g3" style="margin-bottom:18px;">
+    <div class="card" style="text-align:center;">
+      <div style="font-size:13px;font-weight:700;color:var(--gray);margin-bottom:8px;">2026년</div>
+      <div style="font-size:28px;font-weight:900;color:var(--navy);">₩0</div>
+      <div style="font-size:11px;color:var(--gray);margin-top:4px;">MVP · 사용자 확보기<br>인프라 비용 $0</div>
+      <div style="font-size:11px;color:var(--amber);margin-top:6px;font-weight:600;">목표 MAU: 500</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:13px;font-weight:700;color:var(--blue);margin-bottom:8px;">2027년</div>
+      <div style="font-size:28px;font-weight:900;color:var(--navy);">₩95만</div>
+      <div style="font-size:11px;color:var(--gray);margin-top:4px;">Premium 출시<br>MAU 1,000 · 전환율 5%</div>
+      <div style="font-size:11px;color:var(--green);margin-top:6px;font-weight:600;">목표 MAU: 1,000</div>
+    </div>
+    <div class="card" style="text-align:center;background:linear-gradient(135deg,#fefce8,#fef9c3);border:1.5px solid #fbbf24;">
+      <div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:8px;">2028년</div>
+      <div style="font-size:28px;font-weight:900;color:var(--navy);">₩950만</div>
+      <div style="font-size:11px;color:var(--gray);margin-top:4px;">Church 플랜 + 교역자 채널<br>MAU 10,000</div>
+      <div style="font-size:11px;color:var(--green);margin-top:6px;font-weight:600;">목표 MAU: 10,000</div>
+    </div>
+  </div>
+
+  <div class="card" style="background:#f0fdf4;border:1.5px solid #bbf7d0;">
+    <div class="ct">💰 수익 구조 (2027년 기준 · MAU 1,000명)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:8px;">
+      <div style="text-align:center;"><div style="font-size:16px;font-weight:900;color:var(--navy);">50명</div><div style="font-size:10px;color:var(--gray);">Premium 구독자</div><div style="font-size:11px;color:var(--green);font-weight:700;">×₩1,900 = ₩95,000</div></div>
+      <div style="text-align:center;"><div style="font-size:16px;font-weight:900;color:var(--navy);">2팀</div><div style="font-size:10px;color:var(--gray);">Church 플랜</div><div style="font-size:11px;color:var(--green);font-weight:700;">×₩9,900 = ₩19,800</div></div>
+      <div style="text-align:center;"><div style="font-size:16px;font-weight:900;color:var(--navy);">₩30,000</div><div style="font-size:10px;color:var(--gray);">월 후원 (추정)</div><div style="font-size:11px;color:var(--green);font-weight:700;">Buy Me a Coffee</div></div>
+      <div style="text-align:center;background:var(--light);border-radius:8px;padding:6px;"><div style="font-size:16px;font-weight:900;color:var(--navy);">₩144,800</div><div style="font-size:10px;color:var(--gray);">월 총 수익</div><div style="font-size:11px;color:var(--green);font-weight:700;">연 ₩1,737,600</div></div>
+    </div>
+  </div>
+
+  <div class="div"></div>
+  <div class="sl">06 · Team & Growth</div>
+  <div class="st">팀 구성 + 성장 전략</div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">👤 현재 (1인 팀)</div>
+      <ul>
+        <li>기획 · 디자인 · 프론트엔드 · 백엔드</li>
+        <li>콘텐츠 큐레이션 (말씀·묵상)</li>
+        <li>고객 지원 (베타 피드백)</li>
+        <li><strong>핵심 리스크:</strong> 번아웃 · 업데이트 속도</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">👥 v3.0 이후 (성장 시)</div>
+      <ul>
+        <li>신학/콘텐츠 파트너 (말씀 확장)</li>
+        <li>교회 파트너십 매니저</li>
+        <li>디자이너 (UI·말씀 카드 템플릿)</li>
+        <li>AI/데이터 엔지니어 (감정 통계)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="background:linear-gradient(135deg,var(--navy),var(--navy3));color:#fff;">
+    <div style="font-size:11px;color:var(--gold);letter-spacing:2px;font-weight:700;margin-bottom:10px;">투자 유치 전략</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div style="font-size:11px;color:rgba(255,255,255,.8);"><strong style="color:#fff;">단기 (2026~2027):</strong> 부트스트랩 + 후원. 인프라 비용 $0 유지. 수익으로 자체 성장.</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.8);"><strong style="color:#fff;">중기 (2028):</strong> 크리스천 임팩트 투자자 · MAU 10,000 달성 후 시드 라운드 검토. 종교 특화 VC 접촉.</div>
+    </div>
+  </div>
+</div>
+<div class="pn">4</div>
+</div>
+
+</body>
+</html>

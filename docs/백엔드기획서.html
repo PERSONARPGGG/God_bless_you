@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘은 어땠나요? — 백엔드 기술 기획서</title>
+<style>
+:root{--navy:#080f2e;--navy2:#0e1842;--navy3:#1a2560;--gold:#c8a86b;--gold2:#e8c98a;--white:#f8f6f0;--gray:#6b7280;--light:#f3f4f6;--green:#059669;--red:#dc2626;--blue:#3b5bdb;--violet:#7c3aed;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;background:#e8eaf0;color:#1a1a2e;line-height:1.7;font-size:14px;}
+.print-btn{position:fixed;bottom:28px;right:28px;background:var(--navy);color:var(--gold);border:none;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 24px rgba(0,0,0,.3);z-index:999;}
+.page{width:210mm;min-height:297mm;margin:24px auto;background:#fff;box-shadow:0 8px 48px rgba(0,0,0,.15);page-break-after:always;position:relative;overflow:hidden;}
+.page:last-of-type{page-break-after:auto;}
+
+/* 표지 */
+.cover{min-height:297mm;background:linear-gradient(160deg,#060d24 0%,#0d1f4a 50%,#1a2d6b 100%);display:flex;flex-direction:column;justify-content:space-between;padding:56px 52px;position:relative;overflow:hidden;}
+.cover-accent{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(59,91,219,.1),transparent 70%);top:-100px;right:-100px;}
+.cover-accent2{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(200,168,107,.07),transparent 70%);bottom:60px;left:40px;}
+.cover-chip{display:inline-block;background:rgba(59,91,219,.25);border:1px solid rgba(59,91,219,.5);color:#93c5fd;padding:5px 16px;border-radius:50px;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;}
+.cover-h1{font-size:44px;font-weight:900;color:#fff;letter-spacing:-1.5px;line-height:1.1;margin-bottom:10px;position:relative;}
+.cover-h1 em{font-style:normal;background:linear-gradient(135deg,#60a5fa,#93c5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.cover-sub{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:48px;position:relative;}
+.cover-arch{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:24px;margin-bottom:40px;position:relative;}
+.arch-title{font-size:9px;color:#60a5fa;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;}
+.arch-flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+.arch-node{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 14px;font-size:11px;color:rgba(255,255,255,.8);text-align:center;white-space:nowrap;}
+.arch-node.gold{border-color:rgba(200,168,107,.4);color:var(--gold);}
+.arch-node.blue{border-color:rgba(59,91,219,.5);color:#93c5fd;}
+.arch-arr{color:rgba(255,255,255,.25);padding:0 8px;font-size:14px;}
+.cover-stats{border-top:1px solid rgba(255,255,255,.08);padding-top:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;}
+.cs-num{font-size:20px;font-weight:900;color:#fff;}
+.cs-lbl{font-size:9px;color:rgba(255,255,255,.35);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+
+/* 내부 */
+.inner{padding:44px 50px;}
+.sl{display:inline-flex;align-items:center;gap:8px;background:rgba(59,91,219,.1);border:1px solid rgba(59,91,219,.2);color:#3b5bdb;padding:4px 14px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;}
+.st{font-size:26px;font-weight:900;color:var(--navy);letter-spacing:-0.5px;margin-bottom:6px;}
+.sd{font-size:12px;color:var(--gray);margin-bottom:24px;padding-bottom:18px;border-bottom:2px solid var(--light);}
+
+/* 코드 블록 */
+.code{background:#0d1117;border-radius:12px;padding:18px 22px;margin:12px 0;overflow:hidden;}
+.code-title{font-size:9px;color:#60a5fa;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.code pre{font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:11px;line-height:1.7;color:#e2e8f0;white-space:pre-wrap;word-break:break-word;}
+.kw{color:#ff7eb6;} .fn{color:#79c0ff;} .str{color:#a5d6ff;} .cm{color:#6e7681;} .num{color:#f2cc60;}
+
+/* 플로우 다이어그램 */
+.flow{display:flex;flex-direction:column;gap:0;margin:14px 0;}
+.flow-step{display:flex;align-items:flex-start;gap:14px;padding:12px 0;}
+.flow-step:not(:last-child){border-bottom:1px dashed #e5e7eb;}
+.flow-num{width:28px;height:28px;border-radius:50%;background:var(--navy);color:var(--gold);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.flow-content{flex:1;}
+.flow-title{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:3px;}
+.flow-desc{font-size:11px;color:var(--gray);line-height:1.6;}
+.flow-code{font-family:monospace;font-size:10px;background:#f3f4f6;padding:2px 7px;border-radius:4px;color:#374151;}
+
+/* 테이블 */
+.tbl{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:16px;}
+.tbl th{background:var(--navy);color:var(--gold);padding:9px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;}
+.tbl th:first-child{border-radius:7px 0 0 0;}.tbl th:last-child{border-radius:0 7px 0 0;}
+.tbl td{padding:8px 12px;border-bottom:1px solid #e5e7eb;color:#374151;vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:nth-child(even) td{background:#f9fafb;}
+
+/* 카드 */
+.card{background:var(--light);border-radius:12px;padding:18px 22px;margin-bottom:12px;}
+.ct{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:7px;}
+.card p,.card li{font-size:11px;color:#374151;line-height:1.8;}
+.card ul{padding-left:16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+
+/* 체크리스트 */
+.chk{display:flex;gap:10px;align-items:flex-start;margin-bottom:9px;font-size:11px;}
+.chk-ok{color:var(--green);font-weight:700;flex-shrink:0;}
+.chk-warn{color:#d97706;font-weight:700;flex-shrink:0;}
+.chk-x{color:var(--red);font-weight:700;flex-shrink:0;}
+.chk-t{color:#374151;line-height:1.6;}
+
+/* RLS 정책 박스 */
+.rls-box{background:#0d1117;border-radius:12px;padding:16px 20px;margin:10px 0;}
+.rls-box pre{font-family:'SF Mono','Fira Code',monospace;font-size:11px;color:#e2e8f0;line-height:1.7;white-space:pre-wrap;}
+
+/* hl */
+.hl{background:linear-gradient(135deg,var(--navy),var(--navy3));border-radius:14px;padding:22px 28px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden;}
+.hl::before{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:radial-gradient(circle,rgba(200,168,107,.1),transparent 70%);}
+.hl-lbl{font-size:9px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;}
+.hl-txt{font-size:16px;font-weight:800;line-height:1.5;}
+
+/* divider */
+.div{height:1px;background:linear-gradient(90deg,transparent,#e5e7eb,transparent);margin:22px 0;}
+
+/* pn */
+.pn{position:absolute;bottom:22px;right:34px;font-size:10px;color:#d1d5db;display:flex;align-items:center;gap:6px;}
+.pn::before{content:'';display:block;width:20px;height:1px;background:#e5e7eb;}
+
+@media print{
+  body{background:#fff;}
+  .print-btn{display:none;}
+  .page{margin:0;box-shadow:none;width:100%;}
+  .cover{min-height:100vh;}
+  @page{size:A4;margin:0;}
+}
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">🖨 PDF 저장</button>
+
+<!-- 표지 -->
+<div class="page">
+<div class="cover">
+  <div class="cover-accent"></div><div class="cover-accent2"></div>
+  <div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:64px;position:relative;">
+      <div style="width:38px;height:38px;background:linear-gradient(135deg,#3b5bdb,#60a5fa);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">⚙️</div>
+      <span style="color:rgba(255,255,255,.4);font-size:11px;letter-spacing:3px;text-transform:uppercase;">Backend Technical Plan</span>
+    </div>
+    <div class="cover-chip">Backend Architecture</div>
+    <div class="cover-h1">백엔드<br><em>기술 기획서</em></div>
+    <div class="cover-sub">오늘은 어땠나요? · Supabase 기반 클라우드 아키텍처</div>
+    <div class="cover-arch">
+      <div class="arch-title">System Architecture Overview</div>
+      <div class="arch-flow">
+        <div class="arch-node">👤 사용자</div>
+        <div class="arch-arr">→</div>
+        <div class="arch-node gold">index.html<br><small>Vanilla JS</small></div>
+        <div class="arch-arr">→</div>
+        <div class="arch-node blue">Supabase JS SDK</div>
+        <div class="arch-arr">→</div>
+        <div class="arch-node blue">Supabase Auth<br><small>Google OAuth</small></div>
+        <div class="arch-arr">→</div>
+        <div class="arch-node">PostgreSQL<br><small>RLS 보호</small></div>
+      </div>
+    </div>
+  </div>
+  <div class="cover-stats">
+    <div><div class="cs-num">4</div><div class="cs-lbl">DB 테이블</div></div>
+    <div><div class="cs-num">RLS</div><div class="cs-lbl">행 수준 보안</div></div>
+    <div><div class="cs-num">OAuth</div><div class="cs-lbl">인증 방식</div></div>
+    <div><div class="cs-num">$0</div><div class="cs-lbl">현재 인프라 비용</div></div>
+  </div>
+</div>
+<div class="pn">1</div>
+</div>
+
+<!-- Supabase 아키텍처 -->
+<div class="page">
+<div class="inner">
+  <div class="sl">01 · Architecture</div>
+  <div class="st">Supabase 아키텍처 개요</div>
+  <div class="sd">BaaS(Backend as a Service) — 서버 코드 없이 DB·Auth·API 일괄 해결</div>
+
+  <div class="hl">
+    <div class="hl-lbl">핵심 선택 이유</div>
+    <div class="hl-txt">서버를 직접 만들지 않고도<br>PostgreSQL + 인증 + REST API를 동시에 얻는다</div>
+  </div>
+
+  <div class="g3">
+    <div class="card">
+      <div class="ct">🗄 PostgreSQL DB</div>
+      <ul>
+        <li>관계형 데이터 구조</li>
+        <li>감정-말씀 데이터에 최적</li>
+        <li>복잡 쿼리 지원 (통계)</li>
+        <li>자동 REST API 생성</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">🔐 Supabase Auth</div>
+      <ul>
+        <li>Google OAuth 2.0 내장</li>
+        <li>JWT 토큰 자동 관리</li>
+        <li>세션 자동 갱신</li>
+        <li>별도 인증 서버 불필요</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">🛡 Row-Level Security</div>
+      <ul>
+        <li>DB 레벨 접근 제어</li>
+        <li>auth.uid() = user_id</li>
+        <li>anon key 공개 가능</li>
+        <li>서버 코드 없이 보안</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="div"></div>
+  <div class="sl">02 · Init Code</div>
+  <div class="st">클라이언트 초기화</div>
+  <div class="sd" style="margin-bottom:12px;">index.html에 CDN으로 SDK 로드 → createClient로 연결</div>
+
+  <div class="code">
+    <div class="code-title">Supabase 클라이언트 초기화 (index.html)</div>
+    <pre><span class="cm">// CDN으로 SDK 로드 (head 태그)</span>
+<span class="cm">// &lt;script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"&gt;&lt;/script&gt;</span>
+
+<span class="kw">const</span> <span class="fn">SUPABASE_URL</span> = <span class="str">'https://pzakpaomnmahcugkzdff.supabase.co'</span>;
+<span class="kw">const</span> <span class="fn">SUPABASE_KEY</span> = <span class="str">'sb_publishable_...'</span>; <span class="cm">// anon key (RLS로 보호됨)</span>
+<span class="kw">let</span> sb = <span class="kw">null</span>;   <span class="cm">// Supabase 클라이언트</span>
+<span class="kw">let</span> sbUser = <span class="kw">null</span>; <span class="cm">// 현재 로그인 사용자</span>
+
+<span class="kw">function</span> <span class="fn">initSupabase</span>() {
+  <span class="kw">if</span> (location.protocol === <span class="str">'file:'</span> || <span class="kw">typeof</span> supabase === <span class="str">'undefined'</span>) <span class="kw">return</span>;
+  sb = supabase.<span class="fn">createClient</span>(SUPABASE_URL, SUPABASE_KEY);
+
+  <span class="cm">// 로그인 상태 변화 감지 (핵심!)</span>
+  sb.auth.<span class="fn">onAuthStateChange</span>((event, session) => {
+    sbUser = session?.<span class="fn">user</span> || <span class="kw">null</span>;
+    <span class="fn">updateAuthUI</span>();
+    <span class="kw">if</span> (event === <span class="str">'SIGNED_IN'</span>) <span class="fn">migrateLocalToServer</span>();
+  });
+}</pre>
+  </div>
+
+  <div class="div"></div>
+  <div class="sl">03 · Auth Flow</div>
+  <div class="st">Google OAuth 인증 플로우</div>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div class="flow-content">
+        <div class="flow-title">로그인 버튼 클릭</div>
+        <div class="flow-desc">설정 오버레이 > 계정 섹션 > "Google로 로그인" 버튼 → <span class="flow-code">loginWithGoogle()</span> 호출</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div class="flow-content">
+        <div class="flow-title">Supabase OAuth 리디렉션</div>
+        <div class="flow-desc"><span class="flow-code">sb.auth.signInWithOAuth({ provider: 'google' })</span> → Google 동의 화면으로 이동</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <div class="flow-content">
+        <div class="flow-title">Google 인증 완료</div>
+        <div class="flow-desc">사용자가 Google 계정 선택 → Supabase callback URL로 리디렉션</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">4</div>
+      <div class="flow-content">
+        <div class="flow-title">JWT 토큰 발급 + 앱 복귀</div>
+        <div class="flow-desc">Supabase가 JWT 발급 → <span class="flow-code">redirectTo</span> (앱 URL)로 돌아옴</div>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">5</div>
+      <div class="flow-content">
+        <div class="flow-title">onAuthStateChange 발화</div>
+        <div class="flow-desc"><span class="flow-code">SIGNED_IN</span> 이벤트 → <span class="flow-code">migrateLocalToServer()</span> 자동 호출 → 기존 데이터 서버 업로드</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="pn">2</div>
+</div>
+
+<!-- RLS + 데이터 동기화 -->
+<div class="page">
+<div class="inner">
+  <div class="sl">04 · Security</div>
+  <div class="st">Row-Level Security (RLS)</div>
+  <div class="sd">DB 레벨에서 "본인 데이터만 접근 허용" — 서버 코드 없이 완전한 보안</div>
+
+  <div class="rls-box">
+    <pre><span class="cm">-- 모든 테이블에 RLS 활성화</span>
+<span class="kw">ALTER TABLE</span> profiles       <span class="kw">ENABLE ROW LEVEL SECURITY</span>;
+<span class="kw">ALTER TABLE</span> visit_dates    <span class="kw">ENABLE ROW LEVEL SECURITY</span>;
+<span class="kw">ALTER TABLE</span> mood_history   <span class="kw">ENABLE ROW LEVEL SECURITY</span>;
+<span class="kw">ALTER TABLE</span> saved_verses   <span class="kw">ENABLE ROW LEVEL SECURITY</span>;
+
+<span class="cm">-- 정책: 본인 데이터만 CRUD 허용</span>
+<span class="kw">CREATE POLICY</span> <span class="str">"본인만 접근"</span> <span class="kw">ON</span> profiles
+  <span class="kw">FOR ALL USING</span> (auth.<span class="fn">uid</span>() = id);
+
+<span class="kw">CREATE POLICY</span> <span class="str">"본인만 접근"</span> <span class="kw">ON</span> mood_history
+  <span class="kw">FOR ALL USING</span> (auth.<span class="fn">uid</span>() = user_id);
+
+<span class="cm">-- 결과: anon key가 외부에 노출돼도 타 사용자 데이터 열람 불가</span>
+<span class="cm">-- auth.uid() = 현재 JWT 토큰의 사용자 ID</span></pre>
+  </div>
+
+  <div class="div"></div>
+  <div class="sl">05 · Data Sync</div>
+  <div class="st">데이터 동기화 전략</div>
+  <div class="sd" style="margin-bottom:12px;">localStorage 우선 → 로그인 시 Supabase 동기화 (하위 호환 유지)</div>
+
+  <div class="code">
+    <div class="code-title">마이그레이션 전략 (최초 로그인 시)</div>
+    <pre><span class="kw">async function</span> <span class="fn">migrateLocalToServer</span>() {
+  <span class="kw">if</span> (!sbUser || !sb) <span class="kw">return</span>;
+
+  <span class="cm">// 서버에 이미 데이터가 있으면 → 서버 우선</span>
+  <span class="kw">const</span> { data } = <span class="kw">await</span> sb.<span class="fn">from</span>(<span class="str">'mood_history'</span>)
+                            .<span class="fn">select</span>(<span class="str">'id'</span>).<span class="fn">limit</span>(<span class="num">1</span>);
+  <span class="kw">if</span> (data?.length > <span class="num">0</span>) {
+    <span class="fn">toast</span>(<span class="str">'클라우드 데이터를 불러왔어요 ☁️'</span>); <span class="kw">return</span>;
+  }
+
+  <span class="cm">// 서버 비어있으면 → localStorage 데이터 일괄 업로드</span>
+  <span class="kw">const</span> moods = <span class="fn">lsGet</span>(<span class="str">'moodHistory'</span>) || [];
+  <span class="kw">if</span> (moods.length) {
+    <span class="kw">await</span> sb.<span class="fn">from</span>(<span class="str">'mood_history'</span>).<span class="fn">insert</span>(
+      moods.<span class="fn">map</span>(m => ({ user_id: sbUser.id, date: m.date,
+        emotion: m.emotion, topic: m.topic, need: m.need,
+        diary_text: m.diary || <span class="kw">null</span> }))
+    );
+  }
+  <span class="fn">toast</span>(<span class="str">'기존 데이터를 클라우드에 저장했어요 ☁️'</span>);
+}</pre>
+  </div>
+
+  <div class="div"></div>
+  <div class="sl">06 · CRUD Pattern</div>
+  <div class="st">실시간 동기화 패턴</div>
+
+  <div class="code">
+    <div class="code-title">데이터 저장 시 동기화 (saveMood 예시)</div>
+    <pre><span class="kw">function</span> <span class="fn">saveMood</span>() {
+  <span class="kw">const</span> { emotion, topic, need } = sel;
+  <span class="kw">const</span> today = <span class="fn">todayStr</span>();
+
+  <span class="cm">// 1. localStorage 먼저 저장 (오프라인 대응)</span>
+  <span class="kw">const</span> hist = <span class="fn">lsGet</span>(<span class="str">'moodHistory'</span>) || [];
+  hist.<span class="fn">unshift</span>({ date: today, emotion, topic, need });
+  <span class="fn">lsSet</span>(<span class="str">'moodHistory'</span>, hist.<span class="fn">slice</span>(<span class="num">0</span>, <span class="num">30</span>));
+
+  <span class="cm">// 2. 로그인 상태면 Supabase에도 비동기 동기화</span>
+  <span class="kw">if</span> (sbUser && sb) {
+    sb.<span class="fn">from</span>(<span class="str">'mood_history'</span>)
+      .<span class="fn">insert</span>({ user_id: sbUser.id, date: today, emotion, topic, need })
+      .<span class="fn">then</span>();   <span class="cm">// 실패해도 UI 블록 안 됨</span>
+  }
+}</pre>
+  </div>
+</div>
+<div class="pn">3</div>
+</div>
+
+<!-- API 설계 + 성능 + 확장성 -->
+<div class="page">
+<div class="inner">
+  <div class="sl">07 · API Design</div>
+  <div class="st">API 설계 패턴</div>
+  <div class="sd">Supabase 자동 생성 REST API 활용 — 커스텀 서버 불필요</div>
+
+  <table class="tbl">
+    <thead><tr><th>작업</th><th>Supabase 클라이언트 호출</th><th>v3.0 활용 (통계)</th></tr></thead>
+    <tbody>
+      <tr><td>감정 기록 저장</td><td><code>from('mood_history').insert({...})</code></td><td>→ 통계 집계용 데이터 누적</td></tr>
+      <tr><td>저장 말씀 조회</td><td><code>from('saved_verses').select('*')</code></td><td>→ 보관함 클라우드 동기화</td></tr>
+      <tr><td>방문일 기록</td><td><code>from('visit_dates').upsert({...})</code></td><td>→ 스트릭 멀티 디바이스 유지</td></tr>
+      <tr><td>프로필 저장</td><td><code>from('profiles').upsert({...})</code></td><td>→ 설정 동기화</td></tr>
+      <tr><td>★ 감정 통계 조회</td><td><code>from('mood_history').select('emotion').gte('date', weekAgo)</code></td><td>v3.0: 차트 데이터</td></tr>
+      <tr><td>★ 월별 집계</td><td><code>rpc('get_monthly_stats', { uid, month })</code></td><td>v3.0: Edge Function</td></tr>
+    </tbody>
+  </table>
+
+  <div class="div"></div>
+  <div class="sl">08 · Performance</div>
+  <div class="st">성능 & 확장성</div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">현재 성능 전략</div>
+      <ul>
+        <li>localStorage 우선 → UI 즉시 반응</li>
+        <li>Supabase 호출은 비동기 (.then())</li>
+        <li>오프라인에서도 앱 정상 동작 (SW 캐시)</li>
+        <li>CDN 배포 (Vercel Edge Network)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">v3.0 성능 고려사항</div>
+      <ul>
+        <li>mood_history에 user_id + date 복합 인덱스</li>
+        <li>통계 쿼리 캐싱 (1시간 TTL)</li>
+        <li>Supabase Edge Functions로 집계 처리</li>
+        <li>React Query 도입 검토 (캐시 관리)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="div"></div>
+  <div class="sl">09 · Security Checklist</div>
+  <div class="st">보안 체크리스트</div>
+
+  <div class="g2">
+    <div>
+      <div class="chk"><span class="chk-ok">✓</span><div class="chk-t"><strong>anon key 공개</strong> — RLS 보호 하에 안전. 모든 쿼리는 JWT의 auth.uid()로 필터됨</div></div>
+      <div class="chk"><span class="chk-ok">✓</span><div class="chk-t"><strong>Google OAuth</strong> — 비밀번호 미저장. 구글이 인증 책임. JWT 자동 갱신</div></div>
+      <div class="chk"><span class="chk-ok">✓</span><div class="chk-t"><strong>RLS 전 테이블 적용</strong> — profiles, visit_dates, mood_history, saved_verses</div></div>
+      <div class="chk"><span class="chk-ok">✓</span><div class="chk-t"><strong>.gitignore</strong> — .env, STUDY_NOTES.md, PLANNING.md 추적 제외</div></div>
+    </div>
+    <div>
+      <div class="chk"><span class="chk-warn">⚠</span><div class="chk-t"><strong>service_role key</strong> — 절대 프론트엔드 코드에 포함 금지. 서버/Edge Function 전용</div></div>
+      <div class="chk"><span class="chk-warn">⚠</span><div class="chk-t"><strong>Redirect URI</strong> — Google Cloud Console + Supabase 양쪽에 정확히 등록 필요</div></div>
+      <div class="chk"><span class="chk-warn">⚠</span><div class="chk-t"><strong>v3.0 대비</strong> — Supabase 무료 플랜 DB 크기 500MB 한도. 90일 이상 데이터 아카이빙 고려</div></div>
+      <div class="chk"><span class="chk-x">!</span><div class="chk-t"><strong>미구현</strong> — 익명 사용자 데이터 마이그레이션 (로그인 전 기록 → 로그인 후 연동)</div></div>
+    </div>
+  </div>
+</div>
+<div class="pn">4</div>
+</div>
+
+</body>
+</html>

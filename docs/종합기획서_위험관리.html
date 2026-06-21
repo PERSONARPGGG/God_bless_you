@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘은 어땠나요? — 종합 기획서 & 위험 관리 보고서</title>
+<style>
+:root{--navy:#080f2e;--navy2:#0e1842;--navy3:#1a2560;--gold:#c8a86b;--gold2:#e8c98a;--gray:#6b7280;--light:#f3f4f6;--green:#059669;--red:#dc2626;--amber:#d97706;--blue:#3b5bdb;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;background:#e8eaf0;color:#1a1a2e;line-height:1.7;font-size:14px;}
+.print-btn{position:fixed;bottom:28px;right:28px;background:var(--navy);color:var(--gold);border:none;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 24px rgba(0,0,0,.3);z-index:999;}
+.page{width:210mm;min-height:297mm;margin:24px auto;background:#fff;box-shadow:0 8px 48px rgba(0,0,0,.15);page-break-after:always;position:relative;overflow:hidden;}
+.page:last-of-type{page-break-after:auto;}
+
+/* 표지 */
+.cover{min-height:297mm;display:flex;flex-direction:column;justify-content:space-between;padding:56px 52px;position:relative;overflow:hidden;}
+.cover-bg{position:absolute;inset:0;background:linear-gradient(160deg,#0a0f28 0%,#1a1f4a 40%,#1a3040 100%);}
+.cover-pattern{position:absolute;inset:0;opacity:.04;background-image:repeating-linear-gradient(45deg,#fff 0,#fff 1px,transparent 0,transparent 50%);background-size:20px 20px;}
+.c-rel{position:relative;}
+.cover-badge{display:inline-block;background:rgba(220,38,38,.2);border:1px solid rgba(220,38,38,.4);color:#fca5a5;padding:5px 16px;border-radius:50px;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;}
+.cover-h1{font-size:40px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1.15;margin-bottom:10px;}
+.cover-h1 em{font-style:normal;color:var(--gold);}
+.cover-sub{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:44px;}
+.cover-toc{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:22px 26px;margin-bottom:40px;}
+.toc-title{font-size:9px;color:rgba(255,255,255,.4);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;}
+.toc-item{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px;color:rgba(255,255,255,.65);}
+.toc-item:last-child{border-bottom:none;}
+.toc-num{color:var(--gold);font-size:10px;font-weight:700;}
+.cover-footer{border-top:1px solid rgba(255,255,255,.08);padding-top:22px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;}
+.cf-num{font-size:20px;font-weight:900;color:#fff;}
+.cf-lbl{font-size:9px;color:rgba(255,255,255,.35);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+
+/* 내부 */
+.inner{padding:44px 50px;}
+.sl{display:inline-flex;align-items:center;gap:8px;background:var(--light);color:var(--gray);padding:4px 14px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;border-left:3px solid var(--navy);}
+.st{font-size:26px;font-weight:900;color:var(--navy);letter-spacing:-0.5px;margin-bottom:6px;}
+.sd{font-size:12px;color:var(--gray);margin-bottom:22px;padding-bottom:18px;border-bottom:2px solid var(--light);}
+.div{height:1px;background:linear-gradient(90deg,transparent,#e5e7eb,transparent);margin:20px 0;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.card{background:var(--light);border-radius:12px;padding:18px 22px;margin-bottom:12px;}
+.ct{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.card p,.card li{font-size:11px;color:#374151;line-height:1.8;}
+.card ul{padding-left:16px;}
+.hl{background:linear-gradient(135deg,var(--navy),var(--navy3));border-radius:14px;padding:22px 28px;color:#fff;margin-bottom:16px;}
+.hl-lbl{font-size:9px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;}
+.hl-txt{font-size:15px;font-weight:800;line-height:1.5;}
+.pn{position:absolute;bottom:22px;right:34px;font-size:10px;color:#d1d5db;display:flex;align-items:center;gap:6px;}
+.pn::before{content:'';display:block;width:20px;height:1px;background:#e5e7eb;}
+
+/* SWOT */
+.swot{display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:14px;overflow:hidden;margin-bottom:16px;}
+.swot-cell{padding:18px 20px;}
+.sw-s{background:#f0fdf4;border-right:1px solid #d1fae5;border-bottom:1px solid #d1fae5;}
+.sw-w{background:#fff7ed;border-bottom:1px solid #fed7aa;}
+.sw-o{background:#eff6ff;border-right:1px solid #bfdbfe;}
+.sw-t{background:#fff1f2;border:none;}
+.swot-label{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.sw-s .swot-label{color:#059669;}
+.sw-w .swot-label{color:#d97706;}
+.sw-o .swot-label{color:#2563eb;}
+.sw-t .swot-label{color:#dc2626;}
+.swot-item{font-size:11px;margin-bottom:5px;display:flex;gap:5px;line-height:1.5;}
+.swot-item::before{content:'·';color:inherit;flex-shrink:0;}
+
+/* 위험 매트릭스 */
+.risk-matrix{margin:14px 0;}
+.risk-title{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:12px;}
+.matrix-grid{display:grid;grid-template-columns:48px repeat(5,1fr);gap:3px;}
+.m-hd{font-size:9px;font-weight:700;color:var(--gray);text-align:center;padding:4px 0;}
+.m-lbl{font-size:9px;color:var(--gray);display:flex;align-items:center;justify-content:flex-end;padding-right:6px;}
+.m-cell{border-radius:6px;height:44px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;text-align:center;padding:2px;}
+.m-low{background:#dcfce7;color:#166534;}
+.m-mid{background:#fef9c3;color:#854d0e;}
+.m-high{background:#fee2e2;color:#991b1b;}
+.m-dot{font-size:8px;line-height:1.3;}
+
+/* 위험 항목 */
+.risk-item{border:1.5px solid #e5e7eb;border-radius:12px;padding:14px 18px;margin-bottom:10px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;}
+.risk-item.high{border-color:#fecaca;background:#fff5f5;}
+.risk-item.mid{border-color:#fed7aa;background:#fffbf0;}
+.risk-item.low{border-color:#d1fae5;background:#f0fdf4;}
+.risk-level{padding:4px 10px;border-radius:50px;font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;}
+.rl-high{background:#fee2e2;color:#991b1b;}
+.rl-mid{background:#fef3c7;color:#92400e;}
+.rl-low{background:#dcfce7;color:#166534;}
+.risk-content{}
+.risk-name{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.risk-desc{font-size:11px;color:var(--gray);margin-bottom:6px;line-height:1.5;}
+.risk-mit{font-size:11px;color:#374151;line-height:1.5;}
+.risk-mit strong{color:var(--navy);}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.kpi-card{background:var(--light);border-radius:12px;padding:14px 16px;text-align:center;}
+.kpi-val{font-size:20px;font-weight:900;color:var(--navy);margin-bottom:4px;}
+.kpi-lbl{font-size:10px;color:var(--gray);}
+.kpi-target{font-size:9px;color:var(--green);margin-top:4px;font-weight:700;}
+
+@media print{
+  body{background:#fff;}
+  .print-btn{display:none;}
+  .page{margin:0;box-shadow:none;width:100%;}
+  .cover{min-height:100vh;}
+  @page{size:A4;margin:0;}
+}
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">🖨 PDF 저장</button>
+
+<!-- 표지 -->
+<div class="page">
+<div class="cover">
+  <div class="cover-bg"></div><div class="cover-pattern"></div>
+  <div class="c-rel">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:64px;">
+      <div style="width:36px;height:36px;background:linear-gradient(135deg,#dc2626,#ef4444);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;">⚠️</div>
+      <span style="color:rgba(255,255,255,.4);font-size:11px;letter-spacing:3px;text-transform:uppercase;">Risk & Strategy Report</span>
+    </div>
+    <div class="cover-badge">종합 기획서 + 위험 관리</div>
+    <div class="cover-h1">전체 서비스 현황<br>& <em>위험 관리 보고서</em></div>
+    <div class="cover-sub">오늘은 어땠나요? · SWOT 분석 · 리스크 매트릭스 · KPI 프레임워크</div>
+    <div class="cover-toc">
+      <div class="toc-title">Table of Contents</div>
+      <div class="toc-item"><span>01 서비스 현황 요약</span><span class="toc-num">p.2</span></div>
+      <div class="toc-item"><span>02 시장 분석</span><span class="toc-num">p.2</span></div>
+      <div class="toc-item"><span>03 SWOT 분석</span><span class="toc-num">p.3</span></div>
+      <div class="toc-item"><span>04 위험 매트릭스</span><span class="toc-num">p.3</span></div>
+      <div class="toc-item"><span>05 위험별 대응 전략</span><span class="toc-num">p.4</span></div>
+      <div class="toc-item"><span>06 컨틴전시 플랜</span><span class="toc-num">p.4</span></div>
+      <div class="toc-item"><span>07 KPI & 모니터링</span><span class="toc-num">p.5</span></div>
+    </div>
+  </div>
+  <div class="c-rel">
+    <div class="cover-footer">
+      <div><div class="cf-num">v2.5</div><div class="cf-lbl">현재 버전</div></div>
+      <div><div class="cf-num">7개</div><div class="cf-lbl">식별된 리스크</div></div>
+      <div><div class="cf-num">2026.06</div><div class="cf-lbl">보고서 작성일</div></div>
+    </div>
+  </div>
+</div>
+<div class="pn">1</div>
+</div>
+
+<!-- 현황 + 시장 분석 -->
+<div class="page">
+<div class="inner">
+  <div class="sl">01 · Executive Summary</div>
+  <div class="st">서비스 현황 요약</div>
+  <div class="sd">크리스천 감정 묵상 PWA · v2.5 운영 중 · Supabase 클라우드 연동 완료</div>
+
+  <div class="hl">
+    <div class="hl-lbl">현재 상태</div>
+    <div class="hl-txt">MVP 완성 → 백엔드 연동 완료 → 다음 목표: 감정 통계 대시보드(v3.0) + 수익화 시작</div>
+  </div>
+
+  <div class="g3">
+    <div class="card"><div class="ct">✅ 완료</div><ul><li>감정 기반 말씀 (24조합)</li><li>Google OAuth 인증</li><li>Supabase 클라우드 동기화</li><li>5종 테마 · 3언어</li><li>PWA 설치 · 오프라인</li></ul></div>
+    <div class="card"><div class="ct">🔧 진행 중</div><ul><li>감정 통계 대시보드</li><li>주간 묵상 리포트</li><li>웹 푸시 알림</li><li>Premium 플랜 결제</li></ul></div>
+    <div class="card"><div class="ct">🗺 예정</div><ul><li>AI 말씀 추천 (v4.0)</li><li>소그룹 플랜 (v4.0)</li><li>묵상 캘린더 (v3.5)</li><li>일본어 콘텐츠 강화</li></ul></div>
+  </div>
+
+  <div class="div"></div>
+  <div class="sl">02 · Market</div>
+  <div class="st">시장 분석</div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">🎯 타겟 시장</div>
+      <ul>
+        <li><strong>1차:</strong> 한국 크리스천 MZ세대 (20~35세)</li>
+        <li><strong>2차:</strong> 일본 크리스천 (소수 고충성)</li>
+        <li><strong>3차:</strong> 영어권 크리스천 (ESV 말씀 지원)</li>
+        <li>한국 기독교 인구: 약 967만 명 (19%)</li>
+        <li>스마트폰 보유 크리스천: 약 800만 명</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">🏆 경쟁 우위</div>
+      <ul>
+        <li>감정 기반 말씀 매핑 — 국내 유일</li>
+        <li>광고 없는 깨끗한 UX</li>
+        <li>PWA — 앱스토어 심사 불필요</li>
+        <li>★ 감정 통계 — 타 앱 미구현</li>
+        <li>무료로도 충분한 가치 제공</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="pn">2</div>
+</div>
+
+<!-- SWOT + 리스크 매트릭스 -->
+<div class="page">
+<div class="inner">
+  <div class="sl">03 · SWOT</div>
+  <div class="st">SWOT 분석</div>
+  <div class="sd" style="margin-bottom:14px;">강점·약점·기회·위협 종합 평가</div>
+
+  <div class="swot">
+    <div class="swot-cell sw-s">
+      <div class="swot-label">💪 Strength · 강점</div>
+      <div class="swot-item">감정 기반 말씀 매핑 독창성</div>
+      <div class="swot-item">광고 없는 순수 묵상 경험</div>
+      <div class="swot-item">Supabase로 인프라 비용 최소화</div>
+      <div class="swot-item">단일 파일 → 유지보수 단순</div>
+      <div class="swot-item">★ 감정 통계 차별화 기능</div>
+    </div>
+    <div class="swot-cell sw-w">
+      <div class="swot-label">⚠️ Weakness · 약점</div>
+      <div class="swot-item">1인 개발 → 업데이트 속도 한계</div>
+      <div class="swot-item">앱스토어 미등록 → 발견성 낮음</div>
+      <div class="swot-item">말씀 Pool 144개 — 반복 노출 우려</div>
+      <div class="swot-item">결제 시스템 미구축</div>
+      <div class="swot-item">마케팅 채널 부재</div>
+    </div>
+    <div class="swot-cell sw-o">
+      <div class="swot-label">🌱 Opportunity · 기회</div>
+      <div class="swot-item">크리스천 앱 시장 공급 부족</div>
+      <div class="swot-item">교회 디지털화 트렌드 가속</div>
+      <div class="swot-item">일본 크리스천 앱 공백 시장</div>
+      <div class="swot-item">AI 개인화 기술 비용 하락</div>
+      <div class="swot-item">PWA 인지도 상승</div>
+    </div>
+    <div class="swot-cell sw-t">
+      <div class="swot-label">⚡ Threat · 위협</div>
+      <div class="swot-item">대형 종교 앱 (YouVersion 등) 진입</div>
+      <div class="swot-item">Supabase 유료화 / 정책 변경</div>
+      <div class="swot-item">Google OAuth 정책 변경</div>
+      <div class="swot-item">개인정보 보호 규제 강화</div>
+      <div class="swot-item">사용자 데이터 보안 사고</div>
+    </div>
+  </div>
+
+  <div class="div"></div>
+  <div class="sl">04 · Risk Matrix</div>
+  <div class="st">위험 매트릭스 (발생 가능성 × 영향도)</div>
+
+  <div class="risk-matrix">
+    <div class="matrix-grid">
+      <div class="m-hd"></div>
+      <div class="m-hd">영향 낮음</div><div class="m-hd">영향 보통</div><div class="m-hd">영향 높음</div><div class="m-hd">영향 매우높음</div><div class="m-hd">영향 치명적</div>
+      <div class="m-lbl">가능성 높음</div>
+      <div class="m-cell m-mid"></div><div class="m-cell m-high"></div><div class="m-cell m-high"><div class="m-dot">콘텐츠<br>반복</div></div><div class="m-cell m-high"></div><div class="m-cell m-high"></div>
+      <div class="m-lbl">가능성 보통</div>
+      <div class="m-cell m-low"></div><div class="m-cell m-mid"><div class="m-dot">결제<br>미구축</div></div><div class="m-cell m-high"><div class="m-dot">보안<br>사고</div></div><div class="m-cell m-high"><div class="m-dot">DB<br>한도초과</div></div><div class="m-cell m-high"></div>
+      <div class="m-lbl">가능성 낮음</div>
+      <div class="m-cell m-low"></div><div class="m-cell m-low"></div><div class="m-cell m-mid"><div class="m-dot">Supabase<br>정책변경</div></div><div class="m-cell m-mid"></div><div class="m-cell m-high"><div class="m-dot">서비스<br>중단</div></div>
+    </div>
+  </div>
+</div>
+<div class="pn">3</div>
+</div>
+
+<!-- 위험 대응 전략 -->
+<div class="page">
+<div class="inner">
+  <div class="sl">05 · Risk Response</div>
+  <div class="st">위험별 대응 전략</div>
+  <div class="sd">식별된 7개 리스크 · 우선순위별 대응 방안</div>
+
+  <div class="risk-item high">
+    <div><span class="risk-level rl-high">HIGH</span></div>
+    <div class="risk-content">
+      <div class="risk-name">보안 사고 — 사용자 데이터 유출</div>
+      <div class="risk-desc">RLS 설정 누락 또는 service_role key 노출 시 전체 DB 접근 가능</div>
+      <div class="risk-mit"><strong>대응:</strong> RLS 전 테이블 적용 완료 · .gitignore로 key 파일 제외 · 정기 보안 감사</div>
+    </div>
+  </div>
+
+  <div class="risk-item high">
+    <div><span class="risk-level rl-high">HIGH</span></div>
+    <div class="risk-content">
+      <div class="risk-name">콘텐츠 반복 — 말씀 Pool 소진</div>
+      <div class="risk-desc">144개 말씀이 반복 노출되면 사용자 이탈 가속 (특히 매일 사용자)</div>
+      <div class="risk-mit"><strong>대응:</strong> v3.0까지 300개 이상으로 확장 · AI 생성 말씀 보조 검토 · 계절별 큐레이션</div>
+    </div>
+  </div>
+
+  <div class="risk-item mid">
+    <div><span class="risk-level rl-mid">MED</span></div>
+    <div class="risk-content">
+      <div class="risk-name">Supabase DB 한도 초과 (500MB)</div>
+      <div class="risk-desc">사용자 증가 시 무료 플랜 한도 도달 → 서비스 중단 또는 비용 발생</div>
+      <div class="risk-mit"><strong>대응:</strong> 90일 이상 mood_history 아카이빙 정책 · 조기에 Supabase Pro 전환 ($25/월) 수익화 선행 필요</div>
+    </div>
+  </div>
+
+  <div class="risk-item mid">
+    <div><span class="risk-level rl-mid">MED</span></div>
+    <div class="risk-content">
+      <div class="risk-name">Google OAuth 정책 변경</div>
+      <div class="risk-desc">Google이 OAuth 정책 변경 시 로그인 기능 중단 가능</div>
+      <div class="risk-mit"><strong>대응:</strong> Apple OAuth 또는 카카오 OAuth 추가 준비 (대체 인증 수단) · 이메일 Magic Link 보조 옵션</div>
+    </div>
+  </div>
+
+  <div class="risk-item mid">
+    <div><span class="risk-level rl-mid">MED</span></div>
+    <div class="risk-content">
+      <div class="risk-name">결제 시스템 미구축 → 수익 지연</div>
+      <div class="risk-desc">Premium 기능이 있어도 결제 수단이 없으면 수익화 불가</div>
+      <div class="risk-mit"><strong>대응:</strong> v3.0에서 토스페이먼츠 또는 Stripe 연동 · 후원 모델 선행으로 소규모 수익 확보</div>
+    </div>
+  </div>
+
+  <div class="risk-item low">
+    <div><span class="risk-level rl-low">LOW</span></div>
+    <div class="risk-content">
+      <div class="risk-name">1인 개발 번아웃 / 업데이트 중단</div>
+      <div class="risk-desc">개발자 부재 시 버그 수정 · 기능 업데이트 중단</div>
+      <div class="risk-mit"><strong>대응:</strong> 코드 문서화 (기술명세서 유지) · CHANGELOG 관리 · 핵심 기능은 단순 유지</div>
+    </div>
+  </div>
+
+  <div class="risk-item low">
+    <div><span class="risk-level rl-low">LOW</span></div>
+    <div class="risk-content">
+      <div class="risk-name">대형 앱과의 경쟁 (YouVersion 등)</div>
+      <div class="risk-desc">리소스 많은 경쟁자가 감정 기반 기능 복제 가능</div>
+      <div class="risk-mit"><strong>대응:</strong> 감정 통계 · AI 개인화로 빠른 차별화 · 한국 특화 (한국어 말씀 품질) · 커뮤니티 록인</div>
+    </div>
+  </div>
+</div>
+<div class="pn">4</div>
+</div>
+
+<!-- KPI + 컨틴전시 -->
+<div class="page">
+<div class="inner">
+  <div class="sl">06 · Contingency</div>
+  <div class="st">컨틴전시 플랜</div>
+  <div class="sd">최악의 시나리오 대비 즉각 대응 방안</div>
+
+  <div class="g2">
+    <div class="card" style="border-left:3px solid var(--red);">
+      <div class="ct">🚨 서비스 중단 시</div>
+      <p><strong>상황:</strong> Vercel 배포 실패 또는 Supabase 장애<br><strong>즉각 대응:</strong><br>
+      · GitHub Pages 백업 URL로 즉시 전환<br>
+      · SW 캐시로 오프라인 사용 유지<br>
+      · Supabase 장애 시 localStorage 자동 폴백<br>
+      · 복구 예상 시간 사용자 공지 (SNS)</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--amber);">
+      <div class="ct">⚠️ 데이터 손실 시</div>
+      <p><strong>상황:</strong> DB 삭제 또는 마이그레이션 오류<br><strong>즉각 대응:</strong><br>
+      · Supabase 자동 백업 복원 (최대 7일 이전)<br>
+      · 사용자 localStorage 데이터 유지 (이중 저장)<br>
+      · 피해 사용자 Premium 무료 보상<br>
+      · 재발 방지: 주간 백업 스크립트 자동화</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--blue);">
+      <div class="ct">💸 인프라 비용 급증 시</div>
+      <p><strong>상황:</strong> 사용자 급증으로 Supabase 무료 한도 초과<br><strong>즉각 대응:</strong><br>
+      · Supabase Pro 전환 ($25/월)<br>
+      · 데이터 보존 정책 강화 (90일 자동 삭제)<br>
+      · 선결제 후원 캠페인으로 비용 확보<br>
+      · 장기: 자체 PostgreSQL 서버 이전 검토</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--green);">
+      <div class="ct">🚀 급격한 성장 시</div>
+      <p><strong>상황:</strong> 바이럴로 MAU 10,000 돌파<br><strong>즉각 대응:</strong><br>
+      · Supabase Pro 즉시 전환<br>
+      · Vercel Pro로 업그레이드<br>
+      · Premium 플랜 조기 출시<br>
+      · 콘텐츠 업데이트 속도 긴급 강화</p>
+    </div>
+  </div>
+
+  <div class="div"></div>
+  <div class="sl">07 · KPI</div>
+  <div class="st">KPI & 모니터링 프레임워크</div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-val">MAU</div><div class="kpi-lbl">월 활성 사용자</div><div class="kpi-target">목표: 1,000명 (2026 Q4)</div></div>
+    <div class="kpi-card"><div class="kpi-val">D7</div><div class="kpi-lbl">7일 재방문율</div><div class="kpi-target">목표: 30% 이상</div></div>
+    <div class="kpi-card"><div class="kpi-val">5%</div><div class="kpi-lbl">프리미엄 전환율</div><div class="kpi-target">목표: MAU의 5%</div></div>
+    <div class="kpi-card"><div class="kpi-val">★4.5</div><div class="kpi-lbl">사용자 만족도</div><div class="kpi-target">목표: 4.5/5.0</div></div>
+  </div>
+
+  <table style="width:100%;border-collapse:collapse;font-size:11px;">
+    <thead><tr style="background:var(--navy);color:var(--gold);">
+      <th style="padding:8px 12px;text-align:left;border-radius:7px 0 0 0;font-size:9px;letter-spacing:2px;">지표</th>
+      <th style="padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;">측정 방법</th>
+      <th style="padding:8px 12px;text-align:left;font-size:9px;letter-spacing:2px;">목표 (2026 Q4)</th>
+      <th style="padding:8px 12px;text-align:left;border-radius:0 7px 0 0;font-size:9px;letter-spacing:2px;">모니터링 주기</th>
+    </tr></thead>
+    <tbody>
+      <tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:8px 12px;">월 활성 사용자</td><td style="padding:8px 12px;">Supabase visit_dates 집계</td><td style="padding:8px 12px;color:var(--green);font-weight:700;">1,000명</td><td style="padding:8px 12px;">주간</td></tr>
+      <tr style="border-bottom:1px solid #e5e7eb;background:#f9fafb;"><td style="padding:8px 12px;">7일 재방문율</td><td style="padding:8px 12px;">visit_dates 연속 방문 분석</td><td style="padding:8px 12px;color:var(--green);font-weight:700;">30%+</td><td style="padding:8px 12px;">주간</td></tr>
+      <tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:8px 12px;">평균 스트릭</td><td style="padding:8px 12px;">visit_dates 연속일 계산</td><td style="padding:8px 12px;color:var(--green);font-weight:700;">5일+</td><td style="padding:8px 12px;">월간</td></tr>
+      <tr style="border-bottom:1px solid #e5e7eb;background:#f9fafb;"><td style="padding:8px 12px;">클라우드 로그인율</td><td style="padding:8px 12px;">Supabase Auth 사용자 수</td><td style="padding:8px 12px;color:var(--green);font-weight:700;">40%+</td><td style="padding:8px 12px;">월간</td></tr>
+      <tr><td style="padding:8px 12px;">감사 일기 작성률</td><td style="padding:8px 12px;">diary_text 존재 비율</td><td style="padding:8px 12px;color:var(--green);font-weight:700;">50%+</td><td style="padding:8px 12px;">월간</td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="pn">5</div>
+</div>
+
+</body>
+</html>

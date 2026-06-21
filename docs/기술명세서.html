@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘은 어땠나요? — 기술 명세서 (TSD)</title>
+<style>
+:root{--navy:#080f2e;--navy2:#0e1842;--navy3:#1a2560;--gold:#c8a86b;--gold2:#e8c98a;--gray:#6b7280;--light:#f3f4f6;--green:#059669;--red:#dc2626;--amber:#d97706;--blue:#3b5bdb;--teal:#0891b2;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;background:#e8eaf0;color:#1a1a2e;line-height:1.7;font-size:14px;}
+.print-btn{position:fixed;bottom:28px;right:28px;background:var(--navy);color:var(--gold);border:none;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 24px rgba(0,0,0,.3);z-index:999;}
+.page{width:210mm;min-height:297mm;margin:24px auto;background:#fff;box-shadow:0 8px 48px rgba(0,0,0,.15);page-break-after:always;position:relative;overflow:hidden;}
+.page:last-of-type{page-break-after:auto;}
+.cover{min-height:297mm;background:linear-gradient(160deg,#04091c 0%,#091428 50%,#0d2040 100%);display:flex;flex-direction:column;justify-content:space-between;padding:56px 52px;position:relative;overflow:hidden;}
+.cvr-dots{position:absolute;inset:0;}
+.dot-pattern{position:absolute;inset:0;opacity:.04;background-image:radial-gradient(rgba(255,255,255,.6) 1px,transparent 1px);background-size:24px 24px;}
+.cvr-glow{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(14,162,219,.06),transparent 70%);top:-100px;right:-100px;}
+.c-rel{position:relative;}
+.cvr-chip{display:inline-block;background:rgba(14,162,219,.2);border:1px solid rgba(14,162,219,.4);color:#7dd3fc;padding:5px 16px;border-radius:50px;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;}
+.cvr-h1{font-size:42px;font-weight:900;color:#fff;letter-spacing:-1.5px;line-height:1.1;margin-bottom:10px;}
+.cvr-h1 em{font-style:normal;color:#7dd3fc;}
+.cvr-sub{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:44px;}
+.cvr-toc{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:20px 24px;margin-bottom:40px;}
+.toc-t{font-size:9px;color:rgba(255,255,255,.3);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;}
+.toc-i{display:flex;justify-content:space-between;padding:4px 0;font-size:11px;color:rgba(255,255,255,.6);border-bottom:1px solid rgba(255,255,255,.04);}
+.toc-i:last-child{border-bottom:none;}
+.toc-n{color:#7dd3fc;font-size:10px;font-weight:700;}
+.cvr-stats{border-top:1px solid rgba(255,255,255,.06);padding-top:22px;display:grid;grid-template-columns:repeat(4,1fr);}
+.csn{font-size:18px;font-weight:900;color:#fff;}
+.csl{font-size:9px;color:rgba(255,255,255,.3);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+
+/* 내부 */
+.inner{padding:42px 48px;}
+.sl{display:inline-flex;align-items:center;gap:6px;background:#eff6ff;color:#1d4ed8;padding:4px 12px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;}
+.st{font-size:24px;font-weight:900;color:var(--navy);letter-spacing:-0.5px;margin-bottom:6px;}
+.sd{font-size:11px;color:var(--gray);margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--light);}
+.div{height:1px;background:linear-gradient(90deg,transparent,#e5e7eb,transparent);margin:18px 0;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;}
+.card{background:var(--light);border-radius:10px;padding:16px 20px;margin-bottom:10px;}
+.ct{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:7px;}
+.card p,.card li{font-size:11px;color:#374151;line-height:1.8;}
+.card ul{padding-left:14px;}
+.pn{position:absolute;bottom:22px;right:34px;font-size:10px;color:#d1d5db;display:flex;align-items:center;gap:6px;}
+.pn::before{content:'';display:block;width:20px;height:1px;background:#e5e7eb;}
+
+/* 코드 */
+.code{background:#0d1117;border-radius:10px;padding:14px 18px;margin:10px 0;overflow:hidden;}
+.ct2{font-size:9px;color:#7dd3fc;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.code pre{font-family:'SF Mono','Fira Code',monospace;font-size:10.5px;line-height:1.7;color:#e2e8f0;white-space:pre-wrap;word-break:break-word;}
+.kw{color:#ff7eb6;}.fn{color:#79c0ff;}.str{color:#a5d6ff;}.cm{color:#6e7681;}.num{color:#f2cc60;}.op{color:#ffa657;}
+
+/* 파일 구조 */
+.file-tree{background:#0d1117;border-radius:10px;padding:14px 18px;margin:10px 0;}
+.file-tree pre{font-family:'SF Mono','Fira Code',monospace;font-size:11px;line-height:1.9;color:#e2e8f0;}
+.f-dir{color:#79c0ff;}.f-file{color:#e2e8f0;}.f-pwa{color:#f2cc60;}.f-doc{color:#a5d6ff;}.f-ignore{color:#6e7681;}
+
+/* 함수 명세 */
+.fn-item{border:1px solid #e5e7eb;border-radius:10px;padding:12px 16px;margin-bottom:8px;}
+.fn-sig{font-family:'SF Mono','Fira Code',monospace;font-size:11px;color:var(--navy);font-weight:700;margin-bottom:6px;background:#f3f4f6;padding:4px 10px;border-radius:4px;display:inline-block;}
+.fn-desc{font-size:11px;color:var(--gray);margin-bottom:6px;}
+.fn-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.fn-tag{font-size:9px;padding:2px 8px;border-radius:4px;font-weight:600;}
+.ft-sb{background:#dbeafe;color:#1d4ed8;}
+.ft-ls{background:#dcfce7;color:#166534;}
+.ft-ui{background:#f3e8ff;color:#7c3aed;}
+.ft-init{background:#fef3c7;color:#92400e;}
+
+/* 성능 기준 */
+.perf-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.perf-card{background:var(--light);border-radius:10px;padding:12px 14px;text-align:center;}
+.perf-val{font-size:18px;font-weight:900;color:var(--navy);margin-bottom:4px;}
+.perf-lbl{font-size:10px;color:var(--gray);}
+.perf-status{font-size:9px;font-weight:700;margin-top:4px;}
+.ps-ok{color:var(--green);}
+.ps-target{color:var(--amber);}
+
+/* 테스트 체크리스트 */
+.chk-group{margin-bottom:14px;}
+.chk-group-title{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.chk-item{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;font-size:11px;}
+.chk-box{width:14px;height:14px;border:1.5px solid #d1d5db;border-radius:3px;flex-shrink:0;margin-top:2px;}
+.chk-t{color:#374151;line-height:1.5;}
+
+/* 배포 파이프라인 */
+.pipe-step{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px dashed #e5e7eb;}
+.pipe-step:last-child{border-bottom:none;}
+.pipe-num{width:24px;height:24px;border-radius:50%;background:var(--navy);color:var(--gold);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.pipe-title{font-size:11px;font-weight:700;color:var(--navy);margin-bottom:3px;}
+.pipe-desc{font-size:10px;color:var(--gray);line-height:1.5;}
+.pipe-cmd{font-family:monospace;font-size:10px;background:#0d1117;color:#7dd3fc;padding:2px 8px;border-radius:4px;display:inline-block;margin-top:4px;}
+
+@media print{
+  body{background:#fff;}
+  .print-btn{display:none;}
+  .page{margin:0;box-shadow:none;width:100%;}
+  .cover{min-height:100vh;}
+  @page{size:A4;margin:0;}
+}
+</style>
+</head>
+<body>
+<button class="print-btn" onclick="window.print()">🖨 PDF 저장</button>
+
+<!-- 표지 -->
+<div class="page">
+<div class="cover">
+  <div class="dot-pattern"></div><div class="cvr-glow"></div>
+  <div class="c-rel">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:64px;">
+      <div style="width:38px;height:38px;background:linear-gradient(135deg,#0891b2,#7dd3fc);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">📐</div>
+      <span style="color:rgba(255,255,255,.35);font-size:11px;letter-spacing:3px;text-transform:uppercase;">Technical Specification Document</span>
+    </div>
+    <div class="cvr-chip">TSD · v2.5</div>
+    <div class="cvr-h1">기술<br><em>명세서</em></div>
+    <div class="cvr-sub">오늘은 어땠나요? · 코드 구조 · 핵심 함수 · 배포 · 유지보수 가이드</div>
+    <div class="cvr-toc">
+      <div class="toc-t">Contents</div>
+      <div class="toc-i"><span>01 프로젝트 구조 & 파일 설명</span><span class="toc-n">p.2</span></div>
+      <div class="toc-i"><span>02 핵심 함수 명세</span><span class="toc-n">p.2</span></div>
+      <div class="toc-i"><span>03 Supabase 연동 명세</span><span class="toc-n">p.3</span></div>
+      <div class="toc-i"><span>04 성능 기준 & 테스트 체크리스트</span><span class="toc-n">p.4</span></div>
+      <div class="toc-i"><span>05 배포 가이드 & 유지보수</span><span class="toc-n">p.4</span></div>
+    </div>
+  </div>
+  <div class="c-rel">
+    <div class="cvr-stats">
+      <div><div class="csn">3,300+</div><div class="csl">코드 라인 수</div></div>
+      <div><div class="csn">Single</div><div class="csl">파일 아키텍처</div></div>
+      <div><div class="csn">30+</div><div class="csl">핵심 함수</div></div>
+      <div><div class="csn">4</div><div class="csl">DB 테이블</div></div>
+    </div>
+  </div>
+</div>
+<div class="pn">1</div>
+</div>
+
+<!-- 프로젝트 구조 + 핵심 함수 -->
+<div class="page">
+<div class="inner">
+  <div class="sl">01 · Project Structure</div>
+  <div class="st">프로젝트 파일 구조</div>
+  <div class="sd">단일 파일 PWA + Supabase BaaS 조합 — 서버 코드 없음</div>
+
+  <div class="file-tree">
+    <pre><span class="f-dir">God_bless_you/</span>
+<span class="f-pwa">├── index.html</span>          <span class="cm">★ 앱 전체 (HTML+CSS+JS, ~3,300줄)</span>
+<span class="f-pwa">├── sw.js</span>               <span class="cm">서비스 워커 (캐시 전략, 오프라인 지원)</span>
+<span class="f-pwa">├── manifest.json</span>       <span class="cm">PWA 매니페스트 (앱 이름·아이콘·색상)</span>
+<span class="f-pwa">├── icon.svg</span>            <span class="cm">앱 아이콘 (iOS·Android 홈화면)</span>
+├── README.md           <span class="cm">GitHub 소개 페이지</span>
+├── CHANGELOG.md        <span class="cm">버전별 변경 이력</span>
+<span class="f-ignore">├── .gitignore</span>          <span class="cm">민감 파일 제외 (.env, 개인 메모)</span>
+└── <span class="f-dir">docs/</span>
+    <span class="f-doc">├── 기획서.html</span>        <span class="cm">서비스 기획서 (PDF 출력용)</span>
+    <span class="f-doc">├── 백엔드기획서.html</span>   <span class="cm">백엔드 기술 기획서</span>
+    <span class="f-doc">├── 기술명세서.html</span>    <span class="cm">이 문서</span>
+    <span class="f-ignore">├── PLANNING.md</span>        <span class="cm">개인 기획 메모 (gitignore)</span>
+    <span class="f-ignore">└── STUDY_NOTES.md</span>     <span class="cm">공부 노트 (gitignore)</span></pre>
+  </div>
+
+  <div class="div"></div>
+  <div class="sl">02 · Core Functions</div>
+  <div class="st">핵심 함수 명세</div>
+
+  <div class="fn-item">
+    <div class="fn-sig">init()</div>
+    <div class="fn-desc">앱 진입점. DOM 로드 후 실행. 별·테마·언어·스트릭·Supabase 초기화 순서로 호출.</div>
+    <div class="fn-tags"><span class="fn-tag ft-init">초기화</span><span class="fn-tag ft-sb">Supabase</span></div>
+  </div>
+
+  <div class="fn-item">
+    <div class="fn-sig">initSupabase()</div>
+    <div class="fn-desc">Supabase 클라이언트 생성 + onAuthStateChange 등록. file:// 프로토콜에서는 실행 안 됨.</div>
+    <div class="fn-tags"><span class="fn-tag ft-sb">Supabase</span></div>
+  </div>
+
+  <div class="fn-item">
+    <div class="fn-sig">migrateLocalToServer()</div>
+    <div class="fn-desc">로그인 직후 1회 실행. 서버 데이터 없으면 localStorage → Supabase 일괄 업로드. async/await.</div>
+    <div class="fn-tags"><span class="fn-tag ft-sb">Supabase</span><span class="fn-tag ft-ls">localStorage</span></div>
+  </div>
+
+  <div class="fn-item">
+    <div class="fn-sig">buildResult()</div>
+    <div class="fn-desc">4단계 완료 후 말씀·묵상·기도문·격려문을 조합해 결과 화면 렌더링. getVerseForMood() 호출.</div>
+    <div class="fn-tags"><span class="fn-tag ft-ui">UI</span></div>
+  </div>
+
+  <div class="fn-item">
+    <div class="fn-sig">saveMood() / toggleSave() / saveDiary()</div>
+    <div class="fn-desc">각각 감정기록·말씀저장·일기 저장. localStorage 저장 후 sbUser 존재 시 Supabase에도 비동기 동기화.</div>
+    <div class="fn-tags"><span class="fn-tag ft-ls">localStorage</span><span class="fn-tag ft-sb">Supabase 동기화</span></div>
+  </div>
+
+  <div class="fn-item">
+    <div class="fn-sig">updateStreak() / calcStreak()</div>
+    <div class="fn-desc">오늘 방문 기록 후 연속 스트릭 계산. 60일 이전 데이터 자동 정리. visit_dates에도 동기화.</div>
+    <div class="fn-tags"><span class="fn-tag ft-ls">localStorage</span><span class="fn-tag ft-sb">Supabase</span></div>
+  </div>
+
+  <div class="fn-item">
+    <div class="fn-sig">lsGet(k) / lsSet(k, v)</div>
+    <div class="fn-desc">localStorage 래퍼. JSON 자동 파싱/직렬화. try/catch로 예외 처리. 앱 전체에서 사용하는 핵심 유틸.</div>
+    <div class="fn-tags"><span class="fn-tag ft-ls">localStorage</span></div>
+  </div>
+</div>
+<div class="pn">2</div>
+</div>
+
+<!-- Supabase 연동 상세 -->
+<div class="page">
+<div class="inner">
+  <div class="sl">03 · Supabase Spec</div>
+  <div class="st">Supabase 연동 명세</div>
+  <div class="sd">인증 · 테이블 · RLS · 동기화 패턴 상세 명세</div>
+
+  <div class="g2">
+    <div>
+      <div class="ct" style="margin-bottom:8px;font-size:12px;font-weight:700;color:var(--navy);">연결 정보</div>
+      <div class="code">
+        <div class="ct2">Constants</div>
+        <pre><span class="kw">const</span> SUPABASE_URL =
+  <span class="str">'https://pzakpaomnmahcugkzdff.supabase.co'</span>
+
+<span class="kw">const</span> SUPABASE_KEY =
+  <span class="str">'sb_publishable_...'</span>
+  <span class="cm">// anon key (RLS 보호, 공개 가능)</span>
+
+<span class="kw">let</span> sb = <span class="kw">null</span>;    <span class="cm">// 클라이언트</span>
+<span class="kw">let</span> sbUser = <span class="kw">null</span>; <span class="cm">// 현재 유저</span></pre>
+      </div>
+    </div>
+    <div>
+      <div class="ct" style="margin-bottom:8px;font-size:12px;font-weight:700;color:var(--navy);">인증 상태 감지</div>
+      <div class="code">
+        <div class="ct2">onAuthStateChange</div>
+        <pre>sb.auth.<span class="fn">onAuthStateChange</span>(
+  (event, session) => {
+    sbUser = session?.<span class="op">user</span> || <span class="kw">null</span>;
+    <span class="fn">updateAuthUI</span>();
+    <span class="kw">if</span> (event === <span class="str">'SIGNED_IN'</span>)
+      <span class="fn">migrateLocalToServer</span>();
+  }
+);</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="code">
+    <div class="ct2">테이블별 CRUD 패턴</div>
+    <pre><span class="cm">// mood_history — 감정 기록 추가</span>
+<span class="kw">await</span> sb.<span class="fn">from</span>(<span class="str">'mood_history'</span>).<span class="fn">insert</span>({
+  user_id: sbUser.id, date: <span class="fn">todayStr</span>(),
+  emotion, topic, need
+});
+
+<span class="cm">// mood_history — 일기 업데이트</span>
+<span class="kw">await</span> sb.<span class="fn">from</span>(<span class="str">'mood_history'</span>).<span class="fn">update</span>({ diary_text: text })
+  .<span class="fn">eq</span>(<span class="str">'user_id'</span>, sbUser.id).<span class="fn">eq</span>(<span class="str">'date'</span>, <span class="fn">todayStr</span>());
+
+<span class="cm">// visit_dates — 중복 방지 upsert</span>
+<span class="kw">await</span> sb.<span class="fn">from</span>(<span class="str">'visit_dates'</span>).<span class="fn">upsert</span>(
+  { user_id: sbUser.id, visit_date: today },
+  { onConflict: <span class="str">'user_id,visit_date'</span> }
+);
+
+<span class="cm">// ★ v3.0 감정 통계 쿼리 (예정)</span>
+<span class="kw">const</span> { data } = <span class="kw">await</span> sb
+  .<span class="fn">from</span>(<span class="str">'mood_history'</span>)
+  .<span class="fn">select</span>(<span class="str">'emotion, date'</span>)
+  .<span class="fn">eq</span>(<span class="str">'user_id'</span>, sbUser.id)
+  .<span class="fn">gte</span>(<span class="str">'date'</span>, weekAgo)
+  .<span class="fn">order</span>(<span class="str">'date'</span>);</pre>
+  </div>
+
+  <div class="div"></div>
+  <div class="sl">Service Worker</div>
+  <div class="st">SW 캐시 전략</div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">캐시 전략 (god-app-v6)</div>
+      <ul>
+        <li><strong>index.html:</strong> Network-first (즉시 업데이트)</li>
+        <li><strong>정적 에셋:</strong> Cache-first (sw.js, icon.svg)</li>
+        <li><strong>업데이트:</strong> SKIP_WAITING 메시지 패턴</li>
+        <li><strong>새 버전:</strong> update-banner 표시 → 사용자 확인</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="ct">업데이트 흐름</div>
+      <ul>
+        <li>Vercel 배포 → 새 index.html 서버 전송</li>
+        <li>SW updatefound 이벤트 감지</li>
+        <li>새 SW 설치 완료 시 배너 표시</li>
+        <li>사용자 클릭 → SKIP_WAITING → 새로고침</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="pn">3</div>
+</div>
+
+<!-- 성능 + 테스트 + 배포 -->
+<div class="page">
+<div class="inner">
+  <div class="sl">04 · Performance & Test</div>
+  <div class="st">성능 기준 & 테스트 체크리스트</div>
+  <div class="sd">변경 후 반드시 확인해야 할 항목들</div>
+
+  <div class="perf-grid">
+    <div class="perf-card"><div class="perf-val">&lt;1s</div><div class="perf-lbl">초기 로드 시간</div><div class="perf-status ps-ok">✓ 달성 (단일 파일)</div></div>
+    <div class="perf-card"><div class="perf-val">100</div><div class="perf-lbl">Lighthouse PWA 점수</div><div class="perf-status ps-target">목표 유지</div></div>
+    <div class="perf-card"><div class="perf-val">185</div><div class="perf-lbl">div 태그 균형</div><div class="perf-status ps-ok">✓ open = close</div></div>
+    <div class="perf-card"><div class="perf-val">JS OK</div><div class="perf-lbl">문법 검증</div><div class="perf-status ps-ok">✓ node -e 통과</div></div>
+    <div class="perf-card"><div class="perf-val">오프라인</div><div class="perf-lbl">SW 캐시 동작</div><div class="perf-status ps-ok">✓ Cache-first</div></div>
+    <div class="perf-card"><div class="perf-val">3언어</div><div class="perf-lbl">i18n 완전성</div><div class="perf-status ps-ok">✓ ko/en/ja</div></div>
+  </div>
+
+  <div class="g2">
+    <div>
+      <div class="chk-group">
+        <div class="chk-group-title">🔧 코드 변경 후 필수 검증</div>
+        <div class="chk-item"><div class="chk-box"></div><div class="chk-t"><code>node -e "new Function(scriptContent)"</code> JS 문법 오류 없음</div></div>
+        <div class="chk-item"><div class="chk-box"></div><div class="chk-t">div 태그 open/close 균형 확인 (현재 185개)</div></div>
+        <div class="chk-item"><div class="chk-box"></div><div class="chk-t">getElementById 참조 유효성 — 삭제한 ID 없음</div></div>
+        <div class="chk-item"><div class="chk-box"></div><div class="chk-t">APP_VERSION 상수 버전 번호 업데이트</div></div>
+        <div class="chk-item"><div class="chk-box"></div><div class="chk-t">CHANGELOG.md 변경 이력 추가</div></div>
+      </div>
+      <div class="chk-group">
+        <div class="chk-group-title">🔐 Supabase 보안 확인</div>
+        <div class="chk-item"><div class="chk-box"></div><div class="chk-t">anon key만 코드에 있음 (service_role key 없음)</div></div>
+        <div class="chk-item"><div class="chk-box"></div><div class="chk-t">신규 테이블에 RLS 활성화</div></div>
+        <div class="chk-item"><div class="chk-box"></div><div class="chk-t">.gitignore에 .env 포함 확인</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="chk-group">
+        <div class="chk-group-title">📱 기능 테스트</div>
+        <div class="chk-item"><div class="chk-box"></div><div class="chk-t">감정 4단계 플로우 완료 → 결과 화면 정상 표시</div></div>
+        <div class="chk-item"><div class="chk-box"></div><div class="chk-t">Google 로그인 → 성공 → 이메일 설정에 표시</div></div>
+        <div class="chk-item"><div class="chk-box"></div><div class="chk-t">로그인 후 mood_history Supabase 테이블에 저장됨</div></div>
+        <div class="chk-item"><div class="chk-box"></div><div class="chk-t">말씀 저장 → 보관함 → saved_verses 동기화</div></div>
+        <div class="chk-item"><div class="chk-box"></div><div class="chk-t">언어 전환 (ko/en/ja) 전 UI 레이블 정상</div></div>
+        <div class="chk-item"><div class="chk-box"></div><div class="chk-t">테마 변경 (5종) 시각적 정상</div></div>
+        <div class="chk-item"><div class="chk-box"></div><div class="chk-t">비로그인 상태 — localStorage 기존 동작 유지</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="div"></div>
+  <div class="sl">05 · Deploy & Maintenance</div>
+  <div class="st">배포 가이드 & 유지보수</div>
+
+  <div class="g2">
+    <div>
+      <div class="ct" style="margin-bottom:8px;font-size:12px;font-weight:700;color:var(--navy);">배포 파이프라인</div>
+      <div class="pipe-step">
+        <div class="pipe-num">1</div>
+        <div><div class="pipe-title">코드 수정 + 검증</div><div class="pipe-desc">index.html 편집 후 node 검증 스크립트 실행</div><div class="pipe-cmd">node -e "..."</div></div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">2</div>
+        <div><div class="pipe-title">git commit</div><div class="pipe-desc">feat/fix/docs 프리픽스 + 버전 명시</div><div class="pipe-cmd">git commit -m "feat: v2.X ..."</div></div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">3</div>
+        <div><div class="pipe-title">GitHub push</div><div class="pipe-desc">main 브랜치 push → Vercel 자동 배포 트리거</div><div class="pipe-cmd">git push ... main</div></div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">4</div>
+        <div><div class="pipe-title">Vercel 자동 배포</div><div class="pipe-desc">~30초 내 전 세계 CDN 배포 완료</div></div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">5</div>
+        <div><div class="pipe-title">SW 업데이트 배너</div><div class="pipe-desc">기존 사용자에게 업데이트 배너 자동 표시</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="ct">유지보수 핵심 주의사항</div>
+        <ul>
+          <li><strong>단일 파일 원칙:</strong> 새 JS/CSS 파일 추가 시 SW 캐시 등록 필요</li>
+          <li><strong>div 균형:</strong> HTML 추가 시 항상 open/close 쌍 확인</li>
+          <li><strong>LANG_DATA:</strong> 텍스트 추가 시 ko/en/ja 3개 동시 추가</li>
+          <li><strong>SW 캐시명:</strong> 정적 에셋 추가 시 god-app-v<em>N</em> 버전 올릴 것</li>
+          <li><strong>Supabase 신규 테이블:</strong> 반드시 RLS 활성화 + 정책 추가</li>
+          <li><strong>버전 업:</strong> APP_VERSION 상수 + CHANGELOG.md 동시 업데이트</li>
+        </ul>
+      </div>
+      <div class="card" style="margin-top:8px;">
+        <div class="ct">추천 개발 도구</div>
+        <ul>
+          <li>에디터: VS Code + Prettier</li>
+          <li>검증: <code>node -e "..."</code> (브라우저 없이 문법 검사)</li>
+          <li>DB 확인: Supabase Dashboard → Table Editor</li>
+          <li>배포 확인: Vercel Dashboard → Deployments</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="pn">4</div>
+</div>
+
+</body>
+</html>
