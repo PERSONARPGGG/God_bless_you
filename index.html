@@ -577,6 +577,7 @@
             background:rgba(255,255,255,.1);color:rgba(255,255,255,.75);
             font-size:var(--fs-sm);font-family:inherit;cursor:pointer;transition:all .2s;
             -webkit-tap-highlight-color:transparent;min-height:42px;
+            white-space:nowrap;flex-shrink:0;
         }
         .btn-setting-action:hover { background:rgba(255,255,255,.2);color:#fff; }
         .btn-setting-danger { border-color:rgba(255,140,120,.3);color:rgba(255,180,160,.8); }
@@ -636,6 +637,15 @@
             #step1        { margin-top:6px; }
             #step2,#step3 { margin-top:10vh; }
         }
+        /* 갤럭시 S25 등 821px 이상 tall 폰: 콘텐츠가 화면을 꽉 채우도록 여백 배분 */
+        @media (min-height:821px) {
+            .top-bar      { padding-top:24px; }
+            .top-side:last-child { top:24px; }
+            .hero-teaser  { margin:14px 0 24px; }
+            .s1-sub       { margin-bottom:28px; }
+            .emotion-grid { gap:12px; }
+            .checkin-pill { margin-top:20px; }
+        }
         /* 더 작은 화면 (iPhone SE 등 667px) */
         @media (max-height:700px) {
             .moon-icon    { font-size:38px; }
@@ -674,6 +684,33 @@
         .ib-close {
             background:none;border:none;color:rgba(255,255,255,.35);font-size:22px;
             cursor:pointer;padding:4px;line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent;
+        }
+
+        /* ── 출석 스트릭 설치 넛지 ── */
+        .install-nudge {
+            position:fixed;bottom:0;left:0;right:0;z-index:295;
+            background:rgba(8,14,48,0.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+            border-top:1px solid rgba(255,255,255,.15);
+            padding:16px 20px calc(16px + env(safe-area-inset-bottom));
+            transform:translateY(100%);transition:transform .35s cubic-bezier(.22,1,.36,1);
+        }
+        .install-nudge.visible { transform:translateY(0); }
+        .install-nudge.hidden  { display:none; }
+        .in-body { display:flex;align-items:center;gap:14px;margin-bottom:14px; }
+        .in-icon-wrap { font-size:28px;flex-shrink:0; }
+        .in-title { font-size:var(--fs-base);font-weight:700;color:#fff;margin-bottom:3px; }
+        .in-sub   { font-size:var(--fs-sm);color:rgba(255,255,255,.55); }
+        .in-btns  { display:flex;gap:10px; }
+        .in-btn-add {
+            flex:1;padding:11px;border-radius:12px;border:none;
+            background:rgba(200,168,112,.9);color:#1a1200;font-family:inherit;
+            font-size:var(--fs-sm);font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;
+        }
+        .in-btn-skip {
+            flex:1;padding:11px;border-radius:12px;
+            border:1.5px solid rgba(255,255,255,.2);background:none;
+            color:rgba(255,255,255,.55);font-family:inherit;font-size:var(--fs-sm);cursor:pointer;
+            -webkit-tap-highlight-color:transparent;
         }
 
         /* ── iOS 가이드 오버레이 ── */
@@ -750,6 +787,21 @@
     </div>
     <button class="ib-add" onclick="doInstall()">추가</button>
     <button class="ib-close" onclick="dismissInstall()">✕</button>
+</div>
+
+<!-- ── 스트릭 설치 넛지 ── -->
+<div id="install-nudge" class="install-nudge hidden">
+    <div class="in-body">
+        <div class="in-icon-wrap" id="in-icon">📱</div>
+        <div>
+            <div class="in-title" id="in-title"></div>
+            <div class="in-sub"   id="in-sub">홈 화면에 추가하면 더 편리해요</div>
+        </div>
+    </div>
+    <div class="in-btns">
+        <button class="in-btn-add"  id="in-btn-add"  onclick="nudgeInstall()">추가하기</button>
+        <button class="in-btn-skip" id="in-btn-skip" onclick="dismissNudge()">다음에</button>
+    </div>
 </div>
 
 <!-- ── iOS 홈화면 추가 안내 오버레이 ── -->
@@ -959,13 +1011,6 @@
                 </div>
                 <div class="setting-row">
                     <div>
-                        <div id="row-feedback-label" class="setting-row-label">의견 남기기</div>
-                        <div id="row-feedback-sub" class="setting-row-sub">베타 피드백을 보내주세요</div>
-                    </div>
-                    <button class="btn-setting-action" onclick="openFeedback()">보내기</button>
-                </div>
-                <div class="setting-row">
-                    <div>
                         <div id="row-update-label" class="setting-row-label">업데이트 확인</div>
                         <div class="setting-row-sub" id="update-status-text">최신 버전 확인 중...</div>
                     </div>
@@ -975,6 +1020,20 @@
                     <div id="privacy-text" style="font-size:11px;color:rgba(255,255,255,.38);line-height:1.7;text-align:center;">
                         🔒 저장된 기록은 기기 내에만 보관되며,<br>외부 서버로 수집되지 않습니다.
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 피드백 -->
+        <div class="settings-section" id="section-feedback">
+            <div id="lbl-feedback-cat" class="settings-label">피드백</div>
+            <div class="settings-card">
+                <div class="setting-row">
+                    <div>
+                        <div id="row-feedback-label" class="setting-row-label">의견 남기기</div>
+                        <div id="row-feedback-sub" class="setting-row-sub">베타 피드백을 보내주세요</div>
+                    </div>
+                    <button class="btn-setting-action" onclick="openFeedback()">보내기</button>
                 </div>
             </div>
         </div>
@@ -2026,8 +2085,12 @@ const LANG_DATA = {
         row_install:'홈 화면에 추가', row_install_sub:'스마트폰 아이콘으로 설치하기', row_install_btn:'추가',
         install_unavailable:'이미 설치되어 있거나 지원되지 않는 환경입니다',
         already_installed:'이미 앱으로 실행 중입니다 ✓',
+        lbl_feedback_cat:'피드백',
         row_feedback:'의견 남기기', row_feedback_sub:'베타 피드백을 보내주세요',
         row_feedback_btn:'보내기',
+        install_nudge_3:'🌟 3일 연속 달성!', install_nudge_7:'🔥 7일 연속 달성!',
+        install_nudge_sub:'홈 화면에 추가하면 더 편리해요',
+        install_nudge_add:'추가하기', install_nudge_skip:'다음에',
         /* 공유 */
         share_title:'오늘의 말씀', share_app:'📖 오늘은 어땠나요?',
         /* 절기 */
@@ -2104,8 +2167,12 @@ const LANG_DATA = {
         row_install:'Add to Home Screen', row_install_sub:'Install as an app icon', row_install_btn:'Add',
         install_unavailable:'Already installed or not supported in this environment',
         already_installed:'Already running as an app ✓',
+        lbl_feedback_cat:'Feedback',
         row_feedback:'Leave Feedback', row_feedback_sub:'Send us your beta feedback',
         row_feedback_btn:'Send',
+        install_nudge_3:'🌟 3-Day Streak!', install_nudge_7:'🔥 7-Day Streak!',
+        install_nudge_sub:'Add to Home Screen for easy access',
+        install_nudge_add:'Add Now', install_nudge_skip:'Later',
         /* 공유 */
         share_title:'Today\'s Verse', share_app:'📖 How Was Your Day?',
         /* 절기 */
@@ -2182,8 +2249,12 @@ const LANG_DATA = {
         row_install:'ホーム画面に追加', row_install_sub:'アプリアイコンとしてインストール', row_install_btn:'追加',
         install_unavailable:'インストール済みまたは対応環境ではありません',
         already_installed:'アプリとして実行中です ✓',
+        lbl_feedback_cat:'フィードバック',
         row_feedback:'ご意見を送る', row_feedback_sub:'ベータフィードバックをお送りください',
         row_feedback_btn:'送信',
+        install_nudge_3:'🌟 3日連続達成！', install_nudge_7:'🔥 7日連続達成！',
+        install_nudge_sub:'ホーム画面に追加すると便利です',
+        install_nudge_add:'追加する', install_nudge_skip:'あとで',
         /* 공유 */
         share_title:'今日のみことば', share_app:'📖 今日はどんな一日でしたか？',
         /* 절기 */
@@ -2256,8 +2327,12 @@ function applyLang(lang) {
     const ib=document.getElementById('btn-install'); if(ib) ib.textContent=L.row_install_btn;
     const fb=document.getElementById('btn-fullscreen');
     if(fb) fb.textContent=document.fullscreenElement?L.fullscreen_off:L.fullscreen_on;
+    s('lbl-feedback-cat',L.lbl_feedback_cat);
     s('row-feedback-label',L.row_feedback); s('row-feedback-sub',L.row_feedback_sub);
     sh('privacy-text',L.privacy);
+    // 스트릭 넛지 버튼 텍스트
+    const inba=document.getElementById('in-btn-add'); if(inba) inba.textContent=L.install_nudge_add;
+    const inbs=document.getElementById('in-btn-skip'); if(inbs) inbs.textContent=L.install_nudge_skip;
     // 결과 섹션 라벨
     s('sec-verse',L.sec_verse); s('sec-story',L.sec_story); s('sec-prayer',L.sec_prayer);
     s('sec-sentence',L.sec_sentence); s('sec-diary',L.sec_diary); s('sec-enc',L.sec_enc);
@@ -2480,6 +2555,8 @@ function updateStreak() {
     document.getElementById('cp-text').textContent   = L.cp_text;
     document.getElementById('cp-streak').textContent = streak + L.streak_unit;
     pill.classList.remove('hidden');
+
+    checkInstallNudge(streak);
 }
 
 function calcStreak(dates) {
@@ -3038,6 +3115,37 @@ document.addEventListener('fullscreenchange', () => {
     const btn = document.getElementById('btn-fullscreen');
     if (btn) btn.textContent = document.fullscreenElement ? L.fullscreen_off : L.fullscreen_on;
 });
+
+/* 스트릭 설치 넛지 */
+function checkInstallNudge(streak) {
+    if (isStandalone()) return;
+    const key = streak === 7 ? 'installNudge7' : streak === 3 ? 'installNudge3' : null;
+    if (!key || lsGet(key)) return;
+    lsSet(key, '1');
+    setTimeout(() => showInstallNudge(streak), 1600);
+}
+function showInstallNudge(streak) {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    const nudge = document.getElementById('install-nudge');
+    if (!nudge) return;
+    document.getElementById('in-icon').textContent  = streak >= 7 ? '🔥' : '🌟';
+    document.getElementById('in-title').textContent = L['install_nudge_'+streak] || (streak+'일 연속 달성!');
+    document.getElementById('in-sub').textContent   = L.install_nudge_sub;
+    document.getElementById('in-btn-add').textContent  = L.install_nudge_add;
+    document.getElementById('in-btn-skip').textContent = L.install_nudge_skip;
+    nudge.classList.remove('hidden');
+    requestAnimationFrame(() => requestAnimationFrame(() => nudge.classList.add('visible')));
+}
+function dismissNudge() {
+    const nudge = document.getElementById('install-nudge');
+    if (!nudge) return;
+    nudge.classList.remove('visible');
+    setTimeout(() => nudge.classList.add('hidden'), 380);
+}
+function nudgeInstall() {
+    dismissNudge();
+    setTimeout(() => triggerInstall(), 420);
+}
 
 /* 홈 화면 추가 */
 function triggerInstall() {
