@@ -771,6 +771,7 @@
         }
     </style>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <body>
 
 <div id="stars"></div>
@@ -897,6 +898,27 @@
     <div class="overlay-inner">
         <button id="settings-back" class="overlay-back" onclick="hideOverlay('overlay-settings')">← 돌아가기</button>
         <div id="settings-title" class="overlay-title">⚙️ 설정</div>
+
+        <!-- 계정 -->
+        <div class="settings-section">
+            <div class="settings-label">계정</div>
+            <div class="settings-card">
+                <div class="setting-row" id="row-login">
+                    <div>
+                        <div class="setting-row-label">Google로 로그인</div>
+                        <div class="setting-row-sub">데이터를 클라우드에 저장해요</div>
+                    </div>
+                    <button class="btn-setting-action" onclick="loginWithGoogle()">로그인</button>
+                </div>
+                <div class="setting-row" id="row-logout" style="display:none">
+                    <div>
+                        <div class="setting-row-label" id="auth-email" style="font-size:12px;word-break:break-all;"></div>
+                        <div class="setting-row-sub">☁️ 클라우드 동기화 중</div>
+                    </div>
+                    <button class="btn-setting-action btn-setting-danger" onclick="sbLogout()">로그아웃</button>
+                </div>
+            </div>
+        </div>
 
         <!-- 언어 -->
         <div class="settings-section">
@@ -1974,8 +1996,12 @@ function dismissInstall() {
 /* ═══════════════════════════════════════
    상태
 ═══════════════════════════════════════ */
-const APP_VERSION = '2.3';
+const APP_VERSION = '2.5';
 const SHARE_URL = 'https://god-bless-you.vercel.app/';
+const SUPABASE_URL = 'https://pzakpaomnmahcugkzdff.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_nyWe0_C6prKvfP9R9EMXdA_DgH6bfwf';
+let sb = null;
+let sbUser = null;
 
 let sel = { emotion:null, topic:null, need:null };
 let curVerse = null;
@@ -2410,6 +2436,93 @@ function init() {
         });
     }
     if (isIOS() && !isStandalone()) scheduleInstallBanner();
+    initSupabase();
+}
+
+/* ═══════════════════════════════════════
+   Supabase 인증 / 동기화
+═══════════════════════════════════════ */
+function initSupabase() {
+    if (location.protocol === 'file:' || typeof supabase === 'undefined') return;
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    sb.auth.onAuthStateChange((event, session) => {
+        sbUser = session?.user || null;
+        updateAuthUI();
+        if (event === 'SIGNED_IN') migrateLocalToServer();
+    });
+    sb.auth.getSession().then(({data:{session}}) => {
+        sbUser = session?.user || null;
+        updateAuthUI();
+    });
+}
+
+async function loginWithGoogle() {
+    if (!sb) return;
+    await sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: location.origin + location.pathname }
+    });
+}
+
+async function sbLogout() {
+    if (!sb) return;
+    await sb.auth.signOut();
+    sbUser = null;
+    updateAuthUI();
+    toast('로그아웃 됐어요.');
+}
+
+function updateAuthUI() {
+    const rowLogin  = document.getElementById('row-login');
+    const rowLogout = document.getElementById('row-logout');
+    const emailEl   = document.getElementById('auth-email');
+    if (!rowLogin) return;
+    if (sbUser) {
+        rowLogin.style.display  = 'none';
+        rowLogout.style.display = 'flex';
+        if (emailEl) emailEl.textContent = sbUser.email;
+    } else {
+        rowLogin.style.display  = 'flex';
+        rowLogout.style.display = 'none';
+    }
+}
+
+async function migrateLocalToServer() {
+    if (!sbUser || !sb) return;
+    const {data: existing} = await sb.from('mood_history').select('id').limit(1);
+    if (existing && existing.length > 0) {
+        toast('클라우드 데이터를 불러왔어요 ☁️');
+        return;
+    }
+    const moods = lsGet('moodHistory') || [];
+    if (moods.length) {
+        const rows = moods.map(m => ({
+            user_id: sbUser.id, date: m.date,
+            emotion: m.emotion, topic: m.topic,
+            need: m.need, diary_text: m.diary || null
+        }));
+        await sb.from('mood_history').insert(rows);
+    }
+    const verses = lsGet('savedVerses') || [];
+    if (verses.length) {
+        const rows = verses.map(v => ({
+            user_id: sbUser.id, verse_text: v.verse,
+            verse_ref: v.ref, emotion: v.context
+        }));
+        await sb.from('saved_verses').insert(rows);
+    }
+    const dates = lsGet('visitDates') || [];
+    if (dates.length) {
+        const rows = dates.map(d => ({user_id: sbUser.id, visit_date: d}));
+        await sb.from('visit_dates').upsert(rows, {onConflict: 'user_id,visit_date'});
+    }
+    await sb.from('profiles').upsert({
+        id: sbUser.id, name: lsGet('userName') || '',
+        lang: lsGet('appLang') || 'ko',
+        theme: lsGet('appTheme') || 'night',
+        font_level: parseInt(lsGet('fontLevel') || '0')
+    });
+    toast('기존 데이터를 클라우드에 저장했어요 ☁️');
 }
 
 /* ── 히어로 묵상 초기화 ── */
@@ -2540,7 +2653,11 @@ function cycleFont(dir) {
 function updateStreak() {
     const today = todayStr();
     let dates = lsGet('visitDates') || [];
-    if (!dates.includes(today)) { dates.push(today); lsSet('visitDates', dates); }
+    if (!dates.includes(today)) {
+        dates.push(today);
+        lsSet('visitDates', dates);
+        if (sbUser && sb) sb.from('visit_dates').upsert({user_id:sbUser.id, visit_date:today},{onConflict:'user_id,visit_date'}).then();
+    }
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-60);
     dates = dates.filter(d => new Date(d) >= cutoff);
     lsSet('visitDates', dates);
@@ -2713,9 +2830,11 @@ function buildResult() {
 
 function saveMood() {
     const {emotion,topic,need}=sel;
+    const today = todayStr();
     const hist = lsGet('moodHistory') || [];
-    hist.unshift({date:todayStr(), emotion, topic, need, emoji:E_EMOJI[emotion]});
+    hist.unshift({date:today, emotion, topic, need, emoji:E_EMOJI[emotion]});
     lsSet('moodHistory', hist.slice(0,30));
+    if (sbUser && sb) sb.from('mood_history').insert({user_id:sbUser.id, date:today, emotion, topic, need}).then();
 }
 
 /* ═══════════════════════════════════════
@@ -2825,6 +2944,7 @@ function toggleSave() {
         sentence: document.getElementById('r-sentence').textContent
     });
     lsSet('savedVerses', saved.slice(0,50));
+    if (sbUser && sb) sb.from('saved_verses').insert({user_id:sbUser.id, verse_text:curVerse.v, verse_ref:curVerse.r, emotion:sel.emotion, need:sel.need}).then();
     verseSaved=true;
     const btn=document.getElementById('btn-save');
     btn.textContent=L.btn_saved; btn.classList.add('saved');
@@ -2839,7 +2959,11 @@ function saveDiary() {
     const text = document.getElementById('diary-input').value.trim();
     if (!text) { toast(L.toast_diary_empty); return; }
     const hist = lsGet('moodHistory') || [];
-    if (hist.length) { hist[0].diary = text; lsSet('moodHistory', hist); }
+    if (hist.length) {
+        hist[0].diary = text;
+        lsSet('moodHistory', hist);
+        if (sbUser && sb) sb.from('mood_history').update({diary_text:text}).eq('user_id',sbUser.id).eq('date',todayStr()).then();
+    }
     document.getElementById('diary-saved-msg').style.display='block';
     const saveBtn = document.getElementById('diary-save-btn');
     if (saveBtn) saveBtn.disabled = true;
