@@ -165,14 +165,22 @@
 
         /* ── 출석 체크인 필 (step1 하단) ── */
         .checkin-pill {
-            display:flex;align-items:center;justify-content:center;gap:7px;
-            margin-top:16px;padding:9px 16px;
-            background:linear-gradient(135deg,rgba(255,210,80,.1),rgba(255,160,50,.07));
-            border:1px solid rgba(255,200,80,.22);border-radius:14px;
-            font-size:var(--fs-sm);color:#7a5818;font-weight:600;
+            display:flex;align-items:center;justify-content:center;gap:8px;
+            margin-top:18px;padding:12px 20px;
+            background:linear-gradient(135deg,rgba(255,210,80,.13),rgba(255,160,50,.09));
+            border:1px solid rgba(255,200,80,.35);border-radius:16px;
+            font-size:var(--fs-sm);color:rgba(200,168,80,.9);font-weight:600;
+            box-shadow:0 0 12px rgba(255,200,60,.08);
         }
         .checkin-pill.hidden{display:none;}
-        .cp-dot{color:rgba(160,120,40,.45);font-weight:400;}
+        .cp-dot{color:rgba(200,160,60,.35);font-weight:400;}
+        #cp-streak { font-size:15px;font-weight:900;color:#f0c040;letter-spacing:.3px; }
+
+        /* ── 마무리 완료 카드 ── */
+        .card-blessing { text-align:center;background:linear-gradient(160deg,rgba(200,168,107,.07),rgba(255,255,255,.03)); }
+        .blessing-icon { font-size:38px;margin-bottom:14px;display:block; }
+        .blessing-title { font-size:17px;font-weight:800;color:rgba(255,255,255,.88);margin-bottom:8px; }
+        .blessing-sub   { font-size:13px;color:rgba(255,255,255,.45);line-height:1.7; }
 
         /* ── 리플 효과 ── */
         .ripple-effect {
@@ -1788,6 +1796,13 @@
         <div class="card">
             <div class="section-header"><span id="sec-story" class="section-label">오늘의 이야기</span><div class="section-line"></div></div>
             <p class="reflect-text" id="r-reflection"></p>
+        </div>
+
+        <!-- 마무리 완료 카드 -->
+        <div class="card card-blessing">
+            <span class="blessing-icon">🙏</span>
+            <p class="blessing-title">오늘도 수고하셨어요</p>
+            <p class="blessing-sub" id="blessing-sub">이 고요한 순간,<br>하나님이 함께하셨습니다.</p>
         </div>
 
         <button id="btn-dashboard" class="btn-dashboard hidden" type="button" onclick="openDashboard()">📊 이번 주 나의 이야기</button>
@@ -4595,6 +4610,18 @@ function buildResult() {
     };
     document.getElementById('r-reflection').textContent = isEn ? (pickPool(REFLECTIONS_EN,rKey,'ref_'+rKey)||pickPool(REFLECTIONS,rKey,'ref_'+rKey)) : pickPool(REFLECTIONS,rKey,'ref_'+rKey);
     document.getElementById('r-enc').textContent        = isEn ? (pickPool(ENCS_EN,nKey,'enc_'+nKey)||pickPool(ENCS,nKey,'enc_'+nKey)) : pickPool(ENCS,nKey,'enc_'+nKey);
+
+    // 마무리 카드 문구 (감정별)
+    const BLESSING_MSG = {
+        감사:'감사하는 마음이 흘렀던 오늘,\n하나님이 그 마음을 기뻐하십니다.',
+        평안:'평안했던 오늘 하루,\n그 고요함도 하나님의 선물입니다.',
+        걱정:'걱정을 안고도 여기까지 오셨네요.\n하나님이 그 무거움을 아십니다.',
+        지침:'지친 몸과 마음으로 오늘을 버텨내셨어요.\n하나님이 당신의 쉼을 준비하십니다.',
+        아픔:'아팠던 오늘, 외롭지 않으셨으면 해요.\n하나님이 그 마음 곁에 계십니다.',
+        기도:'기도하고 싶다는 그 마음,\n이미 하나님께 닿아 있습니다.'
+    };
+    const bsEl = document.getElementById('blessing-sub');
+    if (bsEl) bsEl.innerHTML = (BLESSING_MSG[emotion]||'이 고요한 순간,<br>하나님이 함께하셨습니다.').replace(/\n/g,'<br>');
 
     // 일기 초기화
     document.getElementById('diary-input').value = '';
