@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>발표 대본 — 두 번째 모니터용</title>
+<style>
+:root{
+  --bg:#0d0d0d; --surface:#1a1a1a; --border:#2a2a2a;
+  --text:#e8e8e8; --sub:#888; --accent:#c8a86b;
+  --humor:#4ade80; --warn:#f87171; --timer:#60a5fa;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;background:var(--bg);
+  font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  color:var(--text);overflow:hidden;}
+
+/* ── 레이아웃 ── */
+#app{display:grid;grid-template-rows:56px 1fr 52px;height:100vh;}
+
+/* 헤더 */
+#header{display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;border-bottom:1px solid var(--border);background:var(--surface);}
+#slide-num{font-size:22px;font-weight:900;color:var(--accent);}
+#slide-title-hdr{font-size:13px;color:var(--sub);letter-spacing:2px;text-transform:uppercase;}
+#timer-box{display:flex;align-items:center;gap:10px;}
+#timer{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--timer);}
+.timer-btn{background:none;border:1px solid var(--border);color:var(--sub);
+  padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px;}
+.timer-btn:hover{border-color:var(--sub);}
+
+/* 노트 영역 */
+#notes-area{display:grid;grid-template-columns:1fr 1.7fr;gap:0;overflow:hidden;}
+
+/* 왼쪽: 슬라이드 미리보기 */
+#slide-preview{border-right:1px solid var(--border);padding:24px;
+  overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.preview-label{font-size:10px;letter-spacing:3px;color:var(--sub);text-transform:uppercase;margin-bottom:4px;}
+.mini-slide{background:#111;border:1px solid var(--border);border-radius:8px;padding:16px;
+  font-size:12px;color:rgba(255,255,255,.6);line-height:1.7;}
+.mini-slide .ms-eye{font-size:10px;letter-spacing:3px;color:var(--accent);margin-bottom:6px;}
+.mini-slide .ms-h{font-size:14px;font-weight:700;color:#fff;margin-bottom:6px;}
+.mini-slide .ms-b{font-size:11px;color:rgba(255,255,255,.4);line-height:1.6;}
+
+/* 오른쪽: 대본 */
+#notes-content{padding:24px 28px;overflow-y:auto;}
+.note-block{display:none;}
+.note-block.active{display:block;}
+.note-tag{display:inline-block;font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  padding:3px 10px;border-radius:12px;margin-bottom:18px;}
+.tag-info{background:rgba(96,165,250,.15);color:var(--timer);}
+.tag-humor{background:rgba(74,222,128,.15);color:var(--humor);}
+.note-h{font-size:17px;font-weight:700;color:#fff;margin-bottom:16px;line-height:1.4;}
+.note-ul{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.note-ul li{padding:10px 14px;background:#141414;border:1px solid var(--border);
+  border-radius:8px;font-size:14px;line-height:1.65;color:var(--text);}
+.note-ul li::before{content:'▸ ';color:var(--accent);}
+.humor-box{background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2);
+  border-radius:8px;padding:12px 16px;margin-bottom:16px;}
+.humor-label{font-size:10px;letter-spacing:2px;color:var(--humor);margin-bottom:6px;}
+.humor-text{font-size:13px;color:rgba(74,222,128,.85);line-height:1.65;}
+.key-line{background:rgba(200,168,107,.08);border-left:3px solid var(--accent);
+  padding:10px 14px;border-radius:0 8px 8px 0;font-size:14px;
+  color:var(--accent);margin-bottom:16px;font-style:italic;line-height:1.6;}
+.timing{font-size:11px;color:var(--sub);margin-top:14px;text-align:right;}
+
+/* 하단 네비 */
+#footer{display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;border-top:1px solid var(--border);background:var(--surface);}
+.dots{display:flex;gap:6px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border);transition:.2s;}
+.dot.active{background:var(--accent);}
+.nav-hint{font-size:11px;color:var(--sub);}
+.progress-bar{position:absolute;bottom:0;left:0;height:2px;
+  background:var(--accent);transition:width .35s ease;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- 헤더 -->
+  <div id="header">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div id="slide-num">01 / 11</div>
+      <div id="slide-title-hdr">COVER</div>
+    </div>
+    <div id="timer-box">
+      <button class="timer-btn" onclick="resetTimer()">↺ 리셋</button>
+      <button class="timer-btn" id="timer-toggle" onclick="toggleTimer()">▶ 시작</button>
+      <div id="timer">00:00</div>
+    </div>
+  </div>
+
+  <!-- 노트 영역 -->
+  <div id="notes-area">
+
+    <!-- 왼쪽 미리보기 -->
+    <div id="slide-preview">
+      <div class="preview-label">현재 슬라이드</div>
+      <div class="mini-slide" id="mini-display">
+        <div class="ms-eye">크리스천 감정 묵상 PWA</div>
+        <div class="ms-h">오늘의 양식</div>
+        <div class="ms-b">"내 감정이 주님의 말씀을 만나는, 하루 3분의 성찰"<br><br>god-bless-you.vercel.app</div>
+      </div>
+    </div>
+
+    <!-- 오른쪽 대본 -->
+    <div id="notes-content">
+
+      <!-- Slide 1: 커버 -->
+      <div class="note-block active" data-slide="1">
+        <span class="note-tag tag-info">COVER · 슬라이드 1</span>
+        <div class="note-h">입장하면서, 화면만 보여주세요</div>
+        <ul class="note-ul">
+          <li>먼저 URL 화면을 잠깐 보여줘요 — 진짜 라이브 서비스입니다</li>
+          <li>"안녕하세요. 저는 크리스천 감정 묵상 앱, <strong>오늘의 양식</strong>을 만든 신동현입니다."</li>
+          <li>앱 이름 천천히, 또렷하게 말하기</li>
+        </ul>
+        <div class="humor-box">
+          <div class="humor-label">😄 긴장 풀기</div>
+          <div class="humor-text">이 앱은 제가 처음 쓰게 될 것 같습니다. 저도 많이 지쳤거든요 (가볍게 웃음)<br><br>→ 청중이 웃으면 분위기 훨씬 편해져요. 뻔하지만 괜찮아요!</div>
+        </div>
+        <div class="key-line">"하루 3분, 감정 한 번, 그리고 말씀 한 구절 — 그게 이 앱의 전부입니다."</div>
+        <div class="timing">예상 시간: ~30초</div>
+      </div>
+
+      <!-- Slide 2: 시작 이야기 -->
+      <div class="note-block" data-slide="2">
+        <span class="note-tag tag-info">ORIGIN · 슬라이드 2</span>
+        <div class="note-h">감정에 호소하는 슬라이드 — 천천히</div>
+        <ul class="note-ul">
+          <li>"이 앱은 제가 존경하는 한 분을 위해 만든 선물이었어요."</li>
+          <li>카드 3개 보여주면서: "상담사 선생님이세요. 50대를 향해 가시고, 독실한 크리스천이지만..."</li>
+          <li>"매일 묵상하고 싶은데, 퇴근하면 지쳐서 아무것도 못 하시는 분이에요."</li>
+          <li>"그래서 퇴근 지하철 3분 안에 쓸 수 있는 걸 만들었습니다."</li>
+        </ul>
+        <div class="humor-box">
+          <div class="humor-label">💡 포인트</div>
+          <div class="humor-text">청중 중에 "맞아, 나도 그래"라고 느끼는 사람이 있을 거예요.<br>말하는 속도 조금 늦추면 감정이 더 전달됩니다.</div>
+        </div>
+        <div class="key-line">"한 사람을 위한 선물로 시작했지만, 점점 모두의 이야기가 되었어요."</div>
+        <div class="timing">예상 시간: ~60초</div>
+      </div>
+
+      <!-- Slide 3: 문제 -->
+      <div class="note-block" data-slide="3">
+        <span class="note-tag tag-info">PROBLEM · 슬라이드 3</span>
+        <div class="note-h">문제 제시 — 확신 있게</div>
+        <ul class="note-ul">
+          <li>"기존 크리스천 앱들의 문제를 딱 4가지로 정리했어요."</li>
+          <li>첫 번째부터 읽어도 되고, "대표적인 게 이거예요" 하고 한 가지만 강조해도 OK</li>
+          <li><strong>가장 강조할 것</strong>: "기존 앱은 콘텐츠를 제공합니다. 우리는 나를 발견하게 합니다."</li>
+          <li>하단 박스 가리키면서 한 번 더 읽어주세요</li>
+        </ul>
+        <div class="humor-box">
+          <div class="humor-label">😄 여기서 웃음 포인트</div>
+          <div class="humor-text">"저도 죄책감 느끼다가 이 앱 만들었습니다 (웃음)"<br>→ 진짜 크리스천 공감 웃음. 자연스럽게 나오면 최고예요.</div>
+        </div>
+        <div class="timing">예상 시간: ~45초</div>
+      </div>
+
+      <!-- Slide 4: 솔루션 -->
+      <div class="note-block" data-slide="4">
+        <span class="note-tag tag-info">SOLUTION · 슬라이드 4</span>
+        <div class="note-h">플로우 설명 — 손가락으로 짚어가며</div>
+        <ul class="note-ul">
+          <li>"사용 방법은 단순해요. 감정 선택 → 주제 → 필요 → 말씀. 딱 세 번 탭입니다."</li>
+          <li>"24가지 조합이 있어서, 오늘 내 감정과 꼭 맞는 구절이 나와요."</li>
+          <li>숫자 강조: "한국어 144구절, 영어 144구절. 총 288개."</li>
+          <li>"3~5분. 잠들기 전. 지하철 안에서. 그게 전부예요."</li>
+        </ul>
+        <div class="key-line">"복잡한 검색 없이, 내 감정을 누르면 말씀이 찾아옵니다."</div>
+        <div class="timing">예상 시간: ~40초</div>
+      </div>
+
+      <!-- Slide 5: 차별점 -->
+      <div class="note-block" data-slide="5">
+        <span class="note-tag tag-info">DIFF · 슬라이드 5</span>
+        <div class="note-h">핵심 차별점 — 이 슬라이드가 가장 중요해요</div>
+        <ul class="note-ul">
+          <li>"처음 MBTI가 나왔을 때 기억하세요?"</li>
+          <li>"'맞아, 이게 나잖아' — 그 느낌을 주고 싶었어요."</li>
+          <li>비교표 왼쪽 → 오른쪽으로 설명: "기존 앱은 강제입니다. 우리는 초대예요."</li>
+          <li>"죄책감 없이, 오고 싶을 때 오는 앱이에요."</li>
+        </ul>
+        <div class="humor-box">
+          <div class="humor-label">😄 MBTI 유머</div>
+          <div class="humor-text">"혹시 MBTI 검사 한 번만 하신 분 계세요? (손들기 유도)<br>아무도 한 번만 안 하잖아요 (웃음) — 그게 바로 이 앱이 노리는 거예요."</div>
+        </div>
+        <div class="key-line">"한번 쓰면, 자꾸 나에 대한 이야기라서 다시 돌아오게 됩니다."</div>
+        <div class="timing">예상 시간: ~60초</div>
+      </div>
+
+      <!-- Slide 6: 내 이야기 -->
+      <div class="note-block" data-slide="6">
+        <span class="note-tag tag-info">PHILOSOPHY · 슬라이드 6</span>
+        <div class="note-h">브랜드 철학 — 감성 최고조</div>
+        <ul class="note-ul">
+          <li>"이 슬라이드가 제일 좋아요."</li>
+          <li>"기록이 쌓이면 어떻게 되냐면요..."</li>
+          <li>카드 하나씩 읽어주세요. 느리게.</li>
+          <li>"6월 27일 감사, 28일 걱정, 29일 지침, 30일 평안 — 이게 내 한 주예요."</li>
+          <li>"마치 책을 쓰듯, 내 신앙의 이야기가 쌓여요."</li>
+        </ul>
+        <div class="humor-box">
+          <div class="humor-label">💡 포인트</div>
+          <div class="humor-text">여기서 잠깐 침묵 1~2초 두면 극적 효과.<br>소심한 발표자에게는 어색하지만 — 믿어봐요, 효과 있어요 😄</div>
+        </div>
+        <div class="key-line">"오늘의 양식은 단순한 앱이 아니라, 내 신앙의 일기입니다."</div>
+        <div class="timing">예상 시간: ~50초</div>
+      </div>
+
+      <!-- Slide 7: 타겟 -->
+      <div class="note-block" data-slide="7">
+        <span class="note-tag tag-info">TARGET · 슬라이드 7</span>
+        <div class="note-h">타겟 설명 — 구체적인 사람 묘사</div>
+        <ul class="note-ul">
+          <li>"누가 쓰냐면요 — 딱 이런 분들이에요."</li>
+          <li>카드 3개 가볍게 설명: 지하철, 잠들기 전, 30~50대</li>
+          <li>"한국 개신교 인구 960만 명. 그 중에서 바쁜 분들."</li>
+          <li>"물론 처음엔 더 작게 시작해요 — 아는 분들부터요."</li>
+        </ul>
+        <div class="humor-box">
+          <div class="humor-label">😄 공감 유도</div>
+          <div class="humor-text">"혹시 교회 다니시는데 QT 매일 하시는 분? (손들기)<br>감사합니다... 나머지 분들을 위한 앱입니다 (웃음)"</div>
+        </div>
+        <div class="timing">예상 시간: ~40초</div>
+      </div>
+
+      <!-- Slide 8: 현황 -->
+      <div class="note-block" data-slide="8">
+        <span class="note-tag tag-info">STATUS · 슬라이드 8</span>
+        <div class="note-h">지금 당장 쓸 수 있다는 것 강조</div>
+        <ul class="note-ul">
+          <li>"지금 당장 꺼내서 접속하셔도 됩니다. god-bless-you.vercel.app"</li>
+          <li>"Google 로그인, 한영일 3개국어, PWA 설치, 오프라인 동작 — 다 됩니다."</li>
+          <li>"서버 비용 월 0원. Supabase 무료 플랜으로 운영 중이에요."</li>
+          <li>"그리고 이미 Google Search Console에 등록해서 색인 심사 기다리고 있어요."</li>
+          <li>"지금은 멘토 분들이랑 아는 교회 신도분들, 그리고 선물하고 싶은 기독교인 분들께 먼저 전달 중이에요."</li>
+        </ul>
+        <div class="humor-box">
+          <div class="humor-label">💡 라이브 데모 기회</div>
+          <div class="humor-text">시간 여유 있으면 스마트폰 꺼내서 URL 직접 접속해서 보여줘도 됩니다.<br>현장에서 감정 선택까지 해보면 임팩트 최고예요!</div>
+        </div>
+        <div class="timing">예상 시간: ~45초</div>
+      </div>
+
+      <!-- Slide 9: AI 에이전트 -->
+      <div class="note-block" data-slide="9">
+        <span class="note-tag tag-info">AI METHOD · 슬라이드 9</span>
+        <div class="note-h">AI 에이전트 방법론 — 자신 있게, 구체적으로</div>
+        <ul class="note-ul">
+          <li>"이 앱은 Claude Code라는 AI 에이전트 시스템으로 개발했어요."</li>
+          <li>"제품 전략 에이전트 — 어떤 기능을 넣을지 UX 방향을 함께 고민했어요."</li>
+          <li>"목사님 에이전트 — 말씀 구절 하나하나를 신학적으로 검증받았어요. 한국 장로교 기준으로요."</li>
+          <li>"다각도 리뷰 에이전트 — 개발자·마케터·사용자·디자이너 5가지 시점에서 동시에 피드백."</li>
+        </ul>
+        <div class="humor-box">
+          <div class="humor-label">😄 여기서 한 방</div>
+          <div class="humor-text">"혼자 만들었다고 했는데요... 사실 에이전트들이 많이 도와줬습니다 (웃음)<br>팀이 없어서 AI한테 팀원 역할을 맡겼어요."<br><br>→ 청중이 웃으면 "근데 진짜로 효과 있었어요"로 바로 이어가세요!</div>
+        </div>
+        <div class="key-line">"AI를 '도구'가 아니라 '팀원'처럼 설계하면 1인 개발의 한계가 없어집니다."</div>
+        <div class="timing">예상 시간: ~45초</div>
+      </div>
+
+      <!-- Slide 10: 로드맵 -->
+      <div class="note-block" data-slide="10">
+        <span class="note-tag tag-info">ROADMAP · 슬라이드 10</span>
+        <div class="note-h">미래 계획 — 너무 길게 X</div>
+        <ul class="note-ul">
+          <li>"v2.5까지 완성됐고요, 지금 v3.0 작업 중이에요."</li>
+          <li>"감정 통계 대시보드 — 이번 주 내 감정 흐름을 그래프로 보는 기능이에요."</li>
+          <li>"수익화는 월 1,900원 프리미엄부터 시작할 계획이에요."</li>
+          <li>"그리고 Google Search Console에 이미 등록해놨어요. 곧 검색에도 노출될 거예요."</li>
+          <li>v4.0, v5.0은 "이런 방향으로 가고 있습니다" 가볍게만</li>
+        </ul>
+        <div class="key-line">"일단 10명이 매일 쓰게 만드는 것 — 그게 지금 제 목표예요."</div>
+        <div class="timing">예상 시간: ~45초</div>
+      </div>
+
+      <!-- Slide 11: Q&A + 구현 계획 -->
+      <div class="note-block" data-slide="11">
+        <span class="note-tag tag-warn">Q&amp;A · 슬라이드 11</span>
+        <div class="note-h">예상 질문 — 자신 있게 "이미 생각했어요"</div>
+        <ul class="note-ul">
+          <li>"질문 나오기 전에 제가 먼저 말씀드릴게요. 이미 다 생각해뒀어요 (웃음)"</li>
+          <li><strong>개인정보:</strong> "Supabase RLS + Google OAuth. 앱이 직접 민감정보 저장 안 합니다."</li>
+          <li><strong>저작권:</strong> "개역개정은 개인 앱 허용 범위 내, ESV는 현재 확인 진행 중이에요."</li>
+          <li><strong>MAU:</strong> "지금은 소규모 오픈 베타 단계. Search Console 색인 후 본격 측정 시작해요."</li>
+          <li><strong>전환율:</strong> "1,900원이라 부담 없고, 대시보드 인사이트에서 자연스럽게 전환 유도해요."</li>
+          <li><strong>유지보수:</strong> "단일 파일 구조 + Claude Code 에이전트 파이프라인으로 혼자 관리 중입니다."</li>
+        </ul>
+        <div class="humor-box">
+          <div class="humor-label">😅 솔직한 순간</div>
+          <div class="humor-text">"물론 아직 모르는 것들도 있어요. 그런 건 솔직하게 '아직 검토 중이에요'라고 할게요."<br><br>→ 모르는 걸 솔직히 인정하면 오히려 신뢰도 올라가요. 준비해두세요!</div>
+        </div>
+        <div class="key-line">"이미 생각하고 있다 — 이 한 마디가 전문성을 보여줍니다."</div>
+        <div class="timing">예상 시간: ~50초</div>
+      </div>
+
+      <!-- Slide 12: 마무리 -->
+      <div class="note-block" data-slide="12">
+        <span class="note-tag tag-info">CLOSING · 슬라이드 12</span>
+        <div class="note-h">마무리 — 짧고 강하게</div>
+        <ul class="note-ul">
+          <li>URL 한 번 더 말하기: "god-bless-you.vercel.app"</li>
+          <li>"지금 바로 쓰실 수 있어요. 설치도 필요 없어요."</li>
+          <li>"감사합니다."</li>
+        </ul>
+        <div class="humor-box">
+          <div class="humor-label">😄 마지막 한 방</div>
+          <div class="humor-text">"발표 준비하면서 제가 제일 많이 쓴 앱이 바로 이 앱이에요.<br>걱정 감정 선택하고, '지혜' 눌렀더니 — 딱 맞는 말씀이 나왔어요 (웃음)"<br><br>→ 본인 실제 경험이면 더 좋아요. 준비해두세요!</div>
+        </div>
+        <div class="key-line">"오늘 하루의 끝, 말씀이 기다리고 있습니다."</div>
+        <div class="timing">전체 발표 목표: 8~11분</div>
+      </div>
+
+    </div><!-- /notes-content -->
+  </div><!-- /notes-area -->
+
+  <!-- 하단 -->
+  <div id="footer" style="position:relative;">
+    <div class="nav-hint">← → 방향키 또는 클릭으로 이동</div>
+    <div class="dots" id="dots"></div>
+    <div style="font-size:11px;color:var(--sub);">두 번째 모니터 전용</div>
+    <div class="progress-bar" id="progress"></div>
+  </div>
+
+</div>
+
+<script>
+const TOTAL = 12;
+let current = 1;
+let timerSec = 0;
+let timerRunning = false;
+let timerInt = null;
+
+const miniContents = [
+  {eye:'크리스천 감정 묵상 PWA', h:'오늘의 양식', b:'"내 감정이 주님의 말씀을 만나는, 하루 3분의 성찰"'},
+  {eye:'Origin Story', h:'한 사람을 위한 선물에서 시작했습니다', b:'상담사, 50대, 독실한 크리스천 — 퇴근길 3분을 위한 선물'},
+  {eye:'Problem', h:'기존 크리스천 앱이 놓친 것', b:'콘텐츠 제공 vs 나를 발견하게 함'},
+  {eye:'Solution', h:'감정으로 여는 말씀', b:'6감정 × 4필요 = 24조합 · 한국어 144 + 영어 144'},
+  {eye:'Differentiation', h:'MBTI가 처음 나왔을 때처럼', b:'"맞아, 이게 나잖아" — 강제 아닌 초대'},
+  {eye:'Brand Philosophy', h:'기록이 쌓이면 내 이야기가 됩니다', b:'감사 → 걱정 → 지침 → 평안 — 내 신앙의 일기'},
+  {eye:'Target User', h:'이런 분들을 위해 만들었습니다', b:'퇴근 지하철 · 잠들기 전 · 30~50대 개신교인'},
+  {eye:'Current Status · v2.5', h:'지금 바로 쓸 수 있습니다', b:'Google Search Console 등록 · 목사님·교회 신도 배포 중'},
+  {eye:'Development Method', h:'AI 에이전트와 함께 1인 개발', b:'전략·목사님·다각도 3에이전트 · Claude Code 병렬 실행'},
+  {eye:'Roadmap', h:'앞으로의 길', b:'v3.0 대시보드 · Premium ₩1,900/월 · Search Console 색인 예정'},
+  {eye:'Q&A · Roadmap', h:'전문가 예상 질문 & 구현 계획', b:'"이미 생각하고 있어요" — 저작권·MAU·유지보수 선제 답변'},
+  {eye:'Thank You', h:'오늘도 수고하셨습니다', b:'god-bless-you.vercel.app'},
+];
+
+const slideTitles = ['COVER','ORIGIN STORY','PROBLEM','SOLUTION','DIFFERENTIATION','PHILOSOPHY','TARGET','STATUS','AI METHOD','ROADMAP','Q&A','CLOSING'];
+
+function render() {
+  // 헤더
+  document.getElementById('slide-num').textContent = String(current).padStart(2,'0') + ' / ' + String(TOTAL).padStart(2,'0');
+  document.getElementById('slide-title-hdr').textContent = slideTitles[current-1];
+  // 미니 슬라이드
+  const m = miniContents[current-1];
+  document.getElementById('mini-display').innerHTML = `<div class="ms-eye">${m.eye}</div><div class="ms-h">${m.h}</div><div class="ms-b">${m.b}</div>`;
+  // 노트 블록
+  document.querySelectorAll('.note-block').forEach(b=>b.classList.remove('active'));
+  const nb = document.querySelector(`.note-block[data-slide="${current}"]`);
+  if(nb) nb.classList.add('active');
+  // 점
+  const dc = document.getElementById('dots');
+  dc.innerHTML = '';
+  for(let i=1;i<=TOTAL;i++){
+    const d=document.createElement('div');
+    d.className='dot'+(i===current?' active':'');
+    d.onclick=()=>{current=i;render();};
+    dc.appendChild(d);
+  }
+  // 프로그레스
+  document.getElementById('progress').style.width = ((current/TOTAL)*100)+'%';
+}
+
+function go(dir) {
+  current = Math.max(1, Math.min(TOTAL, current + dir));
+  render();
+}
+
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') go(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') go(-1);
+  if(e.key===' '){e.preventDefault();toggleTimer();}
+});
+
+// 타이머
+function toggleTimer(){
+  timerRunning = !timerRunning;
+  document.getElementById('timer-toggle').textContent = timerRunning ? '⏸ 정지' : '▶ 시작';
+  if(timerRunning){
+    timerInt = setInterval(()=>{
+      timerSec++;
+      const m = String(Math.floor(timerSec/60)).padStart(2,'0');
+      const s = String(timerSec%60).padStart(2,'0');
+      document.getElementById('timer').textContent = m+':'+s;
+      if(timerSec >= 600) document.getElementById('timer').style.color='var(--warn)';
+      else if(timerSec >= 480) document.getElementById('timer').style.color='#fbbf24';
+      else document.getElementById('timer').style.color='var(--timer)';
+    },1000);
+  } else { clearInterval(timerInt); }
+}
+function resetTimer(){
+  clearInterval(timerInt); timerRunning=false; timerSec=0;
+  document.getElementById('timer').textContent='00:00';
+  document.getElementById('timer').style.color='var(--timer)';
+  document.getElementById('timer-toggle').textContent='▶ 시작';
+}
+
+render();
+</script>
+</body>
+</html>

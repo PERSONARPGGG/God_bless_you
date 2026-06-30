@@ -123,9 +123,14 @@
         .hf-p3{top:28%;left:91%;--d:5.5s;--dl:3.2s;}
         .hf-p4{top:72%;left:2%;--d:9s;--dl:0.7s;}
         .hf-p5{top:38%;right:14%;--d:7s;--dl:2.5s;font-size:14px;opacity:.18;}
+        .hf-p6{top:8%;left:30%;--d:11s;--dl:4s;font-size:11px;opacity:.14;}
+        .hf-p7{top:62%;right:20%;--d:6.5s;--dl:1.2s;font-size:12px;opacity:.12;}
+        .hf-p8{top:80%;left:50%;--d:10s;--dl:3s;font-size:10px;opacity:.11;}
+        .hf-p9{top:5%;right:35%;--d:8s;--dl:2s;font-size:13px;opacity:.1;}
         @keyframes hf-drift {
             0%,100%{transform:translateY(0) rotate(0deg);}
-            50%{transform:translateY(-20px) rotate(15deg);}
+            33%{transform:translateY(-14px) rotate(8deg);}
+            66%{transform:translateY(-22px) rotate(-5deg);}
         }
 
         /* ── 히어로 묵상 카드 ── */
@@ -201,14 +206,14 @@
         /* ── 공통 레이아웃 ── */
         .page-wrap { position:relative;z-index:1;max-width:460px;margin:0 auto;padding:max(env(safe-area-inset-top,0px),2vh) 16px calc(36px + env(safe-area-inset-bottom)); min-height:100vh; min-height:100svh; }
         /* 스텝별 기본 마진 */
-        #step1,#step4 { margin-top:12px; }
+        #step1,#step4 { margin-top:18px; }
         #step2,#step3 { margin-top:16vh; }
 
         /* ── 헤더 바 ── */
-        /* top-bar: 중앙 콘텐츠를 완전히 가운데 정렬, 아이콘은 absolute로 우상단 독립 */
-        .top-bar             { display:flex;justify-content:center;padding:18px 0 0;position:relative; }
-        .top-side:first-child{ display:none; }             /* 왼쪽 빈 spacer만 숨김 */
-        .top-side:last-child { position:absolute;top:18px;right:0; }  /* 아이콘 div 우상단 고정 */
+        /* top-bar: 아이콘은 우상단 고정, 달/텍스트는 아이콘 아래로 분리 */
+        .top-bar             { display:flex;justify-content:center;padding:66px 0 0;position:relative; }
+        .top-side:first-child{ display:none; }
+        .top-side:last-child { position:absolute;top:12px;right:0; }
         .top-center          { text-align:center;padding:0 8px;position:relative;width:100%; }
         .top-icons           { display:flex;gap:6px; }
         .icon-btn {
@@ -665,7 +670,7 @@
         /* ── 세로 공간 최적화: step 1·2·3 한 화면에 맞추기 ── */
         @media (max-height:820px) {
             .moon-icon    { font-size:46px; }
-            .top-bar      { padding-top:8px; }
+            .top-bar      { padding-top:50px; }
             .top-side:last-child { top:8px; }
             .moon-wrap    { margin-bottom:3px; }
             .welcome-text { font-size:var(--fs-sm);line-height:1.4; }
@@ -694,8 +699,8 @@
         }
         /* 갤럭시 S25 등 821px 이상 tall 폰: 콘텐츠가 화면을 꽉 채우도록 여백 배분 */
         @media (min-height:821px) {
-            .top-bar      { padding-top:24px; }
-            .top-side:last-child { top:24px; }
+            .top-bar      { padding-top:72px; }
+            .top-side:last-child { top:14px; }
             .hero-teaser  { margin:14px 0 24px; }
             .s1-sub       { margin-bottom:28px; }
             .emotion-grid { gap:12px; }
@@ -704,7 +709,7 @@
         /* 더 작은 화면 (iPhone SE 등 667px) */
         @media (max-height:700px) {
             .moon-icon    { font-size:38px; }
-            .top-bar      { padding-top:4px; }
+            .top-bar      { padding-top:40px; }
             .date-text    { display:none; }
             .hero-teaser  { margin:4px 0 6px;padding:7px 12px 6px; }
             .s1-sub       { display:none; }
@@ -824,10 +829,374 @@
             background:linear-gradient(135deg,rgba(200,168,112,.9),rgba(160,120,60,.9));
             color:#fff;-webkit-tap-highlight-color:transparent;flex-shrink:0;
         }
+
+        /* ══ 대시보드 ══ */
+        .btn-dashboard{display:block;width:100%;margin:10px 0 8px;padding:13px;border-radius:14px;cursor:pointer;
+            background:linear-gradient(135deg,rgba(200,168,107,.12),rgba(200,168,107,.04));
+            border:1px solid rgba(200,168,107,.3);color:#c8a86b;
+            font-size:var(--fs-sm);font-weight:700;letter-spacing:.3px;transition:all .2s;
+            -webkit-tap-highlight-color:transparent;}
+        .btn-dashboard:active{opacity:.8;}
+        .db-narrative-card{background:linear-gradient(135deg,rgba(200,168,107,.1),rgba(200,168,107,.03));
+            border:1px solid rgba(200,168,107,.25);border-radius:18px;padding:22px 18px;
+            margin-bottom:18px;text-align:center;}
+        .db-narrative-week{font-size:10px;color:#c8a86b;letter-spacing:1.5px;margin-bottom:12px;}
+        .db-narrative-main{font-size:var(--fs-lg);font-weight:800;color:#fff;line-height:1.5;margin-bottom:8px;}
+        .db-narrative-sub{font-size:var(--fs-sm);color:rgba(255,255,255,.45);line-height:1.65;}
+        .db-sec{margin-bottom:20px;}
+        .db-sec-t{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+        .db-emo-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+        .db-emo-lbl{width:32px;font-size:12px;color:rgba(255,255,255,.6);flex-shrink:0;text-align:right;}
+        .db-emo-track{flex:1;height:16px;background:rgba(255,255,255,.06);border-radius:50px;overflow:hidden;position:relative;}
+        .db-emo-fill{height:100%;border-radius:50px;display:flex;align-items:center;justify-content:flex-end;padding-right:7px;transition:width .8s cubic-bezier(.22,1,.36,1);}
+        .db-emo-cnt{font-size:10px;font-weight:700;color:rgba(255,255,255,.85);}
+        .db-emo-zero{padding-left:7px;font-size:10px;color:rgba(255,255,255,.2);}
+        .db-day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+        .db-day-col{display:flex;flex-direction:column;align-items:center;gap:4px;}
+        .db-day-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;}
+        .db-day-dot.empty{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);}
+        .db-day-name{font-size:9px;color:rgba(255,255,255,.3);}
+        .db-day-today .db-day-name{color:#c8a86b;font-weight:700;}
+        .db-pattern{background:rgba(255,255,255,.05);border-radius:12px;padding:12px 14px;margin-bottom:8px;
+            font-size:13px;color:rgba(255,255,255,.6);line-height:1.65;}
+        .db-pattern strong{color:rgba(255,255,255,.85);}
+        .db-diary-item{border-left:2px solid rgba(255,255,255,.12);padding:8px 12px;margin-bottom:8px;border-radius:0 10px 10px 0;background:rgba(255,255,255,.03);transition:background .2s;}
+        .db-diary-item:hover{background:rgba(255,255,255,.07);}
+        .db-diary-date{font-size:10px;color:rgba(255,255,255,.35);margin-bottom:3px;letter-spacing:.3px;}
+        .db-diary-txt{font-size:13px;color:rgba(255,255,255,.65);line-height:1.65;}
+        /* ── 페르소나 데모 선택기 ── */
+        .persona-demo{margin:14px 0 18px;background:rgba(200,168,107,.06);border-radius:16px;padding:12px 14px;border:1px solid rgba(200,168,107,.18);}
+        .persona-demo-hd{font-size:9px;font-weight:700;color:rgba(200,168,107,.6);letter-spacing:2px;text-align:center;margin-bottom:10px;text-transform:uppercase;}
+        .persona-row{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+        .persona-row::-webkit-scrollbar{display:none;}
+        .persona-btn{flex:0 0 auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:9px 11px;cursor:pointer;color:rgba(255,255,255,.8);font-family:inherit;font-size:9px;text-align:center;transition:all .22s cubic-bezier(.34,1.56,.64,1);min-width:58px;line-height:1.4;-webkit-tap-highlight-color:transparent;}
+        .persona-btn .pb-icon{font-size:20px;display:block;margin-bottom:4px;}
+        .persona-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(200,168,107,.4);transform:translateY(-3px);}
+        .persona-btn.active{background:rgba(200,168,107,.18);border-color:rgba(200,168,107,.7);color:#c8a86b;box-shadow:0 4px 14px rgba(200,168,107,.2);}
+        .persona-btn.active .pb-icon{filter:drop-shadow(0 0 4px rgba(200,168,107,.5));}
+        .db-toggle{width:100%;padding:9px;background:none;border:1px solid rgba(255,255,255,.1);
+            border-radius:10px;color:rgba(255,255,255,.35);font-size:12px;cursor:pointer;margin-bottom:14px;transition:all .2s;}
+        .db-toggle:hover{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.55);}
+        .db-empty{text-align:center;padding:28px 20px;color:rgba(255,255,255,.3);font-size:13px;line-height:2;}
+        #devpw-modal{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.78);
+            display:flex;align-items:center;justify-content:center;}
+        #devpw-modal.hidden{display:none;}
+        .devpw-box{background:#0e1842;border:1px solid rgba(200,168,107,.3);border-radius:20px;
+            padding:28px 22px;width:min(300px,88vw);text-align:center;}
+        .devpw-label{font-size:12px;color:rgba(255,255,255,.45);margin-bottom:14px;line-height:1.6;}
+        #devpw-input{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);
+            border-radius:10px;padding:12px;color:#fff;font-size:20px;text-align:center;
+            letter-spacing:6px;margin-bottom:14px;outline:none;font-family:monospace;}
+        .devpw-btn{background:linear-gradient(135deg,#c8a86b,#e8c98a);color:#080f2e;
+            border:none;border-radius:10px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer;}
+        .devpw-cancel{background:none;border:none;color:rgba(255,255,255,.3);
+            font-size:12px;cursor:pointer;margin-top:10px;display:block;width:100%;}
+    /* ═══════════════════════════════════════════════════════
+       감성 연출 시스템 (Emotional FX System)
+    ═══════════════════════════════════════════════════════ */
+
+    /* ── 키프레임 ── */
+    @keyframes cascadeUp {
+        from { opacity:0; transform:translateY(24px); }
+        to   { opacity:1; transform:translateY(0); }
+    }
+    @keyframes stepEnterNew {
+        from { opacity:0; transform:translateY(20px) scale(.975); filter:blur(3px); }
+        to   { opacity:1; transform:translateY(0)    scale(1);    filter:blur(0); }
+    }
+    @keyframes heroFloat {
+        0%,100% { transform:translateY(0); }
+        50%     { transform:translateY(-5px); }
+    }
+    @keyframes shimmerSweep {
+        0%,100% { background-position:-200% 0; }
+        50%     { background-position:200% 0; }
+    }
+    @keyframes mainIconBreath {
+        0%,100% { filter:drop-shadow(0 0 0 rgba(255,210,120,0)); }
+        50%     { filter:drop-shadow(0 0 10px rgba(255,210,120,.5)); }
+    }
+    @keyframes welcomeBloom {
+        0%   { opacity:0; filter:blur(6px); letter-spacing:6px; }
+        100% { opacity:1; filter:blur(0);   letter-spacing:normal; }
+    }
+    @keyframes overlayFadeIn {
+        from { opacity:0; transform:translateY(22px) scale(.975); }
+        to   { opacity:1; transform:translateY(0)    scale(1); }
+    }
+    @keyframes subtleGlow {
+        0%,100% { box-shadow:0 0 0 0 rgba(200,168,107,0); }
+        50%     { box-shadow:0 0 24px 4px rgba(200,168,107,.08); }
+    }
+
+    /* ── 감정 버튼 컬러 글로우 (hover) ── */
+    .em-감사:hover,.em-감사:active {
+        transform:translateY(-5px) scale(1.05);
+        box-shadow:0 12px 32px rgba(245,158,11,.38), 0 0 0 2px rgba(245,158,11,.25);
+        border-color:rgba(245,158,11,.55)!important;
+    }
+    .em-평안:hover,.em-평안:active {
+        transform:translateY(-5px) scale(1.05);
+        box-shadow:0 12px 32px rgba(16,185,129,.38), 0 0 0 2px rgba(16,185,129,.25);
+        border-color:rgba(16,185,129,.55)!important;
+    }
+    .em-걱정:hover,.em-걱정:active {
+        transform:translateY(-5px) scale(1.05);
+        box-shadow:0 12px 32px rgba(99,102,241,.38), 0 0 0 2px rgba(99,102,241,.25);
+        border-color:rgba(99,102,241,.55)!important;
+    }
+    .em-지침:hover,.em-지침:active {
+        transform:translateY(-5px) scale(1.05);
+        box-shadow:0 12px 32px rgba(139,92,246,.38), 0 0 0 2px rgba(139,92,246,.25);
+        border-color:rgba(139,92,246,.55)!important;
+    }
+    .em-아픔:hover,.em-아픔:active {
+        transform:translateY(-5px) scale(1.05);
+        box-shadow:0 12px 32px rgba(239,68,68,.38), 0 0 0 2px rgba(239,68,68,.25);
+        border-color:rgba(239,68,68,.55)!important;
+    }
+    .em-기도:hover,.em-기도:active {
+        transform:translateY(-5px) scale(1.05);
+        box-shadow:0 12px 32px rgba(59,130,246,.38), 0 0 0 2px rgba(59,130,246,.25);
+        border-color:rgba(59,130,246,.55)!important;
+    }
+
+    /* ── 스텝 진입 강화 ── */
+    .step.entering { animation:stepEnterNew .44s cubic-bezier(.22,1,.36,1) forwards !important; }
+
+    /* ── 히어로 카드 플로팅 + 광택 ── */
+    .hero-teaser {
+        animation:heroFloat 5.5s ease-in-out infinite;
+        will-change:transform;
+    }
+    .hero-teaser::after {
+        content:'';position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+        background:linear-gradient(108deg,transparent 28%,rgba(255,255,255,.07) 50%,transparent 72%);
+        background-size:200% 100%;
+        animation:shimmerSweep 8s ease-in-out infinite;
+    }
+
+    /* ── 메인 아이콘 호흡 ── */
+    #main-icon {
+        display:inline-block;
+        animation:mainIconBreath 3.8s ease-in-out infinite;
+        cursor:pointer;
+        transition:transform .22s cubic-bezier(.34,1.56,.64,1);
+    }
+    #main-icon:hover { transform:scale(1.18) rotate(10deg); }
+
+    /* ── 아이콘 버튼 호버 글로우 ── */
+    .icon-btn {
+        transition:all .24s cubic-bezier(.34,1.56,.64,1) !important;
+    }
+    .icon-btn:hover {
+        background:rgba(255,255,255,.16) !important;
+        transform:translateY(-3px) scale(1.06) !important;
+        box-shadow:0 8px 22px rgba(0,0,0,.22) !important;
+    }
+    .icon-btn:active { transform:scale(.95) !important; }
+
+    /* ── 선택 버튼 향상 ── */
+    .btn-choice {
+        transition:all .28s cubic-bezier(.34,1.56,.64,1) !important;
+    }
+    .btn-choice:hover {
+        transform:translateY(-5px) scale(1.04) !important;
+        box-shadow:0 12px 28px rgba(0,0,0,.18) !important;
+    }
+    .btn-choice:active { transform:scale(.96) !important; }
+
+    /* ── 결과 액션 버튼 ── */
+    .action-btn {
+        transition:all .22s ease;
+    }
+    .action-btn:hover {
+        transform:translateY(-2px);
+        box-shadow:0 6px 18px rgba(0,0,0,.2);
+    }
+    .action-btn:active { transform:scale(.96); }
+
+    /* ── 환영 문구 블룸 ── */
+    .welcome-bloom {
+        animation:welcomeBloom .9s ease both;
+    }
+
+    /* ── 오버레이 진입 ── */
+    .overlay-anim .overlay-inner {
+        animation:overlayFadeIn .38s cubic-bezier(.22,1,.36,1) both;
+    }
+
+    /* ── 결과 카드 cascade (JS 제어) ── */
+    .card-cascade {
+        opacity:0;
+        transform:translateY(22px);
+        transition:opacity .46s ease, transform .46s cubic-bezier(.22,1,.36,1);
+    }
+    .card-cascade.revealed {
+        opacity:1;
+        transform:translateY(0);
+    }
+
+    /* ── btn-restart 호버 ── */
+    .btn-restart { transition:all .26s cubic-bezier(.34,1.56,.64,1) !important; }
+    .btn-restart:hover { transform:translateY(-3px) scale(1.02) !important; box-shadow:0 10px 28px rgba(30,52,96,.5) !important; }
+    .btn-restart:active { transform:scale(.97) !important; }
+
+    /* ── 음악 토글 스위치 ── */
+    .music-toggle { position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0; }
+    .music-toggle input { opacity:0;width:0;height:0; }
+    .music-slider {
+        position:absolute;inset:0;background:rgba(255,255,255,.15);
+        border-radius:24px;transition:.3s;cursor:pointer;
+    }
+    .music-slider::before {
+        content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;
+        background:#fff;border-radius:50%;transition:.3s;
+        box-shadow:0 2px 6px rgba(0,0,0,.25);
+    }
+    .music-toggle input:checked + .music-slider { background:rgba(200,168,107,.75); }
+    .music-toggle input:checked + .music-slider::before { transform:translateX(20px); }
+
+    /* ═══════════════════════════════════════
+       다이어리 커버 오프닝
+    ═══════════════════════════════════════ */
+    #diary-intro {
+        position:fixed;inset:0;z-index:400;pointer-events:all;
+    }
+    #diary-intro.gone { display:none; pointer-events:none; }
+    .di-panel {
+        position:absolute;top:0;bottom:0;width:50%;
+        transition:transform 1s cubic-bezier(.76,0,.24,1);
+    }
+    .di-left {
+        left:0;
+        background:linear-gradient(170deg,#18103a 0%,#0d0b22 100%);
+        box-shadow:inset -1px 0 0 rgba(200,168,107,.2), 2px 0 18px rgba(0,0,0,.4);
+    }
+    .di-right {
+        right:0;
+        background:linear-gradient(190deg,#13102e 0%,#0b0a1e 100%);
+        box-shadow:inset 1px 0 0 rgba(200,168,107,.1);
+    }
+    .di-center {
+        position:absolute;inset:0;
+        display:flex;flex-direction:column;align-items:center;justify-content:center;
+        z-index:1;transition:opacity .5s ease;gap:10px;
+    }
+    .di-icon { font-size:48px;animation:diFloat 2.4s ease-in-out infinite; }
+    @keyframes diFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    .di-title {
+        font-size:16px;color:rgba(200,168,107,.85);letter-spacing:5px;
+        font-weight:300;margin-top:4px;
+    }
+    .di-line { width:36px;height:1px;background:rgba(200,168,107,.25); }
+    .di-sub { font-size:10px;color:rgba(255,255,255,.28);letter-spacing:3px; }
+    #diary-intro.opening .di-left  { transform:translateX(-100%); }
+    #diary-intro.opening .di-right { transform:translateX(100%); }
+    #diary-intro.opening .di-center { opacity:0; }
+
+    /* ── 스텝 전환 페이지 넘기기 느낌 ── */
+    @keyframes stepEnterNew {
+        from { opacity:0; transform:translateX(5%) scale(.975); filter:blur(2px); }
+        to   { opacity:1; transform:translateX(0) scale(1);     filter:blur(0); }
+    }
+
+    /* ── 말씀 타이핑 커서 ── */
+    #r-verse.typing::after {
+        content:'|';
+        animation:typeCursor .7s ease-in-out infinite;
+        color:rgba(200,168,107,.75);font-weight:300;
+    }
+    @keyframes typeCursor {
+        0%,100% { opacity:1; } 50% { opacity:0; }
+    }
+
+    /* ── 결과 화면 다이어리 모드 따뜻한 오버레이 ── */
+    body.diary-mode #step4 { position:relative; }
+    body.diary-mode #step4::before {
+        content:'';position:fixed;inset:0;pointer-events:none;
+        background:radial-gradient(ellipse at 50% 25%, rgba(200,168,107,.06) 0%, transparent 65%);
+        z-index:0;
+    }
+
+    /* ── 페이지 넘길 때 부드러운 exit ── */
+    .step-exiting {
+        animation:stepExit .32s cubic-bezier(.4,0,1,1) forwards;
+    }
+    @keyframes stepExit {
+        to { opacity:0; transform:translateX(-5%) scale(.975); filter:blur(2px); }
+    }
+
+    /* ── 말씀 타이핑 완성 후 카드 글로우 ── */
+    @keyframes verseGlow {
+        0%,100% { box-shadow:0 20px 60px rgba(0,0,0,.42),0 4px 16px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.8); }
+        50%      { box-shadow:0 20px 60px rgba(0,0,0,.42),0 4px 16px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.8),0 0 0 2px rgba(200,168,107,.35),0 0 30px rgba(200,168,107,.18); }
+    }
+    .verse-glow { animation:verseGlow 2.2s ease-in-out; }
+
+    /* ── 재시작 버튼 : 은은한 테두리 펄스 ── */
+    @keyframes restartPulse {
+        0%,100% { box-shadow:0 0 0 0 rgba(90,130,200,.0); }
+        50%      { box-shadow:0 0 0 6px rgba(90,130,200,.18); }
+    }
+    .btn-restart { animation:restartPulse 3.6s ease-in-out 2s infinite; }
+
+    /* ── 응원 카드 텍스트 미세 반짝임 ── */
+    @keyframes encTwinkle {
+        0%,100% { opacity:1; }
+        50%      { opacity:.85; }
+    }
+    .enc-text { animation:encTwinkle 4s ease-in-out infinite; }
+
+    /* ── 섹션 라인 cascade 진입 ── */
+    .card-cascade .section-line { transition:transform .7s cubic-bezier(.22,1,.36,1) .1s, opacity .5s ease .1s; transform:scaleX(0); transform-origin:left; opacity:0; }
+    .card-cascade.revealed .section-line { transform:scaleX(1); opacity:1; }
+
+    /* ── 스텝 진입 강화: 빛 번짐 + 위로 슬라이드 ── */
+    @keyframes stepEnterGlow {
+        0%   { opacity:0; transform:translateY(18px) scale(.97); filter:blur(4px); }
+        60%  { filter:blur(0); }
+        100% { opacity:1; transform:translateY(0) scale(1); }
+    }
+    .step.entering { animation:stepEnterGlow .44s cubic-bezier(.22,1,.36,1) forwards !important; }
+
+    /* ── 오버레이 진입 강화 ── */
+    @keyframes overlaySlideUp {
+        from { opacity:0; transform:translateY(32px); }
+        to   { opacity:1; transform:translateY(0); }
+    }
+    .overlay-anim .overlay-inner { animation:overlaySlideUp .38s cubic-bezier(.22,1,.36,1) both; }
+
+    /* ── 페르소나 버튼 선택 리플 ── */
+    @keyframes personaPop { 0%{transform:scale(.95)} 60%{transform:scale(1.08)} 100%{transform:scale(1)} }
+    .persona-btn.active { animation:personaPop .35s cubic-bezier(.34,1.56,.64,1); }
+
+    /* ── 감정 선택 버튼 진입 ── */
+    @keyframes emoGridIn {
+        from { opacity:0; transform:scale(.92); }
+        to   { opacity:1; transform:scale(1); }
+    }
+    .emotion-grid { animation:emoGridIn .5s cubic-bezier(.22,1,.36,1) both; }
+
+    /* ── 결과 컨텍스트 배지 glow ── */
+    .result-context { animation:encTwinkle 6s ease-in-out 1s infinite; }
+
     </style>
 </head>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <body>
+
+<!-- ── 다이어리 커버 오프닝 ── -->
+<div id="diary-intro">
+    <div class="di-panel di-left"></div>
+    <div class="di-panel di-right"></div>
+    <div class="di-center">
+        <div class="di-icon">📓</div>
+        <div class="di-line"></div>
+        <div class="di-title">나의 오늘</div>
+        <div class="di-sub">TODAY'S JOURNAL</div>
+    </div>
+</div>
 
 <div id="stars"></div>
 <div class="aurora"><div class="ab1"></div><div class="ab2"></div><div class="ab3"></div></div>
@@ -1017,6 +1386,23 @@
             </div>
         </div>
 
+        <!-- 배경 음악 -->
+        <div class="settings-section">
+            <div class="settings-label">배경 음악</div>
+            <div class="settings-card">
+                <div class="setting-row">
+                    <div>
+                        <div class="setting-row-label">🎵 배경 음악</div>
+                        <div class="setting-row-sub" id="music-status-sub">하루의 끝, 잔잔한 음악과 함께해요</div>
+                    </div>
+                    <label class="music-toggle">
+                        <input type="checkbox" id="music-toggle-input" onchange="toggleBgMusic(this.checked)">
+                        <span class="music-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
         <!-- 개인 정보 -->
         <div class="settings-section">
             <div id="lbl-personal" class="settings-label">개인 정보</div>
@@ -1122,6 +1508,71 @@
     </div>
 </div>
 
+<!-- ══ 대시보드 오버레이 ══ -->
+<div id="overlay-dashboard" class="overlay hidden">
+    <div class="overlay-inner">
+        <button class="overlay-back" onclick="hideOverlay('overlay-dashboard')">← 돌아가기</button>
+        <div class="overlay-title">📊 이번 주 나의 이야기</div>
+
+        <!-- 체험 데이터 페르소나 선택 (개발자 데모) -->
+        <div class="persona-demo">
+            <div class="persona-demo-hd">✦ 체험 데이터 선택 ✦</div>
+            <div class="persona-row">
+                <button class="persona-btn" onclick="loadPersona('male',this)">
+                    <span class="pb-icon">👔</span>직장인 B남자
+                </button>
+                <button class="persona-btn" onclick="loadPersona('female',this)">
+                    <span class="pb-icon">💼</span>직장인 B여자
+                </button>
+                <button class="persona-btn" onclick="loadPersona('housewife',this)">
+                    <span class="pb-icon">🏠</span>주부
+                </button>
+                <button class="persona-btn" onclick="loadPersona('pastor',this)">
+                    <span class="pb-icon">✝️</span>목사님 C
+                </button>
+                <button class="persona-btn" onclick="loadPersona('foreigner',this)">
+                    <span class="pb-icon">🌍</span>외국인 A
+                </button>
+            </div>
+        </div>
+
+        <div id="db-narrative" class="db-narrative-card"></div>
+
+        <div id="db-emo-section" class="db-sec">
+            <div class="db-sec-t">이번 주 감정</div>
+            <div id="db-emo-bars"></div>
+        </div>
+
+        <button class="db-toggle" id="db-detail-btn" onclick="toggleDbDetail()">상세히 보기 ▾</button>
+
+        <div id="db-detail" class="hidden">
+            <div class="db-sec">
+                <div class="db-sec-t">요일별 감정 흐름</div>
+                <div id="db-day-flow" class="db-day-grid"></div>
+            </div>
+            <div class="db-sec">
+                <div class="db-sec-t">이런 때 이런 마음이었어요</div>
+                <div id="db-patterns"></div>
+            </div>
+            <div class="db-sec">
+                <div class="db-sec-t">이번 주 일기</div>
+                <div id="db-diaries"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ 개발자 비밀번호 모달 ══ -->
+<div id="devpw-modal" class="hidden">
+    <div class="devpw-box">
+        <div class="devpw-label">🔒 개발자 모드<br>비밀번호를 입력하세요</div>
+        <input id="devpw-input" type="password" maxlength="10" placeholder="••••"
+               onkeydown="if(event.key==='Enter')checkDevPw()">
+        <button class="devpw-btn" onclick="checkDevPw()">확인</button>
+        <button class="devpw-cancel" onclick="document.getElementById('devpw-modal').classList.add('hidden')">취소</button>
+    </div>
+</div>
+
 <!-- ── 메인 ── -->
 <div class="page-wrap">
     <div class="hero-floats" aria-hidden="true">
@@ -1130,6 +1581,10 @@
         <span class="hf hf-p3">🍃</span>
         <span class="hf hf-p4">🌷</span>
         <span class="hf hf-p5">🌟</span>
+        <span class="hf hf-p6">💫</span>
+        <span class="hf hf-p7">🌙</span>
+        <span class="hf hf-p8">⭐</span>
+        <span class="hf hf-p9">✦</span>
     </div>
     <div class="top-bar">
         <div class="top-side"></div>
@@ -1147,6 +1602,10 @@
         </div>
         <div class="top-side">
             <div class="top-icons">
+                <button id="btn-dashboard-top" class="icon-btn hidden" onclick="openDashboard()" title="이번 주 나의 이야기">
+                    <span class="icon-emoji">📊</span>
+                    <span class="icon-label">내 이야기</span>
+                </button>
                 <button class="icon-btn" onclick="openVault()" title="보관함">
                     <span class="icon-emoji">📖</span>
                     <span class="icon-label">보관함</span>
@@ -1292,7 +1751,7 @@
             <button class="font-btn" onclick="cycleFont(1)"  style="font-size:13px;">가+</button>
         </div>
 
-        <!-- 말씀 -->
+        <!-- 말씀 (만년필 타이핑 연출) -->
         <div class="card">
             <div class="section-header"><span id="sec-verse" class="section-label">오늘의 말씀</span><div class="section-line"></div></div>
             <div class="verse-block">
@@ -1307,42 +1766,28 @@
             </div>
         </div>
 
-        <!-- 이야기 -->
-        <div class="card">
-            <div class="section-header"><span id="sec-story" class="section-label">오늘의 이야기</span><div class="section-line"></div></div>
-            <p class="reflect-text" id="r-reflection"></p>
-        </div>
-
-        <!-- 기도문 -->
-        <div class="card">
-            <div class="section-header"><span id="sec-prayer" class="section-label">오늘의 기도</span><div class="section-line"></div></div>
-            <p class="prayer-text" id="r-prayer"></p>
-        </div>
-
-        <!-- 오늘의 한 문장 -->
-        <div class="card">
-            <div class="section-header"><span id="sec-sentence" class="section-label">오늘의 한 문장</span><div class="section-line"></div></div>
-            <div class="sentence-wrap">
-                <span class="quote-mark">"</span>
-                <p class="sentence-text" id="r-sentence"></p>
-            </div>
-        </div>
-
-        <!-- 감사 일기 -->
-        <div class="card">
-            <div class="section-header"><span id="sec-diary" class="section-label">감사 한 줄 일기</span><div class="section-line"></div></div>
-            <p id="diary-label" class="diary-label">오늘 감사한 것 한 가지를 적어보세요.</p>
-            <textarea id="diary-input" class="diary-input" rows="3" placeholder="작은 것도 괜찮습니다..."></textarea>
-            <button id="diary-save-btn" class="diary-save-btn" onclick="saveDiary()">저장하기</button>
-            <p id="diary-saved-msg" class="diary-saved-msg">✓ 저장되었습니다. 감사한 마음이 아름답습니다.</p>
-        </div>
-
-        <!-- 응원 -->
+        <!-- 당신을 위한 응원 -->
         <div class="card">
             <div class="section-header"><span id="sec-enc" class="section-label">당신을 위한 응원</span><div class="section-line"></div></div>
             <p class="enc-text" id="r-enc"></p>
         </div>
 
+        <!-- 감사 한 줄 일기 -->
+        <div class="card">
+            <div class="section-header"><span id="sec-diary" class="section-label">감사 한 줄 일기</span><div class="section-line"></div></div>
+            <p id="diary-label" class="diary-label">오늘 딱 한 줄, 마음에 남는 것을 남겨보세요.</p>
+            <textarea id="diary-input" class="diary-input" rows="3" placeholder="아무리 작은 것도 괜찮아요..."></textarea>
+            <button id="diary-save-btn" class="diary-save-btn" onclick="saveDiary()">저장하기</button>
+            <p id="diary-saved-msg" class="diary-saved-msg">✓ 저장되었어요. 그 마음, 하나님이 받으셨어요.</p>
+        </div>
+
+        <!-- 오늘의 이야기 -->
+        <div class="card">
+            <div class="section-header"><span id="sec-story" class="section-label">오늘의 이야기</span><div class="section-line"></div></div>
+            <p class="reflect-text" id="r-reflection"></p>
+        </div>
+
+        <button id="btn-dashboard" class="btn-dashboard hidden" type="button" onclick="openDashboard()">📊 이번 주 나의 이야기</button>
         <button class="btn-restart" type="button" onclick="restart()">🌙 다시 시작하기</button>
     </div>
 </div>
@@ -1350,8 +1795,36 @@
 <div id="footer-text" class="footer">🙏 오늘도 누군가를 위해 기도하는 마음으로</div>
 
 <script>
+/* ═══════════════════════════════════════════════════════════════
+   오늘은 어땠나요? — index.html 단일 파일 구조
+
+   ★ 목차 (Ctrl+F 로 점프)
+   ─────────────────────────────────────────────────────────────
+   § 데이터         ← 말씀/감정/응원/묵상 데이터 상수
+   § 다국어         ← LANG_DATA (ko/en/ja)
+   § 상태 변수      ← sel, curVerse, appLang, sbUser 등
+   § 유틸리티       ← lsGet, lsSet, toast, s()
+   § Supabase 초기화 ← initSupabase, loadProfile
+   § 앱 초기화      ← DOMContentLoaded → initApp()
+   § 스텝 전환      ← go(), openStep()
+   § 결과 빌드      ← buildResult(), cascadeResultCards()
+   § 말씀 효과      ← typewriterVerse(), spawnEmoEffect()
+   § 보관함         ← openVault(), renderVault()
+   § 대시보드       ← openDashboard(), renderDashboard() 외
+   § 페르소나 데모  ← PERSONA_DATA, loadPersona()
+   § 데모 주입      ← injectDemoData()
+   § 음악           ← toggleBgMusic(), restoreBgMusic()
+   § 설정           ← openSettings(), applyLang(), cycleFont()
+   § 저장 / 일기    ← toggleSave(), saveDiary()
+   § PWA / 스트릭  ← installPWA(), checkStreak()
+   ─────────────────────────────────────────────────────────────
+   아키텍처: Vanilla JS + Supabase (RLS) + Service Worker
+   배포: Vercel (GitHub 자동 배포)
+   단일 파일 원칙 — 새 파일 추가 금지
+═══════════════════════════════════════════════════════════════ */
+
 /* ═══════════════════════════════════════
-   데이터
+   § 데이터
 ═══════════════════════════════════════ */
 
 const SENTENCES_MORNING = [
@@ -3294,12 +3767,12 @@ function lsSet(k,v) { try { localStorage.setItem(k, typeof v==='object' ? JSON.s
 const LANG_DATA = {
     ko: {
         /* 환영 */
-        wc_title:'오늘 밤, 하나님과 함께하세요', wc_desc:'하루를 마무리하는 작은 디지털 쉼터',
+        wc_title:'오늘 밤, 하나님과 함께하세요', wc_desc:'오늘 하루의 끝, 말씀이 나를 기다려요',
         wc_ask:'어떻게 불러드릴까요?', wc_sub:'이름을 입력하시면\n더 따뜻하게 맞이할게요.',
         wc_ph:'이름을 입력해주세요', wc_start:'시작하기', wc_skip:'나중에 할게요',
         /* 스텝 */
         ht_label:'✦ 오늘의 묵상 ✦',
-        s1_title:'오늘은 어땠나요?', s1_sub:'하루를 돌아보는 작은 쉼표',
+        s1_title:'오늘은 어땠나요?', s1_sub:'오늘 내 감정을, 말씀으로 만나요',
         s2_title:'무엇이 가장 마음에 남았나요?', s3_title:'지금 어떤 마음이 드세요?',
         emo:['감사했어요','평안했어요','걱정이 있었어요','지쳤어요','마음이 아팠어요','기도하고 싶어요'],
         topic:['일','가족','공부','사람','잘 모르겠어요'],
@@ -3310,7 +3783,7 @@ const LANG_DATA = {
         vault_title:'📖 나의 보관함', vault_back:'← 돌아가기',
         v_tab1:'즐겨찾기', v_tab2:'감정 기록', v_tab3:'주간 통계',
         vault_empty_saved:'아직 즐겨찾기한 항목이 없어요.<br>말씀 카드의 ⭐ 버튼을 눌러 저장해 보세요.',
-        vault_empty_mood:'아직 기록이 없어요.<br>매일 방문하면 여기에 쌓입니다.',
+        vault_empty_mood:'아직 기록이 없어요.<br>오늘의 감정을 남기면 여기에 쌓여요.',
         pag_prev:'← 이전', pag_next:'다음 →',
         /* 설정 */
         settings_title:'⚙️ 설정', settings_back:'← 돌아가기',
@@ -3327,14 +3800,14 @@ const LANG_DATA = {
         sec_verse:'오늘의 말씀', sec_story:'오늘의 이야기', sec_prayer:'오늘의 기도',
         sec_sentence:'오늘의 한 문장', sec_diary:'감사 한 줄 일기', sec_enc:'당신을 위한 응원',
         /* 일기 */
-        diary_label:'오늘 감사한 것 한 가지를 적어보세요.',
-        diary_ph:'작은 것도 괜찮습니다...', diary_save:'저장하기',
-        diary_saved:'✓ 저장되었습니다. 감사한 마음이 아름답습니다.',
+        diary_label:'오늘 딱 한 줄, 마음에 남는 것을 남겨보세요.',
+        diary_ph:'아무리 작은 것도 괜찮아요...', diary_save:'저장하기',
+        diary_saved:'✓ 저장되었어요. 그 마음, 하나님이 받으셨어요.',
         /* 체크인 */
         cp_text:'오늘 출석 완료', streak_unit:'일 연속',
         /* 날짜·환영 */
         locale:'ko-KR', footer:'🙏 오늘도 누군가를 위해 기도하는 마음으로',
-        welcome_msgs:['오늘도 수고하셨습니다.','천천히 하루를 돌아보세요.','당신의 하루는 소중합니다.','잠시 쉬어가도 괜찮습니다.','오늘 하루도 잘 버티셨습니다.','하나님 앞에서 잠시 쉬어가세요.','당신의 이야기를 들을게요.'],
+        welcome_msgs:['오늘도 수고 많으셨어요.','천천히, 지금 이 순간만요.','당신의 오늘을 들을게요.','잠시 내려놓아도 괜찮아요.','오늘 하루도 참 잘 버티셨어요.','하나님 앞에서, 있는 그대로요.','오늘도 은혜로운 하루였어요.'],
         month_names:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
         day_names:['일','월','화','수','목','금','토'],
         /* 업데이트 */
@@ -3868,7 +4341,11 @@ function setWelcome() {
     } else {
         text = base;
     }
-    document.getElementById('welcome-text').textContent = text;
+    const el = document.getElementById('welcome-text');
+    el.textContent = text;
+    el.classList.remove('welcome-bloom');
+    void el.offsetWidth; // reflow to restart animation
+    el.classList.add('welcome-bloom');
 }
 
 function setDate() {
@@ -3968,8 +4445,38 @@ function checkSeason() {
 /* ── 감정 선택 (리플 + 꽃잎 파티클) ── */
 function pickEmo(type, value, event) {
     if (event && event.currentTarget) addRipple(event.currentTarget, event);
-    setTimeout(() => { if (event) spawnPetals(event); }, 80);
+    setTimeout(() => { if (event) spawnEmoEffect(value, event); }, 80);
     pick(type, value);
+}
+
+/* ── 감정별 이펙트 ── */
+function spawnEmoEffect(emotion, event) {
+    const cx = event.clientX || window.innerWidth/2;
+    const cy = event.clientY || window.innerHeight/2;
+    const map = {
+        '감사': { icons:['✨','⭐','🌟','💛','☀️','🌸','💫'], size:[18,22] },
+        '평안': { icons:['🍃','🌿','💚','🕊️','🌾','🌱','🍀'], size:[16,20] },
+        '걱정': { icons:['💙','🌀','💭','🌊','🔷','❄️','✦'],  size:[16,20] },
+        '지침': { icons:['💜','🌙','✦','🕯️','🫧','🔮','🌫️'], size:[16,20] },
+        '아픔': { icons:['🌷','💗','🌸','🫶','💝','🌹','🥀'], size:[16,20] },
+        '기도': { icons:['🙏','✨','💛','⭐','🌟','🕊️','🌠'], size:[18,22] },
+    };
+    const e = map[emotion] || map['감사'];
+    for (let i = 0; i < 10; i++) {
+        setTimeout(() => {
+            const el = document.createElement('div');
+            el.className = 'petal-particle';
+            const angle = (i/10)*360 + Math.random()*30;
+            const dist  = 55 + Math.random()*65;
+            const dx = Math.cos(angle*Math.PI/180)*dist;
+            const dy = Math.sin(angle*Math.PI/180)*dist;
+            const fs  = e.size[0] + Math.random()*(e.size[1]-e.size[0]);
+            el.textContent = e.icons[i % e.icons.length];
+            el.style.cssText = `left:${cx}px;top:${cy}px;--dx:${dx}px;--dy:${dy}px;font-size:${fs}px;`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 950);
+        }, i * 22);
+    }
 }
 
 /* ── 리플 효과 ── */
@@ -4028,13 +4535,27 @@ function pick(type, value) {
     else if (type==='need')  { buildResult(); go('step3','step4'); setTimeout(spawnBlessing,400); }
 }
 
+function cascadeResultCards() {
+    const cards = document.querySelectorAll('#step4 .card');
+    cards.forEach(c => { c.classList.add('card-cascade'); c.classList.remove('revealed'); });
+    cards.forEach((c, i) => {
+        setTimeout(() => c.classList.add('revealed'), 60 + i * 95);
+    });
+}
+
 function go(fromId, toId) {
     const from=document.getElementById(fromId), to=document.getElementById(toId);
-    from.style.opacity='0';
+    // 페이지 넘기기 exit 효과
+    from.classList.add('step-exiting');
     setTimeout(()=>{
-        from.classList.add('hidden'); from.style.opacity='';
+        from.classList.remove('step-exiting');
+        from.classList.add('hidden');
+        // 다이어리 배경 모드
+        if (toId === 'step4') document.body.classList.add('diary-mode');
+        else document.body.classList.remove('diary-mode');
         to.classList.remove('hidden'); to.classList.add('entering');
-        setTimeout(()=>to.classList.remove('entering'),420);
+        if (toId === 'step4') setTimeout(cascadeResultCards, 120);
+        setTimeout(()=>to.classList.remove('entering'),440);
         // step1에서만 히어로 묵상 카드 표시, 나머지 스텝에서는 숨겨서 화면 공간 확보
         const teaser = document.querySelector('.hero-teaser');
         if (teaser) teaser.classList.toggle('hidden', toId !== 'step1');
@@ -4051,8 +4572,8 @@ function buildResult() {
     verseSaved = false;
 
     document.getElementById('r-context').textContent = eLabel(emotion)+' · '+tLabel(topic)+' · '+nLabel(need);
-    document.getElementById('r-verse').textContent      = curVerse.v;
-    document.getElementById('r-ref').textContent        = '— '+curVerse.r;
+    document.getElementById('r-ref').textContent = '— '+curVerse.r;
+    typewriterVerse(curVerse.v);
     const isEn = appLang==='en';
     const rKey = emotion+'_'+topic, nKey = emotion+'_'+need;
     const pickPool = (obj, key, trackKey) => {
@@ -4070,13 +4591,6 @@ function buildResult() {
         return v[idx];
     };
     document.getElementById('r-reflection').textContent = isEn ? (pickPool(REFLECTIONS_EN,rKey,'ref_'+rKey)||pickPool(REFLECTIONS,rKey,'ref_'+rKey)) : pickPool(REFLECTIONS,rKey,'ref_'+rKey);
-    document.getElementById('r-prayer').textContent     = isEn ? (pickPool(PRAYERS_EN,nKey,'pry_'+nKey)||pickPool(PRAYERS,nKey,'pry_'+nKey)) : pickPool(PRAYERS,nKey,'pry_'+nKey);
-    const _ts = getTimeSlot();
-    const _sentBase = isEn ? SENTENCES_EN : SENTENCES;
-    const _sentExtra = isEn
-        ? (_ts==='morning'?SENTENCES_MORNING_EN:_ts==='night'?SENTENCES_NIGHT_EN:[])
-        : (_ts==='morning'?SENTENCES_MORNING:_ts==='night'?SENTENCES_NIGHT:[]);
-    document.getElementById('r-sentence').textContent   = (_sentExtra.length && Math.random()<0.6) ? rand(_sentExtra) : rand(_sentBase);
     document.getElementById('r-enc').textContent        = isEn ? (pickPool(ENCS_EN,nKey,'enc_'+nKey)||pickPool(ENCS,nKey,'enc_'+nKey)) : pickPool(ENCS,nKey,'enc_'+nKey);
 
     // 일기 초기화
@@ -4213,8 +4727,7 @@ function toggleSave() {
     saved.unshift({
         date: new Date().toLocaleDateString(L.locale||'ko-KR',{month:'long',day:'numeric'}),
         context: eLabel(emotion)+' · '+nLabel(need),
-        verse: curVerse.v, ref: curVerse.r,
-        sentence: document.getElementById('r-sentence').textContent
+        verse: curVerse.v, ref: curVerse.r
     });
     lsSet('savedVerses', saved.slice(0,50));
     if (sbUser && sb) sb.from('saved_verses').insert({user_id:sbUser.id, verse_text:curVerse.v, verse_ref:curVerse.r, emotion:sel.emotion, need:sel.need}).then();
@@ -4429,7 +4942,7 @@ function renderStats() {
     el.innerHTML = '';
     const L = LANG_DATA[appLang] || LANG_DATA.ko;
 
-    if (!sbUser) {
+    if (!sbUser && sessionStorage.getItem('devMode') !== '1') {
         const gateTexts = {
             ko: { title:'프리미엄 기능', desc:'주간 감정 차트는 로그인 후<br>이용할 수 있어요.', btn:'Google로 로그인하기' },
             en: { title:'Premium Feature', desc:'Weekly stats are available<br>after signing in.', btn:'Sign in with Google' },
@@ -4771,7 +5284,12 @@ function _resetUpdateBtn() {
 /* ═══════════════════════════════════════
    오버레이 열기/닫기
 ═══════════════════════════════════════ */
-function showOverlay(id) { document.getElementById(id).classList.remove('hidden'); }
+function showOverlay(id) {
+    const el = document.getElementById(id);
+    el.classList.remove('hidden');
+    el.classList.add('overlay-anim');
+    setTimeout(() => el.classList.remove('overlay-anim'), 500);
+}
 function hideOverlay(id) { document.getElementById(id).classList.add('hidden'); }
 
 /* ═══════════════════════════════════════
@@ -4806,8 +5324,415 @@ function restart() {
 /* ── 이름 입력 엔터 처리 ── */
 document.addEventListener('DOMContentLoaded', ()=>{
     init();
+    openDiaryCover();
+    restoreBgMusic();
     document.getElementById('name-input').addEventListener('keydown', e=>{ if(e.key==='Enter') saveName(); });
+    // 개발자 모드 복원 (세션 유지 중이면 버튼 표시)
+    if (sessionStorage.getItem('devMode') === '1') {
+        const btn = document.getElementById('btn-dashboard');
+        if (btn) btn.classList.remove('hidden');
+        const btnTop = document.getElementById('btn-dashboard-top');
+        if (btnTop) btnTop.classList.remove('hidden');
+    }
 });
+
+/* ══════════════════════════════════════════
+   개발자 모드 + 감정 통계 대시보드
+══════════════════════════════════════════ */
+
+/* 달 5번 탭 → 비밀번호 모달 */
+(function(){
+    let tapCount = 0, tapTimer;
+    document.addEventListener('DOMContentLoaded', () => {
+        const moon = document.getElementById('main-icon');
+        if (!moon) return;
+        moon.addEventListener('click', () => {
+            tapCount++;
+            clearTimeout(tapTimer);
+            tapTimer = setTimeout(() => { tapCount = 0; }, 3000);
+            if (tapCount >= 5) {
+                tapCount = 0;
+                clearTimeout(tapTimer);
+                if (sessionStorage.getItem('devMode') === '1') { toast('✅ 개발자 모드 활성화됨'); return; }
+                const m = document.getElementById('devpw-modal');
+                const inp = document.getElementById('devpw-input');
+                m.classList.remove('hidden');
+                inp.value = '';
+                setTimeout(() => inp.focus(), 100);
+            }
+        });
+    });
+})();
+
+function checkDevPw() {
+    const inp = document.getElementById('devpw-input');
+    if (inp.value === '7501') {
+        sessionStorage.setItem('devMode', '1');
+        document.getElementById('devpw-modal').classList.add('hidden');
+        const btn = document.getElementById('btn-dashboard');
+        if (btn) btn.classList.remove('hidden');
+        const btnTop = document.getElementById('btn-dashboard-top');
+        if (btnTop) btnTop.classList.remove('hidden');
+        injectDemoData();
+        // 개발자 모드 진입 시 배경 음악 자동 재생 (30%)
+        const mt = document.getElementById('music-toggle-input');
+        if (mt && !mt.checked) { mt.checked = true; toggleBgMusic(true); }
+        toast('🔓 개발자 모드 + 데모 데이터 적용');
+    } else {
+        inp.value = '';
+        inp.placeholder = '다시 입력하세요';
+        inp.focus();
+    }
+}
+
+/* ── 만년필 타이핑 효과 ── */
+function typewriterVerse(text) {
+    const el = document.getElementById('r-verse');
+    if (!el) return;
+    el.textContent = '';
+    el.classList.add('typing');
+    const chars = [...text];
+    chars.forEach((char, i) => {
+        setTimeout(() => {
+            el.textContent += char;
+            if (i === chars.length - 1) {
+                el.classList.remove('typing');
+                const card = el.closest('.card');
+                if (card) { card.classList.add('verse-glow'); setTimeout(() => card.classList.remove('verse-glow'), 2300); }
+            }
+        }, 500 + i * 26);
+    });
+}
+
+/* ── 다이어리 커버 오프닝 ── */
+function openDiaryCover() {
+    const intro = document.getElementById('diary-intro');
+    if (!intro || sessionStorage.getItem('coverShown')) {
+        if (intro) intro.classList.add('gone');
+        return;
+    }
+    sessionStorage.setItem('coverShown', '1');
+    setTimeout(() => {
+        intro.classList.add('opening');
+        setTimeout(() => intro.classList.add('gone'), 1050);
+    }, 900);
+}
+
+/* ── 배경 음악 ── */
+const BG_MUSIC_URL = './At the End of the Day.mp3';
+let bgAudio = null;
+
+function toggleBgMusic(on) {
+    if (on) {
+        if (!bgAudio) {
+            bgAudio = new Audio(BG_MUSIC_URL);
+            bgAudio.loop = true;
+            bgAudio.volume = 0.3;
+        }
+        bgAudio.play().catch(() => { toast('🎵 재생에 실패했어요'); });
+        lsSet('bgMusic', '1');
+        document.getElementById('music-status-sub').textContent = '재생 중 🎵';
+    } else {
+        if (bgAudio) bgAudio.pause();
+        lsSet('bgMusic', '0');
+        document.getElementById('music-status-sub').textContent = '일시정지됨';
+    }
+}
+
+// 앱 시작 시 음악 설정 복원
+function restoreBgMusic() {
+    if (!BG_MUSIC_URL) return;
+    const saved = lsGet('bgMusic');
+    if (saved === '1') {
+        const toggle = document.getElementById('music-toggle-input');
+        if (toggle) { toggle.checked = true; toggleBgMusic(true); }
+    }
+}
+
+/* ═══════════════════════════════════════
+   체험 페르소나 데이터
+═══════════════════════════════════════ */
+const PERSONA_DATA = {
+    male: [
+        {date:'2026-06-28',emotion:'감사',topic:'모름',need:'위로',emoji:'😊',diary:'주일 예배 마치고 한 주를 정리했다. 바쁜 와중에도 여기 올 수 있어 감사하다.'},
+        {date:'2026-06-29',emotion:'걱정',topic:'일', need:'지혜',emoji:'😔',diary:'내일 중요한 발표가 있다. 마음이 무거운데 말씀 하나가 붙잡혔다.'},
+        {date:'2026-06-30',emotion:'지침',topic:'일', need:'쉼',  emoji:'😞',diary:'오늘도 야근. 몸이 한계다. 퇴근길 말씀이 유일한 위로였다.'},
+        {date:'2026-07-01',emotion:'지침',topic:'일', need:'쉼',  emoji:'😞',diary:'정말 지쳤다. 회사 일이 너무 많아. 주님, 이 지침에도 뜻이 있겠지요.'},
+        {date:'2026-07-02',emotion:'걱정',topic:'사람',need:'지혜',emoji:'😔',diary:'팀장과의 관계가 영 불편하다. 어떻게 해야 할지 기도했다.'},
+        {date:'2026-07-03',emotion:'평안',topic:'모름',need:'쉼',  emoji:'😌',diary:'금요일, 드디어 주말이다. 마음이 한결 가벼워졌다.'},
+        {date:'2026-07-04',emotion:'감사',topic:'모름',need:'위로',emoji:'😊',diary:'주말에 잘 쉬었다. 이 쉼도 하나님의 선물임을 안다.'},
+    ],
+    female: [
+        {date:'2026-06-28',emotion:'아픔', topic:'가족',need:'위로',emoji:'😢',diary:'남편과 다퉜다. 마음이 많이 무겁다. 그냥 주님 앞에 다 내려놓는다.'},
+        {date:'2026-06-29',emotion:'감사', topic:'모름',need:'위로',emoji:'😊',diary:'출근길에 예쁜 꽃을 봤다. 작은 것에서도 감사를 찾으려 했다.'},
+        {date:'2026-06-30',emotion:'걱정', topic:'사람',need:'지혜',emoji:'😔',diary:'직장 동료와의 관계가 불편하다. 지혜롭게 대처할 수 있기를.'},
+        {date:'2026-07-01',emotion:'평안', topic:'모름',need:'쉼',  emoji:'😌',diary:'퇴근 후 좋아하는 카페에 잠깐 앉아있었다. 이 작은 쉼이 감사하다.'},
+        {date:'2026-07-02',emotion:'감사', topic:'가족',need:'위로',emoji:'😊',diary:'아이가 오늘 처음으로 "사랑해요"를 했다. 눈물이 났다. 감사하다.'},
+        {date:'2026-07-03',emotion:'아픔', topic:'사람',need:'위로',emoji:'😢',diary:'친한 친구와 오해가 생겼다. 상처받은 마음을 주님께 가져간다.'},
+        {date:'2026-07-04',emotion:'감사', topic:'모름',need:'위로',emoji:'😊',diary:'주말 아침 가족과 함께 산책. 이 순간이 정말 감사하다.'},
+    ],
+    housewife: [
+        {date:'2026-06-28',emotion:'감사',topic:'가족',need:'위로',emoji:'😊',diary:'온 가족이 예배 드리고 함께 밥을 먹었다. 이게 행복이다.'},
+        {date:'2026-06-29',emotion:'평안',topic:'가족',need:'쉼',  emoji:'😌',diary:'집안일을 하면서 찬양을 불렀다. 마음이 참 평안했다.'},
+        {date:'2026-06-30',emotion:'감사',topic:'가족',need:'위로',emoji:'😊',diary:'아이들이 건강하게 잘 있어줘서 감사하다. 일상의 감사.'},
+        {date:'2026-07-01',emotion:'걱정',topic:'가족',need:'지혜',emoji:'😔',diary:'큰 아이 성적이 걱정된다. 하나님이 이끌어주시길.'},
+        {date:'2026-07-02',emotion:'평안',topic:'모름',need:'쉼',  emoji:'😌',diary:'날씨 좋은 날 빨래를 널면서 감사했다. 소소하지만 예쁜 하루.'},
+        {date:'2026-07-03',emotion:'감사',topic:'가족',need:'위로',emoji:'😊',diary:'남편이 수고한다고 칭찬해줬다. 알아주는 사람이 있어 감사하다.'},
+        {date:'2026-07-04',emotion:'기도', topic:'가족',need:'힘',  emoji:'🙏',diary:'가족 모두를 위해 길게 기도했다. 이 가정을 지켜달라고.'},
+    ],
+    pastor: [
+        {date:'2026-06-28',emotion:'기도', topic:'사람',need:'힘',  emoji:'🙏',diary:'오늘 예배에서 성령이 임하셨다. 성도들의 눈물이 내 눈물이었다.'},
+        {date:'2026-06-29',emotion:'기도', topic:'일', need:'지혜',emoji:'🙏',diary:'소그룹 갈등 문제로 기도했다. 주님, 이 공동체를 하나 되게 하소서.'},
+        {date:'2026-06-30',emotion:'지침', topic:'일', need:'쉼',  emoji:'😞',diary:'사역이 많아 몸이 피곤하다. 그래도 이 일이 귀한 줄 안다.'},
+        {date:'2026-07-01',emotion:'기도', topic:'사람',need:'힘',  emoji:'🙏',diary:'아픈 성도를 심방했다. 그 분의 믿음에 내가 오히려 위로받았다.'},
+        {date:'2026-07-02',emotion:'기도', topic:'사람',need:'위로',emoji:'🙏',diary:'상담하면서 함께 울었다. 그 눈물이 기도가 되었다.'},
+        {date:'2026-07-03',emotion:'평안', topic:'모름',need:'쉼',  emoji:'😌',diary:'기도실에서 혼자 조용히 있었다. 주님과 단둘이 있는 시간.'},
+        {date:'2026-07-04',emotion:'감사', topic:'모름',need:'위로',emoji:'😊',diary:'하나님의 은혜로 이 한 주도 마쳤다. 성도들에게 감사하다.'},
+    ],
+    foreigner: [
+        {date:'2026-06-28',emotion:'아픔', topic:'가족',need:'위로',emoji:'😢',diary:'고향이 그립다. 가족과 함께 예배드리고 싶다. 주님이 아신다.'},
+        {date:'2026-06-29',emotion:'기도', topic:'모름',need:'힘',  emoji:'🙏',diary:'낯선 언어, 낯선 문화. 적응이 쉽지 않다. 힘을 주세요, 주님.'},
+        {date:'2026-06-30',emotion:'평안', topic:'모름',need:'쉼',  emoji:'😌',diary:'한국 교회에서 따뜻한 인사를 받았다. 언어가 달라도 사랑은 통했다.'},
+        {date:'2026-07-01',emotion:'감사', topic:'사람',need:'위로',emoji:'😊',diary:'교회 집사님이 밥을 해주셨다. 이런 사랑이 복음이구나.'},
+        {date:'2026-07-02',emotion:'걱정', topic:'일', need:'지혜',emoji:'😔',diary:'비자 문제가 생겼다. 하나님이 길을 열어주실 것을 믿는다.'},
+        {date:'2026-07-03',emotion:'기도', topic:'가족',need:'위로',emoji:'🙏',diary:'고향 가족에게 전화했다. 이 말씀을 함께 나누고 싶다.'},
+        {date:'2026-07-04',emotion:'평안', topic:'모름',need:'쉼',  emoji:'😌',diary:'주일 예배 후 귀가길, 마음이 평안하다. 낯선 땅에도 하나님이 계신다.'},
+    ],
+};
+
+function loadPersona(type, btn) {
+    const data = PERSONA_DATA[type];
+    if (!data) return;
+    renderDashboard(data);
+    document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const names = {male:'직장인 B남자',female:'직장인 B여자',housewife:'주부',pastor:'목사님 C',foreigner:'외국인 A'};
+    toast(`✦ ${names[type]||type} 체험 데이터`);
+}
+
+/* 데모 데이터 주입 (실제 데이터 있으면 건너뜀) */
+function injectDemoData() {
+    const existing = lsGet('moodHistory') || [];
+    if (existing.length > 0) return;
+    const { startStr } = getWeekRange();
+    const weekStart = new Date(startStr + 'T21:00:00');
+    const allDays = [
+        { dow:0, emotion:'감사', topic:'가족',  need:'위로', diary:'주일 예배 후 가족과 함께한 점심이 따뜻했다. 이런 일상이 은혜다.' },
+        { dow:1, emotion:'걱정', topic:'일',    need:'지혜', diary:'이번 주가 시작됐다. 결정해야 할 일이 많아 막막했지만 말씀으로 마음을 붙잡았다.' },
+        { dow:2, emotion:'평안', topic:'모름',  need:'쉼',   diary:'딱히 이유 없이 오늘은 마음이 차분했다. 그냥 이 평안함이 감사했다.' },
+        { dow:3, emotion:'기도', topic:'사람',  need:'힘',   diary:'어려운 관계로 마음이 무거웠는데 기도하고 나니 조금 가벼워졌다.' },
+        { dow:4, emotion:'지침', topic:'일',    need:'쉼',   diary:'정말 지친 하루. 퇴근길 말씀 한 구절이 유일한 위로였다. 주님, 쉬게 해주세요.' },
+        { dow:5, emotion:'아픔', topic:'가족',  need:'위로', diary:'가족 일로 마음이 많이 아팠다. 용서가 먼저라는 걸 알면서도 쉽지 않다.' },
+        { dow:6, emotion:'감사', topic:'모름',  need:'위로', diary:'주말 아침, 커피 한 잔과 함께 말씀을 읽었다. 작은 것에도 감사하는 하루.' },
+    ];
+    // 데모 목적: 이번 주 전체(일~토)에 걸쳐 데이터 삽입 (대시보드 week 필터에 모두 포함)
+    const demo = allDays.map(d => {
+        const date = new Date(weekStart);
+        date.setDate(weekStart.getDate() + d.dow);
+        return { date: date.toISOString().slice(0,10), emotion: d.emotion,
+                 topic: d.topic, need: d.need, emoji: E_EMOJI[d.emotion] || '', diary: d.diary };
+    });
+    lsSet('moodHistory', demo);
+}
+
+/* ── 주간 범위 계산 (일요일 시작) ── */
+function getWeekRange() {
+    const now = new Date();
+    const sun = new Date(now);
+    sun.setDate(now.getDate() - now.getDay());
+    sun.setHours(0,0,0,0);
+    const sat = new Date(sun);
+    sat.setDate(sun.getDate() + 6);
+    const fmt = d => d.toISOString().slice(0,10);
+    return { startStr: fmt(sun), endStr: fmt(sat) };
+}
+
+/* ── 대시보드 열기 ── */
+async function openDashboard() {
+    if (sessionStorage.getItem('devMode') !== '1') { toast('🔒 준비 중인 기능입니다'); return; }
+    const data = await getDashboardData();
+    renderDashboard(data);
+    showOverlay('overlay-dashboard');
+}
+
+/* ── 데이터 (Supabase 우선, localStorage 폴백) ── */
+async function getDashboardData() {
+    const { startStr, endStr } = getWeekRange();
+    if (sbUser && sb) {
+        try {
+            const { data } = await sb.from('mood_history')
+                .select('*').eq('user_id', sbUser.id)
+                .gte('date', startStr).lte('date', endStr)
+                .order('date', { ascending: true });
+            if (data && data.length > 0) return data.map(r => ({
+                date: r.date, emotion: r.emotion, topic: r.topic,
+                need: r.need, diary: r.diary_text, emoji: E_EMOJI[r.emotion]
+            }));
+        } catch(e) {}
+    }
+    const hist = lsGet('moodHistory') || [];
+    return hist.filter(m => m.date >= startStr && m.date <= endStr)
+               .sort((a,b) => a.date.localeCompare(b.date));
+}
+
+/* ── 렌더링 ── */
+function renderDashboard(data) {
+    const { startStr } = getWeekRange();
+    renderDbNarrative(data);
+    renderDbEmoBars(data);
+    renderDbDayFlow(data, startStr);
+    renderDbPatterns(data);
+    renderDbDiaries(data);
+    const det = document.getElementById('db-detail');
+    const btn = document.getElementById('db-detail-btn');
+    if (det) det.classList.add('hidden');
+    if (btn) btn.textContent = '상세히 보기 ▾';
+}
+
+/* 서사 카드 */
+const DB_NARRATIVES = {
+    감사: { main:'이번 주, 감사가 넘쳤던 한 주를 보냈군요 🙏', sub:'감사한 마음이 하나님께 닿았을 거예요.' },
+    평안: { main:'이번 주, 마음이 평안했군요 🍃', sub:'하나님의 평안이 함께했던 한 주예요.' },
+    걱정: { main:'이번 주, 걱정이 마음에 있었군요 💙', sub:'그래도 여기 오셨네요. 그것만으로 충분해요.' },
+    지침: { main:'이번 주, 많이 지치셨군요 🌙', sub:'정말 수고하셨어요. 오늘 밤은 푹 쉬세요.' },
+    아픔: { main:'이번 주, 마음이 많이 아팠군요 🌷', sub:'그 아픔도 하나님이 아세요. 혼자가 아니에요.' },
+    기도: { main:'이번 주, 기도로 하루를 마쳤네요 ✨', sub:'하나님이 그 기도를 들으셨어요.' }
+};
+function renderDbNarrative(data) {
+    const el = document.getElementById('db-narrative');
+    if (!el) return;
+    const { startStr, endStr } = getWeekRange();
+    const wl = `${startStr.slice(5).replace('-','/')}(일) ~ ${endStr.slice(5).replace('-','/')}(토)`;
+    if (!data.length) {
+        el.innerHTML = `<div class="db-narrative-week">${wl}</div>
+            <div class="db-narrative-main">이번 주 아직 기록이 없어요</div>
+            <div class="db-narrative-sub">오늘 하루를 남겨보세요 ✦</div>`;
+        return;
+    }
+    const cnt = {};
+    data.forEach(m => { cnt[m.emotion] = (cnt[m.emotion]||0)+1; });
+    const top = Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0][0];
+    const n = DB_NARRATIVES[top] || { main:'이번 주를 함께해주셨어요', sub:'하나님이 함께하셨어요.' };
+    el.innerHTML = `<div class="db-narrative-week">${wl}</div>
+        <div class="db-narrative-main">${n.main}</div>
+        <div class="db-narrative-sub">${n.sub}</div>`;
+}
+
+/* 감정 바 */
+const DB_EMO_COLORS = {감사:'#f59e0b',평안:'#10b981',걱정:'#6366f1',지침:'#8b5cf6',아픔:'#ef4444',기도:'#3b82f6'};
+const DB_EMO_LIST = ['감사','평안','걱정','지침','아픔','기도'];
+function renderDbEmoBars(data) {
+    const el = document.getElementById('db-emo-bars');
+    if (!el) return;
+    const cnt = {};
+    DB_EMO_LIST.forEach(e => cnt[e] = 0);
+    data.forEach(m => { if (cnt[m.emotion] !== undefined) cnt[m.emotion]++; });
+    const max = Math.max(...Object.values(cnt), 1);
+    // 먼저 width:0 으로 렌더링 후 transition으로 늘어남
+    el.innerHTML = DB_EMO_LIST.map((e, i) => {
+        const c = cnt[e], pct = Math.round(c/max*100), col = DB_EMO_COLORS[e];
+        return `<div class="db-emo-row">
+            <span class="db-emo-lbl">${e}</span>
+            <div class="db-emo-track">
+                <div class="db-emo-fill" data-pct="${pct}" style="width:0;background:linear-gradient(90deg,${col},${col}99);">
+                    ${c > 0 ? `<span class="db-emo-cnt">${c}회</span>` : ''}
+                </div>
+                ${c === 0 ? '<span class="db-emo-zero">-</span>' : ''}
+            </div>
+        </div>`;
+    }).join('');
+    // 한 프레임 후 실제 너비로 transition
+    requestAnimationFrame(() => {
+        el.querySelectorAll('.db-emo-fill[data-pct]').forEach((bar, i) => {
+            setTimeout(() => { bar.style.width = bar.dataset.pct + '%'; }, i * 90);
+        });
+    });
+}
+
+/* 요일별 흐름 */
+const DB_DAY_NAMES = ['일','월','화','수','목','금','토'];
+const DB_EMO_EMOJI = {감사:'🙏',평안:'😌',걱정:'😔',지침:'😞',아픔:'😢',기도:'✨'};
+function renderDbDayFlow(data, startStr) {
+    const el = document.getElementById('db-day-flow');
+    if (!el) return;
+    const byDate = {};
+    data.forEach(m => { byDate[m.date] = m; });
+    const today = todayStr();
+    const start = new Date(startStr + 'T00:00:00');
+    el.innerHTML = Array.from({length:7}, (_,i) => {
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+        const ds = d.toISOString().slice(0,10);
+        const m = byDate[ds];
+        const isToday = ds === today;
+        const col = m ? DB_EMO_COLORS[m.emotion] : '';
+        const emoji = m ? (DB_EMO_EMOJI[m.emotion]||'·') : '';
+        return `<div class="db-day-col${isToday?' db-day-today':''}">
+            <div class="db-day-dot${m?'':' empty'}"
+                style="${m?`background:${col}22;border:2px solid ${col};`:''}">${emoji}</div>
+            <div class="db-day-name">${DB_DAY_NAMES[i]}</div>
+        </div>`;
+    }).join('');
+}
+
+/* 패턴 인사이트 */
+const DB_TOPIC_LBL = {일:'일할 때',가족:'가족과 함께일 때',공부:'공부할 때',사람:'사람들과 있을 때',모름:'무언가 있었을 때'};
+const DB_NEED_LBL = {위로:'위로가 필요했고',힘:'힘이 필요했고',지혜:'지혜가 필요했고',쉼:'쉬고 싶었고'};
+function renderDbPatterns(data) {
+    const el = document.getElementById('db-patterns');
+    if (!el) return;
+    if (!data.length) { el.innerHTML = '<div class="db-empty">기록이 쌓이면 패턴을 보여드려요</div>'; return; }
+    const combos = {};
+    data.forEach(m => {
+        if (!m.topic || !m.emotion) return;
+        const k = m.topic + '|' + m.emotion;
+        combos[k] = (combos[k]||0) + 1;
+    });
+    const sorted = Object.entries(combos).sort((a,b)=>b[1]-a[1]).slice(0,2);
+    let html = sorted.map(([k, c]) => {
+        const [topic, emo] = k.split('|');
+        const tl = DB_TOPIC_LBL[topic] || topic;
+        return `<div class="db-pattern"><strong>${tl}</strong>
+            <strong style="color:${DB_EMO_COLORS[emo]}">${emo}</strong>한 감정이 많았어요
+            <span style="float:right;font-size:11px;opacity:.4">${c}회</span></div>`;
+    }).join('');
+    const needCnt = {};
+    data.forEach(m => { if(m.need) needCnt[m.need] = (needCnt[m.need]||0)+1; });
+    const topNeed = Object.entries(needCnt).sort((a,b)=>b[1]-a[1])[0];
+    if (topNeed) {
+        const nl = DB_NEED_LBL[topNeed[0]] || topNeed[0];
+        html += `<div class="db-pattern">이번 주 가장 많이 <strong>${nl}</strong> 하나님 앞에 나왔어요</div>`;
+    }
+    el.innerHTML = html || '<div class="db-empty">패턴 분석을 위해 더 많은 기록이 필요해요</div>';
+}
+
+/* 이번 주 일기 */
+function renderDbDiaries(data) {
+    const el = document.getElementById('db-diaries');
+    if (!el) return;
+    const withDiary = data.filter(m => m.diary).slice().reverse();
+    if (!withDiary.length) {
+        el.innerHTML = '<div class="db-empty">이번 주 일기가 없어요<br>오늘 한 줄 남겨보세요 ✦</div>';
+        return;
+    }
+    el.innerHTML = withDiary.map(m => {
+        const col = DB_EMO_COLORS[m.emotion] || 'rgba(255,255,255,.2)';
+        return `<div class="db-diary-item" style="border-left-color:${col}">
+            <div class="db-diary-date">${m.date.slice(5).replace('-','/')} · ${m.emotion}</div>
+            <div class="db-diary-txt">${m.diary}</div>
+        </div>`;
+    }).join('');
+}
+
+/* 상세 토글 */
+function toggleDbDetail() {
+    const det = document.getElementById('db-detail');
+    const btn = document.getElementById('db-detail-btn');
+    if (!det) return;
+    const open = !det.classList.contains('hidden');
+    det.classList.toggle('hidden', open);
+    if (btn) btn.textContent = open ? '상세히 보기 ▾' : '간략히 보기 ▴';
+}
 </script>
 </body>
 </html>
