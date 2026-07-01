@@ -176,11 +176,41 @@
         .cp-dot{color:rgba(200,160,60,.35);font-weight:400;}
         #cp-streak { font-size:15px;font-weight:900;color:#f0c040;letter-spacing:.3px; }
 
-        /* ── 마무리 완료 카드 ── */
-        .card-blessing { text-align:center;background:linear-gradient(160deg,rgba(200,168,107,.07),rgba(255,255,255,.03)); }
+        /* ── 마무리 완료 카드 (클로징 트리거 전엔 숨김) ── */
+        .card-blessing { display:none;text-align:center;background:linear-gradient(160deg,rgba(200,168,107,.07),rgba(255,255,255,.03)); }
         .blessing-icon { font-size:38px;margin-bottom:14px;display:block; }
-        .blessing-title { font-size:17px;font-weight:800;color:rgba(255,255,255,.88);margin-bottom:8px; }
-        .blessing-sub   { font-size:13px;color:rgba(255,255,255,.45);line-height:1.7; }
+        .blessing-title { font-size:17px;font-weight:800;color:#3a2840;margin-bottom:8px; }
+        .blessing-sub   { font-size:13px;color:#8a7660;line-height:1.7; }
+        .blessing-streak{ font-size:12px;color:#c08a20;font-weight:700;margin-top:12px;letter-spacing:.2px; }
+        #step4.closing .card-blessing {
+            display:block; animation:closing-seal-in .6s cubic-bezier(.22,1,.36,1) .45s both;
+        }
+        @keyframes closing-seal-in {
+            0%   { transform:scale(.85) translateY(10px); opacity:0; }
+            100% { transform:scale(1) translateY(0); opacity:1; }
+        }
+
+        /* ── 결과화면 마무리(클로징) 카운트다운 ── */
+        .closing-timer {
+            position:fixed; top:calc(env(safe-area-inset-top,0px) + 10px); right:14px;
+            font-size:11px; letter-spacing:.3px; color:rgba(255,255,255,.28);
+            padding:4px 9px; border-radius:20px; background:rgba(255,255,255,.04);
+            z-index:40; transition:color .4s ease, background .4s ease;
+        }
+        .closing-timer.hidden { display:none; }
+        .closing-timer.warning {
+            color:#f0c040; background:rgba(255,200,60,.14); cursor:pointer;
+            animation:closing-timer-pulse 1.4s ease-in-out infinite;
+        }
+        @keyframes closing-timer-pulse { 0%,100%{opacity:1;} 50%{opacity:.55;} }
+
+        /* ── 클로징 트리거 시 결과 카드 사라짐 ── */
+        #step4.closing .card:not(.card-blessing) {
+            animation:closing-card-rise .5s cubic-bezier(.4,0,.2,1) both;
+            pointer-events:none;
+        }
+        @keyframes closing-card-rise { to { transform:translateY(-24px); opacity:0; } }
+        #step4.closing .card.closing-collapsed { display:none; }
 
         /* ── 리플 효과 ── */
         .ripple-effect {
@@ -1752,6 +1782,7 @@
 
     <!-- STEP 4: 결과 -->
     <div id="step4" class="step hidden">
+        <span id="closing-timer" class="closing-timer hidden" onclick="extendClosingTimer()"></span>
         <p class="result-context" id="r-context"></p>
 
         <!-- 글자 크기 -->
@@ -1798,15 +1829,16 @@
             <p class="reflect-text" id="r-reflection"></p>
         </div>
 
-        <!-- 마무리 완료 카드 -->
+        <!-- 마무리 완료 카드 (평소엔 숨김, 클로징 트리거 시 등장) -->
         <div class="card card-blessing">
             <span class="blessing-icon">🙏</span>
             <p class="blessing-title">오늘도 수고하셨어요</p>
             <p class="blessing-sub" id="blessing-sub">이 고요한 순간,<br>하나님이 함께하셨습니다.</p>
+            <p class="blessing-streak" id="blessing-streak"></p>
         </div>
 
         <button id="btn-dashboard" class="btn-dashboard hidden" type="button" onclick="openDashboard()">📊 이번 주 나의 이야기</button>
-        <button class="btn-restart" type="button" onclick="restart()">🌙 다시 시작하기</button>
+        <button class="btn-restart" type="button" onclick="onFinishClick()">🌙 오늘 묵상 마치기</button>
     </div>
 </div>
 
@@ -3739,6 +3771,14 @@ let curVerse = null;
 let verseSaved = false;
 let fontLevel = 0;
 
+/* 결과화면 마무리(클로징) 상태 */
+const CLOSING_TIMEOUT = 300;   // 5분
+const CLOSING_WARN_AT = 30;    // 마지막 30초 경고
+let closingTriggered = false;
+let closingTimerId = null;
+let closingCountdown = CLOSING_TIMEOUT;
+let closingWarned = false;
+
 const rand = arr => arr[Math.floor(Math.random() * arr.length)];
 function getTimeSlot() {
     const h = new Date().getHours();
@@ -3797,6 +3837,7 @@ const LANG_DATA = {
         need:['위로받고 싶어요','힘을 얻고 싶어요','방향이 필요해요','그냥 쉬고 싶어요'],
         /* 결과 버튼 */
         btn_copy:'📋 복사', btn_share:'📤 공유', btn_save:'⭐ 즐겨찾기', btn_saved:'★ 저장됨', btn_restart:'🌙 다시 시작하기',
+        btn_finish:'🌙 오늘 묵상 마치기', closing_extend_hint:'· 연장하기', closing_extended:'5분 더 볼게요',
         /* 보관함 */
         vault_title:'📖 나의 보관함', vault_back:'← 돌아가기',
         v_tab1:'즐겨찾기', v_tab2:'감정 기록', v_tab3:'주간 통계',
@@ -3879,6 +3920,7 @@ const LANG_DATA = {
         need:['Comfort','Strength','Direction','Rest'],
         /* 결과 버튼 */
         btn_copy:'📋 Copy', btn_share:'📤 Share', btn_save:'⭐ Bookmark', btn_saved:'★ Saved', btn_restart:'🌙 Start Over',
+        btn_finish:'🌙 Finish Today’s Reflection', closing_extend_hint:'· Extend', closing_extended:'5 more minutes',
         /* 보관함 */
         vault_title:'📖 My Vault', vault_back:'← Back',
         v_tab1:'Saved', v_tab2:'History', v_tab3:'Weekly',
@@ -3961,6 +4003,7 @@ const LANG_DATA = {
         need:['慰めがほしい','力がほしい','方向が必要','ただ休みたい'],
         /* 결과 버튼 */
         btn_copy:'📋 コピー', btn_share:'📤 共有', btn_save:'⭐ お気に入り', btn_saved:'★ 保存済み', btn_restart:'🌙 もう一度',
+        btn_finish:'🌙 今日の黙想を終える', closing_extend_hint:'· 延長する', closing_extended:'あと5分見ます',
         /* 보관함 */
         vault_title:'📖 ボールト', vault_back:'← 戻る',
         v_tab1:'お気に入り', v_tab2:'記録', v_tab3:'週間統計',
@@ -4069,7 +4112,8 @@ function applyLang(lang) {
     const bsv=document.getElementById('btn-save'), br=document.querySelector('.btn-restart');
     if(bc) bc.textContent=L.btn_copy; if(bs) bs.textContent=L.btn_share;
     if(bsv&&!bsv.classList.contains('saved')) bsv.textContent=L.btn_save;
-    if(br) br.textContent=L.btn_restart;
+    if(br) br.textContent = closingTriggered ? L.btn_restart : L.btn_finish;
+    renderClosingTimer();
     // 보관함 오버레이
     s('vault-title',L.vault_title); s('vault-back',L.vault_back);
     const tabs=document.querySelectorAll('.vault-tab');
@@ -4643,6 +4687,13 @@ function buildResult() {
             el.classList.add('card-reveal');
         });
     }, 50);
+
+    // 마무리(클로징) 상태 초기화 + 5분 타이머 시작
+    document.getElementById('step4').classList.remove('closing');
+    document.querySelectorAll('#step4 .card').forEach(c=>c.classList.remove('closing-collapsed'));
+    const br = document.querySelector('.btn-restart');
+    if (br) br.textContent = (LANG_DATA[appLang]||LANG_DATA.ko).btn_finish;
+    startClosingTimer();
 }
 
 function saveMood() {
@@ -4784,6 +4835,7 @@ function saveDiary() {
     const saveBtn = document.getElementById('diary-save-btn');
     if (saveBtn) saveBtn.disabled = true;
     toast(L.toast_diary_saved);
+    setTimeout(triggerClosing, 900); // 저장 확인 메시지 보여준 뒤 마무리 연출
 }
 
 /* ═══════════════════════════════════════
@@ -5347,9 +5399,100 @@ function applyUpdate() {
 ═══════════════════════════════════════ */
 function restart() {
     sel={emotion:null,topic:null,need:null}; curVerse=null; verseSaved=false;
+    stopClosingTimer();
+    document.getElementById('step4').classList.remove('closing');
+    document.querySelectorAll('#step4 .card').forEach(c=>c.classList.remove('closing-collapsed'));
     setWelcome();
     go('step4','step1');
 }
+
+/* ═══════════════════════════════════════
+   결과화면 마무리(클로징)
+   트리거 3종: 일기 저장 / "오늘 묵상 마치기" 버튼 / 5분 무활동
+═══════════════════════════════════════ */
+function startClosingTimer() {
+    closingTriggered = false;
+    closingCountdown = CLOSING_TIMEOUT;
+    closingWarned = false;
+    const el = document.getElementById('closing-timer');
+    if (el) el.classList.remove('hidden','warning');
+    renderClosingTimer();
+    if (closingTimerId) clearInterval(closingTimerId);
+    closingTimerId = setInterval(tickClosingTimer, 1000);
+}
+
+function stopClosingTimer() {
+    if (closingTimerId) { clearInterval(closingTimerId); closingTimerId = null; }
+    const el = document.getElementById('closing-timer');
+    if (el) el.classList.add('hidden');
+}
+
+function resetClosingActivity() {
+    if (closingTriggered || !closingTimerId) return;
+    closingCountdown = CLOSING_TIMEOUT;
+    closingWarned = false;
+    const el = document.getElementById('closing-timer');
+    if (el) el.classList.remove('warning');
+    renderClosingTimer();
+}
+
+function tickClosingTimer() {
+    closingCountdown--;
+    if (closingCountdown <= CLOSING_WARN_AT && !closingWarned) {
+        closingWarned = true;
+        const el = document.getElementById('closing-timer');
+        if (el) el.classList.add('warning');
+    }
+    renderClosingTimer();
+    if (closingCountdown <= 0) triggerClosing();
+}
+
+function renderClosingTimer() {
+    const el = document.getElementById('closing-timer');
+    if (!el || el.classList.contains('hidden')) return;
+    const t = Math.max(closingCountdown, 0);
+    const timeStr = Math.floor(t/60) + ':' + String(t%60).padStart(2,'0');
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    el.textContent = closingWarned ? `${timeStr} ${L.closing_extend_hint}` : timeStr;
+}
+
+function extendClosingTimer() {
+    if (closingTriggered || !closingWarned) return;
+    resetClosingActivity();
+    toast((LANG_DATA[appLang]||LANG_DATA.ko).closing_extended);
+}
+
+function triggerClosing() {
+    if (closingTriggered) return;
+    closingTriggered = true;
+    stopClosingTimer();
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    const step4 = document.getElementById('step4');
+    step4.classList.add('closing');
+    const streak = calcStreak(lsGet('visitDates')||[]);
+    const streakEl = document.getElementById('blessing-streak');
+    if (streakEl) streakEl.textContent = streak>0 ? `🔥 ${streak}${L.streak_unit}` : '';
+    setTimeout(() => {
+        document.querySelectorAll('#step4 .card:not(.card-blessing)').forEach(c=>c.classList.add('closing-collapsed'));
+    }, 520);
+    const br = document.querySelector('.btn-restart');
+    if (br) br.textContent = L.btn_restart;
+}
+
+function onFinishClick() {
+    if (!closingTriggered) triggerClosing();
+    else restart();
+}
+
+/* 결과화면에서의 사용자 활동 → 타이머 리셋 (실질적 자동 연장) */
+(function(){
+    const onActivity = () => {
+        const s4 = document.getElementById('step4');
+        if (s4 && !s4.classList.contains('hidden')) resetClosingActivity();
+    };
+    ['click','input','keydown','touchstart'].forEach(evt => document.addEventListener(evt, onActivity, { passive:true }));
+    window.addEventListener('scroll', onActivity, { passive:true });
+})();
 
 /* ── 이름 입력 엔터 처리 ── */
 document.addEventListener('DOMContentLoaded', ()=>{
