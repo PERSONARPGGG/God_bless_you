@@ -1606,7 +1606,12 @@
                     <div id="privacy-text" style="font-size:11px;color:rgba(255,255,255,.38);line-height:1.7;text-align:center;">
                         🔒 저장된 기록은 기기 내에만 보관되며,<br>외부 서버로 수집되지 않습니다.
                     </div>
-                    <div class="copyright-notice">성경 본문: 개역개정 © 대한성서공회 | English: ESV © Crossway</div>
+                    <div class="copyright-notice">
+                        한국어 성경 말씀은 「성경전서 개역개정판」(대한성서공회)에서 인용했습니다.<br>
+                        Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard Version®),<br>
+                        copyright © 2001 by Crossway, a publishing ministry of Good News Publishers.<br>
+                        Used by permission. All rights reserved.
+                    </div>
                 </div>
             </div>
         </div>
@@ -5918,34 +5923,99 @@ function openDiaryCover() {
     }, 900);
 }
 
-/* ── 배경 음악 ── */
-const BG_MUSIC_URL = './At the End of the Day.mp3';
-let bgAudio = null;
+/* ═══════════════════════════════════════
+   배경 음악 — 찬송가 오르골 (Web Audio 자체 연주)
+   멜로디는 퍼블릭 도메인(작곡 19세기), 음원을 코드로 직접 생성하므로
+   저작인접권 문제 없음. mp3 파일 불필요.
+   [midi, 박자] 배열, midi 0 = 쉼표.
+═══════════════════════════════════════ */
+const HYMNS = [
+    { title:'나 같은 죄인 살리신 (Amazing Grace)', bpm:62, notes:[
+        [62,1],[67,2],[71,.5],[67,.5],[71,2],[69,1],[67,2],[64,1],[62,3],
+        [62,1],[67,2],[71,.5],[67,.5],[71,2],[69,1],[74,6],
+        [71,1],[74,2],[71,1],[67,2],[64,1],[67,2],[64,1],[62,3],
+        [62,1],[67,2],[71,.5],[67,.5],[71,2],[69,1],[67,6],
+    ]},
+    { title:'예수 사랑하심은 (Jesus Loves Me)', bpm:76, notes:[
+        [67,1],[64,1],[64,1],[62,1],[64,1],[67,1],[67,2],
+        [69,1],[69,1],[72,1],[69,1],[69,1],[67,1],[67,2],
+        [67,1],[64,1],[64,1],[62,1],[64,1],[67,1],[67,2],
+        [69,1],[69,1],[67,1],[72,1],[64,1],[62,1],[60,4],
+        [67,1.5],[64,.5],[67,1],[69,1],[72,3],[0,1],
+        [67,1.5],[64,.5],[72,1],[64,1],[62,3],[0,1],
+        [67,1.5],[64,.5],[67,1],[69,1],[72,3],[0,1],
+        [69,1],[67,1],[72,1],[64,1],[62,1],[60,4],
+    ]},
+];
+
+let hymnCtx = null, hymnGain = null, hymnTimer = null, hymnOn = false;
+
+/* 오르골 톤: 기음 한 옥타브 위 사인파 + 배음, 플럭 엔벨로프 */
+function hymnNote(midi, t, dur) {
+    const f = 440 * Math.pow(2, (midi - 69) / 12);
+    const dec = Math.min(dur * 1.5, 2.6);
+    const mk = (mult, peak, decMul) => {
+        const o = hymnCtx.createOscillator(), g = hymnCtx.createGain();
+        o.type = 'sine'; o.frequency.value = f * mult;
+        g.gain.setValueAtTime(.0001, t);
+        g.gain.exponentialRampToValueAtTime(peak, t + .012);
+        g.gain.exponentialRampToValueAtTime(.0001, t + dec * decMul);
+        o.connect(g); g.connect(hymnGain);
+        o.start(t); o.stop(t + dec + .1);
+    };
+    mk(2, .5, 1);      // 기음 (한 옥타브 위 = 오르골 음역)
+    mk(4, .1, .45);    // 배음 (금속성 반짝임)
+}
+
+function hymnPlay(idx) {
+    if (!hymnOn || !hymnCtx) return;
+    const h = HYMNS[idx % HYMNS.length];
+    const beat = 60 / h.bpm;
+    let t = hymnCtx.currentTime + .2;
+    const t0 = t;
+    h.notes.forEach(([m, b]) => { if (m) hymnNote(m + 12, t, b * beat); t += b * beat; });
+    // 곡 끝 + 4초 여백 후 다음 곡
+    hymnTimer = setTimeout(() => hymnPlay(idx + 1), (t - t0 + 4) * 1000);
+}
+
+function startHymns() {
+    if (!hymnCtx) hymnCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (hymnCtx.state === 'suspended') hymnCtx.resume();
+    // 새 게인 노드로 시작 (이전에 스케줄된 노트는 끊어진 노드에 붙어 무음)
+    hymnGain = hymnCtx.createGain();
+    hymnGain.gain.value = .2;
+    hymnGain.connect(hymnCtx.destination);
+    hymnOn = true;
+    hymnPlay(Math.floor(Math.random() * HYMNS.length));
+}
+
+function stopHymns() {
+    hymnOn = false;
+    clearTimeout(hymnTimer);
+    if (hymnGain) { try { hymnGain.disconnect(); } catch(e){} hymnGain = null; }
+}
 
 function toggleBgMusic(on) {
+    const sub = document.getElementById('music-status-sub');
     if (on) {
-        if (!bgAudio) {
-            bgAudio = new Audio(BG_MUSIC_URL);
-            bgAudio.loop = true;
-            bgAudio.volume = 0.3;
-        }
-        bgAudio.play().catch(() => { toast('🎵 재생에 실패했어요'); });
+        try { startHymns(); } catch(e) { toast('🎵 재생에 실패했어요'); return; }
         lsSet('bgMusic', '1');
-        document.getElementById('music-status-sub').textContent = '재생 중 🎵';
+        if (sub) sub.textContent = '재생 중 🎵';
     } else {
-        if (bgAudio) bgAudio.pause();
+        stopHymns();
         lsSet('bgMusic', '0');
-        document.getElementById('music-status-sub').textContent = '일시정지됨';
+        if (sub) sub.textContent = '일시정지됨';
     }
 }
 
-// 앱 시작 시 음악 설정 복원
+// 앱 시작 시 음악 설정 복원 (AudioContext는 사용자 제스처 필요 → 첫 터치에 시작)
 function restoreBgMusic() {
-    if (!BG_MUSIC_URL) return;
-    const saved = lsGet('bgMusic');
-    if (saved === '1') {
+    if (lsGet('bgMusic') === '1') {
         const toggle = document.getElementById('music-toggle-input');
-        if (toggle) { toggle.checked = true; toggleBgMusic(true); }
+        if (toggle) toggle.checked = true;
+        document.addEventListener('pointerdown', () => {
+            if (lsGet('bgMusic') === '1' && !hymnOn) toggleBgMusic(true);
+        }, { once: true });
     }
 }
 
