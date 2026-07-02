@@ -352,9 +352,7 @@
         @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         .step.entering { animation:fadeUp .38s ease forwards; }
 
-        /* ── 결과 카드 순차 shimmer ── */
-        @keyframes card-shimmer { 0%{opacity:0;transform:translateY(18px)} 100%{opacity:1;transform:translateY(0)} }
-        .card-reveal { animation:card-shimmer .65s cubic-bezier(.22,1,.36,1) both; }
+        /* 결과 카드 등장은 .card-cascade(JS 제어) 단일 시스템 사용 — 아래 감성 연출 섹션 참고 */
 
         /* ── 공통 타이틀 ── */
         .step-title    { font-size:var(--fs-xl);font-weight:700;color:#1a1a2e;text-align:center;margin-bottom:5px;line-height:1.45; }
@@ -1521,12 +1519,12 @@
 
         <!-- 배경 음악 -->
         <div class="settings-section">
-            <div class="settings-label">배경 음악</div>
+            <div class="settings-label" id="lbl-music">배경 음악</div>
             <div class="settings-card">
                 <div class="setting-row">
                     <div>
-                        <div class="setting-row-label">🎵 배경 음악</div>
-                        <div class="setting-row-sub" id="music-status-sub">하루의 끝, 잔잔한 음악과 함께해요</div>
+                        <div class="setting-row-label" id="music-row-label">🎵 배경 음악</div>
+                        <div class="setting-row-sub" id="music-status-sub">하루의 끝, 잔잔한 찬송가 오르골과 함께해요</div>
                     </div>
                     <label class="music-toggle">
                         <input type="checkbox" id="music-toggle-input" onchange="toggleBgMusic(this.checked)">
@@ -1580,7 +1578,7 @@
                         <div class="setting-row-label">오늘은 어땠나요?</div>
                         <div id="row-app-desc" class="setting-row-sub">하루를 마무리하는 작은 디지털 쉼터</div>
                     </div>
-                    <span id="app-version" style="font-size:11px;color:rgba(255,255,255,.3);">v2.3</span>
+                    <span id="app-version" style="font-size:11px;color:rgba(255,255,255,.3);">v2.5</span>
                 </div>
                 <div class="setting-row">
                     <div>
@@ -1949,7 +1947,7 @@
         <!-- 마무리 완료 카드 (평소엔 숨김, 클로징 트리거 시 등장) -->
         <div class="card card-blessing">
             <span class="blessing-icon">🙏</span>
-            <p class="blessing-title">오늘도 수고하셨어요</p>
+            <p class="blessing-title" id="blessing-title">오늘도 수고하셨어요</p>
             <p class="blessing-sub" id="blessing-sub">이 고요한 순간,<br>하나님이 함께하셨습니다.</p>
             <p class="blessing-streak" id="blessing-streak"></p>
         </div>
@@ -1981,10 +1979,15 @@
    § 대시보드       ← openDashboard(), renderDashboard() 외
    § 페르소나 데모  ← PERSONA_DATA, loadPersona()
    § 데모 주입      ← injectDemoData()
-   § 음악           ← toggleBgMusic(), restoreBgMusic()
+   § 음악           ← HYMNS, hymnNote/hymnPlay, toggleBgMusic() — Web Audio 찬송가 오르골
    § 설정           ← openSettings(), applyLang(), cycleFont()
    § 저장 / 일기    ← toggleSave(), saveDiary()
    § PWA / 스트릭  ← installPWA(), checkStreak()
+   § 클로징(마무리) ← startClosingTimer/triggerClosing/onFinishClick — 5분 타이머+마무리 카드
+   § 연속 감정 인식 ← EMO_CATEGORY, calcEmotionRun(), renderEmotionPattern()
+   § 프리미엄       ← isPremium(), openPremiumModal(), premiumInterest() — 무료/유료 경계
+   § 감성 연출      ← spawnShootingStar(), applyEmoTint(), sky-shift — 별똥별/감정색/하늘흐름
+   § 말씀 카드 공유 ← makeVerseCardBlob(), shareVerse(), downloadVerseCard()
    ─────────────────────────────────────────────────────────────
    아키텍처: Vanilla JS + Supabase (RLS) + Service Worker
    배포: Vercel (GitHub 자동 배포)
@@ -3968,6 +3971,19 @@ const LANG_DATA = {
         pat_pos_n:'✨ {n}일째 감사와 평안이 이어지고 있어요. 그 마음, 참 귀해요.',
         pat_pray_n:'🙏 {n}일째 기도로 하루를 맺고 있어요. 그 기도, 하늘에 쌓이고 있습니다.',
         toast_img_saved:'🖼️ 말씀 카드 이미지가 저장됐어요',
+        closing_title:'오늘도 수고하셨어요',
+        closing_msgs:{
+            감사:'감사하는 마음이 흘렀던 오늘,\n하나님이 그 마음을 기뻐하십니다.',
+            평안:'평안했던 오늘 하루,\n그 고요함도 하나님의 선물입니다.',
+            걱정:'걱정을 안고도 여기까지 오셨네요.\n하나님이 그 무거움을 아십니다.',
+            지침:'지친 몸과 마음으로 오늘을 버텨내셨어요.\n하나님이 당신의 쉼을 준비하십니다.',
+            아픔:'아팠던 오늘, 외롭지 않으셨으면 해요.\n하나님이 그 마음 곁에 계십니다.',
+            기도:'기도하고 싶다는 그 마음,\n이미 하나님께 닿아 있습니다.'
+        },
+        closing_default:'이 고요한 순간,\n하나님이 함께하셨습니다.',
+        lbl_music:'배경 음악', music_row:'🎵 배경 음악',
+        music_sub_idle:'하루의 끝, 잔잔한 찬송가 오르골과 함께해요',
+        music_on:'재생 중 🎵', music_off:'일시정지됨',
         /* 보관함 */
         vault_title:'📖 나의 보관함', vault_back:'← 돌아가기',
         v_tab1:'즐겨찾기', v_tab2:'감정 기록', v_tab3:'주간 통계',
@@ -4063,6 +4079,19 @@ const LANG_DATA = {
         pat_pos_n:'✨ {n} days of gratitude and peace in a row. What a precious heart.',
         pat_pray_n:'🙏 {n} days of ending your day in prayer. Those prayers are being kept in heaven.',
         toast_img_saved:'🖼️ Verse card image saved',
+        closing_title:'You did well today',
+        closing_msgs:{
+            감사:'Gratitude flowed through your day.\nGod delights in that heart.',
+            평안:'A peaceful day —\nthat quietness, too, is God\'s gift.',
+            걱정:'You made it here, worries and all.\nGod knows the weight you carry.',
+            지침:'You endured today, tired in body and heart.\nGod is preparing your rest.',
+            아픔:'It hurt today. May you not feel alone —\nGod stays close to that heart.',
+            기도:'That longing to pray\nhas already reached God.'
+        },
+        closing_default:'In this quiet moment,\nGod was with you.',
+        lbl_music:'Background Music', music_row:'🎵 Background Music',
+        music_sub_idle:'End your day with a gentle hymn music box',
+        music_on:'Playing 🎵', music_off:'Paused',
         /* 보관함 */
         vault_title:'📖 My Vault', vault_back:'← Back',
         v_tab1:'Saved', v_tab2:'History', v_tab3:'Weekly',
@@ -4158,6 +4187,19 @@ const LANG_DATA = {
         pat_pos_n:'✨ {n}日連続で感謝と平安が続いています。尊い心ですね。',
         pat_pray_n:'🙏 {n}日連続、祈りで一日を締めくくっています。その祈りは天に積まれています。',
         toast_img_saved:'🖼️ 御言葉カードを保存しました',
+        closing_title:'今日もお疲れさまでした',
+        closing_msgs:{
+            감사:'感謝の心が流れた今日、\n神様はその心を喜ばれます。',
+            평안:'平安だった今日一日、\nその静けさも神様の贈り物です。',
+            걱정:'心配を抱えたままここまで来ましたね。\n神様はその重さをご存知です。',
+            지침:'疲れた体と心で今日を耐え抜きました。\n神様があなたの休みを備えています。',
+            아픔:'つらかった今日、独りではありませんように。\n神様がその心のそばにおられます。',
+            기도:'祈りたいというその心は、\nすでに神様に届いています。'
+        },
+        closing_default:'この静かなひととき、\n神様が共におられました。',
+        lbl_music:'BGM', music_row:'🎵 BGM',
+        music_sub_idle:'一日の終わりに、賛美歌オルゴールと共に',
+        music_on:'再生中 🎵', music_off:'一時停止中',
         /* 보관함 */
         vault_title:'📖 ボールト', vault_back:'← 戻る',
         v_tab1:'お気に入り', v_tab2:'記録', v_tab3:'週間統計',
@@ -4311,6 +4353,18 @@ function applyLang(lang) {
     if(cpStr){ const n=(cpStr.textContent.match(/\d+/)||['1'])[0]; cpStr.textContent=n+L.streak_unit; }
     // 푸터
     s('footer-text',L.footer);
+    // 마무리(클로징) 카드
+    s('blessing-title',L.closing_title);
+    if (sel && sel.emotion) {
+        const bsub=document.getElementById('blessing-sub');
+        if (bsub) bsub.innerHTML=((L.closing_msgs||{})[sel.emotion]||L.closing_default).replace(/\n/g,'<br>');
+    }
+    const bvc=document.getElementById('btn-vault-closing');
+    if (bvc) bvc.textContent=L.btn_vault_closing;
+    // 배경 음악
+    s('lbl-music',L.lbl_music); s('music-row-label',L.music_row);
+    const msub=document.getElementById('music-status-sub');
+    if (msub) msub.textContent = hymnOn ? L.music_on : L.music_sub_idle;
     // 날짜·환영 갱신
     setDate(); setWelcome();
 }
@@ -4772,7 +4826,7 @@ function cascadeResultCards() {
     const cards = document.querySelectorAll('#step4 .card');
     cards.forEach(c => { c.classList.add('card-cascade'); c.classList.remove('revealed'); });
     cards.forEach((c, i) => {
-        setTimeout(() => c.classList.add('revealed'), 60 + i * 95);
+        setTimeout(() => c.classList.add('revealed'), 60 + i * 130);
     });
 }
 
@@ -4831,17 +4885,12 @@ function buildResult() {
     document.getElementById('r-reflection').textContent = isEn ? (pickPool(REFLECTIONS_EN,rKey,'ref_'+rKey)||pickPool(REFLECTIONS,rKey,'ref_'+rKey)) : pickPool(REFLECTIONS,rKey,'ref_'+rKey);
     document.getElementById('r-enc').textContent        = isEn ? (pickPool(ENCS_EN,nKey,'enc_'+nKey)||pickPool(ENCS,nKey,'enc_'+nKey)) : pickPool(ENCS,nKey,'enc_'+nKey);
 
-    // 마무리 카드 문구 (감정별)
-    const BLESSING_MSG = {
-        감사:'감사하는 마음이 흘렀던 오늘,\n하나님이 그 마음을 기뻐하십니다.',
-        평안:'평안했던 오늘 하루,\n그 고요함도 하나님의 선물입니다.',
-        걱정:'걱정을 안고도 여기까지 오셨네요.\n하나님이 그 무거움을 아십니다.',
-        지침:'지친 몸과 마음으로 오늘을 버텨내셨어요.\n하나님이 당신의 쉼을 준비하십니다.',
-        아픔:'아팠던 오늘, 외롭지 않으셨으면 해요.\n하나님이 그 마음 곁에 계십니다.',
-        기도:'기도하고 싶다는 그 마음,\n이미 하나님께 닿아 있습니다.'
-    };
+    // 마무리 카드 문구 (감정별, 다국어 — LANG_DATA.closing_msgs)
+    const Lb = LANG_DATA[appLang]||LANG_DATA.ko;
     const bsEl = document.getElementById('blessing-sub');
-    if (bsEl) bsEl.innerHTML = (BLESSING_MSG[emotion]||'이 고요한 순간,<br>하나님이 함께하셨습니다.').replace(/\n/g,'<br>');
+    if (bsEl) bsEl.innerHTML = ((Lb.closing_msgs||{})[emotion]||Lb.closing_default).replace(/\n/g,'<br>');
+    const btEl = document.getElementById('blessing-title');
+    if (btEl) btEl.textContent = Lb.closing_title;
 
     // 일기 초기화
     document.getElementById('diary-input').value = '';
@@ -4857,15 +4906,9 @@ function buildResult() {
     // 연속 감정 인식 라인 (기록 저장 후 계산해야 오늘 포함됨)
     renderEmotionPattern();
 
-    // 결과 카드 순차 shimmer
-    setTimeout(() => {
-        document.querySelectorAll('#step4 .card').forEach((el, i) => {
-            el.classList.remove('card-reveal');
-            void el.offsetWidth; // reflow
-            el.style.animationDelay = `${i * 140}ms`;
-            el.classList.add('card-reveal');
-        });
-    }, 50);
+    // 결과 카드 등장은 go()의 cascadeResultCards()가 담당 (이중 애니메이션 방지)
+    // 스텝 표시~cascade 시작 사이 깜빡임 방지: 미리 숨김 상태로
+    document.querySelectorAll('#step4 .card').forEach(c => { c.classList.add('card-cascade'); c.classList.remove('revealed'); });
 
     // 마무리(클로징) 상태 초기화 + 5분 타이머 시작
     document.body.classList.remove('closing-sky');
@@ -6053,14 +6096,15 @@ function stopHymns() {
 
 function toggleBgMusic(on) {
     const sub = document.getElementById('music-status-sub');
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     if (on) {
         try { startHymns(); } catch(e) { toast('🎵 재생에 실패했어요'); return; }
         lsSet('bgMusic', '1');
-        if (sub) sub.textContent = '재생 중 🎵';
+        if (sub) sub.textContent = L.music_on;
     } else {
         stopHymns();
         lsSet('bgMusic', '0');
-        if (sub) sub.textContent = '일시정지됨';
+        if (sub) sub.textContent = L.music_off;
     }
 }
 
