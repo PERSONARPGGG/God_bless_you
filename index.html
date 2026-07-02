@@ -3948,6 +3948,7 @@ const LANG_DATA = {
         pat_neg_n:'🌙 벌써 {n}일째 이어지는 마음이에요. 혼자 견디지 마세요 — 하나님이 알고 계세요.',
         pat_pos_n:'✨ {n}일째 감사와 평안이 이어지고 있어요. 그 마음, 참 귀해요.',
         pat_pray_n:'🙏 {n}일째 기도로 하루를 맺고 있어요. 그 기도, 하늘에 쌓이고 있습니다.',
+        toast_img_saved:'🖼️ 말씀 카드 이미지가 저장됐어요',
         /* 보관함 */
         vault_title:'📖 나의 보관함', vault_back:'← 돌아가기',
         v_tab1:'즐겨찾기', v_tab2:'감정 기록', v_tab3:'주간 통계',
@@ -4042,6 +4043,7 @@ const LANG_DATA = {
         pat_neg_n:'🌙 It\'s been {n} days of heaviness. You don\'t have to carry it alone — God knows.',
         pat_pos_n:'✨ {n} days of gratitude and peace in a row. What a precious heart.',
         pat_pray_n:'🙏 {n} days of ending your day in prayer. Those prayers are being kept in heaven.',
+        toast_img_saved:'🖼️ Verse card image saved',
         /* 보관함 */
         vault_title:'📖 My Vault', vault_back:'← Back',
         v_tab1:'Saved', v_tab2:'History', v_tab3:'Weekly',
@@ -4136,6 +4138,7 @@ const LANG_DATA = {
         pat_neg_n:'🌙 もう{n}日続いている心です。一人で抱えないで — 神様はご存知です。',
         pat_pos_n:'✨ {n}日連続で感謝と平安が続いています。尊い心ですね。',
         pat_pray_n:'🙏 {n}日連続、祈りで一日を締めくくっています。その祈りは天に積まれています。',
+        toast_img_saved:'🖼️ 御言葉カードを保存しました',
         /* 보관함 */
         vault_title:'📖 ボールト', vault_back:'← 戻る',
         v_tab1:'お気に入り', v_tab2:'記録', v_tab3:'週間統計',
@@ -4899,16 +4902,107 @@ function legacyCopyText(text) {
 /* ═══════════════════════════════════════
    말씀 공유
 ═══════════════════════════════════════ */
-function shareVerse() {
+/* ── 말씀 카드 이미지 생성 (밤하늘 감성 캔버스) ── */
+function makeVerseCardBlob() {
+    return new Promise((resolve, reject) => {
+        try {
+            const W = 1080, H = 1350;
+            const c = document.createElement('canvas');
+            c.width = W; c.height = H;
+            const x = c.getContext('2d');
+            const FAM = "'Apple SD Gothic Neo','Pretendard','Malgun Gothic','맑은 고딕',sans-serif";
+            // 배경 그라데이션 (앱 배경과 동일 톤)
+            const g = x.createLinearGradient(0, 0, 0, H);
+            g.addColorStop(0,'#0e1842'); g.addColorStop(.35,'#132050');
+            g.addColorStop(.65,'#0a1030'); g.addColorStop(1,'#050a1e');
+            x.fillStyle = g; x.fillRect(0, 0, W, H);
+            // 오로라
+            const aurora = (cx, cy, r, col) => {
+                const rg = x.createRadialGradient(cx, cy, 0, cx, cy, r);
+                rg.addColorStop(0, col); rg.addColorStop(1, 'rgba(0,0,0,0)');
+                x.fillStyle = rg; x.fillRect(0, 0, W, H);
+            };
+            aurora(160, 220, 520, 'rgba(40,70,210,.28)');
+            aurora(940, 1140, 470, 'rgba(90,20,190,.2)');
+            aurora(540, 680, 420, 'rgba(180,140,30,.1)');
+            // 별
+            for (let i = 0; i < 90; i++) {
+                x.globalAlpha = .12 + Math.random() * .55;
+                x.fillStyle = '#fff';
+                x.beginPath();
+                x.arc(Math.random() * W, Math.random() * H, .6 + Math.random() * 2.2, 0, 7);
+                x.fill();
+            }
+            x.globalAlpha = 1;
+            x.textAlign = 'center';
+            // 달
+            x.font = '110px serif';
+            x.fillText('🌙', W / 2, 250);
+            // 말씀 본문 (단어 단위 줄바꿈, 길면 글자 단위)
+            const words = ('“' + curVerse.v + '”').split(' ');
+            const maxW = 860, lines = [];
+            x.font = '500 52px ' + FAM;
+            let line = '';
+            words.forEach(w => {
+                const t = line ? line + ' ' + w : w;
+                if (x.measureText(t).width > maxW && line) { lines.push(line); line = w; }
+                else line = t;
+            });
+            if (line) lines.push(line);
+            const lh = 92;
+            let y = Math.max(430, (H - lines.length * lh) / 2 - 60);
+            x.fillStyle = 'rgba(255,252,245,.95)';
+            lines.forEach(l => { x.fillText(l, W / 2, y); y += lh; });
+            // 출처
+            x.fillStyle = '#c8a870';
+            x.font = 'italic 40px ' + FAM;
+            x.fillText('— ' + curVerse.r, W / 2, y + 30);
+            // 푸터
+            x.fillStyle = 'rgba(255,255,255,.42)';
+            x.font = '30px ' + FAM;
+            x.fillText('오늘은 어땠나요? · god-bless-you.vercel.app', W / 2, H - 80);
+            c.toBlob(b => b ? resolve(b) : reject(new Error('toBlob failed')), 'image/png');
+        } catch (e) { reject(e); }
+    });
+}
+
+async function shareVerse() {
     if (!curVerse) return;
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const text = `"${curVerse.v}"\n— ${curVerse.r}\n\n${L.share_app}`;
+    // 1순위: 이미지 카드 공유 (Web Share Level 2)
+    if (navigator.canShare && location.protocol !== 'file:') {
+        try {
+            const blob = await makeVerseCardBlob();
+            const file = new File([blob], 'verse-card.png', { type: 'image/png' });
+            if (navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file], title: L.share_title, text });
+                return;
+            }
+        } catch (err) {
+            if (err && err.name === 'AbortError') return; // 사용자가 공유 취소
+        }
+    }
+    // 2순위: 텍스트 공유
     if (navigator.share && location.protocol !== 'file:') {
         navigator.share({ title: L.share_title, text, url: SHARE_URL })
-            .catch(err => { if (err && err.name !== 'AbortError') fallbackShare(text); });
+            .catch(err => { if (err && err.name !== 'AbortError') downloadVerseCard(text); });
     } else {
-        fallbackShare(text);
+        downloadVerseCard(text);
     }
+}
+
+/* 공유 API 없는 환경(데스크톱 등): 이미지 다운로드 + 텍스트 복사 */
+function downloadVerseCard(text) {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    makeVerseCardBlob().then(blob => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'verse-card.png';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 3000);
+        toast(L.toast_img_saved);
+    }).catch(() => fallbackShare(text));
 }
 
 function fallbackShare(text) {
