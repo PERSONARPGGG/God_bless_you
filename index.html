@@ -960,6 +960,49 @@
             border:none;border-radius:10px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer;}
         .devpw-cancel{background:none;border:none;color:rgba(255,255,255,.3);
             font-size:12px;cursor:pointer;margin-top:10px;display:block;width:100%;}
+
+        /* ── 클로징 후 보관함 동선 ── */
+        .btn-vault-closing {
+            display:block;width:100%;margin-top:10px;
+            background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);
+            border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:15px 24px;
+            font-size:var(--fs-md);font-family:inherit;font-weight:600;cursor:pointer;
+            letter-spacing:.5px;transition:all .22s ease;-webkit-tap-highlight-color:transparent;
+        }
+        .btn-vault-closing:hover { background:rgba(255,255,255,.12);transform:translateY(-2px); }
+        .btn-vault-closing.hidden { display:none; }
+
+        /* ── 프리미엄 모달 ── */
+        #premium-modal{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.78);
+            display:flex;align-items:center;justify-content:center;}
+        #premium-modal.hidden{display:none;}
+        .pm-box{background:#0e1842;border:1px solid rgba(200,168,107,.35);border-radius:22px;
+            padding:30px 24px 22px;width:min(340px,90vw);text-align:center;
+            box-shadow:0 24px 80px rgba(0,0,0,.6);}
+        .pm-icon{font-size:34px;margin-bottom:10px;}
+        .pm-title{font-size:18px;font-weight:800;color:#e8c98a;margin-bottom:6px;letter-spacing:.5px;}
+        .pm-desc{font-size:13px;color:rgba(255,255,255,.55);margin-bottom:18px;line-height:1.6;}
+        .pm-feats{list-style:none;text-align:left;margin-bottom:18px;}
+        .pm-feats li{font-size:13px;color:rgba(255,255,255,.8);padding:8px 4px;line-height:1.5;
+            border-bottom:1px solid rgba(255,255,255,.06);}
+        .pm-feats li:last-child{border-bottom:none;}
+        .pm-price{font-size:15px;font-weight:800;color:#f0c040;margin-bottom:16px;}
+        .pm-cta{display:block;width:100%;background:linear-gradient(135deg,#c8a86b,#e8c98a);color:#080f2e;
+            border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;
+            font-family:inherit;-webkit-tap-highlight-color:transparent;}
+        .pm-close{background:none;border:none;color:rgba(255,255,255,.35);font-size:12px;cursor:pointer;
+            margin-top:12px;display:block;width:100%;font-family:inherit;}
+
+        /* ── 대시보드 프리미엄 잠금 카드 ── */
+        .pm-lock-card{display:flex;align-items:center;gap:12px;width:100%;margin-top:14px;
+            background:linear-gradient(135deg,rgba(200,168,107,.1),rgba(200,168,107,.04));
+            border:1px dashed rgba(200,168,107,.4);border-radius:16px;padding:14px 16px;
+            cursor:pointer;font-family:inherit;text-align:left;-webkit-tap-highlight-color:transparent;
+            transition:all .22s ease;}
+        .pm-lock-card:hover{background:rgba(200,168,107,.16);}
+        .pm-lock-icon{font-size:22px;flex-shrink:0;}
+        .pm-lock-txt{font-size:12px;color:rgba(255,255,255,.75);line-height:1.6;}
+        .pm-lock-txt b{color:#e8c98a;font-size:13px;}
     /* ═══════════════════════════════════════════════════════
        감성 연출 시스템 (Emotional FX System)
     ═══════════════════════════════════════════════════════ */
@@ -1628,6 +1671,25 @@
                 <div id="db-diaries"></div>
             </div>
         </div>
+
+        <!-- 프리미엄 잠금 카드 (무료/유료 경계) -->
+        <button class="pm-lock-card" type="button" onclick="openPremiumModal()">
+            <span class="pm-lock-icon">🔒</span>
+            <span class="pm-lock-txt"><b id="pm-lock-title">월간 리포트 &amp; PDF 내보내기</b><br><span id="pm-lock-sub">프리미엄에서 만나요 · ₩1,900/월</span></span>
+        </button>
+    </div>
+</div>
+
+<!-- ══ 프리미엄 안내 모달 ══ -->
+<div id="premium-modal" class="hidden" onclick="if(event.target===this)closePremiumModal()">
+    <div class="pm-box">
+        <div class="pm-icon">✨</div>
+        <div class="pm-title" id="pm-title">프리미엄</div>
+        <div class="pm-desc" id="pm-desc"></div>
+        <ul class="pm-feats" id="pm-feats"></ul>
+        <div class="pm-price" id="pm-price"></div>
+        <button class="pm-cta" id="pm-cta" onclick="premiumInterest()"></button>
+        <button class="pm-close" id="pm-close" onclick="closePremiumModal()">닫기</button>
     </div>
 </div>
 
@@ -1867,6 +1929,7 @@
 
         <button id="btn-dashboard" class="btn-dashboard hidden" type="button" onclick="openDashboard()">📊 이번 주 나의 이야기</button>
         <button class="btn-restart" type="button" onclick="onFinishClick()">🌙 오늘 묵상 마치기</button>
+        <button id="btn-vault-closing" class="btn-vault-closing hidden" type="button" onclick="openVault()">📖 보관함 보기</button>
     </div>
 </div>
 
@@ -3866,6 +3929,13 @@ const LANG_DATA = {
         /* 결과 버튼 */
         btn_copy:'📋 복사', btn_share:'📤 공유', btn_save:'⭐ 즐겨찾기', btn_saved:'★ 저장됨', btn_restart:'🌙 다시 시작하기',
         btn_finish:'🌙 오늘 묵상 마치기', closing_extend_hint:'· 연장하기', closing_extended:'5분 더 볼게요',
+        btn_vault_closing:'📖 보관함 보기',
+        pm_title:'프리미엄', pm_desc:'당신의 신앙 기록,\n사라지지 않게 지켜드릴게요.',
+        pm_f1:'📔 일기·감정 기록 무제한 보관', pm_f2:'📄 PDF 내보내기 — 나의 신앙 일기장',
+        pm_f3:'📊 월간 감정·말씀 리포트', pm_f4:'🗓️ 묵상 캘린더',
+        pm_price:'월 ₩1,900 · 연 ₩19,000', pm_cta:'🔔 출시 알림 받기',
+        pm_cta_done:'신청 완료! 준비되면 가장 먼저 알려드릴게요 🙏', pm_close:'닫기',
+        pm_lock_title:'월간 리포트 & PDF 내보내기', pm_lock_sub:'프리미엄에서 만나요 · ₩1,900/월',
         /* 보관함 */
         vault_title:'📖 나의 보관함', vault_back:'← 돌아가기',
         v_tab1:'즐겨찾기', v_tab2:'감정 기록', v_tab3:'주간 통계',
@@ -3949,6 +4019,13 @@ const LANG_DATA = {
         /* 결과 버튼 */
         btn_copy:'📋 Copy', btn_share:'📤 Share', btn_save:'⭐ Bookmark', btn_saved:'★ Saved', btn_restart:'🌙 Start Over',
         btn_finish:'🌙 Finish Today’s Reflection', closing_extend_hint:'· Extend', closing_extended:'5 more minutes',
+        btn_vault_closing:'📖 View Saved Verses',
+        pm_title:'Premium', pm_desc:'Keep your faith journal safe,\nforever.',
+        pm_f1:'📔 Unlimited journal & mood history', pm_f2:'📄 PDF export — My Faith Journal',
+        pm_f3:'📊 Monthly emotion & verse report', pm_f4:'🗓️ Devotion calendar',
+        pm_price:'₩1,900/mo · ₩19,000/yr', pm_cta:'🔔 Notify me at launch',
+        pm_cta_done:'Done! You\'ll be the first to know 🙏', pm_close:'Close',
+        pm_lock_title:'Monthly report & PDF export', pm_lock_sub:'Coming with Premium · ₩1,900/mo',
         /* 보관함 */
         vault_title:'📖 My Vault', vault_back:'← Back',
         v_tab1:'Saved', v_tab2:'History', v_tab3:'Weekly',
@@ -4032,6 +4109,13 @@ const LANG_DATA = {
         /* 결과 버튼 */
         btn_copy:'📋 コピー', btn_share:'📤 共有', btn_save:'⭐ お気に入り', btn_saved:'★ 保存済み', btn_restart:'🌙 もう一度',
         btn_finish:'🌙 今日の黙想を終える', closing_extend_hint:'· 延長する', closing_extended:'あと5分見ます',
+        btn_vault_closing:'📖 保管箱を見る',
+        pm_title:'プレミアム', pm_desc:'あなたの信仰の記録を\nずっと守ります。',
+        pm_f1:'📔 日記・感情記録の無制限保存', pm_f2:'📄 PDFエクスポート — 私の信仰日記',
+        pm_f3:'📊 月間レポート', pm_f4:'🗓️ 黙想カレンダー',
+        pm_price:'月 ₩1,900 · 年 ₩19,000', pm_cta:'🔔 リリース通知を受け取る',
+        pm_cta_done:'受付完了！真っ先にお知らせします 🙏', pm_close:'閉じる',
+        pm_lock_title:'月間レポート & PDF', pm_lock_sub:'プレミアムで · 月₩1,900',
         /* 보관함 */
         vault_title:'📖 ボールト', vault_back:'← 戻る',
         v_tab1:'お気に入り', v_tab2:'記録', v_tab3:'週間統計',
@@ -4718,6 +4802,8 @@ function buildResult() {
 
     // 마무리(클로징) 상태 초기화 + 5분 타이머 시작
     document.body.classList.remove('closing-sky');
+    const bvB = document.getElementById('btn-vault-closing');
+    if (bvB) bvB.classList.add('hidden');
     document.getElementById('step4').classList.remove('closing');
     document.querySelectorAll('#step4 .card').forEach(c=>c.classList.remove('closing-collapsed'));
     const br = document.querySelector('.btn-restart');
@@ -5430,6 +5516,8 @@ function restart() {
     sel={emotion:null,topic:null,need:null}; curVerse=null; verseSaved=false;
     stopClosingTimer();
     document.body.classList.remove('closing-sky');
+    const bvR = document.getElementById('btn-vault-closing');
+    if (bvR) bvR.classList.add('hidden');
     document.getElementById('step4').classList.remove('closing');
     document.querySelectorAll('#step4 .card').forEach(c=>c.classList.remove('closing-collapsed'));
     setWelcome();
@@ -5510,6 +5598,9 @@ function triggerClosing() {
     setTimeout(spawnShootingStar, 900);
     const br = document.querySelector('.btn-restart');
     if (br) br.textContent = L.btn_restart;
+    // 마무리 후 동선: 보관함 진입 버튼 노출
+    const bv = document.getElementById('btn-vault-closing');
+    if (bv) { bv.textContent = L.btn_vault_closing; bv.classList.remove('hidden'); }
 }
 
 function onFinishClick() {
@@ -5589,6 +5680,30 @@ function checkDevPw() {
         inp.placeholder = '다시 입력하세요';
         inp.focus();
     }
+}
+
+/* ═══════════════════════════════════════
+   프리미엄 (무료/유료 경계)
+   무료: 묵상 플로우 전체·보관함·스트릭·기록 최근 30일
+   유료(₩1,900/월): 무제한 보관·PDF 내보내기·월간 리포트·묵상 캘린더
+═══════════════════════════════════════ */
+function isPremium() { return lsGet('premiumActive') === true; }
+
+function openPremiumModal() {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    document.getElementById('pm-title').textContent = L.pm_title;
+    document.getElementById('pm-desc').innerHTML = L.pm_desc.replace(/\n/g,'<br>');
+    document.getElementById('pm-feats').innerHTML = [L.pm_f1,L.pm_f2,L.pm_f3,L.pm_f4].map(f=>`<li>${f}</li>`).join('');
+    document.getElementById('pm-price').textContent = L.pm_price;
+    document.getElementById('pm-cta').textContent = lsGet('premiumInterest') ? '✓ ' + L.pm_cta : L.pm_cta;
+    document.getElementById('pm-close').textContent = L.pm_close;
+    document.getElementById('premium-modal').classList.remove('hidden');
+}
+function closePremiumModal() { document.getElementById('premium-modal').classList.add('hidden'); }
+function premiumInterest() {
+    lsSet('premiumInterest', true);
+    toast((LANG_DATA[appLang]||LANG_DATA.ko).pm_cta_done);
+    closePremiumModal();
 }
 
 /* ── 별똥별 연출 ── */
@@ -5778,6 +5893,10 @@ async function openDashboard() {
     if (sessionStorage.getItem('devMode') !== '1') { toast('🔒 준비 중인 기능입니다'); return; }
     const data = await getDashboardData();
     renderDashboard(data);
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    const lt = document.getElementById('pm-lock-title'), ls = document.getElementById('pm-lock-sub');
+    if (lt) lt.textContent = L.pm_lock_title;
+    if (ls) ls.textContent = L.pm_lock_sub;
     showOverlay('overlay-dashboard');
 }
 
