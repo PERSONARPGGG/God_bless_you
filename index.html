@@ -443,6 +443,13 @@
             font-size:var(--fs-reflect);color:#3a2460;line-height:2.1;
             text-align:center;font-weight:500;word-break:break-word;overflow-wrap:break-word;letter-spacing:.2px;
         }
+        /* 연속 감정 인식 라인 (2일+ 같은 결의 감정일 때만 표시) */
+        .pattern-text {
+            font-size:var(--fs-xs);color:#a07850;text-align:center;font-weight:600;
+            margin-bottom:12px;padding:9px 12px;border-radius:12px;line-height:1.7;
+            background:linear-gradient(135deg,rgba(200,168,112,.1),rgba(200,168,112,.04));
+        }
+        .pattern-text.hidden { display:none; }
 
         /* 오늘의 한 문장 */
         .sentence-wrap { text-align:center;padding:4px 6px; }
@@ -1907,6 +1914,7 @@
         <!-- 당신을 위한 응원 -->
         <div class="card">
             <div class="section-header"><span id="sec-enc" class="section-label">당신을 위한 응원</span><div class="section-line"></div></div>
+            <p id="r-pattern" class="pattern-text hidden"></p>
             <p class="enc-text" id="r-enc"></p>
         </div>
 
@@ -3936,6 +3944,10 @@ const LANG_DATA = {
         pm_price:'월 ₩1,900 · 연 ₩19,000', pm_cta:'🔔 출시 알림 받기',
         pm_cta_done:'신청 완료! 준비되면 가장 먼저 알려드릴게요 🙏', pm_close:'닫기',
         pm_lock_title:'월간 리포트 & PDF 내보내기', pm_lock_sub:'프리미엄에서 만나요 · ₩1,900/월',
+        pat_neg_2:'🌙 어제도 오늘도 마음이 무거우셨네요. 그럴수록 곁에 계신 하나님을 기억해요.',
+        pat_neg_n:'🌙 벌써 {n}일째 이어지는 마음이에요. 혼자 견디지 마세요 — 하나님이 알고 계세요.',
+        pat_pos_n:'✨ {n}일째 감사와 평안이 이어지고 있어요. 그 마음, 참 귀해요.',
+        pat_pray_n:'🙏 {n}일째 기도로 하루를 맺고 있어요. 그 기도, 하늘에 쌓이고 있습니다.',
         /* 보관함 */
         vault_title:'📖 나의 보관함', vault_back:'← 돌아가기',
         v_tab1:'즐겨찾기', v_tab2:'감정 기록', v_tab3:'주간 통계',
@@ -4026,6 +4038,10 @@ const LANG_DATA = {
         pm_price:'₩1,900/mo · ₩19,000/yr', pm_cta:'🔔 Notify me at launch',
         pm_cta_done:'Done! You\'ll be the first to know 🙏', pm_close:'Close',
         pm_lock_title:'Monthly report & PDF export', pm_lock_sub:'Coming with Premium · ₩1,900/mo',
+        pat_neg_2:'🌙 Yesterday and today, your heart has been heavy. Remember — God is near.',
+        pat_neg_n:'🌙 It\'s been {n} days of heaviness. You don\'t have to carry it alone — God knows.',
+        pat_pos_n:'✨ {n} days of gratitude and peace in a row. What a precious heart.',
+        pat_pray_n:'🙏 {n} days of ending your day in prayer. Those prayers are being kept in heaven.',
         /* 보관함 */
         vault_title:'📖 My Vault', vault_back:'← Back',
         v_tab1:'Saved', v_tab2:'History', v_tab3:'Weekly',
@@ -4116,6 +4132,10 @@ const LANG_DATA = {
         pm_price:'月 ₩1,900 · 年 ₩19,000', pm_cta:'🔔 リリース通知を受け取る',
         pm_cta_done:'受付完了！真っ先にお知らせします 🙏', pm_close:'閉じる',
         pm_lock_title:'月間レポート & PDF', pm_lock_sub:'プレミアムで · 月₩1,900',
+        pat_neg_2:'🌙 昨日も今日も、心が重い日でしたね。そばにおられる神様を覚えていてください。',
+        pat_neg_n:'🌙 もう{n}日続いている心です。一人で抱えないで — 神様はご存知です。',
+        pat_pos_n:'✨ {n}日連続で感謝と平安が続いています。尊い心ですね。',
+        pat_pray_n:'🙏 {n}日連続、祈りで一日を締めくくっています。その祈りは天に積まれています。',
         /* 보관함 */
         vault_title:'📖 ボールト', vault_back:'← 戻る',
         v_tab1:'お気に入り', v_tab2:'記録', v_tab3:'週間統計',
@@ -4789,6 +4809,9 @@ function buildResult() {
 
     // 감정 기록 저장
     saveMood();
+
+    // 연속 감정 인식 라인 (기록 저장 후 계산해야 오늘 포함됨)
+    renderEmotionPattern();
 
     // 결과 카드 순차 shimmer
     setTimeout(() => {
@@ -5680,6 +5703,48 @@ function checkDevPw() {
         inp.placeholder = '다시 입력하세요';
         inp.focus();
     }
+}
+
+/* ═══════════════════════════════════════
+   연속 감정 인식 — moodHistory 기반, AI 없이 "나를 아는" 문장
+═══════════════════════════════════════ */
+const EMO_CATEGORY = { 걱정:'neg', 지침:'neg', 아픔:'neg', 감사:'pos', 평안:'pos', 기도:'pray' };
+
+/* 오늘 감정과 같은 결(카테고리)이 며칠째 이어지는지 (오늘 포함) */
+function calcEmotionRun() {
+    const hist = lsGet('moodHistory') || [];
+    if (!hist.length) return null;
+    const today = todayStr();
+    if (hist[0].date !== today) return null;
+    const cat = EMO_CATEGORY[hist[0].emotion];
+    if (!cat) return null;
+    // 날짜별 최신 감정 (hist는 최신순)
+    const byDay = {};
+    hist.forEach(h => { if (!(h.date in byDay)) byDay[h.date] = EMO_CATEGORY[h.emotion]; });
+    let n = 0;
+    const d = new Date(today);
+    for (;;) {
+        const ds = d.toISOString().slice(0,10);
+        if (byDay[ds] === cat) { n++; d.setDate(d.getDate()-1); }
+        else break;
+    }
+    return { cat, n };
+}
+
+function renderEmotionPattern() {
+    const el = document.getElementById('r-pattern');
+    if (!el) return;
+    el.classList.add('hidden');
+    const run = calcEmotionRun();
+    if (!run || run.n < 2) return;
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    let msg = null;
+    if (run.cat === 'neg')  msg = run.n === 2 ? L.pat_neg_2 : L.pat_neg_n;
+    if (run.cat === 'pos')  msg = L.pat_pos_n;
+    if (run.cat === 'pray') msg = L.pat_pray_n;
+    if (!msg) return;
+    el.textContent = msg.replace('{n}', run.n);
+    el.classList.remove('hidden');
 }
 
 /* ═══════════════════════════════════════
