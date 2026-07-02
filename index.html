@@ -1588,19 +1588,19 @@
             <div class="persona-demo-hd">✦ 체험 데이터 선택 ✦</div>
             <div class="persona-row">
                 <button class="persona-btn" onclick="loadPersona('male',this)">
-                    <span class="pb-icon">👔</span>직장인 B남자
+                    <span class="pb-icon">👔</span>직장인 준호
                 </button>
                 <button class="persona-btn" onclick="loadPersona('female',this)">
-                    <span class="pb-icon">💼</span>직장인 B여자
+                    <span class="pb-icon">💼</span>워킹맘 수진
                 </button>
                 <button class="persona-btn" onclick="loadPersona('housewife',this)">
-                    <span class="pb-icon">🏠</span>주부
+                    <span class="pb-icon">🏠</span>주부 은혜
                 </button>
                 <button class="persona-btn" onclick="loadPersona('pastor',this)">
-                    <span class="pb-icon">✝️</span>목사님 C
+                    <span class="pb-icon">✝️</span>김요한 목사
                 </button>
                 <button class="persona-btn" onclick="loadPersona('foreigner',this)">
-                    <span class="pb-icon">🌍</span>외국인 A
+                    <span class="pb-icon">🌍</span>유학생 안나
                 </button>
             </div>
         </div>
@@ -5732,7 +5732,7 @@ function loadPersona(type, btn) {
     renderDashboard(data);
     document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
-    const names = {male:'직장인 B남자',female:'직장인 B여자',housewife:'주부',pastor:'목사님 C',foreigner:'외국인 A'};
+    const names = {male:'직장인 준호',female:'워킹맘 수진',housewife:'주부 은혜',pastor:'김요한 목사',foreigner:'유학생 안나'};
     toast(`✦ ${names[type]||type} 체험 데이터`);
 }
 
