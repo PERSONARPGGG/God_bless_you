@@ -50,6 +50,30 @@
         body.season-christmas .star { background:#ffd700; }
         @keyframes twinkle { 0%,100%{opacity:.08;transform:scale(.8)} 50%{opacity:var(--mop,.75);transform:scale(1.15)} }
 
+        /* ── 별똥별 ── */
+        .shooting-star {
+            position:fixed;pointer-events:none;z-index:1;
+            width:120px;height:2px;border-radius:2px;
+            background:linear-gradient(to left,rgba(255,255,255,.9),rgba(200,210,255,.35),transparent);
+            animation:shoot var(--sdur,1.2s) ease-out forwards;
+            opacity:0;
+        }
+        .shooting-star::after {
+            content:'';position:absolute;right:-2px;top:50%;transform:translateY(-50%);
+            width:5px;height:5px;border-radius:50%;
+            background:#fff;box-shadow:0 0 10px 2px rgba(255,255,255,.8);
+        }
+        @keyframes shoot {
+            0%  { opacity:0; transform:rotate(var(--ang,26deg)) translateX(0); }
+            10% { opacity:1; }
+            70% { opacity:.9; }
+            100%{ opacity:0; transform:rotate(var(--ang,26deg)) translateX(48vw); }
+        }
+
+        /* ── 클로징 시 밤하늘 밝아짐 ── */
+        #stars { transition:filter 2.5s ease; }
+        body.closing-sky #stars { filter:brightness(1.9); }
+
         /* ── 오로라 ── */
         .aurora { position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden; }
         .ab1 {
@@ -198,6 +222,10 @@
             z-index:40; transition:color .4s ease, background .4s ease;
         }
         .closing-timer.hidden { display:none; }
+        /* 좁은 화면에선 보관함/설정 아이콘과 겹치지 않게 한 줄 아래로 */
+        @media (max-width:600px) {
+            .closing-timer { top:calc(env(safe-area-inset-top,0px) + 60px); }
+        }
         .closing-timer.warning {
             color:#f0c040; background:rgba(255,200,60,.14); cursor:pointer;
             animation:closing-timer-pulse 1.4s ease-in-out infinite;
@@ -311,8 +339,8 @@
         .step.entering { animation:fadeUp .38s ease forwards; }
 
         /* ── 결과 카드 순차 shimmer ── */
-        @keyframes card-shimmer { 0%{opacity:0;transform:translateY(14px)} 100%{opacity:1;transform:translateY(0)} }
-        .card-reveal { animation:card-shimmer .5s cubic-bezier(.22,1,.36,1) both; }
+        @keyframes card-shimmer { 0%{opacity:0;transform:translateY(18px)} 100%{opacity:1;transform:translateY(0)} }
+        .card-reveal { animation:card-shimmer .65s cubic-bezier(.22,1,.36,1) both; }
 
         /* ── 공통 타이틀 ── */
         .step-title    { font-size:var(--fs-xl);font-weight:700;color:#1a1a2e;text-align:center;margin-bottom:5px;line-height:1.45; }
@@ -1808,25 +1836,25 @@
             </div>
         </div>
 
+        <!-- 오늘의 이야기 -->
+        <div class="card">
+            <div class="section-header"><span id="sec-story" class="section-label">오늘의 이야기</span><div class="section-line"></div></div>
+            <p class="reflect-text" id="r-reflection"></p>
+        </div>
+
         <!-- 당신을 위한 응원 -->
         <div class="card">
             <div class="section-header"><span id="sec-enc" class="section-label">당신을 위한 응원</span><div class="section-line"></div></div>
             <p class="enc-text" id="r-enc"></p>
         </div>
 
-        <!-- 감사 한 줄 일기 -->
+        <!-- 감사 한 줄 일기 (마지막: 저장 → 클로징 연출로 자연스럽게 이어짐) -->
         <div class="card">
             <div class="section-header"><span id="sec-diary" class="section-label">감사 한 줄 일기</span><div class="section-line"></div></div>
             <p id="diary-label" class="diary-label">오늘 딱 한 줄, 마음에 남는 것을 남겨보세요.</p>
             <textarea id="diary-input" class="diary-input" rows="3" placeholder="아무리 작은 것도 괜찮아요..."></textarea>
             <button id="diary-save-btn" class="diary-save-btn" onclick="saveDiary()">저장하기</button>
             <p id="diary-saved-msg" class="diary-saved-msg">✓ 저장되었어요. 그 마음, 하나님이 받으셨어요.</p>
-        </div>
-
-        <!-- 오늘의 이야기 -->
-        <div class="card">
-            <div class="section-header"><span id="sec-story" class="section-label">오늘의 이야기</span><div class="section-line"></div></div>
-            <p class="reflect-text" id="r-reflection"></p>
         </div>
 
         <!-- 마무리 완료 카드 (평소엔 숨김, 클로징 트리거 시 등장) -->
@@ -4683,12 +4711,13 @@ function buildResult() {
         document.querySelectorAll('#step4 .card').forEach((el, i) => {
             el.classList.remove('card-reveal');
             void el.offsetWidth; // reflow
-            el.style.animationDelay = `${i * 80}ms`;
+            el.style.animationDelay = `${i * 140}ms`;
             el.classList.add('card-reveal');
         });
     }, 50);
 
     // 마무리(클로징) 상태 초기화 + 5분 타이머 시작
+    document.body.classList.remove('closing-sky');
     document.getElementById('step4').classList.remove('closing');
     document.querySelectorAll('#step4 .card').forEach(c=>c.classList.remove('closing-collapsed'));
     const br = document.querySelector('.btn-restart');
@@ -5400,6 +5429,7 @@ function applyUpdate() {
 function restart() {
     sel={emotion:null,topic:null,need:null}; curVerse=null; verseSaved=false;
     stopClosingTimer();
+    document.body.classList.remove('closing-sky');
     document.getElementById('step4').classList.remove('closing');
     document.querySelectorAll('#step4 .card').forEach(c=>c.classList.remove('closing-collapsed'));
     setWelcome();
@@ -5475,6 +5505,9 @@ function triggerClosing() {
     setTimeout(() => {
         document.querySelectorAll('#step4 .card:not(.card-blessing)').forEach(c=>c.classList.add('closing-collapsed'));
     }, 520);
+    // 밤하늘 밝아짐 + 별똥별 하나 (마무리 순간 연출)
+    document.body.classList.add('closing-sky');
+    setTimeout(spawnShootingStar, 900);
     const br = document.querySelector('.btn-restart');
     if (br) br.textContent = L.btn_restart;
 }
@@ -5557,6 +5590,26 @@ function checkDevPw() {
         inp.focus();
     }
 }
+
+/* ── 별똥별 연출 ── */
+function spawnShootingStar() {
+    const s = document.createElement('div');
+    s.className = 'shooting-star';
+    s.style.top  = (4 + Math.random()*28) + '%';
+    s.style.left = (5 + Math.random()*40) + '%';
+    s.style.setProperty('--ang', (18 + Math.random()*16) + 'deg');
+    s.style.setProperty('--sdur', (1 + Math.random()*0.8) + 's');
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(), 2200);
+}
+/* 배경 앰비언트: 20~50초 간격으로 하나씩 */
+(function(){
+    const loop = () => setTimeout(() => {
+        if (!document.hidden) spawnShootingStar();
+        loop();
+    }, 20000 + Math.random()*30000);
+    loop();
+})();
 
 /* ── 만년필 타이핑 효과 ── */
 function typewriterVerse(text) {
