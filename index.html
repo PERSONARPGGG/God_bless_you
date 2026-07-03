@@ -1188,6 +1188,44 @@
     .music-toggle input:checked + .music-slider { background:rgba(200,168,107,.75); }
     .music-toggle input:checked + .music-slider::before { transform:translateX(20px); }
 
+    /* 음악 세부 옵션 (음색·볼륨·곡 선택) */
+    .music-extra { margin-top:4px;padding:2px 16px 14px;border-top:1px solid rgba(255,255,255,.07); }
+    .music-opt-label { font-size:11px;color:rgba(255,255,255,.42);margin:12px 0 7px;letter-spacing:.4px; }
+    .music-chips { display:flex;gap:6px;flex-wrap:wrap; }
+    .music-chip {
+        padding:6px 13px;border-radius:20px;font-size:12px;cursor:pointer;
+        border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.05);
+        color:rgba(255,255,255,.58);transition:all .22s;font-family:inherit;
+    }
+    .music-chip.on {
+        background:rgba(200,168,107,.18);border-color:rgba(200,168,107,.55);
+        color:#e6cf9f;
+    }
+    #music-vol { width:100%;accent-color:#c8a86b;margin:2px 0 2px;cursor:pointer; }
+
+    /* 미니 플레이어 (하단 필) */
+    .hymn-player {
+        position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+        display:flex;align-items:center;gap:7px;padding:8px 14px;
+        border-radius:24px;background:rgba(18,22,38,.68);
+        backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+        border:1px solid rgba(255,255,255,.1);z-index:60;
+        box-shadow:0 4px 20px rgba(0,0,0,.35);
+        animation:hp-in .5s cubic-bezier(.22,1,.36,1);
+    }
+    @keyframes hp-in { from { opacity:0;transform:translate(-50%,14px); } to { opacity:1;transform:translate(-50%,0); } }
+    .hymn-player.hidden { display:none; }
+    .hp-note { font-size:12px;opacity:.8; }
+    .hp-title {
+        font-size:12px;color:rgba(255,255,255,.72);max-width:128px;
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    }
+    .hp-btn {
+        background:none;border:none;color:rgba(255,255,255,.78);
+        font-size:13px;cursor:pointer;padding:2px 3px;line-height:1;font-family:inherit;
+    }
+    .hp-btn:active { transform:scale(.88); }
+
     /* ═══════════════════════════════════════
        다이어리 커버 오프닝
     ═══════════════════════════════════════ */
@@ -1524,12 +1562,28 @@
                 <div class="setting-row">
                     <div>
                         <div class="setting-row-label" id="music-row-label">🎵 배경 음악</div>
-                        <div class="setting-row-sub" id="music-status-sub">하루의 끝, 잔잔한 찬송가 오르골과 함께해요</div>
+                        <div class="setting-row-sub" id="music-status-sub">하루의 끝, 잔잔한 찬송가 연주와 함께해요</div>
                     </div>
                     <label class="music-toggle">
                         <input type="checkbox" id="music-toggle-input" onchange="toggleBgMusic(this.checked)">
                         <span class="music-slider"></span>
                     </label>
+                </div>
+                <div class="music-extra">
+                    <div class="music-opt-label" id="lbl-tone">음색</div>
+                    <div class="music-chips">
+                        <button class="music-chip" id="chip-tone-musicbox" onclick="setHymnTone('musicbox')">오르골</button>
+                        <button class="music-chip" id="chip-tone-piano" onclick="setHymnTone('piano')">피아노</button>
+                        <button class="music-chip" id="chip-tone-strings" onclick="setHymnTone('strings')">현악</button>
+                    </div>
+                    <div class="music-opt-label" id="lbl-vol">볼륨</div>
+                    <input type="range" id="music-vol" min="0" max="100" value="60" oninput="setHymnVol(this.value)">
+                    <div class="music-opt-label" id="lbl-song">곡 선택</div>
+                    <div class="music-chips">
+                        <button class="music-chip" id="chip-song-all" onclick="setHymnSong('all')">전체 반복</button>
+                        <button class="music-chip" id="chip-song-0" onclick="setHymnSong('0')">나 같은 죄인 살리신</button>
+                        <button class="music-chip" id="chip-song-1" onclick="setHymnSong('1')">예수 사랑하심은</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1626,6 +1680,14 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- 찬송가 미니 플레이어 -->
+        <div id="hymn-player" class="hymn-player hidden">
+            <span class="hp-note">🎵</span>
+            <span class="hp-title" id="hp-title"></span>
+            <button class="hp-btn" id="hp-toggle" onclick="playerToggle()" aria-label="재생/일시정지">⏸</button>
+            <button class="hp-btn" onclick="playerNext()" aria-label="다음 곡">⏭</button>
         </div>
 
         <!-- 피드백 -->
@@ -3982,8 +4044,11 @@ const LANG_DATA = {
         },
         closing_default:'이 고요한 순간,\n하나님이 함께하셨습니다.',
         lbl_music:'배경 음악', music_row:'🎵 배경 음악',
-        music_sub_idle:'하루의 끝, 잔잔한 찬송가 오르골과 함께해요',
+        music_sub_idle:'하루의 끝, 잔잔한 찬송가 연주와 함께해요',
         music_on:'재생 중 🎵', music_off:'일시정지됨',
+        music_tone:'음색', tone_musicbox:'오르골', tone_piano:'피아노', tone_strings:'현악',
+        music_vol:'볼륨', music_song:'곡 선택', song_all:'전체 반복',
+        song_0:'나 같은 죄인 살리신', song_1:'예수 사랑하심은',
         /* 보관함 */
         vault_title:'📖 나의 보관함', vault_back:'← 돌아가기',
         v_tab1:'즐겨찾기', v_tab2:'감정 기록', v_tab3:'주간 통계',
@@ -4090,8 +4155,11 @@ const LANG_DATA = {
         },
         closing_default:'In this quiet moment,\nGod was with you.',
         lbl_music:'Background Music', music_row:'🎵 Background Music',
-        music_sub_idle:'End your day with a gentle hymn music box',
+        music_sub_idle:'End your day with gentle hymn instrumentals',
         music_on:'Playing 🎵', music_off:'Paused',
+        music_tone:'Tone', tone_musicbox:'Music Box', tone_piano:'Piano', tone_strings:'Strings',
+        music_vol:'Volume', music_song:'Song', song_all:'Play All',
+        song_0:'Amazing Grace', song_1:'Jesus Loves Me',
         /* 보관함 */
         vault_title:'📖 My Vault', vault_back:'← Back',
         v_tab1:'Saved', v_tab2:'History', v_tab3:'Weekly',
@@ -4198,8 +4266,11 @@ const LANG_DATA = {
         },
         closing_default:'この静かなひととき、\n神様が共におられました。',
         lbl_music:'BGM', music_row:'🎵 BGM',
-        music_sub_idle:'一日の終わりに、賛美歌オルゴールと共に',
+        music_sub_idle:'一日の終わりに、静かな賛美歌の調べと共に',
         music_on:'再生中 🎵', music_off:'一時停止中',
+        music_tone:'音色', tone_musicbox:'オルゴール', tone_piano:'ピアノ', tone_strings:'ストリングス',
+        music_vol:'音量', music_song:'曲', song_all:'全曲リピート',
+        song_0:'アメイジング・グレイス', song_1:'主われを愛す',
         /* 보관함 */
         vault_title:'📖 ボールト', vault_back:'← 戻る',
         v_tab1:'お気に入り', v_tab2:'記録', v_tab3:'週間統計',
@@ -4365,6 +4436,10 @@ function applyLang(lang) {
     s('lbl-music',L.lbl_music); s('music-row-label',L.music_row);
     const msub=document.getElementById('music-status-sub');
     if (msub) msub.textContent = hymnOn ? L.music_on : L.music_sub_idle;
+    s('lbl-tone',L.music_tone); s('lbl-vol',L.music_vol); s('lbl-song',L.music_song);
+    s('chip-tone-musicbox',L.tone_musicbox); s('chip-tone-piano',L.tone_piano); s('chip-tone-strings',L.tone_strings);
+    s('chip-song-all',L.song_all); s('chip-song-0',L.song_0); s('chip-song-1',L.song_1);
+    updatePlayerUI();
     // 날짜·환영 갱신
     setDate(); setWelcome();
 }
@@ -6029,6 +6104,8 @@ const HYMNS = [
 ];
 
 let hymnCtx = null, hymnGain = null, hymnTimer = null, hymnOn = false;
+let hymnCurIdx = 0, hymnPaused = false;
+let hymnTone = 'musicbox', hymnVol = 60, hymnSong = 'all'; // restoreBgMusic()에서 복원
 
 /* 장조 스케일에서 3도 아래 음 (긴 음에 화음 — 따뜻함) */
 function hymnThirdBelow(midi, scale) {
@@ -6039,29 +6116,79 @@ function hymnThirdBelow(midi, scale) {
     return midi - down;
 }
 
-/* 따뜻한 오르골 톤: 디튠 쌍 + 낮은 기음 패드 + 약한 배음 */
-function hymnNote(midi, t, dur, warm) {
+/* 음색 1 — 오르골: 디튠 쌍 + 낮은 기음 패드 + 반짝임 배음 */
+function toneMusicbox(midi, t, dur, vol) {
     const f = 440 * Math.pow(2, (midi - 69) / 12);
     const dec = Math.min(dur * 1.6, 3);
     const mk = (mult, peak, decMul, type) => {
         const o = hymnCtx.createOscillator(), g = hymnCtx.createGain();
         o.type = type || 'sine'; o.frequency.value = f * mult;
         g.gain.setValueAtTime(.0001, t);
-        g.gain.exponentialRampToValueAtTime(peak, t + .014);
+        g.gain.exponentialRampToValueAtTime(Math.max(peak * vol, .0002), t + .014);
         g.gain.exponentialRampToValueAtTime(.0001, t + dec * decMul);
         o.connect(g); g.connect(hymnGain);
         o.start(t); o.stop(t + dec + .1);
     };
-    mk(2, .45, 1);          // 기음 (오르골 음역)
-    mk(2 * 1.004, .2, 1);   // 살짝 디튠 — 포근한 울림
-    mk(1, .17, 1.4, 'triangle'); // 낮은 기음 패드 (외로움 줄이기)
-    mk(4, .045, .4);        // 배음 (반짝임, 약하게)
-    if (warm) mk(Math.pow(2, (warm - midi) / 12) * 2, .16, 1.1); // 3도 아래 화음
+    mk(2, .45, 1);
+    mk(2 * 1.004, .2, 1);
+    mk(1, .17, 1.4, 'triangle');
+    mk(4, .045, .4);
+}
+
+/* 음색 2 — 피아노: 배음 5개, 약한 비조화성, 배음일수록 빠른 감쇠 */
+function tonePiano(midi, t, dur, vol) {
+    const f = 440 * Math.pow(2, (midi - 69) / 12);
+    const dec = Math.min(dur * 1.9, 4.2);
+    [[1, .5, 1], [2, .26, .62], [3, .12, .44], [4, .055, .32], [5, .028, .24]].forEach(([n, a, dm]) => {
+        const o = hymnCtx.createOscillator(), g = hymnCtx.createGain();
+        o.frequency.value = f * n * (1 + .0005 * n * n); // 피아노 현의 비조화성
+        g.gain.setValueAtTime(.0001, t);
+        g.gain.exponentialRampToValueAtTime(Math.max(a * vol, .0002), t + .006);
+        g.gain.exponentialRampToValueAtTime(.0001, t + Math.max(dec * dm, .09));
+        o.connect(g); g.connect(hymnGain);
+        o.start(t); o.stop(t + dec + .1);
+    });
+}
+
+/* 음색 3 — 현악: 디튠 톱니파 앙상블 + 로우패스 + 비브라토 (0.4초 뒤부터) */
+function toneStrings(midi, t, dur, vol) {
+    const f = 440 * Math.pow(2, (midi - 69) / 12);
+    const atk = Math.min(.13, Math.max(dur * .22, .045));
+    const end = t + Math.max(dur, atk + .1), rel = .45;
+    const lp = hymnCtx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = Math.min(f * 3.2, 4000); lp.Q.value = .5;
+    const g = hymnCtx.createGain();
+    g.gain.setValueAtTime(.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(.13 * vol, .0002), t + atk);
+    g.gain.exponentialRampToValueAtTime(Math.max(.1 * vol, .0002), end);
+    g.gain.exponentialRampToValueAtTime(.0001, end + rel);
+    lp.connect(g); g.connect(hymnGain);
+    const lfo = hymnCtx.createOscillator(), lg = hymnCtx.createGain();
+    lfo.frequency.value = 5.3;
+    lg.gain.setValueAtTime(0, t);
+    lg.gain.linearRampToValueAtTime(f * .0045, t + .4);
+    lfo.connect(lg);
+    [-6, 5].forEach(c => {
+        const o = hymnCtx.createOscillator();
+        o.type = 'sawtooth'; o.frequency.value = f * Math.pow(2, c / 1200);
+        lg.connect(o.frequency);
+        o.connect(lp); o.start(t); o.stop(end + rel + .1);
+    });
+    lfo.start(t); lfo.stop(end + rel + .1);
+}
+
+function hymnNote(midi, t, dur, warm) {
+    const fn = hymnTone === 'piano' ? tonePiano : hymnTone === 'strings' ? toneStrings : toneMusicbox;
+    fn(midi, t, dur, 1);
+    if (warm) fn(warm, t, dur, .4); // 3도 아래 화음은 은은하게
 }
 
 function hymnPlay(idx) {
     if (!hymnOn || !hymnCtx) return;
-    const h = HYMNS[idx % HYMNS.length];
+    if (hymnSong !== 'all') idx = +hymnSong; // 단일곡 반복
+    hymnCurIdx = idx % HYMNS.length;
+    updatePlayerUI();
+    const h = HYMNS[hymnCurIdx];
     const beat = 60 / h.bpm;
     let t = hymnCtx.currentTime + .2;
     const t0 = t;
@@ -6074,18 +6201,20 @@ function hymnPlay(idx) {
         t += b * beat;
     });
     // 곡 끝 + 4초 여백 후 다음 곡
-    hymnTimer = setTimeout(() => hymnPlay(idx + 1), (t - t0 + 4) * 1000);
+    hymnTimer = setTimeout(() => hymnPlay(hymnCurIdx + 1), (t - t0 + 4) * 1000);
 }
 
-function startHymns() {
+function startHymns(startIdx) {
     if (!hymnCtx) hymnCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (hymnCtx.state === 'suspended') hymnCtx.resume();
     // 새 게인 노드로 시작 (이전에 스케줄된 노트는 끊어진 노드에 붙어 무음)
     hymnGain = hymnCtx.createGain();
-    hymnGain.gain.value = .24;
+    hymnGain.gain.value = hymnVol / 100 * .4;
     hymnGain.connect(hymnCtx.destination);
     hymnOn = true;
-    hymnPlay(Math.floor(Math.random() * HYMNS.length));
+    hymnPlay(startIdx != null ? startIdx
+        : hymnSong !== 'all' ? +hymnSong
+        : Math.floor(Math.random() * HYMNS.length));
 }
 
 function stopHymns() {
@@ -6097,19 +6226,107 @@ function stopHymns() {
 function toggleBgMusic(on) {
     const sub = document.getElementById('music-status-sub');
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    const cb = document.getElementById('music-toggle-input');
+    if (cb) cb.checked = !!on;
     if (on) {
-        try { startHymns(); } catch(e) { toast('🎵 재생에 실패했어요'); return; }
+        const resume = hymnPaused;
+        hymnPaused = false;
+        try { startHymns(resume ? hymnCurIdx : null); } catch(e) { toast('🎵 재생에 실패했어요'); return; }
         lsSet('bgMusic', '1');
         if (sub) sub.textContent = L.music_on;
     } else {
+        hymnPaused = false; // 설정에서 끄면 플레이어도 숨김
         stopHymns();
         lsSet('bgMusic', '0');
         if (sub) sub.textContent = L.music_off;
     }
+    updatePlayerUI();
+}
+
+/* ── 미니 플레이어 ── */
+function hymnTitle(idx) {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    return L['song_' + idx] || (HYMNS[idx] ? HYMNS[idx].title.split(' (')[0] : '');
+}
+
+function updatePlayerUI() {
+    const p = document.getElementById('hymn-player');
+    if (!p) return;
+    p.classList.toggle('hidden', !(hymnOn || hymnPaused));
+    const ti = document.getElementById('hp-title');
+    if (ti) ti.textContent = hymnTitle(hymnCurIdx);
+    const tg = document.getElementById('hp-toggle');
+    if (tg) tg.textContent = hymnOn ? '⏸' : '▶';
+}
+
+function playerToggle() {
+    if (hymnOn) {
+        // 일시정지 — 플레이어는 남겨둠 (▶ 로 재개)
+        stopHymns();
+        hymnPaused = true;
+        lsSet('bgMusic', '0');
+        const cb = document.getElementById('music-toggle-input');
+        if (cb) cb.checked = false;
+        const sub = document.getElementById('music-status-sub');
+        const L = LANG_DATA[appLang]||LANG_DATA.ko;
+        if (sub) sub.textContent = L.music_off;
+        updatePlayerUI();
+    } else {
+        toggleBgMusic(true);
+    }
+}
+
+function playerNext() {
+    const nxt = (hymnCurIdx + 1) % HYMNS.length;
+    if (hymnSong !== 'all') { hymnSong = String(nxt); lsSet('bgSong', hymnSong); updateMusicSettingsUI(); }
+    if (hymnOn) { stopHymns(); startHymns(nxt); }
+    else hymnCurIdx = nxt;
+    updatePlayerUI();
+}
+
+/* ── 설정: 음색·볼륨·곡 ── */
+function setHymnTone(tone) {
+    hymnTone = tone;
+    lsSet('bgTone', tone);
+    updateMusicSettingsUI();
+    if (hymnOn) { stopHymns(); startHymns(hymnCurIdx); } // 즉시 새 음색으로
+}
+
+function setHymnVol(v) {
+    hymnVol = +v;
+    lsSet('bgVol', hymnVol);
+    if (hymnGain) hymnGain.gain.value = hymnVol / 100 * .4;
+}
+
+function setHymnSong(s) {
+    hymnSong = s;
+    lsSet('bgSong', s);
+    updateMusicSettingsUI();
+    if (hymnOn) { stopHymns(); startHymns(s === 'all' ? hymnCurIdx : +s); }
+    else if (s !== 'all') { hymnCurIdx = +s; updatePlayerUI(); }
+}
+
+function updateMusicSettingsUI() {
+    ['musicbox','piano','strings'].forEach(tn => {
+        const c = document.getElementById('chip-tone-' + tn);
+        if (c) c.classList.toggle('on', hymnTone === tn);
+    });
+    ['all','0','1'].forEach(sn => {
+        const c = document.getElementById('chip-song-' + sn);
+        if (c) c.classList.toggle('on', hymnSong === sn);
+    });
+    const vol = document.getElementById('music-vol');
+    if (vol) vol.value = hymnVol;
 }
 
 // 앱 시작 시 음악 설정 복원 (AudioContext는 사용자 제스처 필요 → 첫 터치에 시작)
 function restoreBgMusic() {
+    hymnTone = lsGet('bgTone') || 'musicbox';
+    const v = lsGet('bgVol');
+    hymnVol = (v == null ? 60 : +v);
+    hymnSong = lsGet('bgSong') || 'all';
+    if (hymnSong !== 'all') hymnCurIdx = +hymnSong;
+    updateMusicSettingsUI();
     if (lsGet('bgMusic') === '1') {
         const toggle = document.getElementById('music-toggle-input');
         if (toggle) toggle.checked = true;
