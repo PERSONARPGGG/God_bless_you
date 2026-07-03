@@ -47,3 +47,5 @@ npm-debug.log*
 # 임시 파일
 *.tmp
 *.bak
+conversation-*.txt
+docs/엑셀입력_메모.txt

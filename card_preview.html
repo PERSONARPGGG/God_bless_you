@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>말씀 카드 미리보기</title>
+<style>
+  body { margin: 0; background: #1a1a2e; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; gap: 20px; }
+  canvas { border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  .btns { display: flex; gap: 12px; }
+  button { padding: 12px 24px; border: none; border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: 600; }
+  #btn-save { background: #fff; color: #1a1a2e; }
+  .theme-btns { display: flex; gap: 8px; }
+  .theme-btn { padding: 8px 16px; border: 2px solid #ffffff44; border-radius: 8px; background: transparent; color: #fff; cursor: pointer; font-size: 13px; }
+  .theme-btn.active { border-color: #fff; background: #ffffff22; }
+  label { color: #aaa; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<label>테마 선택</label>
+<div class="theme-btns">
+  <button class="theme-btn active" onclick="setTheme('night', this)">🌙 밤하늘</button>
+  <button class="theme-btn" onclick="setTheme('dawn', this)">🌅 새벽</button>
+  <button class="theme-btn" onclick="setTheme('forest', this)">🌿 숲</button>
+</div>
+
+<canvas id="card" width="1080" height="1080" style="width:360px;height:360px;"></canvas>
+
+<div class="btns">
+  <button id="btn-save" onclick="saveCard()">PNG 저장</button>
+</div>
+
+<script>
+const THEMES = {
+  night: {
+    bg1: '#0f0c29', bg2: '#302b63', bg3: '#24243e',
+    blob1: 'rgba(120,80,255,0.35)', blob2: 'rgba(60,120,255,0.25)', blob3: 'rgba(180,60,200,0.2)',
+    text: '#ffffff', sub: 'rgba(255,255,255,0.65)', accent: 'rgba(255,255,255,0.12)', border: 'rgba(255,255,255,0.18)'
+  },
+  dawn: {
+    bg1: '#1a0533', bg2: '#4a1060', bg3: '#c2185b',
+    blob1: 'rgba(255,100,150,0.35)', blob2: 'rgba(255,180,80,0.25)', blob3: 'rgba(180,60,200,0.2)',
+    text: '#ffffff', sub: 'rgba(255,255,220,0.75)', accent: 'rgba(255,220,180,0.12)', border: 'rgba(255,200,180,0.25)'
+  },
+  forest: {
+    bg1: '#0a1f0a', bg2: '#1b4332', bg3: '#2d6a4f',
+    blob1: 'rgba(60,200,120,0.3)', blob2: 'rgba(100,180,80,0.25)', blob3: 'rgba(40,160,100,0.2)',
+    text: '#e8f5e9', sub: 'rgba(200,240,210,0.7)', accent: 'rgba(100,200,120,0.12)', border: 'rgba(100,220,130,0.22)'
+  }
+};
+
+let currentTheme = 'night';
+
+function setTheme(name, el) {
+  currentTheme = name;
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  drawCard();
+}
+
+function drawCard() {
+  const canvas = document.getElementById('card');
+  const ctx = canvas.getContext('2d');
+  const W = 1080, H = 1080;
+  const t = THEMES[currentTheme];
+
+  // 배경 그라데이션
+  const bgGrad = ctx.createLinearGradient(0, 0, W * 0.6, H);
+  bgGrad.addColorStop(0, t.bg1);
+  bgGrad.addColorStop(0.5, t.bg2);
+  bgGrad.addColorStop(1, t.bg3);
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // aurora blob 1
+  const g1 = ctx.createRadialGradient(W * 0.25, H * 0.3, 0, W * 0.25, H * 0.3, W * 0.45);
+  g1.addColorStop(0, t.blob1);
+  g1.addColorStop(1, 'transparent');
+  ctx.fillStyle = g1;
+  ctx.fillRect(0, 0, W, H);
+
+  // aurora blob 2
+  const g2 = ctx.createRadialGradient(W * 0.75, H * 0.6, 0, W * 0.75, H * 0.6, W * 0.4);
+  g2.addColorStop(0, t.blob2);
+  g2.addColorStop(1, 'transparent');
+  ctx.fillStyle = g2;
+  ctx.fillRect(0, 0, W, H);
+
+  // aurora blob 3
+  const g3 = ctx.createRadialGradient(W * 0.5, H * 0.85, 0, W * 0.5, H * 0.85, W * 0.35);
+  g3.addColorStop(0, t.blob3);
+  g3.addColorStop(1, 'transparent');
+  ctx.fillStyle = g3;
+  ctx.fillRect(0, 0, W, H);
+
+  // 글래스 카드
+  const pad = 80;
+  const cardX = pad, cardY = H * 0.18, cardW = W - pad * 2, cardH = H * 0.64;
+  const r = 48;
+  roundRect(ctx, cardX, cardY, cardW, cardH, r);
+  ctx.fillStyle = t.accent;
+  ctx.fill();
+  ctx.strokeStyle = t.border;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // 상단 앱 이름
+  ctx.font = '600 36px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
+  ctx.fillStyle = t.sub;
+  ctx.textAlign = 'center';
+  ctx.fillText('오늘은 어땠나요?', W / 2, cardY + 70);
+
+  // 구분선
+  ctx.beginPath();
+  ctx.moveTo(cardX + 80, cardY + 95);
+  ctx.lineTo(cardX + cardW - 80, cardY + 95);
+  ctx.strokeStyle = t.border;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // 말씀 본문
+  const verse = '내게 능력 주시는 자 안에서\n내가 모든 것을\n할 수 있느니라';
+  const lines = verse.split('\n');
+  ctx.font = `bold ${lines.some(l => l.length > 12) ? 58 : 64}px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif`;
+  ctx.fillStyle = t.text;
+  ctx.textAlign = 'center';
+
+  const lineH = 88;
+  const totalH = lines.length * lineH;
+  const startY = cardY + cardH / 2 - totalH / 2 + 20;
+  lines.forEach((line, i) => {
+    ctx.fillText(line, W / 2, startY + i * lineH);
+  });
+
+  // 구절 번호
+  ctx.font = '500 40px "Apple SD Gothic Neo", "Malgun Gothic", sans-serif';
+  ctx.fillStyle = t.sub;
+  ctx.fillText('빌립보서 4:13  (개역개정)', W / 2, cardY + cardH - 60);
+
+  // 하단 장식 점
+  const dotY = H * 0.88;
+  [W/2 - 20, W/2, W/2 + 20].forEach((x, i) => {
+    ctx.beginPath();
+    ctx.arc(x, dotY, i === 1 ? 7 : 5, 0, Math.PI * 2);
+    ctx.fillStyle = i === 1 ? t.text : t.sub;
+    ctx.fill();
+  });
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function saveCard() {
+  const canvas = document.getElementById('card');
+  const a = document.createElement('a');
+  a.download = `말씀카드_빌립보서4_13_${currentTheme}.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
+drawCard();
+</script>
+</body>
+</html>
