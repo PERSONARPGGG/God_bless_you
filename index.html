@@ -1585,6 +1585,8 @@
                         <button class="music-chip" id="chip-song-1" onclick="setHymnSong('1')">예수 사랑하심은</button>
                         <button class="music-chip" id="chip-song-2" onclick="setHymnSong('2')">Amazing Grace 음원 ①</button>
                         <button class="music-chip" id="chip-song-3" onclick="setHymnSong('3')">Amazing Grace 음원 ②</button>
+                        <button class="music-chip" id="chip-song-4" onclick="setHymnSong('4')">죄짐 맡은 우리 구주 음원</button>
+                        <button class="music-chip" id="chip-song-5" onclick="setHymnSong('5')">예수 사랑하심은 음원</button>
                     </div>
                 </div>
             </div>
@@ -4053,6 +4055,7 @@ const LANG_DATA = {
         music_vol:'볼륨', music_song:'곡 선택', song_all:'전체 반복',
         song_0:'나 같은 죄인 살리신', song_1:'예수 사랑하심은',
         song_2:'Amazing Grace 음원 ①', song_3:'Amazing Grace 음원 ②',
+        song_4:'죄짐 맡은 우리 구주 음원', song_5:'예수 사랑하심은 음원',
         /* 보관함 */
         vault_title:'📖 나의 보관함', vault_back:'← 돌아가기',
         v_tab1:'즐겨찾기', v_tab2:'감정 기록', v_tab3:'주간 통계',
@@ -4165,6 +4168,7 @@ const LANG_DATA = {
         music_vol:'Volume', music_song:'Song', song_all:'Play All',
         song_0:'Amazing Grace', song_1:'Jesus Loves Me',
         song_2:'Amazing Grace (Rec. 1)', song_3:'Amazing Grace (Rec. 2)',
+        song_4:'What a Friend (Rec.)', song_5:'Jesus Loves Me (Rec.)',
         /* 보관함 */
         vault_title:'📖 My Vault', vault_back:'← Back',
         v_tab1:'Saved', v_tab2:'History', v_tab3:'Weekly',
@@ -4277,6 +4281,7 @@ const LANG_DATA = {
         music_vol:'音量', music_song:'曲', song_all:'全曲リピート',
         song_0:'アメイジング・グレイス', song_1:'主われを愛す',
         song_2:'アメイジング・グレイス 音源①', song_3:'アメイジング・グレイス 音源②',
+        song_4:'いつくしみ深き 音源', song_5:'主われを愛す 音源',
         /* 보관함 */
         vault_title:'📖 ボールト', vault_back:'← 戻る',
         v_tab1:'お気に入り', v_tab2:'記録', v_tab3:'週間統計',
@@ -4446,6 +4451,7 @@ function applyLang(lang) {
     s('chip-tone-musicbox',L.tone_musicbox); s('chip-tone-piano',L.tone_piano); s('chip-tone-strings',L.tone_strings);
     s('chip-song-all',L.song_all); s('chip-song-0',L.song_0); s('chip-song-1',L.song_1);
     s('chip-song-2',L.song_2); s('chip-song-3',L.song_3);
+    s('chip-song-4',L.song_4); s('chip-song-5',L.song_5);
     updatePlayerUI();
     // 날짜·환영 갱신
     setDate(); setWelcome();
@@ -6228,6 +6234,8 @@ function hymnNote(midi, t, dur, warm) {
 const HYMN_TRACKS = [
     { file: 'audio/tracks/amazing_grace_1.mp3' },
     { file: 'audio/tracks/amazing_grace_2.mp3' },
+    { file: 'audio/tracks/what_a_friend.mp3' },
+    { file: 'audio/tracks/jesus_loves_me.mp3' },
 ];
 let trackEl = null;
 
@@ -6389,7 +6397,7 @@ function updateMusicSettingsUI() {
         const c = document.getElementById('chip-tone-' + tn);
         if (c) c.classList.toggle('on', hymnTone === tn);
     });
-    ['all','0','1','2','3'].forEach(sn => {
+    ['all','0','1','2','3','4','5'].forEach(sn => {
         const c = document.getElementById('chip-song-' + sn);
         if (c) c.classList.toggle('on', hymnSong === sn);
     });
