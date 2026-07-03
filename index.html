@@ -1583,6 +1583,8 @@
                         <button class="music-chip" id="chip-song-all" onclick="setHymnSong('all')">전체 반복</button>
                         <button class="music-chip" id="chip-song-0" onclick="setHymnSong('0')">나 같은 죄인 살리신</button>
                         <button class="music-chip" id="chip-song-1" onclick="setHymnSong('1')">예수 사랑하심은</button>
+                        <button class="music-chip" id="chip-song-2" onclick="setHymnSong('2')">Amazing Grace 음원 ①</button>
+                        <button class="music-chip" id="chip-song-3" onclick="setHymnSong('3')">Amazing Grace 음원 ②</button>
                     </div>
                 </div>
             </div>
@@ -1676,7 +1678,8 @@
                         한국어 성경 말씀은 「성경전서 개역한글판」(대한성서공회, 1961)에서 인용했습니다.<br>
                         Scripture quotations are from the ESV® Bible (The Holy Bible, English Standard Version®),<br>
                         copyright © 2001 by Crossway, a publishing ministry of Good News Publishers.<br>
-                        Used by permission. All rights reserved.
+                        Used by permission. All rights reserved.<br>
+                        Piano samples: Salamander Grand Piano by Alexander Holm (CC BY 3.0)
                     </div>
                 </div>
             </div>
@@ -4049,6 +4052,7 @@ const LANG_DATA = {
         music_tone:'음색', tone_musicbox:'오르골', tone_piano:'피아노', tone_strings:'현악',
         music_vol:'볼륨', music_song:'곡 선택', song_all:'전체 반복',
         song_0:'나 같은 죄인 살리신', song_1:'예수 사랑하심은',
+        song_2:'Amazing Grace 음원 ①', song_3:'Amazing Grace 음원 ②',
         /* 보관함 */
         vault_title:'📖 나의 보관함', vault_back:'← 돌아가기',
         v_tab1:'즐겨찾기', v_tab2:'감정 기록', v_tab3:'주간 통계',
@@ -4160,6 +4164,7 @@ const LANG_DATA = {
         music_tone:'Tone', tone_musicbox:'Music Box', tone_piano:'Piano', tone_strings:'Strings',
         music_vol:'Volume', music_song:'Song', song_all:'Play All',
         song_0:'Amazing Grace', song_1:'Jesus Loves Me',
+        song_2:'Amazing Grace (Rec. 1)', song_3:'Amazing Grace (Rec. 2)',
         /* 보관함 */
         vault_title:'📖 My Vault', vault_back:'← Back',
         v_tab1:'Saved', v_tab2:'History', v_tab3:'Weekly',
@@ -4271,6 +4276,7 @@ const LANG_DATA = {
         music_tone:'音色', tone_musicbox:'オルゴール', tone_piano:'ピアノ', tone_strings:'ストリングス',
         music_vol:'音量', music_song:'曲', song_all:'全曲リピート',
         song_0:'アメイジング・グレイス', song_1:'主われを愛す',
+        song_2:'アメイジング・グレイス 音源①', song_3:'アメイジング・グレイス 音源②',
         /* 보관함 */
         vault_title:'📖 ボールト', vault_back:'← 戻る',
         v_tab1:'お気に入り', v_tab2:'記録', v_tab3:'週間統計',
@@ -4439,6 +4445,7 @@ function applyLang(lang) {
     s('lbl-tone',L.music_tone); s('lbl-vol',L.music_vol); s('lbl-song',L.music_song);
     s('chip-tone-musicbox',L.tone_musicbox); s('chip-tone-piano',L.tone_piano); s('chip-tone-strings',L.tone_strings);
     s('chip-song-all',L.song_all); s('chip-song-0',L.song_0); s('chip-song-1',L.song_1);
+    s('chip-song-2',L.song_2); s('chip-song-3',L.song_3);
     updatePlayerUI();
     // 날짜·환영 갱신
     setDate(); setWelcome();
@@ -6135,8 +6142,42 @@ function toneMusicbox(midi, t, dur, vol) {
     mk(4, .045, .4);
 }
 
-/* 음색 2 — 피아노: 배음 5개, 약한 비조화성, 배음일수록 빠른 감쇠 */
+/* 음색 2 — 피아노: Salamander Grand Piano 실샘플 (CC-BY 3.0, Alexander Holm)
+   가까운 샘플을 playbackRate로 미세 조율. 로딩 전엔 합성 폴백. */
+const PIANO_SAMPLES = { 66:'Fs4', 69:'A4', 72:'C5', 75:'Ds5', 78:'Fs5', 81:'A5', 84:'C6', 87:'Ds6' };
+let pianoBuf = {}, pianoLoading = null;
+
+function pianoReady() { return Object.keys(pianoBuf).length === Object.keys(PIANO_SAMPLES).length; }
+
+function loadPianoSamples() {
+    if (pianoLoading) return pianoLoading;
+    pianoLoading = Promise.all(Object.entries(PIANO_SAMPLES).map(([m, n]) =>
+        fetch('audio/piano/' + n + '.mp3')
+            .then(r => { if (!r.ok) throw 0; return r.arrayBuffer(); })
+            .then(ab => hymnCtx.decodeAudioData(ab))
+            .then(b => { pianoBuf[m] = b; })
+    )).catch(() => { pianoLoading = null; }); // 실패 시 합성 폴백 유지, 다음에 재시도
+    return pianoLoading;
+}
+
 function tonePiano(midi, t, dur, vol) {
+    if (!pianoReady()) { tonePianoSynth(midi, t, dur, vol); return; }
+    let best = null;
+    for (const k in pianoBuf) if (best === null || Math.abs(k - midi) < Math.abs(best - midi)) best = +k;
+    const src = hymnCtx.createBufferSource();
+    src.buffer = pianoBuf[best];
+    src.playbackRate.value = Math.pow(2, (midi - best) / 12);
+    const g = hymnCtx.createGain();
+    const rel = t + Math.min(dur * 1.6, 4);
+    g.gain.setValueAtTime(.85 * vol, t);
+    g.gain.setValueAtTime(.85 * vol, rel);
+    g.gain.linearRampToValueAtTime(.0001, rel + .9);
+    src.connect(g); g.connect(hymnGain);
+    src.start(t); src.stop(rel + 1);
+}
+
+/* 피아노 합성 폴백 (샘플 로딩 전·실패 시) */
+function tonePianoSynth(midi, t, dur, vol) {
     const f = 440 * Math.pow(2, (midi - 69) / 12);
     const dec = Math.min(dur * 1.9, 4.2);
     [[1, .5, 1], [2, .26, .62], [3, .12, .44], [4, .055, .32], [5, .028, .24]].forEach(([n, a, dm]) => {
@@ -6183,11 +6224,39 @@ function hymnNote(midi, t, dur, warm) {
     if (warm) fn(warm, t, dur, .4); // 3도 아래 화음은 은은하게
 }
 
+/* 기성 연주 음원 (archive.org, CC0 — 원출처 Pixabay) */
+const HYMN_TRACKS = [
+    { file: 'audio/tracks/amazing_grace_1.mp3' },
+    { file: 'audio/tracks/amazing_grace_2.mp3' },
+];
+let trackEl = null;
+
+function hymnTotal() { return HYMNS.length + HYMN_TRACKS.length; }
+
+function playTrack(ti) {
+    if (!trackEl) {
+        trackEl = new Audio();
+        trackEl.preload = 'auto';
+        trackEl.onended = () => { if (hymnOn) hymnPlay(hymnCurIdx + 1); };
+        trackEl.onerror = () => { if (hymnOn) { toast('🎵 음원을 불러오지 못했어요'); hymnPlay(0); } };
+    }
+    trackEl.src = HYMN_TRACKS[ti].file;
+    trackEl.volume = Math.min(hymnVol / 100 * .8, 1);
+    trackEl.play().catch(() => {});
+}
+
+function stopTrack() {
+    if (trackEl) { try { trackEl.pause(); trackEl.currentTime = 0; } catch(e){} }
+}
+
 function hymnPlay(idx) {
     if (!hymnOn || !hymnCtx) return;
     if (hymnSong !== 'all') idx = +hymnSong; // 단일곡 반복
-    hymnCurIdx = idx % HYMNS.length;
+    hymnCurIdx = idx % hymnTotal();
     updatePlayerUI();
+    stopTrack();
+    if (hymnCurIdx >= HYMNS.length) { playTrack(hymnCurIdx - HYMNS.length); return; }
+    if (hymnTone === 'piano' && !pianoReady()) loadPianoSamples(); // 이번 곡은 합성 폴백, 다음 곡부터 샘플
     const h = HYMNS[hymnCurIdx];
     const beat = 60 / h.bpm;
     let t = hymnCtx.currentTime + .2;
@@ -6212,14 +6281,21 @@ function startHymns(startIdx) {
     hymnGain.gain.value = hymnVol / 100 * .4;
     hymnGain.connect(hymnCtx.destination);
     hymnOn = true;
-    hymnPlay(startIdx != null ? startIdx
+    const idx = startIdx != null ? startIdx
         : hymnSong !== 'all' ? +hymnSong
-        : Math.floor(Math.random() * HYMNS.length));
+        : Math.floor(Math.random() * hymnTotal());
+    // 피아노 음색이면 샘플 먼저 로딩 (413KB, 1회) — 실패해도 합성 폴백으로 진행
+    if (hymnTone === 'piano' && !pianoReady() && idx < HYMNS.length) {
+        loadPianoSamples().then(() => { if (hymnOn) hymnPlay(idx); });
+    } else {
+        hymnPlay(idx);
+    }
 }
 
 function stopHymns() {
     hymnOn = false;
     clearTimeout(hymnTimer);
+    stopTrack();
     if (hymnGain) { try { hymnGain.disconnect(); } catch(e){} hymnGain = null; }
 }
 
@@ -6246,7 +6322,8 @@ function toggleBgMusic(on) {
 /* ── 미니 플레이어 ── */
 function hymnTitle(idx) {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    return L['song_' + idx] || (HYMNS[idx] ? HYMNS[idx].title.split(' (')[0] : '');
+    if (L['song_' + idx]) return L['song_' + idx];
+    return HYMNS[idx] ? HYMNS[idx].title.split(' (')[0] : 'Amazing Grace';
 }
 
 function updatePlayerUI() {
@@ -6277,7 +6354,7 @@ function playerToggle() {
 }
 
 function playerNext() {
-    const nxt = (hymnCurIdx + 1) % HYMNS.length;
+    const nxt = (hymnCurIdx + 1) % hymnTotal();
     if (hymnSong !== 'all') { hymnSong = String(nxt); lsSet('bgSong', hymnSong); updateMusicSettingsUI(); }
     if (hymnOn) { stopHymns(); startHymns(nxt); }
     else hymnCurIdx = nxt;
@@ -6296,6 +6373,7 @@ function setHymnVol(v) {
     hymnVol = +v;
     lsSet('bgVol', hymnVol);
     if (hymnGain) hymnGain.gain.value = hymnVol / 100 * .4;
+    if (trackEl) trackEl.volume = Math.min(hymnVol / 100 * .8, 1);
 }
 
 function setHymnSong(s) {
@@ -6311,7 +6389,7 @@ function updateMusicSettingsUI() {
         const c = document.getElementById('chip-tone-' + tn);
         if (c) c.classList.toggle('on', hymnTone === tn);
     });
-    ['all','0','1'].forEach(sn => {
+    ['all','0','1','2','3'].forEach(sn => {
         const c = document.getElementById('chip-song-' + sn);
         if (c) c.classList.toggle('on', hymnSong === sn);
     });

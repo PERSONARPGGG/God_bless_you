@@ -1,5 +1,5 @@
 // 캐시 버전 — 이름이 바뀌면 이전 캐시 자동 삭제
-const CACHE = 'god-app-v9';
+const CACHE = 'god-app-v10';
 // 오프라인 폴백용으로 캐싱할 에셋
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg'];
 
@@ -37,8 +37,15 @@ self.addEventListener('fetch', e => {
         );
     } else {
         // 아이콘·manifest 등 정적 에셋: 캐시 우선 → 없으면 네트워크
+        // 오디오(피아노 샘플·찬송가 음원)는 첫 로딩 후 캐시에 저장 (재다운로드 방지)
         e.respondWith(
-            caches.match(e.request).then(r => r || fetch(e.request))
+            caches.match(e.request).then(r => r || fetch(e.request).then(res => {
+                if (res.status === 200 && url.pathname.includes('/audio/')) {
+                    const clone = res.clone();
+                    caches.open(CACHE).then(c => c.put(e.request, clone));
+                }
+                return res;
+            }))
         );
     }
 });
