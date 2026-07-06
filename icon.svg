@@ -1,19 +1,42 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- 밤의 목장 — 달빛 아래 엎드린 양 (시편 23:2) -->
   <rect width="512" height="512" rx="100" fill="#0e1842"/>
   <!-- 별들 -->
-  <circle cx="100" cy="80"  r="3" fill="white" opacity="0.8"/>
-  <circle cx="200" cy="50"  r="2" fill="white" opacity="0.6"/>
-  <circle cx="350" cy="70"  r="2.5" fill="white" opacity="0.7"/>
-  <circle cx="420" cy="110" r="2" fill="white" opacity="0.5"/>
-  <circle cx="60"  cy="160" r="1.5" fill="white" opacity="0.5"/>
-  <circle cx="450" cy="180" r="2" fill="white" opacity="0.6"/>
-  <!-- 달 -->
-  <circle cx="256" cy="220" r="90" fill="#f5e6c8"/>
-  <circle cx="296" cy="190" r="75" fill="#132050"/>
-  <!-- 별빛 -->
-  <circle cx="320" cy="370" r="3" fill="#f5e6c8" opacity="0.9"/>
-  <circle cx="180" cy="400" r="2" fill="#f5e6c8" opacity="0.7"/>
-  <circle cx="390" cy="340" r="2.5" fill="#f5e6c8" opacity="0.6"/>
-  <!-- 아래 텍스트 영역 빛 -->
-  <ellipse cx="256" cy="430" rx="100" ry="14" fill="#c8a870" opacity="0.18"/>
+  <circle cx="100" cy="90"  r="3"   fill="white" opacity="0.8"/>
+  <circle cx="180" cy="60"  r="2"   fill="white" opacity="0.6"/>
+  <circle cx="255" cy="105" r="2.5" fill="white" opacity="0.7"/>
+  <circle cx="430" cy="90"  r="2"   fill="white" opacity="0.5"/>
+  <circle cx="70"  cy="180" r="1.5" fill="white" opacity="0.5"/>
+  <circle cx="455" cy="210" r="2"   fill="white" opacity="0.6"/>
+  <circle cx="130" cy="250" r="2"   fill="#f5e6c8" opacity="0.6"/>
+  <!-- 초승달 -->
+  <circle cx="340" cy="150" r="64" fill="#f5e6c8"/>
+  <circle cx="368" cy="128" r="54" fill="#0e1842"/>
+  <!-- 언덕 (푸른 초장) -->
+  <ellipse cx="256" cy="452" rx="270" ry="86" fill="#16255c"/>
+  <!-- 달빛 웅덩이 -->
+  <ellipse cx="235" cy="402" rx="130" ry="20" fill="#f5e6c8" opacity="0.13"/>
+  <!-- 엎드린 양 -->
+  <g>
+    <!-- 몸통 (구름 형태) -->
+    <ellipse cx="225" cy="358" rx="88" ry="50" fill="#f3efe6"/>
+    <circle cx="158" cy="336" r="26" fill="#f3efe6"/>
+    <circle cx="192" cy="320" r="30" fill="#f3efe6"/>
+    <circle cx="232" cy="314" r="32" fill="#f3efe6"/>
+    <circle cx="272" cy="322" r="28" fill="#f3efe6"/>
+    <!-- 꼬리 -->
+    <circle cx="138" cy="362" r="14" fill="#f3efe6"/>
+    <!-- 몸 음영 -->
+    <ellipse cx="200" cy="392" rx="70" ry="18" fill="#d9d2c2" opacity="0.5"/>
+    <!-- 접은 앞다리 -->
+    <ellipse cx="268" cy="400" rx="26" ry="9" fill="#3e3630"/>
+    <!-- 머리 (오른쪽으로 살짝 숙임) -->
+    <ellipse cx="303" cy="356" rx="31" ry="27" fill="#3e3630" transform="rotate(8 303 356)"/>
+    <!-- 귀 -->
+    <ellipse cx="278" cy="344" rx="13" ry="7" fill="#3e3630" transform="rotate(-30 278 344)"/>
+    <!-- 머리 위 털 -->
+    <circle cx="292" cy="330" r="15" fill="#f3efe6"/>
+    <!-- 감은 눈 (평안히 쉼) -->
+    <path d="M 305 352 q 6 6 13 1" stroke="#f5e6c8" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+  </g>
 </svg>
