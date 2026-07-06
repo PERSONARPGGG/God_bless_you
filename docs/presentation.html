@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>오늘의 양식 — 발표자료</title>
+<title>밤의 목장 — 발표자료</title>
 <style>
 :root {
   --navy:#080f2e; --navy2:#0e1842; --navy3:#1a2560;
   --gold:#c8a86b; --gold2:#e8c98a; --gold3:#f5e0a8;
   --white:#f8f6f0; --gray:#8b9ab3;
+  --ok:#10b981; --warn:#f59e0b;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;overflow:hidden;
@@ -45,76 +46,120 @@ html,body{width:100%;height:100%;overflow:hidden;
 .slide.active{opacity:1;transform:translateX(0);pointer-events:all;}
 .slide.exit-left{opacity:0;transform:translateX(-40px);}
 
-/* ── 공통 텍스트 ── */
-.eyebrow{font-size:11px;letter-spacing:4px;text-transform:uppercase;
-  color:var(--gold);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+/* ── 공통 텍스트 (발표장 가독성 기준으로 전체 확대) ── */
+.eyebrow{font-size:14px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
 .eyebrow::before{content:'';display:block;width:28px;height:1px;background:var(--gold);}
-h1{font-size:clamp(40px,6vw,72px);font-weight:900;color:var(--white);
+h1{font-size:clamp(44px,6.5vw,80px);font-weight:900;color:var(--white);
   letter-spacing:-2px;line-height:1.1;text-align:center;}
 h1 span{background:linear-gradient(135deg,var(--gold),var(--gold2));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--white);
-  letter-spacing:-1px;line-height:1.2;text-align:center;margin-bottom:8px;}
-.tagline{font-size:clamp(14px,1.8vw,18px);color:rgba(255,255,255,.45);
-  text-align:center;font-style:italic;margin-top:12px;margin-bottom:32px;}
-.body-text{font-size:clamp(14px,1.6vw,17px);color:rgba(255,255,255,.7);
-  line-height:1.9;text-align:center;max-width:640px;}
+h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
+  letter-spacing:-1px;line-height:1.25;text-align:center;margin-bottom:8px;}
+.tagline{font-size:clamp(16px,2vw,21px);color:rgba(255,255,255,.55);
+  text-align:center;font-style:italic;margin-top:14px;margin-bottom:32px;}
+.body-text{font-size:clamp(16px,1.8vw,20px);color:rgba(255,255,255,.75);
+  line-height:1.9;text-align:center;max-width:720px;}
 
 /* ── 카드 & 그리드 ── */
-.card-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:28px;width:100%;max-width:860px;}
+.card-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:28px;width:100%;max-width:940px;}
 .card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
-  border-radius:16px;padding:22px 26px;flex:1;min-width:180px;max-width:240px;}
-.card-icon{font-size:28px;margin-bottom:10px;}
-.card-title{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:6px;letter-spacing:.5px;}
-.card-desc{font-size:12px;color:rgba(255,255,255,.55);line-height:1.7;}
+  border-radius:16px;padding:24px 28px;flex:1;min-width:200px;max-width:280px;}
+.card-icon{font-size:32px;margin-bottom:10px;}
+.card-title{font-size:16px;font-weight:700;color:var(--gold);margin-bottom:8px;letter-spacing:.5px;}
+.card-desc{font-size:14px;color:rgba(255,255,255,.65);line-height:1.7;}
 
 /* ── 문제/솔루션 리스트 ── */
-.issue-list,.sol-list{list-style:none;margin-top:28px;display:flex;flex-direction:column;gap:12px;max-width:580px;width:100%;}
-.issue-list li{display:flex;align-items:flex-start;gap:12px;font-size:clamp(13px,1.5vw,16px);color:rgba(255,255,255,.65);line-height:1.6;}
+.issue-list,.sol-list{list-style:none;margin-top:28px;display:flex;flex-direction:column;gap:14px;max-width:660px;width:100%;}
+.issue-list li{display:flex;align-items:flex-start;gap:12px;font-size:clamp(15px,1.8vw,19px);color:rgba(255,255,255,.7);line-height:1.6;}
 .issue-list li::before{content:'✗';color:#ef4444;font-weight:700;flex-shrink:0;margin-top:2px;}
-.sol-list li{display:flex;align-items:flex-start;gap:12px;font-size:clamp(13px,1.5vw,16px);color:rgba(255,255,255,.75);line-height:1.6;}
-.sol-list li::before{content:'✓';color:#10b981;font-weight:700;flex-shrink:0;margin-top:2px;}
+.sol-list li{display:flex;align-items:flex-start;gap:12px;font-size:clamp(15px,1.8vw,19px);color:rgba(255,255,255,.78);line-height:1.6;}
+.sol-list li::before{content:'✓';color:var(--ok);font-weight:700;flex-shrink:0;margin-top:2px;}
 
 /* ── 대비 테이블 ── */
-.compare{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:32px;max-width:640px;width:100%;border-radius:14px;overflow:hidden;}
-.compare-col{padding:20px 28px;}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:0;margin-top:32px;max-width:720px;width:100%;border-radius:14px;overflow:hidden;}
+.compare-col{padding:22px 30px;}
 .compare-col.left{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);}
 .compare-col.right{background:rgba(200,168,107,.08);border:1px solid rgba(200,168,107,.2);}
-.compare-head{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;}
-.left .compare-head{color:rgba(255,255,255,.35);}
+.compare-head{font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;}
+.left .compare-head{color:rgba(255,255,255,.4);}
 .right .compare-head{color:var(--gold);}
-.compare-item{font-size:clamp(13px,1.4vw,15px);color:rgba(255,255,255,.55);padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.compare-item{font-size:clamp(15px,1.7vw,18px);color:rgba(255,255,255,.6);padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);}
 .compare-item:last-child{border:none;}
-.compare-col.right .compare-item{color:rgba(255,255,255,.85);}
+.compare-col.right .compare-item{color:rgba(255,255,255,.88);}
 
 /* ── 하이라이트 박스 ── */
 .hl-box{background:linear-gradient(135deg,rgba(200,168,107,.12),rgba(200,168,107,.04));
   border:1px solid rgba(200,168,107,.25);border-radius:16px;
-  padding:28px 36px;max-width:620px;text-align:center;margin-top:28px;}
-.hl-box .big{font-size:clamp(20px,2.8vw,30px);font-weight:800;color:var(--white);line-height:1.4;margin-bottom:10px;}
-.hl-box .small{font-size:13px;color:rgba(255,255,255,.45);line-height:1.7;}
+  padding:28px 36px;max-width:700px;text-align:center;margin-top:28px;}
+.hl-box .big{font-size:clamp(22px,3vw,34px);font-weight:800;color:var(--white);line-height:1.4;margin-bottom:10px;}
+.hl-box .small{font-size:15px;color:rgba(255,255,255,.55);line-height:1.8;}
 
 /* ── 플로우 ── */
 .flow{display:flex;align-items:center;gap:10px;margin-top:32px;flex-wrap:wrap;justify-content:center;}
 .flow-step{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
-  border-radius:50px;padding:10px 20px;font-size:14px;color:rgba(255,255,255,.8);white-space:nowrap;}
-.flow-arrow{color:var(--gold);font-size:20px;font-weight:300;}
+  border-radius:50px;padding:12px 24px;font-size:17px;color:rgba(255,255,255,.85);white-space:nowrap;}
+.flow-arrow{color:var(--gold);font-size:22px;font-weight:300;}
 
 /* ── 로드맵 타임라인 ── */
-.timeline{display:flex;flex-direction:column;gap:16px;margin-top:28px;max-width:560px;width:100%;}
+.timeline{display:flex;flex-direction:column;gap:18px;margin-top:28px;max-width:640px;width:100%;}
 .tl-item{display:flex;gap:18px;align-items:flex-start;}
-.tl-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:5px;}
-.tl-dot.done{background:#10b981;}
+.tl-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:7px;}
+.tl-dot.done{background:var(--ok);}
 .tl-dot.now{background:var(--gold);box-shadow:0 0 10px rgba(200,168,107,.4);}
 .tl-dot.soon{background:rgba(255,255,255,.2);}
-.tl-lbl{font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;}
-.tl-t{font-size:clamp(13px,1.5vw,16px);font-weight:700;color:var(--white);}
-.tl-d{font-size:12px;color:rgba(255,255,255,.4);}
+.tl-lbl{font-size:12px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;}
+.tl-t{font-size:clamp(15px,1.8vw,19px);font-weight:700;color:var(--white);}
+.tl-d{font-size:14px;color:rgba(255,255,255,.5);line-height:1.6;}
 
 /* ── URL 뱃지 ── */
 .url-badge{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
-  border-radius:50px;padding:10px 24px;font-size:14px;color:var(--gold);
+  border-radius:50px;padding:12px 28px;font-size:17px;color:var(--gold);
   letter-spacing:.5px;margin-top:20px;font-family:monospace;}
+
+/* ── 상태 뱃지 (저작권/구현현황) ── */
+.status-list{display:flex;flex-direction:column;gap:12px;margin-top:26px;max-width:760px;width:100%;}
+.status-item{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:14px 20px;}
+.status-item.ok{border-left:4px solid var(--ok);}
+.status-item.warn{border-left:4px solid var(--warn);}
+.status-badge{flex-shrink:0;font-size:13px;font-weight:800;letter-spacing:1px;
+  padding:5px 13px;border-radius:20px;white-space:nowrap;}
+.status-item.ok .status-badge{background:rgba(16,185,129,.15);color:#6ee7b7;}
+.status-item.warn .status-badge{background:rgba(245,158,11,.15);color:#fcd34d;}
+.status-t{font-size:clamp(14px,1.7vw,18px);font-weight:700;color:var(--white);line-height:1.4;}
+.status-d{font-size:14px;color:rgba(255,255,255,.5);line-height:1.5;margin-top:2px;}
+
+/* ── 구현 진행률 바 ── */
+.prog-list{display:flex;flex-direction:column;gap:15px;margin-top:26px;max-width:680px;width:100%;}
+.prog-item{width:100%;}
+.prog-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+.prog-name{font-size:clamp(14px,1.7vw,17px);font-weight:700;color:rgba(255,255,255,.85);}
+.prog-pct{font-size:15px;font-weight:800;color:var(--gold2);font-variant-numeric:tabular-nums;}
+.prog-bar{width:100%;height:10px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden;}
+.prog-fill{height:100%;border-radius:5px;width:0;
+  background:linear-gradient(90deg,var(--gold),var(--gold2));
+  transition:width 1s cubic-bezier(.22,1,.36,1);}
+.prog-fill.full{background:linear-gradient(90deg,#0d9f74,#34d399);}
+.prog-note{font-size:12px;color:rgba(255,255,255,.35);margin-top:4px;}
+
+/* ── 시연 영상 ── */
+.demo-wrap{position:relative;margin-top:26px;display:flex;justify-content:center;width:100%;}
+.demo-phone{position:relative;border-radius:34px;padding:12px;
+  background:linear-gradient(160deg,#1c2447,#0c1230);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 24px 70px rgba(0,0,0,.55), 0 0 0 1px rgba(200,168,107,.12);
+  max-height:62vh;}
+.demo-phone video{display:block;border-radius:24px;max-height:calc(62vh - 24px);
+  max-width:min(78vw,340px);background:#000;}
+.demo-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  width:min(78vw,320px);height:52vh;border-radius:24px;
+  border:2px dashed rgba(200,168,107,.35);background:rgba(255,255,255,.03);
+  color:rgba(255,255,255,.55);text-align:center;padding:24px;}
+.demo-fallback .df-icon{font-size:46px;}
+.demo-fallback .df-t{font-size:18px;font-weight:700;color:var(--gold2);}
+.demo-fallback .df-d{font-size:13px;line-height:1.8;color:rgba(255,255,255,.4);}
+.demo-fallback code{background:rgba(255,255,255,.08);padding:2px 8px;border-radius:6px;font-size:12px;color:var(--gold3);}
 
 /* ── 내비게이션 ── */
 #nav{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);
@@ -131,11 +176,11 @@ h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--white);
 
 /* ── 슬라이드 번호 ── */
 #slide-num{position:fixed;top:24px;right:32px;z-index:100;
-  font-size:11px;color:rgba(255,255,255,.2);letter-spacing:2px;}
+  font-size:13px;color:rgba(255,255,255,.25);letter-spacing:2px;}
 
 /* ── 키보드 힌트 ── */
 #hint{position:fixed;top:24px;left:32px;z-index:100;
-  font-size:10px;color:rgba(255,255,255,.18);letter-spacing:1px;}
+  font-size:11px;color:rgba(255,255,255,.18);letter-spacing:1px;}
 
 /* ── 진행 바 ── */
 #progress{position:fixed;top:0;left:0;height:2px;background:var(--gold);
@@ -152,28 +197,31 @@ h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--white);
 .pulse{animation:pulse 2.5s ease-in-out infinite;}
 
 /* ── 책 스토리 특수 ── */
-.book-stack{display:flex;flex-direction:column;gap:10px;max-width:520px;width:100%;margin-top:28px;}
+.book-stack{display:flex;flex-direction:column;gap:10px;max-width:600px;width:100%;margin-top:28px;}
 .book-entry{background:rgba(255,255,255,.04);border-left:3px solid var(--gold);
-  border-radius:0 10px 10px 0;padding:12px 18px;
+  border-radius:0 10px 10px 0;padding:14px 20px;
   animation:fadein .5s ease both;}
 .book-entry.d1{animation-delay:.1s;border-color:#f59e0b;}
 .book-entry.d2{animation-delay:.25s;border-color:#10b981;}
 .book-entry.d3{animation-delay:.4s;border-color:#6366f1;}
 .book-entry.d4{animation-delay:.55s;border-color:#3b82f6;}
-.book-date{font-size:10px;color:rgba(255,255,255,.3);letter-spacing:1px;margin-bottom:3px;}
-.book-text{font-size:13px;color:rgba(255,255,255,.65);line-height:1.5;}
+.book-date{font-size:12px;color:rgba(255,255,255,.35);letter-spacing:1px;margin-bottom:4px;}
+.book-text{font-size:15px;color:rgba(255,255,255,.72);line-height:1.6;}
 @keyframes fadein{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
 
 /* ── 기능 체크리스트 ── */
-.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 28px;margin-top:28px;max-width:540px;width:100%;}
-.feat-item{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:rgba(255,255,255,.65);line-height:1.5;}
-.feat-item::before{content:'✓';color:#10b981;font-weight:700;flex-shrink:0;}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 30px;margin-top:28px;max-width:640px;width:100%;}
+.feat-item{display:flex;gap:10px;align-items:flex-start;font-size:15px;color:rgba(255,255,255,.72);line-height:1.6;}
+.feat-item::before{content:'✓';color:var(--ok);font-weight:700;flex-shrink:0;}
+.feat-item.new::after{content:'NEW';font-size:9px;font-weight:800;letter-spacing:1px;
+  color:#0a0f2e;background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border-radius:8px;padding:2px 7px;margin-left:6px;align-self:center;flex-shrink:0;}
 
 /* ── 모바일 ── */
 @media(max-width:640px){
   .slide{padding:32px 28px;}
   .card-row{gap:10px;}
-  .card{min-width:140px;padding:16px 18px;}
+  .card{min-width:150px;padding:16px 18px;}
   .compare{grid-template-columns:1fr;}
   .feat-grid{grid-template-columns:1fr;}
   #hint{display:none;}
@@ -183,7 +231,7 @@ h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--white);
 <body>
 
 <div id="progress"></div>
-<div id="slide-num">1 / 11</div>
+<div id="slide-num">1 / 15</div>
 <div id="hint">← → 방향키 또는 클릭</div>
 
 <!-- 별 -->
@@ -198,8 +246,11 @@ h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--white);
   <!-- S1: 표지 -->
   <div class="slide active" data-slide="1">
     <div class="eyebrow">크리스천 감정 묵상 PWA</div>
-    <h1>오늘의 <span>양식</span></h1>
-    <p class="tagline">"내 감정이 주님의 말씀을 만나는, 하루 3분의 성찰"</p>
+    <h1>🌙 밤의 <span>목장</span></h1>
+    <p class="tagline">"오늘 밤, 주님이 누이시는 곳"</p>
+    <p class="body-text" style="font-size:15px;color:rgba(255,255,255,.4);margin-top:-16px;">
+      舊 「오늘의 양식」 · 앱을 열면 이렇게 인사합니다 — "오늘은 어땠나요?"
+    </p>
     <div class="url-badge pulse">god-bless-you.vercel.app</div>
   </div>
 
@@ -224,7 +275,7 @@ h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--white);
         <div class="card-desc">바쁘고 지친 하루, 묵상할 여유가 없는 삶</div>
       </div>
     </div>
-    <p class="body-text" style="margin-top:28px;font-style:italic;color:rgba(255,255,255,.4);">
+    <p class="body-text" style="margin-top:28px;font-style:italic;color:rgba(255,255,255,.45);">
       "퇴근길 3분, 그분을 위한 쉼을 만들고 싶었습니다"
     </p>
   </div>
@@ -240,7 +291,7 @@ h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--white);
       <li>기기 바꾸면 모든 기록 소실</li>
     </ul>
     <div class="hl-box" style="margin-top:24px;">
-      <div class="small">기존 앱은 <strong style="color:rgba(255,255,255,.7);">콘텐츠를 제공</strong>합니다<br>
+      <div class="small" style="font-size:17px;">기존 앱은 <strong style="color:rgba(255,255,255,.75);">콘텐츠를 제공</strong>합니다<br>
       우리는 <strong style="color:var(--gold2);">나를 발견하게</strong> 합니다</div>
     </div>
   </div>
@@ -261,12 +312,32 @@ h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--white);
     <p class="body-text" style="margin-top:32px;">
       6가지 감정 × 4가지 필요 = <strong style="color:var(--white);">24조합 맞춤 말씀</strong><br>
       한국어 144구절 · 영어 144구절<br>
-      <span style="font-size:13px;color:rgba(255,255,255,.35);">3~5분. 하루의 끝. 잠들기 전.</span>
+      <span style="font-size:15px;color:rgba(255,255,255,.4);">3~5분. 하루의 끝. 잠들기 전.</span>
     </p>
   </div>
 
-  <!-- S5: 차별점 MBTI -->
+  <!-- S5: 시연 영상 -->
   <div class="slide" data-slide="5">
+    <div class="eyebrow">Live Demo</div>
+    <h2>직접 보여드릴게요</h2>
+    <div class="demo-wrap">
+      <div class="demo-phone" id="demo-phone" style="display:none;">
+        <video id="demo-video" src="demo.mp4" controls playsinline preload="metadata"></video>
+      </div>
+      <div class="demo-fallback" id="demo-fallback">
+        <div class="df-icon">🎬</div>
+        <div class="df-t">시연 영상 자리</div>
+        <div class="df-d">
+          영상 파일을 <code>docs/demo.mp4</code> 이름으로<br>
+          이 폴더에 넣으면 자동으로 표시됩니다.<br><br>
+          (세로 영상 권장 · 발표 중 클릭으로 재생)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S6: 차별점 MBTI -->
+  <div class="slide" data-slide="6">
     <div class="eyebrow">Differentiation</div>
     <h2>MBTI가 처음 나왔을 때처럼</h2>
     <div class="hl-box" style="margin-bottom:24px;">
@@ -282,7 +353,7 @@ h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--white);
         <div class="compare-item">숙제 같은 루틴</div>
       </div>
       <div class="compare-col right">
-        <div class="compare-head">오늘의 양식</div>
+        <div class="compare-head">밤의 목장</div>
         <div class="compare-item">초대 · 자유의지</div>
         <div class="compare-item">개인 성찰</div>
         <div class="compare-item">나를 발견</div>
@@ -291,8 +362,8 @@ h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--white);
     </div>
   </div>
 
-  <!-- S6: 내 이야기 철학 -->
-  <div class="slide" data-slide="6">
+  <!-- S7: 내 이야기 철학 -->
+  <div class="slide" data-slide="7">
     <div class="eyebrow">Brand Philosophy</div>
     <h2>기록이 쌓이면<br><span style="color:var(--gold);">내 이야기가 됩니다</span></h2>
     <div class="book-stack">
@@ -313,13 +384,13 @@ h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--white);
         <div class="book-text">마음이 차분했다. 오늘 말씀이 마음에 오래 남는다.</div>
       </div>
     </div>
-    <p class="body-text" style="margin-top:20px;font-size:13px;color:rgba(255,255,255,.35);">
+    <p class="body-text" style="margin-top:20px;font-size:15px;color:rgba(255,255,255,.4);">
       마치 책을 쓰듯 — 내 감정이 내 신앙을 기억합니다
     </p>
   </div>
 
-  <!-- S7: 타겟 -->
-  <div class="slide" data-slide="7">
+  <!-- S8: 타겟 -->
+  <div class="slide" data-slide="8">
     <div class="eyebrow">Target User</div>
     <h2>이런 분들을 위해<br>만들었습니다</h2>
     <div class="card-row" style="margin-top:32px;">
@@ -339,35 +410,103 @@ h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--white);
         <div class="card-desc">신앙은 있는데 긴 QT가 부담스러운, 조용히 혼자 묵상하고 싶은</div>
       </div>
     </div>
-    <p class="body-text" style="margin-top:24px;font-size:13px;color:rgba(255,255,255,.3);">
+    <p class="body-text" style="margin-top:24px;font-size:15px;color:rgba(255,255,255,.35);">
       한국 개신교 인구 약 960만 · 특히 바쁜 중장년 여성
     </p>
   </div>
 
-  <!-- S8: 현황 -->
-  <div class="slide" data-slide="8">
-    <div class="eyebrow">Current Status · v2.5</div>
-    <h2>지금 바로 쓸 수 있습니다</h2>
-    <div class="feat-grid">
-      <div class="feat-item">감정 기반 말씀 (한·영 각 144구절)</div>
-      <div class="feat-item">Google 1탭 로그인</div>
-      <div class="feat-item">멀티 디바이스 클라우드 동기화</div>
-      <div class="feat-item">감사 일기 · 말씀 보관함</div>
-      <div class="feat-item">방문 스트릭 (연속 출석)</div>
-      <div class="feat-item">5종 배경 테마 + Aurora</div>
-      <div class="feat-item">한·영·일 3개국어 PWA</div>
-      <div class="feat-item">오프라인 동작</div>
+  <!-- S9: v2.6 새로워진 것들 -->
+  <div class="slide" data-slide="9">
+    <div class="eyebrow">What's New · v2.6 (2026.07)</div>
+    <h2>이번 달, 이만큼<br><span style="color:var(--gold);">따뜻해졌습니다</span></h2>
+    <div class="feat-grid" style="max-width:720px;">
+      <div class="feat-item new">'밤의 목장' 리브랜딩 + 달빛 양 캐릭터·앱 아이콘</div>
+      <div class="feat-item new">오프닝 인트로 — 밤 목장으로 들어가는 첫 장면</div>
+      <div class="feat-item new">찬송가 BGM 10곡 — 미니 플레이어·볼륨·곡 선택</div>
+      <div class="feat-item new">효과음 4종 + 양 쓰다듬기 상호작용</div>
+      <div class="feat-item new">결과 화면 '마무리(클로징)' — 하루를 닫는 의식</div>
+      <div class="feat-item new">성경 전문 개역한글판 교체 — 저작권 완전 해결</div>
+      <div class="feat-item">일기 자동저장 (멘토 피드백 반영)</div>
+      <div class="feat-item">마치기 버튼 고정 + 보관함 탭 재구성</div>
     </div>
-    <div class="hl-box" style="margin-top:18px;padding:14px 24px;">
-      <div class="small" style="font-size:12px;line-height:1.9;">
-        <strong style="color:var(--gold2);">🔍 Google Search Console 등록 완료</strong> — 색인 심사 대기 중<br>
-        <strong style="color:rgba(255,255,255,.55);">배포 대상:</strong> 목사님 지인 · 일부 교회 신도 · 선물로 전하고 싶은 기독교인들
+    <div class="hl-box" style="margin-top:20px;padding:16px 28px;">
+      <div class="small" style="font-size:15px;">현직 기획자 멘토링 + 1차 발표 피드백을 <strong style="color:var(--gold2);">전부 반영</strong>한 결과입니다</div>
+    </div>
+  </div>
+
+  <!-- S10: 저작권 현황 -->
+  <div class="slide" data-slide="10">
+    <div class="eyebrow">Copyright &amp; Legal</div>
+    <h2>저작권, 정면으로<br><span style="color:var(--gold);">해결했습니다</span></h2>
+    <div class="status-list">
+      <div class="status-item ok">
+        <span class="status-badge">해결 ✓</span>
+        <div>
+          <div class="status-t">성경 본문 — 개역한글판(1961) 전면 교체</div>
+          <div class="status-d">개역개정 → 퍼블릭 도메인 번역본으로 전 구절 교체 · 저작권료 0원</div>
+        </div>
+      </div>
+      <div class="status-item ok">
+        <span class="status-badge">해결 ✓</span>
+        <div>
+          <div class="status-t">BGM — 찬송가 연주 음원 10곡, 전부 CC0</div>
+          <div class="status-d">Amazing Grace 외 9곡 · 상업적 이용 가능 라이선스만 채택</div>
+        </div>
+      </div>
+      <div class="status-item ok">
+        <span class="status-badge">해결 ✓</span>
+        <div>
+          <div class="status-t">AI 생성 음원 사용 배제</div>
+          <div class="status-d">Suno 등 생성 음원은 권리관계 불명확 → 처음부터 리스크 차단</div>
+        </div>
+      </div>
+      <div class="status-item warn">
+        <span class="status-badge">진행 중</span>
+        <div>
+          <div class="status-t">영문 성경(ESV) 인용 범위 확인 · '밤의 목장' 상표 검색(KIPRIS)</div>
+          <div class="status-d">확인 완료 전까지 수익화 미적용 — 순서를 지킵니다</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- S9: AI 에이전트 개발 방법론 -->
-  <div class="slide" data-slide="9">
+  <!-- S11: 기능 구현 현황 -->
+  <div class="slide" data-slide="11">
+    <div class="eyebrow">Current Status · 구현 진행률</div>
+    <h2>지금 바로 쓸 수 있습니다</h2>
+    <div class="prog-list">
+      <div class="prog-item">
+        <div class="prog-head"><span class="prog-name">📖 감정 → 말씀 묵상 플로우 (한·영 288구절)</span><span class="prog-pct">100%</span></div>
+        <div class="prog-bar"><div class="prog-fill full" data-w="100"></div></div>
+      </div>
+      <div class="prog-item">
+        <div class="prog-head"><span class="prog-name">☁️ 클라우드 동기화 — Google 로그인·멀티 디바이스</span><span class="prog-pct">100%</span></div>
+        <div class="prog-bar"><div class="prog-fill full" data-w="100"></div></div>
+      </div>
+      <div class="prog-item">
+        <div class="prog-head"><span class="prog-name">📱 PWA — 설치·오프라인·한영일 3개국어</span><span class="prog-pct">100%</span></div>
+        <div class="prog-bar"><div class="prog-fill full" data-w="100"></div></div>
+      </div>
+      <div class="prog-item">
+        <div class="prog-head"><span class="prog-name">🎵 감성 사운드 — BGM·효과음·양 인터랙션</span><span class="prog-pct">90%</span></div>
+        <div class="prog-bar"><div class="prog-fill" data-w="90"></div></div>
+        <div class="prog-note">효과음 일부 폴리싱 예정</div>
+      </div>
+      <div class="prog-item">
+        <div class="prog-head"><span class="prog-name">📊 감정 통계 대시보드 (v3.0)</span><span class="prog-pct">30%</span></div>
+        <div class="prog-bar"><div class="prog-fill" data-w="30"></div></div>
+        <div class="prog-note">설계 진행 중</div>
+      </div>
+      <div class="prog-item">
+        <div class="prog-head"><span class="prog-name">💎 Premium 플랜 ₩1,900/월 (v3.0)</span><span class="prog-pct">10%</span></div>
+        <div class="prog-bar"><div class="prog-fill" data-w="10"></div></div>
+        <div class="prog-note">가격 구성안 검토 중</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S12: AI 에이전트 개발 방법론 -->
+  <div class="slide" data-slide="12">
     <div class="eyebrow">Development Method</div>
     <h2>AI 에이전트와 함께<br><span style="color:var(--gold);">1인 개발을 완성했습니다</span></h2>
     <div class="card-row" style="margin-top:26px;">
@@ -387,16 +526,16 @@ h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--white);
         <div class="card-desc">개발·마케팅·사용자<br>디자이너 5시점 동시 검증</div>
       </div>
     </div>
-    <div class="hl-box" style="margin-top:20px;padding:16px 28px;">
-      <div class="small" style="line-height:1.9;">
+    <div class="hl-box" style="margin-top:20px;padding:18px 30px;">
+      <div class="small" style="font-size:16px;line-height:1.9;">
         <strong style="color:var(--gold2);">Claude Code</strong>로 에이전트를 직접 설계 · 병렬 실행<br>
         코딩 속도 단축 · 신학 오류 사전 방지 · 1인 개발의 시각적 한계 보완
       </div>
     </div>
   </div>
 
-  <!-- S10: 로드맵 -->
-  <div class="slide" data-slide="10">
+  <!-- S13: 로드맵 -->
+  <div class="slide" data-slide="13">
     <div class="eyebrow">Roadmap</div>
     <h2>앞으로의 길</h2>
     <div class="timeline">
@@ -409,74 +548,76 @@ h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--white);
         </div>
       </div>
       <div class="tl-item">
+        <div class="tl-dot done"></div>
+        <div>
+          <div class="tl-lbl">완료 · 2026.07</div>
+          <div class="tl-t">v2.6 — '밤의 목장' 리브랜딩 + 사운드 + 저작권 클리어</div>
+          <div class="tl-d">달빛 양 캐릭터 · 찬송가 BGM 10곡(CC0) · 개역한글판 전환 · 멘토 피드백 반영</div>
+        </div>
+      </div>
+      <div class="tl-item">
         <div class="tl-dot now"></div>
         <div>
           <div class="tl-lbl">진행 중 · 2026 Q3</div>
           <div class="tl-t">v3.0 — 감정 통계 대시보드 + Premium 플랜</div>
-          <div class="tl-d">주간 감정 차트 · ₩1,900/월 · Search Console 색인 예정</div>
+          <div class="tl-d">주간 감정 차트 · ₩1,900/월 · Search Console 색인</div>
         </div>
       </div>
       <div class="tl-item">
         <div class="tl-dot soon"></div>
         <div>
-          <div class="tl-lbl">예정 · 2026 Q4</div>
-          <div class="tl-t">v3.5 — 주간 리포트 이메일 + 묵상 캘린더</div>
-        </div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-dot soon"></div>
-        <div>
-          <div class="tl-lbl">예정 · 2027+</div>
-          <div class="tl-t">v4.0 / v5.0 — 소그룹 · AI 개인화 말씀</div>
+          <div class="tl-lbl">예정 · 2026 Q4 →</div>
+          <div class="tl-t">v3.5 주간 리포트·묵상 캘린더 → v4.0 소그룹 → v5.0 AI 개인화</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- S11: 예상 Q&A + 구현 계획 -->
-  <div class="slide" data-slide="11">
+  <!-- S14: 예상 Q&A + 구현 계획 -->
+  <div class="slide" data-slide="14">
     <div class="eyebrow">Q&amp;A · Roadmap Details</div>
     <h2>전문가 예상 질문<br><span style="color:var(--gold);">이미 생각하고 있는 것들</span></h2>
-    <div style="display:flex;gap:20px;margin-top:22px;width:100%;max-width:900px;align-items:flex-start;">
+    <div style="display:flex;gap:20px;margin-top:22px;width:100%;max-width:1000px;align-items:flex-start;">
       <!-- 좌: Q&A -->
-      <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:20px 22px;">
-        <div style="font-size:11px;letter-spacing:1.5px;color:var(--gold2);margin-bottom:14px;">예상 질문</div>
-        <div style="display:flex;flex-direction:column;gap:10px;font-size:12px;line-height:1.7;color:rgba(255,255,255,.7);">
-          <div><span style="color:var(--gold);font-weight:700;">Q.</span> 개인정보는?<br><span style="color:rgba(255,255,255,.45);font-size:11px;">→ Supabase RLS + Google OAuth. 민감정보 직접 저장 없음.</span></div>
-          <div><span style="color:var(--gold);font-weight:700;">Q.</span> 말씀 저작권?<br><span style="color:rgba(255,255,255,.45);font-size:11px;">→ 개역개정(개인 앱 허용), ESV 영문 확인 예정.</span></div>
-          <div><span style="color:var(--gold);font-weight:700;">Q.</span> 현재 MAU는?<br><span style="color:rgba(255,255,255,.45);font-size:11px;">→ 오픈 베타 중. Search Console 색인 후 측정 시작.</span></div>
-          <div><span style="color:var(--gold);font-weight:700;">Q.</span> 프리미엄 전환율?<br><span style="color:rgba(255,255,255,.45);font-size:11px;">→ ₩1,900 낮은 진입장벽 + 대시보드 인사이트로 유도.</span></div>
-          <div><span style="color:var(--gold);font-weight:700;">Q.</span> 혼자 유지보수?<br><span style="color:rgba(255,255,255,.45);font-size:11px;">→ 단일 파일 + Claude Code 에이전트로 지속 개발 중.</span></div>
+      <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:22px 24px;">
+        <div style="font-size:13px;letter-spacing:1.5px;color:var(--gold2);margin-bottom:14px;">예상 질문</div>
+        <div style="display:flex;flex-direction:column;gap:12px;font-size:14px;line-height:1.7;color:rgba(255,255,255,.75);">
+          <div><span style="color:var(--gold);font-weight:700;">Q.</span> 개인정보는?<br><span style="color:rgba(255,255,255,.5);font-size:13px;">→ Supabase RLS + Google OAuth. 민감정보 직접 저장 없음.</span></div>
+          <div><span style="color:var(--gold);font-weight:700;">Q.</span> 말씀 저작권?<br><span style="color:rgba(255,255,255,.5);font-size:13px;">→ 개역한글판(퍼블릭 도메인) 전면 교체 완료. 저작권료 0원. 영문 ESV만 확인 중.</span></div>
+          <div><span style="color:var(--gold);font-weight:700;">Q.</span> 현재 MAU는?<br><span style="color:rgba(255,255,255,.5);font-size:13px;">→ 오픈 베타 중. Search Console 색인 후 측정 시작.</span></div>
+          <div><span style="color:var(--gold);font-weight:700;">Q.</span> 프리미엄 전환율?<br><span style="color:rgba(255,255,255,.5);font-size:13px;">→ ₩1,900 낮은 진입장벽 + 대시보드 인사이트로 유도.</span></div>
+          <div><span style="color:var(--gold);font-weight:700;">Q.</span> 혼자 유지보수?<br><span style="color:rgba(255,255,255,.5);font-size:13px;">→ 단일 파일 + Claude Code 에이전트로 지속 개발 중.</span></div>
         </div>
       </div>
       <!-- 우: 구현 계획 -->
-      <div style="flex:1;background:rgba(200,168,107,.06);border:1px solid rgba(200,168,107,.18);border-radius:16px;padding:20px 22px;">
-        <div style="font-size:11px;letter-spacing:1.5px;color:var(--gold2);margin-bottom:14px;">구현 계획 리스트</div>
-        <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;line-height:1.6;color:rgba(255,255,255,.65);">
-          <div>📊 주간 감정 리포트 이메일 <span style="color:rgba(255,255,255,.3);font-size:11px;">(v3.5)</span></div>
-          <div>📅 묵상 캘린더 <span style="color:rgba(255,255,255,.3);font-size:11px;">(v3.5)</span></div>
-          <div>📖 말씀 300개+ 확장 <span style="color:rgba(255,255,255,.3);font-size:11px;">(v3.5)</span></div>
-          <div>👥 소그룹·셀 공동 묵상 <span style="color:rgba(255,255,255,.3);font-size:11px;">(v4.0 · 교회 플랜)</span></div>
-          <div>🤖 AI 개인화 말씀 추천 <span style="color:rgba(255,255,255,.3);font-size:11px;">(v5.0)</span></div>
-          <div style="margin-top:6px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08);">
-            <span style="color:#86efac;font-size:11px;">✅ ESV 저작권 정식 확인 (진행 중)</span><br>
-            <span style="color:#86efac;font-size:11px;">✅ iOS / 구글 플레이 검토 (예정)</span>
+      <div style="flex:1;background:rgba(200,168,107,.06);border:1px solid rgba(200,168,107,.18);border-radius:16px;padding:22px 24px;">
+        <div style="font-size:13px;letter-spacing:1.5px;color:var(--gold2);margin-bottom:14px;">구현 계획 리스트</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:1.6;color:rgba(255,255,255,.7);">
+          <div>📊 감정 통계 대시보드 <span style="color:rgba(255,255,255,.35);font-size:13px;">(v3.0 · 진행 중)</span></div>
+          <div>💎 Premium ₩1,900/월 <span style="color:rgba(255,255,255,.35);font-size:13px;">(v3.0)</span></div>
+          <div>📅 묵상 캘린더 · 일기 내보내기 <span style="color:rgba(255,255,255,.35);font-size:13px;">(v3.5)</span></div>
+          <div>📖 말씀 300개+ 확장 <span style="color:rgba(255,255,255,.35);font-size:13px;">(v3.5)</span></div>
+          <div>👥 소그룹·셀 공동 묵상 <span style="color:rgba(255,255,255,.35);font-size:13px;">(v4.0 · 교회 플랜)</span></div>
+          <div>🤖 AI 개인화 말씀 추천 <span style="color:rgba(255,255,255,.35);font-size:13px;">(v5.0)</span></div>
+          <div style="margin-top:6px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);">
+            <span style="color:#86efac;font-size:13px;">✅ 성경·BGM 저작권 해결 완료 (2026.07)</span><br>
+            <span style="color:#fcd34d;font-size:13px;">🔶 ESV 확인 · 상표 검색 · 스토어 등록 (진행/예정)</span>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- S12: 마무리 -->
-  <div class="slide" data-slide="12">
+  <!-- S15: 마무리 -->
+  <div class="slide" data-slide="15">
     <div class="eyebrow">Thank You</div>
-    <h1 style="font-size:clamp(32px,5vw,56px);">오늘도<br><span>수고하셨습니다</span></h1>
-    <p class="tagline" style="margin-top:16px;font-size:clamp(14px,1.6vw,18px);">
+    <h1 style="font-size:clamp(36px,5.5vw,64px);">오늘 밤,<br><span>주님이 누이시는 곳</span></h1>
+    <p class="tagline" style="margin-top:16px;font-size:clamp(16px,1.8vw,20px);">
       내 감정에 꼭 맞는 말씀 한 구절로,<br>하루를 마무리하세요
     </p>
     <div class="url-badge pulse" style="margin-top:28px;">god-bless-you.vercel.app</div>
-    <p style="font-size:11px;color:rgba(255,255,255,.2);margin-top:20px;letter-spacing:2px;">
-      오늘의 양식 · 크리스천 감정 묵상 PWA
+    <p style="font-size:13px;color:rgba(255,255,255,.25);margin-top:20px;letter-spacing:2px;">
+      🌙 밤의 목장 · 크리스천 감정 묵상 PWA
     </p>
   </div>
 
@@ -490,7 +631,7 @@ h2{font-size:clamp(26px,3.5vw,42px);font-weight:800;color:var(--white);
 </nav>
 
 <script>
-const TOTAL = 12;
+const TOTAL = 15;
 let current = 1;
 let animating = false;
 
@@ -523,6 +664,10 @@ function goTo(n){
   const newSlide = document.querySelector(`.slide[data-slide="${n}"]`);
   const dir = n > current ? 1 : -1;
 
+  // 시연 영상 슬라이드 벗어나면 일시정지
+  const dv = document.getElementById('demo-video');
+  if(dv && !dv.paused) dv.pause();
+
   // 나가는 슬라이드
   oldSlide.style.transform = `translateX(${-dir*40}px)`;
   oldSlide.style.opacity = '0';
@@ -554,6 +699,16 @@ function goTo(n){
 
   current = n;
   updateUI();
+
+  // 구현 현황 슬라이드 진입 시 진행률 바 애니메이션
+  if(newSlide.querySelector('.prog-fill')){
+    newSlide.querySelectorAll('.prog-fill').forEach(f=>{
+      f.style.width = '0';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        f.style.width = f.dataset.w + '%';
+      }));
+    });
+  }
 }
 
 document.getElementById('prev').onclick = () => goTo(current-1);
@@ -582,6 +737,16 @@ for(let i=0;i<60;i++){
     --dur:${2+Math.random()*4}s;--delay:${Math.random()*5}s;--mop:${.3+Math.random()*.5}`;
   starsEl.appendChild(s);
 }
+
+// 시연 영상 파일 존재 감지 — 있으면 폰 프레임 표시, 없으면 안내 유지
+(function(){
+  const v = document.getElementById('demo-video');
+  const phone = document.getElementById('demo-phone');
+  const fb = document.getElementById('demo-fallback');
+  if(!v) return;
+  v.addEventListener('loadedmetadata', ()=>{ phone.style.display='block'; fb.style.display='none'; });
+  v.addEventListener('error', ()=>{ phone.style.display='none'; fb.style.display='flex'; });
+})();
 
 updateUI();
 </script>
