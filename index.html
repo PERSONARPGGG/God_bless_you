@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>밤의 목장</title>
     <meta name="description" content="밤의 목장 — 오늘 밤, 주님이 누이시는 곳. 하루를 마무리하는 감정 묵상 쉼터">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="밤의 목장 — 오늘 밤, 주님이 누이시는 곳">
+    <meta property="og:description" content="오늘의 감정을 고르면, 내 마음에 꼭 맞는 말씀과 묵상이 찾아옵니다. 하루 3분 감정 묵상 쉼터.">
+    <meta property="og:url" content="https://god-bless-you.vercel.app/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="밤의 목장 — 오늘 밤, 주님이 누이시는 곳">
+    <meta name="twitter:description" content="오늘의 감정을 고르면, 내 마음에 꼭 맞는 말씀과 묵상이 찾아옵니다.">
     <meta name="google-site-verification" content="Z6_wKrqiqzZsKDvHuuirvLjr-6LyyzWJeh1R1_fqZMw" />
     <meta name="theme-color" content="#0e1842">
     <meta name="mobile-web-app-capable" content="yes">
@@ -758,14 +765,6 @@
             pointer-events:none;white-space:nowrap;
         }
         #toast.show { opacity:1;transform:translateX(-50%) translateY(0); }
-
-        /* ── 하단 고정 ── */
-        .footer {
-            position:fixed;bottom:0;left:0;right:0;z-index:100;text-align:center;
-            padding:12px 20px calc(18px + env(safe-area-inset-bottom));
-            background:linear-gradient(to top,rgba(5,8,28,.92) 0%,transparent 100%);
-            color:rgba(255,255,255,.6);font-size:var(--fs-xs);line-height:1.7;pointer-events:none;
-        }
 
         /* ── 반응형 ── */
         @media (max-width:380px) {
@@ -2142,8 +2141,6 @@
     </div>
 </div>
 
-<div id="footer-text" class="footer">🙏 오늘도 누군가를 위해 기도하는 마음으로</div>
-
 <!-- 밤의 목장 — 달빛 아래 양 한 마리 (시23:2, 장식) -->
 <div id="sheep" class="sheep-el" aria-hidden="true">
     <div class="sh-flip"><div class="sh-bob">
@@ -2157,7 +2154,7 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
-   오늘은 어땠나요? — index.html 단일 파일 구조
+   밤의 목장 (舊 오늘은 어땠나요?) — index.html 단일 파일 구조
 
    ★ 목차 (Ctrl+F 로 점프)
    ─────────────────────────────────────────────────────────────
@@ -4210,7 +4207,7 @@ const LANG_DATA = {
         /* 체크인 */
         cp_text:'오늘 출석 완료', streak_unit:'일 연속',
         /* 날짜·환영 */
-        locale:'ko-KR', footer:'🙏 오늘도 누군가를 위해 기도하는 마음으로',
+        locale:'ko-KR',
         welcome_msgs:['오늘도 수고 많으셨어요.','천천히, 지금 이 순간만요.','당신의 오늘을 들을게요.','잠시 내려놓아도 괜찮아요.','오늘 하루도 참 잘 버티셨어요.','하나님 앞에서, 있는 그대로요.','오늘도 은혜로운 하루였어요.'],
         month_names:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
         day_names:['일','월','화','수','목','금','토'],
@@ -4322,7 +4319,7 @@ const LANG_DATA = {
         /* 체크인 */
         cp_text:'Checked in today', streak_unit:'-day streak',
         /* 날짜·환영 */
-        locale:'en-US', footer:'🙏 Praying for someone today',
+        locale:'en-US',
         welcome_msgs:['Well done today.','Take a moment to look back at your day.','Your day matters.','It\'s okay to rest a while.','You made it through today.','Rest a moment with God.','I\'m here to listen.'],
         month_names:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
         day_names:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
@@ -4434,7 +4431,7 @@ const LANG_DATA = {
         /* 체크인 */
         cp_text:'今日のチェックイン完了', streak_unit:'日連続',
         /* 날짜·환영 */
-        locale:'ja-JP', footer:'🙏 今日も誰かのために祈る心で',
+        locale:'ja-JP',
         welcome_msgs:['今日もお疲れ様でした。','ゆっくり今日を振り返りましょう。','あなたの一日は大切です。','少し休んでも大丈夫です。','今日もよく頑張りました。','神様の前でひと息つきましょう。','あなたのお話を聞かせてください。'],
         month_names:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
         day_names:['日','月','火','水','木','金','土'],
@@ -4559,8 +4556,6 @@ function applyLang(lang) {
     const cpTxt=document.getElementById('cp-text'), cpStr=document.getElementById('cp-streak');
     if(cpTxt) cpTxt.textContent=L.cp_text;
     if(cpStr){ const n=(cpStr.textContent.match(/\d+/)||['1'])[0]; cpStr.textContent=n+L.streak_unit; }
-    // 푸터
-    s('footer-text',L.footer);
     // 마무리(클로징) 카드
     s('blessing-title',L.closing_title);
     if (sel && sel.emotion) {
