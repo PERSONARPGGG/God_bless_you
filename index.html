@@ -477,12 +477,6 @@
         }
         .diary-input:focus { border-color:#b8cef0;background:#fff; }
         .diary-input::placeholder { color:#bbb; }
-        .diary-save-btn {
-            display:block;width:100%;margin-top:10px;background:#f0ece4;border:none;border-radius:14px;
-            padding:14px;font-size:var(--fs-md);color:#6a6050;font-family:inherit;cursor:pointer;
-            font-weight:600;transition:all .2s;-webkit-tap-highlight-color:transparent;
-        }
-        .diary-save-btn:hover { background:#e8e0d4;color:#4a4030; }
         .diary-saved-msg { text-align:center;font-size:var(--fs-sm);color:#a07850;margin-top:10px;display:none; }
 
         /* 글자 크기 컨트롤 */
@@ -496,12 +490,14 @@
         .font-btn:hover { background:rgba(200,168,112,.28); }
         #fs-indicator { font-size:12px;color:#c0a880;min-width:20px;text-align:center; }
 
-        /* 다시 시작 */
+        /* 오늘 묵상 마치기 — 스크롤 어디서든 화면 하단에 고정(sticky) */
         .btn-restart {
             display:block;width:100%;background:linear-gradient(135deg,#2a4578,#1e3460);
             color:#fff;border:none;border-radius:20px;padding:17px 24px;
             font-size:var(--fs-base);font-family:inherit;font-weight:600;cursor:pointer;
             letter-spacing:.5px;transition:all .22s ease;-webkit-tap-highlight-color:transparent;margin-top:4px;
+            position:sticky;bottom:14px;z-index:40;
+            box-shadow:0 8px 24px rgba(8,16,40,.5);
         }
         .btn-restart:hover { transform:translateY(-2px);box-shadow:0 10px 28px rgba(30,52,96,.45); }
 
@@ -1471,21 +1467,18 @@
         <button id="vault-back" class="overlay-back" onclick="hideOverlay('overlay-vault')">← 돌아가기</button>
         <div id="vault-title" class="overlay-title">📖 나의 보관함</div>
         <div class="vault-tabs">
-            <button class="vault-tab active" onclick="switchTab('saved')">즐겨찾기</button>
-            <button class="vault-tab"        onclick="switchTab('mood')">감정 기록</button>
-            <button class="vault-tab"        onclick="switchTab('stats')">주간 통계 <span class="pm-star">✦</span></button>
+            <button class="vault-tab active" onclick="switchTab('mood')">감정 · 통계 <span class="pm-star">✦</span></button>
+            <button class="vault-tab"        onclick="switchTab('saved')">즐겨찾기</button>
         </div>
-        <div id="vault-saved" class="vault-pane active">
-            <div id="saved-list"></div>
-            <div id="saved-pagination" class="vault-pagination"></div>
-        </div>
-        <div id="vault-mood" class="vault-pane">
+        <div id="vault-mood" class="vault-pane active">
+            <div id="stats-content"></div>
             <div id="mood-month-jump" class="mood-month-jump"></div>
             <div id="mood-list"></div>
             <div id="mood-pagination" class="vault-pagination"></div>
         </div>
-        <div id="vault-stats" class="vault-pane">
-            <div id="stats-content"></div>
+        <div id="vault-saved" class="vault-pane">
+            <div id="saved-list"></div>
+            <div id="saved-pagination" class="vault-pagination"></div>
         </div>
     </div>
 </div>
@@ -1580,6 +1573,11 @@
                         <button class="music-chip" id="chip-song-2" onclick="setHymnSong('2')">거룩 거룩 거룩</button>
                         <button class="music-chip" id="chip-song-3" onclick="setHymnSong('3')">주 음성 외에는</button>
                         <button class="music-chip" id="chip-song-4" onclick="setHymnSong('4')">저 장미꽃 위에 이슬</button>
+                        <button class="music-chip" id="chip-song-5" onclick="setHymnSong('5')">큰 죄에 빠진 날 위해</button>
+                        <button class="music-chip" id="chip-song-6" onclick="setHymnSong('6')">구주 예수 의지함이</button>
+                        <button class="music-chip" id="chip-song-7" onclick="setHymnSong('7')">해보다 더 밝은 저 천국</button>
+                        <button class="music-chip" id="chip-song-8" onclick="setHymnSong('8')">주의 친절한 팔에 안기세</button>
+                        <button class="music-chip" id="chip-song-9" onclick="setHymnSong('9')">나의 죄를 씻기는</button>
                     </div>
                 </div>
             </div>
@@ -1994,12 +1992,11 @@
             <p class="enc-text" id="r-enc"></p>
         </div>
 
-        <!-- 감사 한 줄 일기 (마지막: 저장 → 클로징 연출로 자연스럽게 이어짐) -->
+        <!-- 감사 한 줄 일기 (저장 버튼 없음 — "오늘 묵상 마치기" 시점에 자동 저장) -->
         <div class="card">
             <div class="section-header"><span id="sec-diary" class="section-label">감사 한 줄 일기</span><div class="section-line"></div></div>
             <p id="diary-label" class="diary-label">오늘 딱 한 줄, 마음에 남는 것을 남겨보세요.</p>
             <textarea id="diary-input" class="diary-input" rows="3" placeholder="아무리 작은 것도 괜찮아요..."></textarea>
-            <button id="diary-save-btn" class="diary-save-btn" onclick="saveDiary()">저장하기</button>
             <p id="diary-saved-msg" class="diary-saved-msg">✓ 저장되었어요. 그 마음, 하나님이 받으셨어요.</p>
         </div>
 
@@ -2040,7 +2037,7 @@
    § 데모 주입      ← injectDemoData()
    § 음악           ← HYMN_TRACKS, hymnPlay/playerToggle, toggleBgMusic() — 찬송가 연주 음원(CC0)
    § 설정           ← openSettings(), applyLang(), cycleFont()
-   § 저장 / 일기    ← toggleSave(), saveDiary()
+   § 저장 / 일기    ← toggleSave(), autoSaveDiary()
    § PWA / 스트릭  ← installPWA(), checkStreak()
    § 클로징(마무리) ← startClosingTimer/triggerClosing/onFinishClick — 5분 타이머+마무리 카드
    § 연속 감정 인식 ← EMO_CATEGORY, calcEmotionRun(), renderEmotionPattern()
@@ -4016,7 +4013,7 @@ const LANG_DATA = {
         topic:['일','가족','공부','사람','잘 모르겠어요'],
         need:['위로받고 싶어요','힘을 얻고 싶어요','방향이 필요해요','그냥 쉬고 싶어요'],
         /* 결과 버튼 */
-        btn_copy:'📋 복사', btn_share:'📤 공유', btn_save:'⭐ 즐겨찾기', btn_saved:'★ 저장됨', btn_restart:'🌙 다시 시작하기',
+        btn_copy:'📋 복사', btn_share:'📤 공유', btn_save:'⭐ 즐겨찾기', btn_saved:'★ 저장됨', btn_restart:'🌙 처음으로',
         btn_finish:'🌙 오늘 묵상 마치기', closing_extend_hint:'· 연장하기', closing_extended:'5분 더 볼게요',
         btn_vault_closing:'📖 보관함 보기',
         pm_title:'프리미엄', pm_desc:'당신의 신앙 기록,\n사라지지 않게 지켜드릴게요.',
@@ -4045,9 +4042,10 @@ const LANG_DATA = {
         music_on:'재생 중 🎵', music_off:'일시정지됨',
         music_vol:'볼륨', music_song:'곡 선택', song_all:'전체 반복',
         song_0:'나 같은 죄인 살리신', song_1:'죄짐 맡은 우리 구주', song_2:'거룩 거룩 거룩', song_3:'주 음성 외에는', song_4:'저 장미꽃 위에 이슬',
+        song_5:'큰 죄에 빠진 날 위해', song_6:'구주 예수 의지함이', song_7:'해보다 더 밝은 저 천국', song_8:'주의 친절한 팔에 안기세', song_9:'나의 죄를 씻기는',
         /* 보관함 */
         vault_title:'📖 나의 보관함', vault_back:'← 돌아가기',
-        v_tab1:'즐겨찾기', v_tab2:'감정 기록', v_tab3:'주간 통계',
+        v_tab_journal:'감정 · 통계', v_tab1:'즐겨찾기',
         vault_empty_saved:'아직 즐겨찾기한 항목이 없어요.<br>말씀 카드의 ⭐ 버튼을 눌러 저장해 보세요.',
         vault_empty_mood:'아직 기록이 없어요.<br>오늘의 감정을 남기면 여기에 쌓여요.',
         pag_prev:'← 이전', pag_next:'다음 →',
@@ -4067,7 +4065,7 @@ const LANG_DATA = {
         sec_sentence:'오늘의 한 문장', sec_diary:'감사 한 줄 일기', sec_enc:'당신을 위한 응원',
         /* 일기 */
         diary_label:'오늘 딱 한 줄, 마음에 남는 것을 남겨보세요.',
-        diary_ph:'아무리 작은 것도 괜찮아요...', diary_save:'저장하기',
+        diary_ph:'아무리 작은 것도 괜찮아요...',
         diary_saved:'✓ 저장되었어요. 그 마음, 하나님이 받으셨어요.',
         /* 체크인 */
         cp_text:'오늘 출석 완료', streak_unit:'일 연속',
@@ -4085,7 +4083,7 @@ const LANG_DATA = {
         upd_manual:'모바일 또는 웹 환경에서만 지원됩니다.', upd_click:'확인하려면 버튼을 누르세요.',
         /* 토스트·확인창 */
         toast_copied:'말씀이 복사되었습니다 📋', toast_saved_verse:'즐겨찾기에 저장되었습니다 ⭐',
-        toast_diary_saved:'감사 일기가 저장되었습니다 ✨', toast_diary_empty:'한 줄을 적어주세요 🌸',
+        toast_diary_saved:'감사 일기가 저장되었습니다 ✨',
         toast_exported:'클립보드에 복사되었습니다 📋', toast_reset:'초기화되었습니다',
         confirm_reset:'저장된 말씀, 감정 기록이 모두 삭제됩니다. 계속하시겠어요?',
         /* QR 공유 */
@@ -4126,7 +4124,7 @@ const LANG_DATA = {
         topic:['Work','Family','Study','People','Not sure'],
         need:['Comfort','Strength','Direction','Rest'],
         /* 결과 버튼 */
-        btn_copy:'📋 Copy', btn_share:'📤 Share', btn_save:'⭐ Bookmark', btn_saved:'★ Saved', btn_restart:'🌙 Start Over',
+        btn_copy:'📋 Copy', btn_share:'📤 Share', btn_save:'⭐ Bookmark', btn_saved:'★ Saved', btn_restart:'🌙 Back to Start',
         btn_finish:'🌙 Finish Today’s Reflection', closing_extend_hint:'· Extend', closing_extended:'5 more minutes',
         btn_vault_closing:'📖 View Saved Verses',
         pm_title:'Premium', pm_desc:'Keep your faith journal safe,\nforever.',
@@ -4155,9 +4153,10 @@ const LANG_DATA = {
         music_on:'Playing 🎵', music_off:'Paused',
         music_vol:'Volume', music_song:'Song', song_all:'Play All',
         song_0:'Amazing Grace', song_1:'What a Friend We Have in Jesus', song_2:'Holy, Holy, Holy', song_3:'I Need Thee Every Hour', song_4:'In the Garden',
+        song_5:'Just As I Am', song_6:"'Tis So Sweet to Trust in Jesus", song_7:'Sweet By and By', song_8:'Leaning on the Everlasting Arms', song_9:'Nothing but the Blood',
         /* 보관함 */
         vault_title:'📖 My Vault', vault_back:'← Back',
-        v_tab1:'Saved', v_tab2:'History', v_tab3:'Weekly',
+        v_tab_journal:'History & Stats', v_tab1:'Saved',
         vault_empty_saved:'No bookmarks yet.<br>Tap ⭐ on a verse card to save one.',
         vault_empty_mood:'No history yet.<br>Come back daily to build your record.',
         pag_prev:'← Prev', pag_next:'Next →',
@@ -4177,7 +4176,7 @@ const LANG_DATA = {
         sec_sentence:'A Word for Today', sec_diary:'Gratitude Journal', sec_enc:'Encouragement for You',
         /* 일기 */
         diary_label:'Write one thing you\'re grateful for today.',
-        diary_ph:'Even small things count...', diary_save:'Save',
+        diary_ph:'Even small things count...',
         diary_saved:'✓ Saved. A grateful heart is beautiful.',
         /* 체크인 */
         cp_text:'Checked in today', streak_unit:'-day streak',
@@ -4195,7 +4194,7 @@ const LANG_DATA = {
         upd_manual:'Only supported in web/mobile environments.', upd_click:'Press the button to check.',
         /* 토스트·확인창 */
         toast_copied:'Verse copied 📋', toast_saved_verse:'Added to bookmarks ⭐',
-        toast_diary_saved:'Gratitude saved ✨', toast_diary_empty:'Please write something first 🌸',
+        toast_diary_saved:'Gratitude saved ✨',
         toast_exported:'Copied to clipboard 📋', toast_reset:'Data cleared',
         confirm_reset:'All saved verses and mood history will be deleted. Continue?',
         /* QR 공유 */
@@ -4236,7 +4235,7 @@ const LANG_DATA = {
         topic:['仕事','家族','勉強','人間関係','わからない'],
         need:['慰めがほしい','力がほしい','方向が必要','ただ休みたい'],
         /* 결과 버튼 */
-        btn_copy:'📋 コピー', btn_share:'📤 共有', btn_save:'⭐ お気に入り', btn_saved:'★ 保存済み', btn_restart:'🌙 もう一度',
+        btn_copy:'📋 コピー', btn_share:'📤 共有', btn_save:'⭐ お気に入り', btn_saved:'★ 保存済み', btn_restart:'🌙 はじめに戻る',
         btn_finish:'🌙 今日の黙想を終える', closing_extend_hint:'· 延長する', closing_extended:'あと5分見ます',
         btn_vault_closing:'📖 保管箱を見る',
         pm_title:'プレミアム', pm_desc:'あなたの信仰の記録を\nずっと守ります。',
@@ -4265,9 +4264,10 @@ const LANG_DATA = {
         music_on:'再生中 🎵', music_off:'一時停止中',
         music_vol:'音量', music_song:'曲', song_all:'全曲リピート',
         song_0:'アメイジング・グレイス', song_1:'いつくしみ深き', song_2:'聖なるかな', song_3:'I Need Thee Every Hour', song_4:'In the Garden',
+        song_5:'いさおなき我を', song_6:"'Tis So Sweet to Trust in Jesus", song_7:'まもなくかなたの', song_8:'Leaning on the Everlasting Arms', song_9:'Nothing but the Blood',
         /* 보관함 */
         vault_title:'📖 ボールト', vault_back:'← 戻る',
-        v_tab1:'お気に入り', v_tab2:'記録', v_tab3:'週間統計',
+        v_tab_journal:'記録 · 統計', v_tab1:'お気に入り',
         vault_empty_saved:'まだお気に入りがありません。<br>みことばカードの⭐で保存できます。',
         vault_empty_mood:'まだ記録がありません。<br>毎日訪れると記録が増えていきます。',
         pag_prev:'← 前へ', pag_next:'次へ →',
@@ -4287,7 +4287,7 @@ const LANG_DATA = {
         sec_sentence:'今日の一言', sec_diary:'感謝の日記', sec_enc:'あなたへの励まし',
         /* 일기 */
         diary_label:'今日感謝したことを一つ書いてみましょう。',
-        diary_ph:'小さなことでも大丈夫...', diary_save:'保存する',
+        diary_ph:'小さなことでも大丈夫...',
         diary_saved:'✓ 保存されました。感謝の心は美しいです。',
         /* 체크인 */
         cp_text:'今日のチェックイン完了', streak_unit:'日連続',
@@ -4305,7 +4305,7 @@ const LANG_DATA = {
         upd_manual:'モバイルまたはウェブ環境でのみ対応しています。', upd_click:'ボタンを押して確認してください。',
         /* 토스트·확인창 */
         toast_copied:'みことばをコピーしました 📋', toast_saved_verse:'お気に入りに保存しました ⭐',
-        toast_diary_saved:'感謝の日記を保存しました ✨', toast_diary_empty:'一行書いてください 🌸',
+        toast_diary_saved:'感謝の日記を保存しました ✨',
         toast_exported:'クリップボードにコピーしました 📋', toast_reset:'初期化しました',
         confirm_reset:'保存されたみことばと記録がすべて削除されます。続けますか？',
         /* QR 공유 */
@@ -4378,8 +4378,8 @@ function applyLang(lang) {
     // 보관함 오버레이
     s('vault-title',L.vault_title); s('vault-back',L.vault_back);
     const tabs=document.querySelectorAll('.vault-tab');
-    if(tabs[0]) tabs[0].textContent=L.v_tab1; if(tabs[1]) tabs[1].textContent=L.v_tab2;
-    if(tabs[2]) tabs[2].innerHTML=(L.v_tab3||'주간 통계')+'<span class="pm-star"> ✦</span>';
+    if(tabs[0]) tabs[0].innerHTML=(L.v_tab_journal||'감정 · 통계')+'<span class="pm-star"> ✦</span>';
+    if(tabs[1]) tabs[1].textContent=L.v_tab1;
     // 설정 오버레이
     s('settings-title',L.settings_title); s('settings-back',L.settings_back);
     s('lbl-lang',L.lbl_lang); s('lbl-theme',L.lbl_theme); s('lbl-font',L.lbl_font);
@@ -4407,7 +4407,7 @@ function applyLang(lang) {
     s('sec-verse',L.sec_verse); s('sec-story',L.sec_story); s('sec-prayer',L.sec_prayer);
     s('sec-sentence',L.sec_sentence); s('sec-diary',L.sec_diary); s('sec-enc',L.sec_enc);
     // 일기
-    s('diary-label',L.diary_label); s('diary-save-btn',L.diary_save); s('diary-saved-msg',L.diary_saved);
+    s('diary-label',L.diary_label); s('diary-saved-msg',L.diary_saved);
     const di=document.getElementById('diary-input'); if(di) di.placeholder=L.diary_ph;
     // 업데이트 버튼 (특수 상태가 아닐 때만)
     const ubtn=document.getElementById('btn-check-update');
@@ -4433,6 +4433,8 @@ function applyLang(lang) {
     s('lbl-vol',L.music_vol); s('lbl-song',L.music_song);
     s('chip-song-all',L.song_all); s('chip-song-0',L.song_0); s('chip-song-1',L.song_1);
     s('chip-song-2',L.song_2); s('chip-song-3',L.song_3); s('chip-song-4',L.song_4);
+    s('chip-song-5',L.song_5); s('chip-song-6',L.song_6); s('chip-song-7',L.song_7);
+    s('chip-song-8',L.song_8); s('chip-song-9',L.song_9);
     updatePlayerUI();
     // 날짜·환영 갱신
     setDate(); setWelcome();
@@ -5206,10 +5208,11 @@ function toggleSave() {
 /* ═══════════════════════════════════════
    감사 일기
 ═══════════════════════════════════════ */
-function saveDiary() {
+/* 클로징 시점에 일기 내용이 있으면 자동 저장 (저장 버튼 없음) */
+function autoSaveDiary() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const text = document.getElementById('diary-input').value.trim();
-    if (!text) { toast(L.toast_diary_empty); return; }
+    if (!text) return;
     const hist = lsGet('moodHistory') || [];
     if (hist.length) {
         hist[0].diary = text;
@@ -5217,10 +5220,7 @@ function saveDiary() {
         if (sbUser && sb) sb.from('mood_history').update({diary_text:text}).eq('user_id',sbUser.id).eq('date',todayStr()).then();
     }
     document.getElementById('diary-saved-msg').style.display='block';
-    const saveBtn = document.getElementById('diary-save-btn');
-    if (saveBtn) saveBtn.disabled = true;
     toast(L.toast_diary_saved);
-    setTimeout(triggerClosing, 900); // 저장 확인 메시지 보여준 뒤 마무리 연출
 }
 
 /* ═══════════════════════════════════════
@@ -5248,19 +5248,17 @@ function renderPagination(containerId, cur, total, onChange) {
 
 function openVault() {
     moodPage = 0; savedPage = 0;
-    switchTab('saved');
+    switchTab('mood');
     showOverlay('overlay-vault');
 }
 
 function switchTab(tab) {
     document.querySelectorAll('.vault-tab').forEach((t,i)=>t.classList.toggle('active',
-        (i===0&&tab==='saved')||(i===1&&tab==='mood')||(i===2&&tab==='stats')));
-    document.getElementById('vault-saved').classList.toggle('active', tab==='saved');
+        (i===0&&tab==='mood')||(i===1&&tab==='saved')));
     document.getElementById('vault-mood').classList.toggle('active',  tab==='mood');
-    document.getElementById('vault-stats').classList.toggle('active', tab==='stats');
+    document.getElementById('vault-saved').classList.toggle('active', tab==='saved');
     if (tab==='saved') { savedPage=0; renderSaved(); }
-    if (tab==='mood')  { moodPage=0;  renderMood();  }
-    if (tab==='stats') renderStats();
+    if (tab==='mood')  { moodPage=0; renderStats(); renderMood(); }
 }
 
 function renderSaved() {
@@ -5797,7 +5795,7 @@ function restart() {
 
 /* ═══════════════════════════════════════
    결과화면 마무리(클로징)
-   트리거 3종: 일기 저장 / "오늘 묵상 마치기" 버튼 / 5분 무활동
+   트리거 2종: "오늘 묵상 마치기" 버튼 / 5분 무활동 (일기는 이때 자동 저장)
 ═══════════════════════════════════════ */
 function startClosingTimer() {
     closingTriggered = false;
@@ -5855,6 +5853,7 @@ function triggerClosing() {
     if (closingTriggered) return;
     closingTriggered = true;
     stopClosingTimer();
+    autoSaveDiary();
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const step4 = document.getElementById('step4');
     step4.classList.add('closing');
@@ -6084,6 +6083,11 @@ const HYMN_TRACKS = [
     { file: 'audio/tracks/holy_holy_holy.mp3' },
     { file: 'audio/tracks/i_need_thee.mp3' },
     { file: 'audio/tracks/in_the_garden.mp3' },
+    { file: 'audio/tracks/just_as_i_am.mp3' },
+    { file: 'audio/tracks/tis_so_sweet.mp3' },
+    { file: 'audio/tracks/sweet_by_and_by.mp3' },
+    { file: 'audio/tracks/leaning_arms.mp3' },
+    { file: 'audio/tracks/nothing_but_blood.mp3' },
 ];
 
 let trackEl = null, hymnOn = false, hymnPaused = false;
@@ -6206,7 +6210,7 @@ function setHymnSong(s) {
 }
 
 function updateMusicSettingsUI() {
-    ['all','0','1','2','3','4'].forEach(sn => {
+    ['all','0','1','2','3','4','5','6','7','8','9'].forEach(sn => {
         const c = document.getElementById('chip-song-' + sn);
         if (c) c.classList.toggle('on', hymnSong === sn);
     });

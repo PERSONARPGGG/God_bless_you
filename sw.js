@@ -1,5 +1,5 @@
 // 캐시 버전 — 이름이 바뀌면 이전 캐시 자동 삭제
-const CACHE = 'god-app-v15';
+const CACHE = 'god-app-v16';
 // 오프라인 폴백용으로 캐싱할 에셋
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg'];
 
