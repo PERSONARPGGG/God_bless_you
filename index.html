@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>오늘은 어땠나요?</title>
-    <meta name="description" content="하루를 마무리하는 작은 디지털 쉼터">
+    <title>밤의 목장</title>
+    <meta name="description" content="밤의 목장 — 오늘 밤, 주님이 누이시는 곳. 하루를 마무리하는 감정 묵상 쉼터">
     <meta name="google-site-verification" content="Z6_wKrqiqzZsKDvHuuirvLjr-6LyyzWJeh1R1_fqZMw" />
     <meta name="theme-color" content="#0e1842">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="오늘은 어땠나요">
+    <meta name="apple-mobile-web-app-title" content="밤의 목장">
     <link rel="apple-touch-icon" href="icon.svg">
     <link rel="icon" href="icon.svg" type="image/svg+xml">
     <style>
@@ -1350,6 +1350,49 @@
     /* ── 결과 컨텍스트 배지 glow ── */
     .result-context { animation:encTwinkle 6s ease-in-out 1s infinite; }
 
+    /* ── 밤의 목장: 달빛 아래 양 한 마리 (장식) ── */
+    #sheep {
+        position:fixed; bottom:4px; left:0; width:58px; height:46px;
+        z-index:1; pointer-events:none; opacity:.92;
+        transition:bottom .35s ease;
+    }
+    /* PWA 설치 배너 표시 중엔 배너 위를 걷게 */
+    body:has(.install-banner:not(.hidden)) #sheep {
+        bottom:calc(72px + env(safe-area-inset-bottom));
+    }
+    #sheep .sh-flip { width:100%;height:100%; }
+    #sheep .sh-bob  { position:relative;width:100%;height:100%; }
+    #sheep.walking .sh-bob { animation:shWalkBob .5s ease-in-out infinite; }
+    @keyframes shWalkBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-1.5px)} }
+    .sh-body {
+        position:absolute; left:2px; top:12px; width:42px; height:24px;
+        background:#f3efe6; border-radius:14px;
+        box-shadow:-6px -6px 0 -4px #f3efe6, 8px -7px 0 -5px #f3efe6, 2px -9px 0 -5px #f3efe6,
+                   inset -5px -4px 8px rgba(140,145,175,.4);
+    }
+    .sh-tail { position:absolute; left:0; top:16px; width:8px; height:8px; background:#f3efe6; border-radius:50%; }
+    .sh-fluff { position:absolute; right:9px; top:2px; width:13px; height:9px; background:#f3efe6; border-radius:50%; }
+    .sh-head {
+        position:absolute; right:2px; top:6px; width:15px; height:13px;
+        background:#3e3630; border-radius:7px 8px 6px 6px;
+    }
+    .sh-head::before { content:''; position:absolute; left:-4px; top:1px; width:8px; height:5px; background:#3e3630; border-radius:5px; transform:rotate(-25deg); }
+    .sh-head::after  { content:''; position:absolute; right:3px; top:4px; width:2.5px; height:2.5px; background:#fff; border-radius:50%; }
+    .sh-leg { position:absolute; bottom:0; width:3.5px; height:12px; background:#3e3630; border-radius:2px; transform-origin:top center; }
+    .sh-leg.l1 { left:9px; } .sh-leg.l2 { left:17px; } .sh-leg.l3 { left:27px; } .sh-leg.l4 { left:35px; }
+    #sheep.walking .sh-leg.l1, #sheep.walking .sh-leg.l3 { animation:shStep .5s ease-in-out infinite; }
+    #sheep.walking .sh-leg.l2, #sheep.walking .sh-leg.l4 { animation:shStep .5s ease-in-out infinite reverse; }
+    @keyframes shStep { 0%,100%{transform:rotate(14deg)} 50%{transform:rotate(-14deg)} }
+    /* 앉기 — 강아지처럼 다리 접고 몸 낮춤 */
+    #sheep.sitting .sh-leg { height:5px; }
+    #sheep.sitting .sh-leg.l1, #sheep.sitting .sh-leg.l2 { height:4px; }
+    #sheep.sitting .sh-body { top:17px; height:21px; }
+    #sheep.sitting .sh-head { top:8px; }
+    #sheep.sitting .sh-fluff { top:4px; }
+    #sheep.sitting .sh-tail { top:20px; }
+    .sh-body, .sh-head, .sh-leg, .sh-fluff, .sh-tail { transition:all .45s ease; }
+    @media (prefers-reduced-motion: reduce) { #sheep { display:none; } }
+
     </style>
 </head>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -1447,7 +1490,7 @@
         <div class="welcome-hero">
             <div class="welcome-moon-wrap"><div class="welcome-moon">🌙</div></div>
             <h1 class="welcome-title" id="wc-title">오늘 밤, 하나님과 함께하세요</h1>
-            <p class="welcome-desc" id="wc-desc">하루를 마무리하는 작은 디지털 쉼터</p>
+            <p class="welcome-desc" id="wc-desc">밤의 목장 — 오늘 밤, 주님이 누이시는 곳</p>
         </div>
         <div class="lang-select">
             <button class="lang-btn active" onclick="setWelcomeLang('ko')">🇰🇷 한국어</button>
@@ -1628,10 +1671,10 @@
             <div class="settings-card">
                 <div class="setting-row">
                     <div>
-                        <div class="setting-row-label">오늘은 어땠나요?</div>
-                        <div id="row-app-desc" class="setting-row-sub">하루를 마무리하는 작은 디지털 쉼터</div>
+                        <div class="setting-row-label">밤의 목장</div>
+                        <div id="row-app-desc" class="setting-row-sub">오늘 밤, 주님이 누이시는 곳</div>
                     </div>
-                    <span id="app-version" style="font-size:11px;color:rgba(255,255,255,.3);">v2.5</span>
+                    <span id="app-version" style="font-size:11px;color:rgba(255,255,255,.3);">v2.6</span>
                 </div>
                 <div class="setting-row">
                     <div>
@@ -2019,6 +2062,17 @@
 </div>
 
 <div id="footer-text" class="footer">🙏 오늘도 누군가를 위해 기도하는 마음으로</div>
+
+<!-- 밤의 목장 — 달빛 아래 양 한 마리 (시23:2, 장식) -->
+<div id="sheep" aria-hidden="true">
+    <div class="sh-flip"><div class="sh-bob">
+        <div class="sh-tail"></div>
+        <div class="sh-body"></div>
+        <div class="sh-fluff"></div>
+        <div class="sh-head"></div>
+        <div class="sh-leg l1"></div><div class="sh-leg l2"></div><div class="sh-leg l3"></div><div class="sh-leg l4"></div>
+    </div></div>
+</div>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════
@@ -3940,7 +3994,7 @@ function dismissInstall() {
 /* ═══════════════════════════════════════
    상태
 ═══════════════════════════════════════ */
-const APP_VERSION = '2.5';
+const APP_VERSION = '2.6';
 const SHARE_URL = 'https://god-bless-you.vercel.app/';
 const SUPABASE_URL = 'https://pzakpaomnmahcugkzdff.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_nyWe0_C6prKvfP9R9EMXdA_DgH6bfwf';
@@ -4006,7 +4060,7 @@ function lsSet(k,v) { try { localStorage.setItem(k, typeof v==='object' ? JSON.s
 const LANG_DATA = {
     ko: {
         /* 환영 */
-        wc_title:'오늘 밤, 하나님과 함께하세요', wc_desc:'오늘 하루의 끝, 말씀이 나를 기다려요',
+        wc_title:'오늘 밤, 하나님과 함께하세요', wc_desc:'밤의 목장 — 오늘 밤, 주님이 누이시는 곳',
         wc_ask:'어떻게 불러드릴까요?', wc_sub:'이름을 입력하시면\n더 따뜻하게 맞이할게요.',
         wc_ph:'이름을 입력해주세요', wc_start:'시작하기', wc_skip:'나중에 할게요',
         /* 스텝 */
@@ -4062,7 +4116,7 @@ const LANG_DATA = {
         row_name:'이름 변경', name_prefix:'현재: ', name_none:'설정되지 않음', row_name_btn:'변경',
         row_export:'기록 내보내기', row_export_sub:'감정 기록 · 일기를 텍스트로 복사', row_export_btn:'내보내기',
         row_reset:'데이터 초기화', row_reset_sub:'보관함 · 기록 · 방문 기록 삭제', row_reset_btn:'초기화',
-        row_update:'업데이트 확인', row_update_btn:'확인', row_app_desc:'하루를 마무리하는 작은 디지털 쉼터',
+        row_update:'업데이트 확인', row_update_btn:'확인', row_app_desc:'오늘 밤, 주님이 누이시는 곳',
         privacy:'🔒 저장된 기록은 기기 내에만 보관되며,<br>외부 서버로 수집되지 않습니다.',
         /* 결과 섹션 */
         sec_verse:'오늘의 말씀', sec_story:'오늘의 이야기', sec_prayer:'오늘의 기도',
@@ -4106,7 +4160,7 @@ const LANG_DATA = {
         install_nudge_sub:'홈 화면에 추가하면 더 편리해요',
         install_nudge_add:'추가하기', install_nudge_skip:'다음에',
         /* 공유 */
-        share_title:'오늘의 말씀', share_app:'📖 오늘은 어땠나요?',
+        share_title:'오늘의 말씀', share_app:'🌙 밤의 목장',
         /* 절기 */
         season_msg:{
             christmas:'🎄 예수님의 탄생을 기다리는 계절입니다.\n오늘 밤도 그 빛 안에서 쉬어가세요.',
@@ -4117,7 +4171,7 @@ const LANG_DATA = {
     },
     en: {
         /* 환영 */
-        wc_title:'Tonight, rest in God\'s presence', wc_desc:'A little digital sanctuary for your day',
+        wc_title:'Tonight, rest in God\'s presence', wc_desc:'Night Pasture — where He lays you down to rest',
         wc_ask:'What shall we call you?', wc_sub:'Enter your name for\na warmer welcome.',
         wc_ph:'Your name', wc_start:'Get Started', wc_skip:'Skip for now',
         /* 스텝 */
@@ -4173,7 +4227,7 @@ const LANG_DATA = {
         row_name:'Change Name', name_prefix:'Current: ', name_none:'Not set', row_name_btn:'Change',
         row_export:'Export Data', row_export_sub:'Copy mood log & diary as text', row_export_btn:'Export',
         row_reset:'Reset Data', row_reset_sub:'Delete vault, history & visits', row_reset_btn:'Reset',
-        row_update:'Check Updates', row_update_btn:'Check', row_app_desc:'A little digital sanctuary for your day',
+        row_update:'Check Updates', row_update_btn:'Check', row_app_desc:'Night Pasture — where He lays you down to rest',
         privacy:'🔒 Your data stays on this device only.<br>Nothing is sent to external servers.',
         /* 결과 섹션 */
         sec_verse:'Today\'s Verse', sec_story:'Today\'s Story', sec_prayer:'Today\'s Prayer',
@@ -4217,7 +4271,7 @@ const LANG_DATA = {
         install_nudge_sub:'Add to Home Screen for easy access',
         install_nudge_add:'Add Now', install_nudge_skip:'Later',
         /* 공유 */
-        share_title:'Today\'s Verse', share_app:'📖 How Was Your Day?',
+        share_title:'Today\'s Verse', share_app:'🌙 Night Pasture',
         /* 절기 */
         season_msg:{
             christmas:'🎄 The season of awaiting Jesus\'s birth.\nRest in His light tonight.',
@@ -4228,7 +4282,7 @@ const LANG_DATA = {
     },
     ja: {
         /* 환영 */
-        wc_title:'今夜、神様とともに', wc_desc:'一日を締めくくる小さな安らぎ',
+        wc_title:'今夜、神様とともに', wc_desc:'夜の牧場 — 今夜、主が休ませてくださる場所',
         wc_ask:'お名前を教えてください', wc_sub:'名前を入力すると\nより温かくお迎えします。',
         wc_ph:'お名前', wc_start:'はじめる', wc_skip:'あとで',
         /* 스텝 */
@@ -4284,7 +4338,7 @@ const LANG_DATA = {
         row_name:'名前を変更', name_prefix:'現在: ', name_none:'未設定', row_name_btn:'変更',
         row_export:'データを書き出す', row_export_sub:'記録と日記をテキストでコピー', row_export_btn:'書き出す',
         row_reset:'データを初期化', row_reset_sub:'ボールト・記録・訪問履歴を削除', row_reset_btn:'初期化',
-        row_update:'アップデートを確認', row_update_btn:'確認', row_app_desc:'一日を締めくくる小さな安らぎ',
+        row_update:'アップデートを確認', row_update_btn:'確認', row_app_desc:'夜の牧場 — 今夜、主が休ませてくださる場所',
         privacy:'🔒 保存された記録はこのデバイス内にのみ保管され、<br>外部サーバーには送信されません。',
         /* 결과 섹션 */
         sec_verse:'今日のみことば', sec_story:'今日のお話', sec_prayer:'今日のお祈り',
@@ -4328,7 +4382,7 @@ const LANG_DATA = {
         install_nudge_sub:'ホーム画面に追加すると便利です',
         install_nudge_add:'追加する', install_nudge_skip:'あとで',
         /* 공유 */
-        share_title:'今日のみことば', share_app:'📖 今日はどんな一日でしたか？',
+        share_title:'今日のみことば', share_app:'🌙 夜の牧場',
         /* 절기 */
         season_msg:{
             christmas:'🎄 イエス様の誕生を待ち望む季節です。\n今夜もその光の中で安らいでください。',
@@ -5119,7 +5173,7 @@ function makeVerseCardBlob() {
             // 푸터
             x.fillStyle = 'rgba(255,255,255,.42)';
             x.font = '30px ' + FAM;
-            x.fillText('오늘은 어땠나요? · god-bless-you.vercel.app', W / 2, H - 80);
+            x.fillText('밤의 목장 · god-bless-you.vercel.app', W / 2, H - 80);
             c.toBlob(b => b ? resolve(b) : reject(new Error('toBlob failed')), 'image/png');
         } catch (e) { reject(e); }
     });
@@ -5673,7 +5727,7 @@ function triggerInstall() {
 function exportData() {
     const hist   = lsGet('moodHistory') || [];
     const saved  = lsGet('savedVerses') || [];
-    const lines  = ['=== 오늘은 어땠나요? 데이터 내보내기 ===',''];
+    const lines  = ['=== 밤의 목장 데이터 내보내기 ===',''];
 
     if (saved.length) {
         lines.push('[ 저장된 말씀 ]');
@@ -6530,6 +6584,43 @@ function toggleDbDetail() {
     det.classList.toggle('hidden', open);
     if (btn) btn.textContent = open ? '상세히 보기 ▾' : '간략히 보기 ▴';
 }
+
+/* ═══════════════════════════════════════
+   밤의 목장 — 양 한 마리 배회 (걷기 → 멈춤 → 앉기)
+═══════════════════════════════════════ */
+(function(){
+    const sh = document.getElementById('sheep');
+    if (!sh || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const flip = sh.querySelector('.sh-flip');
+    let x = 20 + Math.random()*120, dir = 1, mode = 'walk', modeT = 0, modeDur = 4000;
+    const maxX = () => Math.max(innerWidth - 62, 40);
+    sh.classList.add('walking');
+    function setMode(m, dur) {
+        mode = m; modeT = 0; modeDur = dur;
+        sh.classList.toggle('walking', m === 'walk');
+        sh.classList.toggle('sitting', m === 'sit');
+    }
+    function pickNext() {
+        const r = Math.random();
+        if (mode !== 'sit' && r < .35) setMode('sit', 3500 + Math.random()*5000);
+        else if (r < .55) setMode('idle', 1200 + Math.random()*2000);
+        else { if (Math.random() < .4) dir *= -1; setMode('walk', 2500 + Math.random()*4500); }
+    }
+    let last = performance.now();
+    (function tick(now){
+        const dt = Math.min(now - last, 100); last = now;
+        modeT += dt;
+        if (mode === 'walk') {
+            x += dir * 0.022 * dt;
+            if (x < 4)      { x = 4; dir = 1; }
+            if (x > maxX()) { x = maxX(); dir = -1; }
+        }
+        sh.style.left = x + 'px';
+        flip.style.transform = 'scaleX(' + dir + ')';
+        if (modeT > modeDur) pickNext();
+        requestAnimationFrame(tick);
+    })(last);
+})();
 </script>
 </body>
 </html>

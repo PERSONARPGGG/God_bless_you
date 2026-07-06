@@ -2,10 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-# 오늘은 어땠나요? — Claude 작업 가이드
+# 밤의 목장 — Claude 작업 가이드
 
 ## 프로젝트 개요
-크리스천 감정 묵상 PWA. 단일 파일(`index.html`, ~5,800줄) + Supabase + Vercel.
+크리스천 감정 묵상 PWA "밤의 목장" (부제: "오늘 밤, 주님이 누이시는 곳", 구명: "오늘은 어땠나요?" — 이 질문은 메인 화면 인사말로 유지). 단일 파일(`index.html`, ~5,900줄) + Supabase + Vercel.
 배포: https://god-bless-you.vercel.app/
 
 ## 코드 구조 원칙

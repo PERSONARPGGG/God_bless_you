@@ -1,7 +1,7 @@
 {
-  "name": "오늘은 어땠나요?",
-  "short_name": "오늘은 어땠나요",
-  "description": "하루를 마무리하는 작은 디지털 쉼터",
+  "name": "밤의 목장",
+  "short_name": "밤의 목장",
+  "description": "오늘 밤, 주님이 누이시는 곳 — 하루를 마무리하는 감정 묵상 쉼터",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0e1842",
