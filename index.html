@@ -1040,6 +1040,21 @@
         .pm-lock-icon{font-size:22px;flex-shrink:0;}
         .pm-lock-txt{font-size:12px;color:rgba(255,255,255,.75);line-height:1.6;}
         .pm-lock-txt b{color:#e8c98a;font-size:13px;}
+        /* ── 월간 리포트 잠금 ── */
+        .db-month-wrap{position:relative;border-radius:14px;overflow:hidden;}
+        .db-month-wrap.locked .db-month-body{filter:blur(7px);pointer-events:none;user-select:none;}
+        .db-month-body{padding:4px 2px;}
+        .db-month-line{font-size:13.5px;color:rgba(255,255,255,.85);line-height:1.8;margin-bottom:10px;}
+        .db-month-line b{color:#e8c98a;}
+        .db-month-lock{position:absolute;inset:0;display:flex;flex-direction:column;gap:8px;
+            align-items:center;justify-content:center;background:rgba(10,14,30,.35);
+            border:none;cursor:pointer;color:#fff;}
+        .db-month-lock .lk-ic{font-size:26px;}
+        .db-month-lock .lk-tx{font-size:12.5px;color:rgba(255,255,255,.85);line-height:1.6;text-align:center;}
+        .db-month-lock .lk-tx b{color:#e8c98a;font-size:13.5px;}
+        .db-pdf-btn{display:block;width:100%;margin-top:10px;padding:12px;border-radius:12px;
+            border:1px solid rgba(200,168,107,.4);background:rgba(200,168,107,.12);
+            color:#e8c98a;font-size:13.5px;font-weight:700;cursor:pointer;}
     /* ═══════════════════════════════════════════════════════
        감성 연출 시스템 (Emotional FX System)
     ═══════════════════════════════════════════════════════ */
@@ -1878,6 +1893,12 @@
                 <div class="db-sec-t">이번 주 일기</div>
                 <div id="db-diaries"></div>
             </div>
+        </div>
+
+        <!-- 월간 리포트 (프리미엄 경계) -->
+        <div class="db-sec" id="db-monthly-sec">
+            <div class="db-sec-t">이번 달 돌보심의 기록</div>
+            <div id="db-monthly"></div>
         </div>
 
         <!-- 프리미엄 잠금 카드 (무료/유료 경계) -->
@@ -6625,10 +6646,59 @@ function renderDashboard(data) {
     renderDbDayFlow(data, startStr);
     renderDbPatterns(data);
     renderDbDiaries(data);
+    renderDbMonthly();
     const det = document.getElementById('db-detail');
     const btn = document.getElementById('db-detail-btn');
     if (det) det.classList.add('hidden');
     if (btn) btn.textContent = '상세히 보기 ▾';
+}
+
+/* ── 이번 달 기록 (localStorage 기준 — 시연 목적, Supabase 월간 조회는 v3.0 본구현에서) ── */
+function getMonthEntries() {
+    const ym = new Date().toISOString().slice(0, 7); // 'YYYY-MM'
+    const hist = lsGet('moodHistory') || [];
+    return hist.filter(m => m.date && m.date.startsWith(ym))
+               .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/* ── 월간 리포트: 프리미엄이면 실데이터, 아니면 블러+자물쇠 ── */
+const HEAVY_EMOS = ['걱정', '지침', '아픔'];
+function renderDbMonthly() {
+    const el = document.getElementById('db-monthly');
+    if (!el) return;
+    const entries = getMonthEntries();
+    const cnt = {};
+    DB_EMO_LIST.forEach(e => cnt[e] = 0);
+    entries.forEach(m => { if (cnt[m.emotion] !== undefined) cnt[m.emotion]++; });
+    const total = entries.length;
+    const heavy = entries.filter(m => HEAVY_EMOS.includes(m.emotion)).length;
+    const top = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0];
+    const monthNum = new Date().getMonth() + 1;
+
+    /* 돌보심의 기록 — 숫자가 아니라 문장으로 */
+    const lines = [];
+    if (!total) {
+        lines.push(`${monthNum}월의 기록이 아직 없어요. 오늘 밤부터 시작해보세요 ✦`);
+    } else {
+        lines.push(`${monthNum}월, <b>${total}일 밤</b>을 목장에서 보내셨어요.`);
+        if (heavy > 0) lines.push(`마음이 무거웠던 <b>${heavy}일</b>에도, 매일 말씀이 함께했어요.`);
+        if (top && top[1] > 0) lines.push(`가장 자주 머문 마음은 <b>‘${top[0]}’</b>(${top[1]}일)이었어요.`);
+    }
+    const bodyHtml = `<div class="db-month-body">
+        ${lines.map(l => `<div class="db-month-line">${l}</div>`).join('')}
+    </div>`;
+
+    if (isPremium()) {
+        el.innerHTML = `<div class="db-month-wrap">${bodyHtml}</div>
+            <button class="db-pdf-btn" type="button" onclick="exportDiaryPdf()">📄 PDF로 내보내기 — 나의 신앙 일기장</button>`;
+    } else {
+        el.innerHTML = `<div class="db-month-wrap locked">${bodyHtml}
+            <button class="db-month-lock" type="button" onclick="openPremiumModal()">
+                <span class="lk-ic">🔒</span>
+                <span class="lk-tx"><b>월간 리포트 &amp; PDF 일기장</b><br>프리미엄에서 만나요 · ₩1,900/월</span>
+            </button>
+        </div>`;
+    }
 }
 
 /* 서사 카드 */
