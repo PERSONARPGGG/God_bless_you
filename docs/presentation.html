@@ -109,7 +109,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
 .tl-dot.done{background:var(--ok);}
 .tl-dot.now{background:var(--gold);box-shadow:0 0 10px rgba(200,168,107,.4);}
 .tl-dot.soon{background:rgba(255,255,255,.2);}
-.tl-lbl{font-size:12px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;}
+.tl-lbl{font-size:12px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:2px;white-space:nowrap;}
 .tl-t{font-size:clamp(15px,1.8vw,19px);font-weight:700;color:var(--white);}
 .tl-d{font-size:14px;color:rgba(255,255,255,.5);line-height:1.6;}
 
@@ -153,11 +153,11 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
   background:linear-gradient(160deg,#1c2447,#0c1230);
   border:1px solid rgba(255,255,255,.14);
   box-shadow:0 24px 70px rgba(0,0,0,.55), 0 0 0 1px rgba(200,168,107,.12);
-  max-height:62vh;}
-.demo-phone video{display:block;border-radius:24px;max-height:calc(62vh - 24px);
+  max-height:48vh;transition:opacity .3s ease;}
+.demo-phone video{display:block;border-radius:24px;max-height:calc(48vh - 24px);
   max-width:min(78vw,340px);background:#000;}
 .demo-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
-  width:min(78vw,320px);height:52vh;border-radius:24px;
+  width:min(78vw,320px);height:42vh;border-radius:24px;
   border:2px dashed rgba(200,168,107,.35);background:rgba(255,255,255,.03);
   color:rgba(255,255,255,.55);text-align:center;padding:24px;}
 .demo-fallback .df-icon{font-size:46px;}
@@ -167,7 +167,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
 
 /* ── 내비게이션 ── */
 #nav{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);
-  z-index:100;display:flex;align-items:center;gap:18px;}
+  z-index:100;display:flex;align-items:center;gap:18px;transition:opacity .3s ease;}
 .nav-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
   color:rgba(255,255,255,.6);width:40px;height:40px;border-radius:50%;
   cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;
@@ -195,6 +195,16 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
 .star{position:absolute;border-radius:50%;background:#fff;
   animation:twinkle var(--dur,3s) var(--delay,0s) ease-in-out infinite;}
 @keyframes twinkle{0%,100%{opacity:.05;transform:scale(.8)}50%{opacity:.5;transform:scale(1.1)}}
+
+/* ── 마무리 인사 양 ── */
+.closing-sheep{margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.cs-bubble{position:relative;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);
+  border-radius:14px;padding:6px 16px;font-size:13px;color:rgba(255,255,255,.8);}
+.cs-bubble::after{content:'';position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);
+  width:10px;height:10px;background:rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.16);
+  border-bottom:1px solid rgba(255,255,255,.16);clip-path:polygon(0 0,100% 0,50% 100%);}
+.cs-emoji{font-size:46px;animation:sheepGreet 2.2s ease-in-out infinite;transform-origin:bottom center;}
+@keyframes sheepGreet{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
 
 /* ── 달빛 글로우 (표지·마무리 전용) ── */
 .moon-glow{position:relative;display:inline-block;}
@@ -312,7 +322,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
   <!-- S3: 문제 -->
   <div class="slide" data-slide="3">
     <div class="eyebrow">Problem</div>
-    <h2>기존 크리스천 앱이<br>놓친 것</h2>
+    <h2 style="font-size:clamp(24px,3.2vw,40px);white-space:nowrap;">기존 크리스천 앱이 놓친 것</h2>
     <ul class="issue-list">
       <li>정해진 말씀만 제공 — 오늘 내 감정과 아무 상관 없음</li>
       <li>QT·기도나눔 의무화 — 바쁜 날엔 죄책감이 됨</li>
@@ -347,9 +357,9 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
 
   <!-- S5: 시연 영상 -->
   <div class="slide" data-slide="5">
-    <div class="eyebrow">Live Demo</div>
+    <div class="eyebrow" style="margin-top:6vh;">Live Demo</div>
     <h2>직접 보여드릴게요</h2>
-    <div class="demo-wrap">
+    <div class="demo-wrap" style="margin-top:22px;">
       <div class="demo-phone" id="demo-phone" style="display:none;">
         <video id="demo-video" src="demo.mp4" controls playsinline preload="metadata"></video>
       </div>
@@ -472,14 +482,14 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
         <span class="status-badge">해결 ✓</span>
         <div>
           <div class="status-t">성경 본문 — 개역한글판(1961) 전면 교체</div>
-          <div class="status-d">개역개정 → 퍼블릭 도메인 번역본으로 전 구절 교체 · 저작권료 0원</div>
+          <div class="status-d">1961년 발행, 2011년 저작권 보호기간(50년) 만료 · 조건: 본문 그대로 사용(동일성유지권) + 출처 표기(성명표시권) 준수 시 무료</div>
         </div>
       </div>
       <div class="status-item ok">
         <span class="status-badge">해결 ✓</span>
         <div>
           <div class="status-t">BGM — 찬송가 연주 음원 10곡, 전부 CC0</div>
-          <div class="status-d">Amazing Grace 외 9곡 · 상업적 이용 가능 라이선스만 채택</div>
+          <div class="status-d">CC0 = 저작권자가 모든 권리를 포기한 퍼블릭 도메인 선언 · 출처 표시·사용료 없이 상업적 이용 100% 자유</div>
         </div>
       </div>
       <div class="status-item ok">
@@ -546,7 +556,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
       </div>
       <div class="card">
         <div class="card-icon">✝️</div>
-        <div class="card-title">목사님 검토</div>
+        <div class="card-title">전요환 목사님 검토</div>
         <div class="card-desc">말씀 신학적 검증<br>한국 장로교 기준</div>
       </div>
       <div class="card">
@@ -570,12 +580,17 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
     <div style="display:flex;gap:20px;margin-top:24px;width:100%;max-width:1000px;align-items:stretch;">
       <!-- 좌: 무료/프리미엄 경계표 -->
       <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:20px 24px;">
-        <div style="font-size:13px;letter-spacing:1.5px;color:var(--gold2);margin-bottom:12px;">무료 / 프리미엄 경계</div>
-        <div style="font-size:14px;line-height:2.0;color:rgba(255,255,255,.75);">
-          <div>🌙 묵상 플로우·보관함·스트릭 — <b style="color:#86efac;">전부 무료</b></div>
-          <div>☁️ 로그인(무료) — 여러 기기 이어보기 <span style="color:rgba(255,255,255,.4);font-size:12px;">(기록은 60일)</span></div>
-          <div style="border-top:1px solid rgba(255,255,255,.08);margin-top:8px;padding-top:8px;color:var(--gold2);font-weight:700;">💎 Premium ₩1,900/월 · 연 ₩19,000</div>
-          <div>📔 기록 평생 보관 <span style="color:rgba(255,255,255,.4);font-size:12px;">(무료는 최근 60일)</span></div>
+        <div style="display:inline-block;padding:4px 14px;border-radius:20px;background:rgba(16,185,129,.16);color:#6ee7b7;font-size:12px;font-weight:800;letter-spacing:1.5px;">FREE · 무료</div>
+        <div style="font-size:14px;line-height:1.95;color:rgba(255,255,255,.82);margin-top:10px;">
+          <div>🌙 묵상 플로우 전체 · 말씀 보관함 무제한</div>
+          <div>🔥 스트릭 체크인</div>
+          <div>☁️ 로그인 시 여러 기기 이어보기</div>
+          <div>📋 내 데이터 텍스트로 내보내기(복사)</div>
+          <div style="color:rgba(255,255,255,.45);font-size:12.5px;">— 단, 일기·감정 기록은 최근 60일까지 보관</div>
+        </div>
+        <div style="display:inline-block;padding:4px 14px;border-radius:20px;background:rgba(200,168,107,.2);color:var(--gold2);font-size:12px;font-weight:800;letter-spacing:1.5px;margin-top:18px;">PREMIUM · ₩1,900/월 · 연 ₩19,000</div>
+        <div style="font-size:14px;line-height:1.95;color:rgba(255,255,255,.88);margin-top:10px;">
+          <div>📔 기록 평생 보관</div>
           <div>📄 PDF "나의 신앙 일기장"</div>
           <div>📊 월간·연간 리포트 — 돌보심의 기록</div>
           <div>🗓️ 묵상 캘린더 + 시즌 챌린지</div>
@@ -639,6 +654,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
             <div>
               <div class="tl-lbl">예정 · 2026 Q4 →</div>
               <div class="tl-t">v3.5 주간 리포트·묵상 캘린더 → v4.0 소그룹 → v5.0 AI 개인화</div>
+              <div class="tl-d">장기 로드맵 — 세부 계획은 계속 다듬는 중</div>
             </div>
           </div>
         </div>
@@ -646,16 +662,16 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
       <!-- 우: 구현 계획 -->
       <div style="flex:1;background:rgba(200,168,107,.06);border:1px solid rgba(200,168,107,.18);border-radius:16px;padding:22px 24px;">
         <div style="font-size:13px;letter-spacing:1.5px;color:var(--gold2);margin-bottom:14px;">구현 계획 리스트</div>
-        <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:1.6;color:rgba(255,255,255,.7);">
-          <div>📊 감정 통계 대시보드 <span style="color:rgba(255,255,255,.35);font-size:13px;">(v3.0 · 진행 중)</span></div>
-          <div>💎 Premium ₩1,900/월 <span style="color:rgba(255,255,255,.35);font-size:13px;">(v3.0)</span></div>
-          <div>📅 묵상 캘린더 · 일기 내보내기 <span style="color:rgba(255,255,255,.35);font-size:13px;">(v3.5)</span></div>
-          <div>📖 말씀 300개+ 확장 <span style="color:rgba(255,255,255,.35);font-size:13px;">(v3.5)</span></div>
-          <div>👥 소그룹·셀 공동 묵상 <span style="color:rgba(255,255,255,.35);font-size:13px;">(v4.0 · 교회 플랜)</span></div>
-          <div>🤖 AI 개인화 말씀 추천 <span style="color:rgba(255,255,255,.35);font-size:13px;">(v5.0)</span></div>
-          <div style="margin-top:6px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08);">
-            <span style="color:#86efac;font-size:13px;">✅ 성경·BGM 저작권 해결 완료 (2026.07)</span><br>
-            <span style="color:#fcd34d;font-size:13px;">🔶 ESV 확인 · 상표 검색 · 스토어 등록 (진행/예정)</span>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div><div class="tl-t">📊 감정 통계 대시보드</div><div class="tl-d">v3.0 · 진행 중</div></div>
+          <div><div class="tl-t">💎 Premium ₩1,900/월</div><div class="tl-d">v3.0</div></div>
+          <div><div class="tl-t">📅 묵상 캘린더 · 일기 내보내기</div><div class="tl-d">v3.5</div></div>
+          <div><div class="tl-t">📖 말씀 300개+ 확장</div><div class="tl-d">v3.5</div></div>
+          <div><div class="tl-t">👥 소그룹·셀 공동 묵상</div><div class="tl-d">v4.0 · 교회 플랜</div></div>
+          <div><div class="tl-t">🤖 AI 개인화 말씀 추천</div><div class="tl-d">v5.0</div></div>
+          <div style="margin-top:2px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);">
+            <div class="tl-d" style="color:#86efac;">✅ 성경·BGM 저작권 해결 완료 (2026.07)</div>
+            <div class="tl-d" style="color:#fcd34d;margin-top:4px;">🔶 ESV 확인 · 상표 검색 · 스토어 등록 (진행/예정)</div>
           </div>
         </div>
       </div>
@@ -670,8 +686,12 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
       내 감정에 꼭 맞는 말씀 한 구절로,<br>하루를 마무리하세요
     </p>
     <div class="url-badge pulse" style="margin-top:28px;">god-bless-you.vercel.app</div>
-    <p style="font-size:13px;color:rgba(255,255,255,.25);margin-top:20px;letter-spacing:2px;">
-      🐑 밤의 목장 · 크리스천 감정 묵상 PWA
+    <div class="closing-sheep" aria-hidden="true">
+      <div class="cs-bubble">또 만나요!</div>
+      <div class="cs-emoji">🐑</div>
+    </div>
+    <p style="font-size:13px;color:rgba(255,255,255,.25);margin-top:8px;letter-spacing:2px;">
+      밤의 목장 · 크리스천 감정 묵상 PWA
     </p>
     <p style="font-size:12px;color:rgba(255,255,255,.3);margin-top:14px;">🌙 달을 클릭하면 PDF로 저장할 수 있어요</p>
   </div>
@@ -801,6 +821,13 @@ for(let i=0;i<60;i++){
   if(!v) return;
   v.addEventListener('loadedmetadata', ()=>{ phone.style.display='block'; fb.style.display='none'; });
   v.addEventListener('error', ()=>{ phone.style.display='none'; fb.style.display='flex'; });
+
+  // 재생 중엔 하단 네비게이션과 겹치지 않도록 살짝 흐리게
+  const navEl = document.getElementById('nav');
+  const fadeNav = on => { if(navEl) navEl.style.opacity = on ? '0.15' : '1'; };
+  v.addEventListener('play', ()=>fadeNav(true));
+  v.addEventListener('pause', ()=>fadeNav(false));
+  v.addEventListener('ended', ()=>fadeNav(false));
 })();
 
 updateUI();
