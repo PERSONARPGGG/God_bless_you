@@ -192,6 +192,27 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
   animation:twinkle var(--dur,3s) var(--delay,0s) ease-in-out infinite;}
 @keyframes twinkle{0%,100%{opacity:.05;transform:scale(.8)}50%{opacity:.5;transform:scale(1.1)}}
 
+/* ── 목장 능선 (모든 슬라이드 공통 배경) ── */
+#pasture{position:fixed;left:0;right:0;bottom:0;height:64px;z-index:0;pointer-events:none;overflow:hidden;}
+#pasture::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 0%,rgba(200,168,107,.05) 60%,rgba(200,168,107,.1) 100%);
+  border-top:1px solid rgba(200,168,107,.14);}
+.grazing-sheep{position:absolute;bottom:8px;font-size:18px;opacity:.4;filter:drop-shadow(0 0 5px rgba(0,0,0,.5));}
+.grazing-sheep.gs1{left:12%;}
+.grazing-sheep.gs2{left:37%;font-size:13px;opacity:.28;}
+.grazing-sheep.gs3{right:18%;font-size:20px;opacity:.42;}
+.grazing-sheep.gs4{right:6%;font-size:12px;opacity:.25;}
+
+/* ── 달빛 글로우 (표지·마무리 전용) ── */
+.moon-glow{position:relative;display:inline-block;}
+.moon-glow::before{content:'';position:absolute;inset:-30px;border-radius:50%;
+  background:radial-gradient(circle,rgba(232,201,138,.35) 0%,transparent 68%);
+  z-index:-1;animation:moonbreathe 4.5s ease-in-out infinite;}
+@keyframes moonbreathe{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
+
+/* ── 묵상 인용구 (말씀·기도 느낌) ── */
+.scripture-quote{font-family:'Nanum Myeongjo','Noto Serif KR',serif;font-style:italic;}
+
 /* ── 펄스 ── */
 @keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
 .pulse{animation:pulse 2.5s ease-in-out infinite;}
@@ -225,13 +246,15 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
   .compare{grid-template-columns:1fr;}
   .feat-grid{grid-template-columns:1fr;}
   #hint{display:none;}
+  #pasture{height:36px;}
+  .grazing-sheep{font-size:12px !important;}
 }
 </style>
 </head>
 <body>
 
 <div id="progress"></div>
-<div id="slide-num">1 / 15</div>
+<div id="slide-num">1 / 16</div>
 <div id="hint">← → 방향키 또는 클릭</div>
 
 <!-- 별 -->
@@ -240,18 +263,27 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
 <!-- 오로라 -->
 <div class="aurora"><div class="ab1"></div><div class="ab2"></div><div class="ab3"></div></div>
 
+<!-- 목장 능선 -->
+<div id="pasture" aria-hidden="true">
+  <span class="grazing-sheep gs1">🐑</span>
+  <span class="grazing-sheep gs2">🐑</span>
+  <span class="grazing-sheep gs3">🐑</span>
+  <span class="grazing-sheep gs4">🐑</span>
+</div>
+
 <!-- ══ 슬라이드 덱 ══ -->
 <div id="deck">
 
   <!-- S1: 표지 -->
   <div class="slide active" data-slide="1">
     <div class="eyebrow">크리스천 감정 묵상 PWA</div>
-    <h1>🌙 밤의 <span>목장</span></h1>
-    <p class="tagline">"오늘 밤, 주님이 누이시는 곳"</p>
+    <h1><span class="moon-glow">🌙</span> 밤의 <span>목장</span></h1>
+    <p class="tagline scripture-quote">"오늘 밤, 주님이 누이시는 곳"</p>
     <p class="body-text" style="font-size:15px;color:rgba(255,255,255,.4);margin-top:-16px;">
       舊 「오늘의 양식」 · 앱을 열면 이렇게 인사합니다 — "오늘은 어땠나요?"
     </p>
     <div class="url-badge pulse">god-bless-you.vercel.app</div>
+    <div style="margin-top:22px;font-size:22px;opacity:.7;">🐑</div>
   </div>
 
   <!-- S2: 시작 이야기 -->
@@ -275,7 +307,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
         <div class="card-desc">바쁘고 지친 하루, 묵상할 여유가 없는 삶</div>
       </div>
     </div>
-    <p class="body-text" style="margin-top:28px;font-style:italic;color:rgba(255,255,255,.45);">
+    <p class="body-text scripture-quote" style="margin-top:28px;color:rgba(255,255,255,.45);">
       "퇴근길 3분, 그분을 위한 쉼을 만들고 싶었습니다"
     </p>
   </div>
@@ -557,7 +589,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
         <div style="font-size:13px;letter-spacing:1.5px;color:var(--gold2);margin-bottom:12px;">누가 · 언제 · 왜 결제하나</div>
         <div style="font-size:14.5px;line-height:1.9;color:rgba(255,255,255,.8);">
           워킹맘 수진님, <b style="color:var(--gold);">61일째 밤</b> 앱을 엽니다.<br>
-          <span style="color:rgba(255,255,255,.55);font-style:italic;">"두 달 전 그 밤의 기도, 계속 간직할까요?"</span><br>
+          <span class="scripture-quote" style="color:rgba(255,255,255,.55);">"두 달 전 그 밤의 기도, 계속 간직할까요?"</span><br>
           수진님은 그 밤을 기억합니다.<br>
           월 1,900원 — 커피 반 잔으로 모든 밤을 지킵니다.<br>
           그리고 12월, <b style="color:var(--gold);">1년치 기도가 담긴 PDF 일기장</b>을 받습니다.
@@ -647,13 +679,13 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
   <!-- S15: 마무리 -->
   <div class="slide" data-slide="16">
     <div class="eyebrow">Thank You</div>
-    <h1 style="font-size:clamp(36px,5.5vw,64px);">오늘 밤,<br><span>주님이 누이시는 곳</span></h1>
-    <p class="tagline" style="margin-top:16px;font-size:clamp(16px,1.8vw,20px);">
+    <h1 style="font-size:clamp(36px,5.5vw,64px);"><span class="moon-glow">🌙</span> 오늘 밤,<br><span>주님이 누이시는 곳</span></h1>
+    <p class="tagline scripture-quote" style="margin-top:16px;font-size:clamp(16px,1.8vw,20px);">
       내 감정에 꼭 맞는 말씀 한 구절로,<br>하루를 마무리하세요
     </p>
     <div class="url-badge pulse" style="margin-top:28px;">god-bless-you.vercel.app</div>
     <p style="font-size:13px;color:rgba(255,255,255,.25);margin-top:20px;letter-spacing:2px;">
-      🌙 밤의 목장 · 크리스천 감정 묵상 PWA
+      🐑 밤의 목장 · 크리스천 감정 묵상 PWA
     </p>
   </div>
 
