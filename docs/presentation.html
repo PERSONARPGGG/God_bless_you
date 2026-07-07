@@ -15,21 +15,24 @@
 html,body{width:100%;height:100%;overflow:hidden;
   font-family:'Apple SD Gothic Neo','Pretendard','Malgun Gothic',sans-serif;
   background:var(--navy);}
-/* 발표장 화면 기준 — 전체 190% 확대 (내용은 그대로, 물리적 크기만 확대) */
-html{zoom:1.9;}
+
+/* ── 고정 해상도 무대(1920×1080) — 어느 컴퓨터에서 열어도 항상 같은 비율로 보이도록
+   JS가 화면 크기에 맞춰 이 박스 전체를 scale()만 함. 내부 요소는 전부 고정 px. ── */
+#stage{position:absolute;top:50%;left:50%;width:1920px;height:1080px;
+  transform-origin:center center;transform:translate(-50%,-50%) scale(1);}
 
 /* ── 오로라 ── */
-.aurora{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.aurora{position:absolute;inset:0;z-index:0;pointer-events:none;}
 .ab1{position:absolute;border-radius:50%;filter:blur(100px);
-  width:70vw;height:70vw;max-width:560px;max-height:560px;
+  width:560px;height:560px;
   background:radial-gradient(circle,rgba(40,70,210,.18) 0%,transparent 70%);
   top:-15%;left:-20%;animation:ab1 32s ease-in-out infinite alternate;}
 .ab2{position:absolute;border-radius:50%;filter:blur(110px);
-  width:60vw;height:60vw;max-width:480px;max-height:480px;
+  width:480px;height:480px;
   background:radial-gradient(circle,rgba(90,20,190,.12) 0%,transparent 70%);
   bottom:-15%;right:-15%;animation:ab2 40s 5s ease-in-out infinite alternate;}
 .ab3{position:absolute;border-radius:50%;filter:blur(90px);
-  width:45vw;height:45vw;max-width:360px;max-height:360px;
+  width:360px;height:360px;
   background:radial-gradient(circle,rgba(180,140,30,.07) 0%,transparent 70%);
   top:38%;left:28%;animation:ab3 26s 10s ease-in-out infinite alternate;}
 @keyframes ab1{0%{transform:translate(0,0) scale(1)}100%{transform:translate(55px,38px) scale(1.14)}}
@@ -40,7 +43,7 @@ html{zoom:1.9;}
 #deck{position:relative;z-index:1;width:100%;height:100%;}
 .slide{
   position:absolute;inset:0;display:flex;flex-direction:column;
-  justify-content:center;align-items:center;padding:48px 60px;
+  justify-content:center;align-items:center;padding:48px 60px 110px;
   opacity:0;transform:translateX(40px);
   transition:opacity .55s ease, transform .55s ease;
   pointer-events:none;
@@ -52,15 +55,15 @@ html{zoom:1.9;}
 .eyebrow{font-size:14px;letter-spacing:4px;text-transform:uppercase;
   color:var(--gold);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
 .eyebrow::before{content:'';display:block;width:28px;height:1px;background:var(--gold);}
-h1{font-size:clamp(44px,6.5vw,80px);font-weight:900;color:var(--white);
+h1{font-size:80px;font-weight:900;color:var(--white);
   letter-spacing:-2px;line-height:1.1;text-align:center;}
 h1 span{background:linear-gradient(135deg,var(--gold),var(--gold2));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
+h2{font-size:48px;font-weight:800;color:var(--white);
   letter-spacing:-1px;line-height:1.25;text-align:center;margin-bottom:8px;}
-.tagline{font-size:clamp(16px,2vw,21px);color:rgba(255,255,255,.55);
+.tagline{font-size:21px;color:rgba(255,255,255,.55);
   text-align:center;font-style:italic;margin-top:14px;margin-bottom:32px;}
-.body-text{font-size:clamp(16px,1.8vw,20px);color:rgba(255,255,255,.75);
+.body-text{font-size:20px;color:rgba(255,255,255,.75);
   line-height:1.9;text-align:center;max-width:720px;}
 
 /* ── 카드 & 그리드 ── */
@@ -72,10 +75,10 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
 .card-desc{font-size:14px;color:rgba(255,255,255,.65);line-height:1.7;}
 
 /* ── 문제/솔루션 리스트 ── */
-.issue-list,.sol-list{list-style:none;margin-top:28px;display:flex;flex-direction:column;gap:14px;width:fit-content;max-width:min(660px,90vw);}
-.issue-list li{display:flex;align-items:flex-start;gap:12px;font-size:clamp(15px,1.8vw,19px);color:rgba(255,255,255,.7);line-height:1.6;}
+.issue-list,.sol-list{list-style:none;margin-top:28px;display:flex;flex-direction:column;gap:14px;width:fit-content;max-width:660px;}
+.issue-list li{display:flex;align-items:flex-start;gap:12px;font-size:19px;color:rgba(255,255,255,.7);line-height:1.6;}
 .issue-list li::before{content:'✗';color:#ef4444;font-weight:700;flex-shrink:0;margin-top:2px;}
-.sol-list li{display:flex;align-items:flex-start;gap:12px;font-size:clamp(15px,1.8vw,19px);color:rgba(255,255,255,.78);line-height:1.6;}
+.sol-list li{display:flex;align-items:flex-start;gap:12px;font-size:19px;color:rgba(255,255,255,.78);line-height:1.6;}
 .sol-list li::before{content:'✓';color:var(--ok);font-weight:700;flex-shrink:0;margin-top:2px;}
 
 /* ── 대비 테이블 ── */
@@ -86,7 +89,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
 .compare-head{font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;}
 .left .compare-head{color:rgba(255,255,255,.4);}
 .right .compare-head{color:var(--gold);}
-.compare-item{font-size:clamp(15px,1.7vw,18px);color:rgba(255,255,255,.6);padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.compare-item{font-size:18px;color:rgba(255,255,255,.6);padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);}
 .compare-item:last-child{border:none;}
 .compare-col.right .compare-item{color:rgba(255,255,255,.88);}
 
@@ -94,7 +97,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
 .hl-box{background:linear-gradient(135deg,rgba(200,168,107,.12),rgba(200,168,107,.04));
   border:1px solid rgba(200,168,107,.25);border-radius:16px;
   padding:28px 36px;max-width:700px;text-align:center;margin-top:28px;}
-.hl-box .big{font-size:clamp(22px,3vw,34px);font-weight:800;color:var(--white);line-height:1.4;margin-bottom:10px;}
+.hl-box .big{font-size:34px;font-weight:800;color:var(--white);line-height:1.4;margin-bottom:10px;}
 .hl-box .small{font-size:15px;color:rgba(255,255,255,.55);line-height:1.8;}
 
 /* ── 플로우 ── */
@@ -110,7 +113,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
 .tl-dot.now{background:var(--gold);box-shadow:0 0 10px rgba(200,168,107,.4);}
 .tl-dot.soon{background:rgba(255,255,255,.2);}
 .tl-lbl{font-size:10px;color:var(--gold);letter-spacing:1.6px;text-transform:uppercase;margin-bottom:2px;white-space:nowrap;}
-.tl-t{font-size:clamp(12px,1.44vw,15px);font-weight:700;color:var(--white);}
+.tl-t{font-size:15px;font-weight:700;color:var(--white);}
 .tl-d{font-size:11px;color:rgba(255,255,255,.5);line-height:1.6;}
 
 /* ── URL 뱃지 ── */
@@ -128,7 +131,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
   padding:5px 13px;border-radius:20px;white-space:nowrap;}
 .status-item.ok .status-badge{background:rgba(16,185,129,.15);color:#6ee7b7;}
 .status-item.warn .status-badge{background:rgba(245,158,11,.15);color:#fcd34d;}
-.status-t{font-size:clamp(14px,1.7vw,18px);font-weight:700;color:var(--white);line-height:1.4;}
+.status-t{font-size:18px;font-weight:700;color:var(--white);line-height:1.4;}
 .status-d{font-size:14px;color:rgba(255,255,255,.5);line-height:1.5;margin-top:2px;}
 
 /* ── 구현 진행률 링 (도넛 차트) ── */
@@ -153,11 +156,11 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
   background:linear-gradient(160deg,#1c2447,#0c1230);
   border:1px solid rgba(255,255,255,.14);
   box-shadow:0 24px 70px rgba(0,0,0,.55), 0 0 0 1px rgba(200,168,107,.12);
-  max-height:38vh;transition:opacity .3s ease;}
-.demo-phone video{display:block;border-radius:19px;max-height:calc(38vh - 20px);
-  max-width:min(62vw,272px);background:#000;}
+  max-height:410px;transition:opacity .3s ease;}
+.demo-phone video{display:block;border-radius:19px;max-height:390px;
+  max-width:272px;background:#000;}
 .demo-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
-  width:min(62vw,256px);height:34vh;border-radius:24px;
+  width:256px;height:367px;border-radius:24px;
   border:2px dashed rgba(200,168,107,.35);background:rgba(255,255,255,.03);
   color:rgba(255,255,255,.55);text-align:center;padding:24px;}
 .demo-fallback .df-icon{font-size:46px;}
@@ -166,7 +169,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
 .demo-fallback code{background:rgba(255,255,255,.08);padding:2px 8px;border-radius:6px;font-size:12px;color:var(--gold3);}
 
 /* ── 내비게이션 ── */
-#nav{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);
+#nav{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
   z-index:100;display:flex;align-items:center;gap:18px;transition:opacity .3s ease;}
 .nav-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
   color:rgba(255,255,255,.6);width:40px;height:40px;border-radius:50%;
@@ -179,25 +182,25 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
 .dot.active{width:20px;border-radius:3px;background:var(--gold);}
 
 /* ── 슬라이드 번호 ── */
-#slide-num{position:fixed;top:24px;right:32px;z-index:100;
+#slide-num{position:absolute;top:24px;right:32px;z-index:100;
   font-size:13px;color:rgba(255,255,255,.25);letter-spacing:2px;}
 
 /* ── 키보드 힌트 ── */
-#hint{position:fixed;top:24px;left:32px;z-index:100;
+#hint{position:absolute;top:24px;left:32px;z-index:100;
   font-size:11px;color:rgba(255,255,255,.18);letter-spacing:1px;}
 
 /* ── 진행 바 ── */
-#progress{position:fixed;top:0;left:0;height:2px;background:var(--gold);
+#progress{position:absolute;top:0;left:0;height:2px;background:var(--gold);
   z-index:100;transition:width .4s ease;opacity:.7;}
 
 /* ── 별 ── */
-#stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+#stars{position:absolute;inset:0;z-index:0;pointer-events:none;}
 .star{position:absolute;border-radius:50%;background:#fff;
   animation:twinkle var(--dur,3s) var(--delay,0s) ease-in-out infinite;}
 @keyframes twinkle{0%,100%{opacity:.05;transform:scale(.8)}50%{opacity:.5;transform:scale(1.1)}}
 
 /* ── 양이 QR코드를 밀고 오는 연출 (마무리) ── */
-.qr-push-wrap{margin-top:26px;display:flex;align-items:center;gap:0;}
+.qr-push-wrap{margin-top:26px;display:flex;align-items:center;justify-content:center;gap:0;width:100%;}
 .qr-sheep-group{position:relative;display:flex;flex-direction:column;align-items:center;}
 .qr-bubble{position:relative;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);
   border-radius:12px;padding:4px 12px;font-size:12px;color:rgba(255,255,255,.8);margin-bottom:6px;
@@ -205,10 +208,10 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
 .qr-bubble::after{content:'';position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);
   width:9px;height:9px;background:rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.16);
   border-bottom:1px solid rgba(255,255,255,.16);clip-path:polygon(0 0,100% 0,50% 100%);}
-.qr-sheep{font-size:44px;transform-origin:bottom center;}
-.qr-card{background:#fff;border-radius:14px;padding:9px;margin-left:-8px;z-index:1;
+.qr-sheep{font-size:46px;transform-origin:bottom center;}
+.qr-card{background:#fff;border-radius:14px;padding:9px;margin-left:-4px;z-index:1;
   box-shadow:0 12px 32px rgba(0,0,0,.4);}
-.qr-card img{display:block;width:120px;height:120px;}
+.qr-card img{display:block;width:126px;height:126px;}
 .qr-caption{margin-top:14px;font-size:14px;color:var(--gold);letter-spacing:.5px;font-family:monospace;}
 
 .slide.active .qr-sheep{animation:qrSheepPush 1.7s cubic-bezier(.3,1.1,.4,1) both;}
@@ -266,26 +269,16 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
   color:#0a0f2e;background:linear-gradient(135deg,var(--gold),var(--gold2));
   border-radius:8px;padding:2px 7px;margin-left:6px;align-self:center;flex-shrink:0;}
 
-/* ── 모바일 ── */
-@media(max-width:640px){
-  .slide{padding:32px 28px;}
-  .card-row{gap:10px;}
-  .card{min-width:150px;padding:16px 18px;}
-  .compare{grid-template-columns:1fr;}
-  .feat-grid{grid-template-columns:1fr;}
-  #hint{display:none;}
-}
-
-/* ── PDF로 인쇄 (마지막 슬라이드 달 클릭) ── */
+/* ── PDF로 인쇄 (마지막 슬라이드 달 클릭) — 고정 무대를 그대로 인쇄 페이지에 맞춤 ── */
 @media print{
   @page{size:landscape;margin:0;}
-  html{zoom:1;}
   html,body{overflow:visible;height:auto;width:100%;background:var(--navy);}
   #nav,#hint,#slide-num,#progress,#stars,.aurora{display:none !important;}
+  #stage{position:relative;top:0;left:0;width:100vw;height:100vh;transform:none !important;}
   #deck{position:static;}
   .slide{
     position:relative;inset:auto;opacity:1 !important;transform:none !important;
-    pointer-events:auto;width:100vw;height:100vh;page-break-after:always;
+    pointer-events:auto;width:100%;height:100vh;page-break-after:always;
     break-after:page;box-sizing:border-box;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
   }
@@ -295,6 +288,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
 </head>
 <body>
 
+<div id="stage">
 <div id="progress"></div>
 <div id="slide-num">1 / 15</div>
 <div id="hint">← → 방향키 또는 클릭</div>
@@ -349,7 +343,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
   <!-- S3: 문제 -->
   <div class="slide" data-slide="3">
     <div class="eyebrow">Problem</div>
-    <h2 style="font-size:clamp(24px,3.2vw,40px);white-space:nowrap;">기존 크리스천 앱이 놓친 것</h2>
+    <h2 style="font-size:40px;white-space:nowrap;">기존 크리스천 앱이 놓친 것</h2>
     <ul class="issue-list">
       <li>정해진 말씀만 제공 — 오늘 내 감정과 아무 상관 없음</li>
       <li>QT·기도나눔 의무화 — 바쁜 날엔 죄책감이 됨</li>
@@ -384,7 +378,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
 
   <!-- S5: 시연 영상 -->
   <div class="slide" data-slide="5">
-    <div class="eyebrow" style="margin-top:6vh;">Live Demo</div>
+    <div class="eyebrow" style="margin-top:65px;">Live Demo</div>
     <h2>직접 보여드릴게요</h2>
     <div class="demo-wrap" style="margin-top:22px;">
       <div class="demo-phone" id="demo-phone" style="display:none;">
@@ -708,8 +702,8 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
   <!-- S15: 마무리 -->
   <div class="slide" data-slide="15">
     <div class="eyebrow">Thank You</div>
-    <h1 style="font-size:clamp(36px,5.5vw,64px);"><span class="moon-glow" id="print-moon" onclick="window.print()" style="cursor:pointer;" title="클릭하면 PDF로 저장">🌙</span> 오늘 밤,<br><span>주님이 누이시는 곳</span></h1>
-    <p class="tagline scripture-quote" style="margin-top:16px;font-size:clamp(16px,1.8vw,20px);">
+    <h1 style="font-size:64px;"><span class="moon-glow" id="print-moon" onclick="window.print()" style="cursor:pointer;" title="클릭하면 PDF로 저장">🌙</span> 오늘 밤,<br><span>주님이 누이시는 곳</span></h1>
+    <p class="tagline scripture-quote" style="margin-top:16px;font-size:20px;">
       내 감정에 꼭 맞는 말씀 한 구절로,<br>하루를 마무리하세요
     </p>
     <div class="qr-push-wrap" aria-hidden="true">
@@ -737,7 +731,19 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
   <button class="nav-btn" id="next" aria-label="다음">›</button>
 </nav>
 
+</div><!-- /stage -->
+
 <script>
+// 고정 1920×1080 무대를 실제 창 크기에 맞춰 스케일 — 어떤 컴퓨터에서 열어도 비율 동일
+const STAGE_W = 1920, STAGE_H = 1080;
+const stageEl = document.getElementById('stage');
+function fitStage(){
+  const k = Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H);
+  stageEl.style.transform = `translate(-50%, -50%) scale(${k})`;
+}
+fitStage();
+window.addEventListener('resize', fitStage);
+
 const TOTAL = 15;
 let current = 1;
 let animating = false;
