@@ -196,15 +196,40 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
   animation:twinkle var(--dur,3s) var(--delay,0s) ease-in-out infinite;}
 @keyframes twinkle{0%,100%{opacity:.05;transform:scale(.8)}50%{opacity:.5;transform:scale(1.1)}}
 
-/* ── 마무리 인사 양 ── */
-.closing-sheep{margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:8px;}
-.cs-bubble{position:relative;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);
-  border-radius:14px;padding:6px 16px;font-size:13px;color:rgba(255,255,255,.8);}
-.cs-bubble::after{content:'';position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);
-  width:10px;height:10px;background:rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.16);
+/* ── 양이 QR코드를 밀고 오는 연출 (마무리) ── */
+.qr-push-wrap{margin-top:26px;display:flex;align-items:center;gap:0;}
+.qr-sheep-group{position:relative;display:flex;flex-direction:column;align-items:center;}
+.qr-bubble{position:relative;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);
+  border-radius:12px;padding:4px 12px;font-size:12px;color:rgba(255,255,255,.8);margin-bottom:6px;
+  opacity:0;white-space:nowrap;}
+.qr-bubble::after{content:'';position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);
+  width:9px;height:9px;background:rgba(255,255,255,.08);border-right:1px solid rgba(255,255,255,.16);
   border-bottom:1px solid rgba(255,255,255,.16);clip-path:polygon(0 0,100% 0,50% 100%);}
-.cs-emoji{font-size:46px;animation:sheepGreet 2.2s ease-in-out infinite;transform-origin:bottom center;}
-@keyframes sheepGreet{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+.qr-sheep{font-size:44px;transform-origin:bottom center;}
+.qr-card{background:#fff;border-radius:14px;padding:9px;margin-left:-8px;z-index:1;
+  box-shadow:0 12px 32px rgba(0,0,0,.4);}
+.qr-card img{display:block;width:120px;height:120px;}
+.qr-caption{margin-top:14px;font-size:14px;color:var(--gold);letter-spacing:.5px;font-family:monospace;}
+
+.slide.active .qr-sheep{animation:qrSheepPush 1.7s cubic-bezier(.3,1.1,.4,1) both;}
+.slide.active .qr-card{animation:qrCardSlide 1.7s cubic-bezier(.22,1,.36,1) both;}
+.slide.active .qr-bubble{animation:qrBubbleShow 1.7s ease both;}
+@keyframes qrSheepPush{
+  0%{transform:translateX(-70px) rotate(0deg);}
+  45%{transform:translateX(-18px) rotate(-16deg);}
+  75%{transform:translateX(-2px) rotate(-8deg);}
+  100%{transform:translateX(0) rotate(-5deg);}
+}
+@keyframes qrCardSlide{
+  0%{transform:translateX(-120px);opacity:0;}
+  40%{opacity:1;}
+  100%{transform:translateX(0);opacity:1;}
+}
+@keyframes qrBubbleShow{
+  0%,20%{opacity:0;transform:translateY(4px);}
+  40%,65%{opacity:1;transform:translateY(0);}
+  90%,100%{opacity:0;}
+}
 
 /* ── 달빛 글로우 (표지·마무리 전용) ── */
 .moon-glow{position:relative;display:inline-block;}
@@ -685,11 +710,16 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
     <p class="tagline scripture-quote" style="margin-top:16px;font-size:clamp(16px,1.8vw,20px);">
       내 감정에 꼭 맞는 말씀 한 구절로,<br>하루를 마무리하세요
     </p>
-    <div class="url-badge pulse" style="margin-top:28px;">god-bless-you.vercel.app</div>
-    <div class="closing-sheep" aria-hidden="true">
-      <div class="cs-bubble">또 만나요!</div>
-      <div class="cs-emoji">🐑</div>
+    <div class="qr-push-wrap" aria-hidden="true">
+      <div class="qr-sheep-group">
+        <div class="qr-bubble">끙차!</div>
+        <div class="qr-sheep">🐑</div>
+      </div>
+      <div class="qr-card">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAGQAQMAAAC6caSPAAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAACKElEQVR4nO3bTZKCMBAF4KZYuOQIHIWj4dE4Ckdw6cKyh/5LgjrlxmCsem+B4OTbtSE0GSKkzXDOhaiTg6bfvjgTjcw3OaSAgBxBrj5GRs8cB818s8+Ro4gnEJCDyCQVunRWySylq6NHPvd2uZGTnF1BQL5ArJJT/dpoAgH5KtkyeP0yr3bzBwH5FWLR4r8LEac5y/fxC9CAgBxDcoL0NjHrUmGlN89iICAVyIvoo76MJq/k9wEB+SiJCl26OLNKlvu+rmVZzrZpWG/+CwhIq+Rqq4TpLlevGqoe/S2k1QUISE0in/e0ZE19Ao2WM6dDERCQukRnzcGmzpcNVU05wYKA1CZynefWrmiououLkaM1AALSIHku/oeGqmYbtcrfbakAAlKfaCVP5baTIYayd66iz28BAalM2N88Td7ip+KZKi5jBZuXCiAg1YmXblRyHzd/ve9HQ3XcVTIISHuEtUWQ+wSUkp/FdHaO9/sgILWJl+eko73Zf7GZWKOVrKNSJYOA1Cc6Oleyda74maSlAghIfWKvn9J939pQaQN0ZLUXqCAgbZJdZp+O8+jVd6qcQoKAHEA4R/f1aQYbTWQPVs+dKxCQusQ/o5dK5b6+vqjklSIgIAeQSapUu6pWyb5Jj62cuTxbQEB+gqS9U0Rp8XrbXYKAHE6kkudyGbvD/xY/CMjHicXJUHau0gYUftycDwJSleRcyn/Gl8Xr7Jv0xuQIBKRRgrSYP2ZbBuBkCXOMAAAAAElFTkSuQmCC" width="140" height="140" alt="QR: god-bless-you.vercel.app">
+      </div>
     </div>
+    <div class="qr-caption">god-bless-you.vercel.app · 스캔해서 바로 만나보세요</div>
     <p style="font-size:13px;color:rgba(255,255,255,.25);margin-top:8px;letter-spacing:2px;">
       밤의 목장 · 크리스천 감정 묵상 PWA
     </p>
