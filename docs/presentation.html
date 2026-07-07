@@ -498,9 +498,9 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
         <div class="prog-note">설계 진행 중</div>
       </div>
       <div class="prog-item">
-        <div class="prog-head"><span class="prog-name">💎 Premium 플랜 ₩1,900/월 (v3.0)</span><span class="prog-pct">10%</span></div>
-        <div class="prog-bar"><div class="prog-fill" data-w="10"></div></div>
-        <div class="prog-note">가격 구성안 검토 중</div>
+        <div class="prog-head"><span class="prog-name">💎 Premium 플랜 ₩1,900/월 (v3.0)</span><span class="prog-pct">60%</span></div>
+        <div class="prog-bar"><div class="prog-fill" data-w="60"></div></div>
+        <div class="prog-note">모델 확정 · 앱 내 목업 완성 · 결제 연동 남음</div>
       </div>
     </div>
   </div>
@@ -534,8 +534,44 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
     </div>
   </div>
 
-  <!-- S13: 로드맵 -->
+  <!-- S13: Premium 수익 모델 -->
   <div class="slide" data-slide="13">
+    <div class="eyebrow">Business Model</div>
+    <h2>커피 반 잔 값으로,<br><span style="color:var(--gold);">당신의 모든 밤이 한 권의 책이 됩니다</span></h2>
+    <div style="display:flex;gap:20px;margin-top:24px;width:100%;max-width:1000px;align-items:stretch;">
+      <!-- 좌: 무료/프리미엄 경계표 -->
+      <div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:20px 24px;">
+        <div style="font-size:13px;letter-spacing:1.5px;color:var(--gold2);margin-bottom:12px;">무료 / 프리미엄 경계</div>
+        <div style="font-size:14px;line-height:2.0;color:rgba(255,255,255,.75);">
+          <div>🌙 묵상 플로우·보관함·스트릭 — <b style="color:#86efac;">전부 무료</b></div>
+          <div style="border-top:1px solid rgba(255,255,255,.08);margin-top:8px;padding-top:8px;color:var(--gold2);font-weight:700;">💎 Premium ₩1,900/월 · 연 ₩19,000</div>
+          <div>📔 기록 평생 보관 <span style="color:rgba(255,255,255,.4);font-size:12px;">(무료는 최근 60일)</span></div>
+          <div>📄 PDF "나의 신앙 일기장"</div>
+          <div>📊 월간·연간 리포트 — 돌보심의 기록</div>
+          <div>🗓️ 묵상 캘린더 + 시즌 챌린지</div>
+          <div>🐑 양 꾸미기 <span style="color:rgba(255,255,255,.4);font-size:12px;">(매월 소품 추가)</span></div>
+        </div>
+      </div>
+      <!-- 우: 결제 순간 스토리 -->
+      <div style="flex:1;background:rgba(200,168,107,.06);border:1px solid rgba(200,168,107,.18);border-radius:16px;padding:20px 24px;">
+        <div style="font-size:13px;letter-spacing:1.5px;color:var(--gold2);margin-bottom:12px;">누가 · 언제 · 왜 결제하나</div>
+        <div style="font-size:14.5px;line-height:1.9;color:rgba(255,255,255,.8);">
+          워킹맘 수진님, <b style="color:var(--gold);">61일째 밤</b> 앱을 엽니다.<br>
+          <span style="color:rgba(255,255,255,.55);font-style:italic;">"두 달 전 그 밤의 기도, 계속 간직할까요?"</span><br>
+          수진님은 그 밤을 기억합니다.<br>
+          월 1,900원 — 커피 반 잔으로 모든 밤을 지킵니다.<br>
+          그리고 12월, <b style="color:var(--gold);">1년치 기도가 담긴 PDF 일기장</b>을 받습니다.
+        </div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);font-size:13px;color:rgba(255,255,255,.5);">
+          넛지 3지점: 61일째 만료 임박 · 스트릭 30일 축하 · 월간 리포트 잠금<br>
+          수익 추정: MAU 1,000 × 전환 5% × ₩1,900 = <b style="color:#86efac;">₩95,000/월</b> (인프라 ₩0)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S14: 로드맵 -->
+  <div class="slide" data-slide="14">
     <div class="eyebrow">Roadmap</div>
     <h2>앞으로의 길</h2>
     <div class="timeline">
@@ -573,8 +609,8 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
     </div>
   </div>
 
-  <!-- S14: 예상 Q&A + 구현 계획 -->
-  <div class="slide" data-slide="14">
+  <!-- S15: 예상 Q&A + 구현 계획 -->
+  <div class="slide" data-slide="15">
     <div class="eyebrow">Q&amp;A · Roadmap Details</div>
     <h2>전문가 예상 질문<br><span style="color:var(--gold);">이미 생각하고 있는 것들</span></h2>
     <div style="display:flex;gap:20px;margin-top:22px;width:100%;max-width:1000px;align-items:flex-start;">
@@ -585,7 +621,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
           <div><span style="color:var(--gold);font-weight:700;">Q.</span> 개인정보는?<br><span style="color:rgba(255,255,255,.5);font-size:13px;">→ Supabase RLS + Google OAuth. 민감정보 직접 저장 없음.</span></div>
           <div><span style="color:var(--gold);font-weight:700;">Q.</span> 말씀 저작권?<br><span style="color:rgba(255,255,255,.5);font-size:13px;">→ 개역한글판(퍼블릭 도메인) 전면 교체 완료. 저작권료 0원. 영문 ESV만 확인 중.</span></div>
           <div><span style="color:var(--gold);font-weight:700;">Q.</span> 현재 MAU는?<br><span style="color:rgba(255,255,255,.5);font-size:13px;">→ 오픈 베타 중. Search Console 색인 후 측정 시작.</span></div>
-          <div><span style="color:var(--gold);font-weight:700;">Q.</span> 프리미엄 전환율?<br><span style="color:rgba(255,255,255,.5);font-size:13px;">→ ₩1,900 낮은 진입장벽 + 대시보드 인사이트로 유도.</span></div>
+          <div><span style="color:var(--gold);font-weight:700;">Q.</span> 프리미엄 전환율?<br><span style="color:rgba(255,255,255,.5);font-size:13px;">→ 61일째 기록 만료 넛지 + PDF 일기장(실물 가치)으로 전환. ₩1,900 = 구독 저항선 아래.</span></div>
           <div><span style="color:var(--gold);font-weight:700;">Q.</span> 혼자 유지보수?<br><span style="color:rgba(255,255,255,.5);font-size:13px;">→ 단일 파일 + Claude Code 에이전트로 지속 개발 중.</span></div>
         </div>
       </div>
@@ -609,7 +645,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
   </div>
 
   <!-- S15: 마무리 -->
-  <div class="slide" data-slide="15">
+  <div class="slide" data-slide="16">
     <div class="eyebrow">Thank You</div>
     <h1 style="font-size:clamp(36px,5.5vw,64px);">오늘 밤,<br><span>주님이 누이시는 곳</span></h1>
     <p class="tagline" style="margin-top:16px;font-size:clamp(16px,1.8vw,20px);">
@@ -631,7 +667,7 @@ h2{font-size:clamp(30px,4vw,48px);font-weight:800;color:var(--white);
 </nav>
 
 <script>
-const TOTAL = 15;
+const TOTAL = 16;
 let current = 1;
 let animating = false;
 
