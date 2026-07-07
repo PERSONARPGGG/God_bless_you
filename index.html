@@ -1946,7 +1946,7 @@
 <!-- ══ 개발자 비밀번호 모달 ══ -->
 <div id="devpw-modal" class="hidden">
     <div class="devpw-box">
-        <div class="devpw-label">🔒 개발자 모드<br>비밀번호를 입력하세요</div>
+        <div class="devpw-label" id="devpw-label">🔒 개발자 모드<br>비밀번호를 입력하세요</div>
         <input id="devpw-input" type="password" maxlength="10" placeholder="••••"
                onkeydown="if(event.key==='Enter')checkDevPw()">
         <button class="devpw-btn" onclick="checkDevPw()">확인</button>
@@ -6111,36 +6111,54 @@ function isDevMode() {
                 tapCount = 0;
                 clearTimeout(tapTimer);
                 if (isDevMode()) { lsSet('devMode', null); sessionStorage.removeItem('devMode'); toast('🔒 개발자 모드 해제됨'); return; }
-                const m = document.getElementById('devpw-modal');
-                const inp = document.getElementById('devpw-input');
-                m.classList.remove('hidden');
-                inp.value = '';
-                setTimeout(() => inp.focus(), 100);
+                openDevPwModal('dev');
             }
         });
     });
 })();
 
+/* 비밀번호 모달 열기 — purpose: 'dev'(개발자 모드) | 'premium'(프리미엄 체험) */
+let _devPwPurpose = 'dev';
+function openDevPwModal(purpose) {
+    _devPwPurpose = purpose;
+    const labels = {
+        dev: '🔒 개발자 모드<br>비밀번호를 입력하세요',
+        premium: '💎 프리미엄 체험 모드<br>비밀번호를 입력하세요',
+    };
+    document.getElementById('devpw-label').innerHTML = labels[purpose] || labels.dev;
+    const m = document.getElementById('devpw-modal');
+    const inp = document.getElementById('devpw-input');
+    m.classList.remove('hidden');
+    inp.value = '';
+    setTimeout(() => inp.focus(), 100);
+}
+
 function checkDevPw() {
     const inp = document.getElementById('devpw-input');
-    if (inp.value === '7501') {
-        lsSet('devMode', '1'); // 영속 — 새 세션에도 유지, 로그인 게이트 스킵
-        sessionStorage.setItem('devMode', '1');
-        document.getElementById('devpw-modal').classList.add('hidden');
-        const btn = document.getElementById('btn-dashboard');
-        if (btn) btn.classList.remove('hidden');
-        const btnTop = document.getElementById('btn-dashboard-top');
-        if (btnTop) btnTop.classList.remove('hidden');
-        injectDemoData();
-        // 개발자 모드 진입 시 배경 음악 자동 재생 (30%)
-        const mt = document.getElementById('music-toggle-input');
-        if (mt && !mt.checked) { mt.checked = true; toggleBgMusic(true); }
-        toast('🔓 개발자 모드 + 데모 데이터 적용');
-    } else {
+    if (inp.value !== '7501') {
         inp.value = '';
         inp.placeholder = '다시 입력하세요';
         inp.focus();
+        return;
     }
+    document.getElementById('devpw-modal').classList.add('hidden');
+    if (_devPwPurpose === 'premium') {
+        lsSet('premiumActive', true);
+        toast('💎 프리미엄 체험 모드 ON');
+        renderDbMonthly();
+        return;
+    }
+    lsSet('devMode', '1'); // 영속 — 새 세션에도 유지, 로그인 게이트 스킵
+    sessionStorage.setItem('devMode', '1');
+    const btn = document.getElementById('btn-dashboard');
+    if (btn) btn.classList.remove('hidden');
+    const btnTop = document.getElementById('btn-dashboard-top');
+    if (btnTop) btnTop.classList.remove('hidden');
+    injectDemoData();
+    // 개발자 모드 진입 시 배경 음악 자동 재생 (30%)
+    const mt = document.getElementById('music-toggle-input');
+    if (mt && !mt.checked) { mt.checked = true; toggleBgMusic(true); }
+    toast('🔓 개발자 모드 + 데모 데이터 적용');
 }
 
 /* ═══════════════════════════════════════
@@ -6192,21 +6210,17 @@ function renderEmotionPattern() {
 ═══════════════════════════════════════ */
 function isPremium() { return lsGet('premiumActive') === true; }
 
-/* devMode 한정: 자물쇠 아이콘 5탭 → 프리미엄 체험 토글 (시연용, 결제 미연동) */
-let _pmTapCnt = 0, _pmTapTimer = null;
+/* 자물쇠 아이콘 탭 → 프리미엄 체험 토글 (개발자 비밀번호 7501, 시연용·결제 미연동)
+   이미 체험 중이면 비번 없이 바로 해제 (달 아이콘 devMode 토글과 동일 패턴) */
 function devPremiumTap(ev) {
-    if (!isDevMode()) return;
     ev.stopPropagation();
-    _pmTapCnt++;
-    clearTimeout(_pmTapTimer);
-    _pmTapTimer = setTimeout(() => { _pmTapCnt = 0; }, 1500);
-    if (_pmTapCnt >= 5) {
-        _pmTapCnt = 0;
-        const on = !(lsGet('premiumActive') === true);
-        lsSet('premiumActive', on);
-        toast(on ? '💎 프리미엄 체험 모드 ON' : '🔒 프리미엄 체험 모드 OFF');
-        renderDbMonthly(); // 잠금/해제 상태만 다시 렌더 (현재 화면·페르소나 유지)
+    if (lsGet('premiumActive') === true) {
+        lsSet('premiumActive', false);
+        toast('🔒 프리미엄 체험 모드 OFF');
+        renderDbMonthly();
+        return;
     }
+    openDevPwModal('premium');
 }
 
 function openPremiumModal() {
