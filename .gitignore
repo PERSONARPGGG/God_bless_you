@@ -49,3 +49,6 @@ npm-debug.log*
 *.bak
 conversation-*.txt
 docs/엑셀입력_메모.txt
+
+# 개인정보 포함 초안 (이메일·연락처 등)
+docs/성서공회_인용문의_메일초안.txt
