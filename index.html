@@ -6205,7 +6205,7 @@ function devPremiumTap(ev) {
         const on = !(lsGet('premiumActive') === true);
         lsSet('premiumActive', on);
         toast(on ? '💎 프리미엄 체험 모드 ON' : '🔒 프리미엄 체험 모드 OFF');
-        openDashboard(); // 잠금/해제 상태 즉시 반영해 다시 렌더
+        renderDbMonthly(); // 잠금/해제 상태만 다시 렌더 (현재 화면·페르소나 유지)
     }
 }
 
@@ -6580,9 +6580,11 @@ const PERSONA_DATA = {
     ],
 };
 
+let _activePersonaData = null;
 function loadPersona(type, btn) {
     const data = PERSONA_DATA[type];
     if (!data) return;
+    _activePersonaData = data;
     renderDashboard(data);
     document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
@@ -6630,6 +6632,7 @@ function getWeekRange() {
 /* ── 대시보드 열기 ── */
 async function openDashboard() {
     if (!isDevMode()) { toast('🔒 준비 중인 기능입니다'); return; }
+    _activePersonaData = null;
     const data = await getDashboardData();
     renderDashboard(data);
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
@@ -6687,7 +6690,7 @@ const HEAVY_EMOS = ['걱정', '지침', '아픔'];
 function renderDbMonthly() {
     const el = document.getElementById('db-monthly');
     if (!el) return;
-    const entries = getMonthEntries();
+    const entries = _activePersonaData || getMonthEntries();
     const cnt = {};
     DB_EMO_LIST.forEach(e => cnt[e] = 0);
     entries.forEach(m => { if (cnt[m.emotion] !== undefined) cnt[m.emotion]++; });
