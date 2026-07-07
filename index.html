@@ -1882,7 +1882,7 @@
 
         <!-- 프리미엄 잠금 카드 (무료/유료 경계) -->
         <button class="pm-lock-card" type="button" onclick="openPremiumModal()">
-            <span class="pm-lock-icon">🔒</span>
+            <span class="pm-lock-icon" onclick="devPremiumTap(event)">🔒</span>
             <span class="pm-lock-txt"><b id="pm-lock-title">월간 리포트 &amp; PDF 내보내기</b><br><span id="pm-lock-sub">프리미엄에서 만나요 · ₩1,900/월</span></span>
         </button>
     </div>
@@ -4152,10 +4152,11 @@ const LANG_DATA = {
         btn_copy:'📋 복사', btn_share:'📤 공유', btn_save:'⭐ 즐겨찾기', btn_saved:'★ 저장됨', btn_restart:'🌙 처음으로',
         btn_finish:'🌙 오늘 묵상 마치기', closing_extend_hint:'· 연장하기', closing_extended:'5분 더 볼게요',
         btn_vault_closing:'📖 보관함 보기',
-        pm_title:'프리미엄', pm_desc:'당신의 신앙 기록,\n사라지지 않게 지켜드릴게요.',
-        pm_f1:'📔 일기·감정 기록 무제한 보관', pm_f2:'📄 PDF 내보내기 — 나의 신앙 일기장',
-        pm_f3:'📊 월간 감정·말씀 리포트', pm_f4:'🗓️ 묵상 캘린더',
-        pm_price:'월 ₩1,900 · 연 ₩19,000', pm_cta:'🔔 출시 알림 받기',
+        pm_title:'프리미엄', pm_desc:'무료는 최근 60일을 함께해요.\n프리미엄은 당신의 모든 밤을 평생 간직해요.',
+        pm_f1:'📔 일기·감정 기록 평생 보관', pm_f2:'📄 PDF 내보내기 — 나의 신앙 일기장',
+        pm_f3:'📊 월간·연간 리포트 — 돌보심의 기록', pm_f4:'🗓️ 묵상 캘린더 + 시즌 챌린지',
+        pm_f5:'🐑 양 꾸미기 — 매월 새 소품',
+        pm_price:'월 ₩1,900 · 연 ₩19,000 (2달 무료)', pm_cta:'🔔 출시 알림 받기',
         pm_cta_done:'신청 완료! 준비되면 가장 먼저 알려드릴게요 🙏', pm_close:'닫기',
         pm_lock_title:'월간 리포트 & PDF 내보내기', pm_lock_sub:'프리미엄에서 만나요 · ₩1,900/월',
         pat_neg_2:'🌙 어제도 오늘도 마음이 무거우셨네요. 그럴수록 곁에 계신 하나님을 기억해요.',
@@ -4264,10 +4265,11 @@ const LANG_DATA = {
         btn_copy:'📋 Copy', btn_share:'📤 Share', btn_save:'⭐ Bookmark', btn_saved:'★ Saved', btn_restart:'🌙 Back to Start',
         btn_finish:'🌙 Finish Today’s Reflection', closing_extend_hint:'· Extend', closing_extended:'5 more minutes',
         btn_vault_closing:'📖 View Saved Verses',
-        pm_title:'Premium', pm_desc:'Keep your faith journal safe,\nforever.',
-        pm_f1:'📔 Unlimited journal & mood history', pm_f2:'📄 PDF export — My Faith Journal',
-        pm_f3:'📊 Monthly emotion & verse report', pm_f4:'🗓️ Devotion calendar',
-        pm_price:'₩1,900/mo · ₩19,000/yr', pm_cta:'🔔 Notify me at launch',
+        pm_title:'Premium', pm_desc:'Free keeps your last 60 days.\nPremium keeps every night, forever.',
+        pm_f1:'📔 Keep all diary & mood records forever', pm_f2:'📄 PDF export — My Faith Journal',
+        pm_f3:'📊 Monthly & yearly reports', pm_f4:'🗓️ Devotion calendar + challenges',
+        pm_f5:'🐑 Dress up your sheep — new item monthly',
+        pm_price:'₩1,900/mo · ₩19,000/yr (2 months free)', pm_cta:'🔔 Notify me at launch',
         pm_cta_done:'Done! You\'ll be the first to know 🙏', pm_close:'Close',
         pm_lock_title:'Monthly report & PDF export', pm_lock_sub:'Coming with Premium · ₩1,900/mo',
         pat_neg_2:'🌙 Yesterday and today, your heart has been heavy. Remember — God is near.',
@@ -4376,10 +4378,11 @@ const LANG_DATA = {
         btn_copy:'📋 コピー', btn_share:'📤 共有', btn_save:'⭐ お気に入り', btn_saved:'★ 保存済み', btn_restart:'🌙 はじめに戻る',
         btn_finish:'🌙 今日の黙想を終える', closing_extend_hint:'· 延長する', closing_extended:'あと5分見ます',
         btn_vault_closing:'📖 保管箱を見る',
-        pm_title:'プレミアム', pm_desc:'あなたの信仰の記録を\nずっと守ります。',
-        pm_f1:'📔 日記・感情記録の無制限保存', pm_f2:'📄 PDFエクスポート — 私の信仰日記',
-        pm_f3:'📊 月間レポート', pm_f4:'🗓️ 黙想カレンダー',
-        pm_price:'月 ₩1,900 · 年 ₩19,000', pm_cta:'🔔 リリース通知を受け取る',
+        pm_title:'プレミアム', pm_desc:'無料は直近60日をともに。\nプレミアムはすべての夜を永久保存。',
+        pm_f1:'📔 日記・感情記録を永久保存', pm_f2:'📄 PDFエクスポート — 私の信仰日記',
+        pm_f3:'📊 月間・年間レポート', pm_f4:'🗓️ 黙想カレンダー＋チャレンジ',
+        pm_f5:'🐑 ひつじの着せ替え — 毎月新アイテム',
+        pm_price:'月 ₩1,900 · 年 ₩19,000（2ヶ月無料）', pm_cta:'🔔 リリース通知を受け取る',
         pm_cta_done:'受付完了！真っ先にお知らせします 🙏', pm_close:'閉じる',
         pm_lock_title:'月間レポート & PDF', pm_lock_sub:'プレミアムで · 月₩1,900',
         pat_neg_2:'🌙 昨日も今日も、心が重い日でしたね。そばにおられる神様を覚えていてください。',
@@ -6147,11 +6150,28 @@ function renderEmotionPattern() {
 ═══════════════════════════════════════ */
 function isPremium() { return lsGet('premiumActive') === true; }
 
+/* devMode 한정: 자물쇠 아이콘 5탭 → 프리미엄 체험 토글 (시연용, 결제 미연동) */
+let _pmTapCnt = 0, _pmTapTimer = null;
+function devPremiumTap(ev) {
+    if (!isDevMode()) return;
+    ev.stopPropagation();
+    _pmTapCnt++;
+    clearTimeout(_pmTapTimer);
+    _pmTapTimer = setTimeout(() => { _pmTapCnt = 0; }, 1500);
+    if (_pmTapCnt >= 5) {
+        _pmTapCnt = 0;
+        const on = !(lsGet('premiumActive') === true);
+        lsSet('premiumActive', on);
+        toast(on ? '💎 프리미엄 체험 모드 ON' : '🔒 프리미엄 체험 모드 OFF');
+        openDashboard(); // 잠금/해제 상태 즉시 반영해 다시 렌더
+    }
+}
+
 function openPremiumModal() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     document.getElementById('pm-title').textContent = L.pm_title;
     document.getElementById('pm-desc').innerHTML = L.pm_desc.replace(/\n/g,'<br>');
-    document.getElementById('pm-feats').innerHTML = [L.pm_f1,L.pm_f2,L.pm_f3,L.pm_f4].map(f=>`<li>${f}</li>`).join('');
+    document.getElementById('pm-feats').innerHTML = [L.pm_f1,L.pm_f2,L.pm_f3,L.pm_f4,L.pm_f5].map(f=>`<li>${f}</li>`).join('');
     document.getElementById('pm-price').textContent = L.pm_price;
     document.getElementById('pm-cta').textContent = lsGet('premiumInterest') ? '✓ ' + L.pm_cta : L.pm_cta;
     document.getElementById('pm-close').textContent = L.pm_close;
