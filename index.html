@@ -1470,6 +1470,27 @@
     .sh-body, .sh-head, .sh-leg, .sh-fluff, .sh-tail { transition:all .45s ease; }
     @media (prefers-reduced-motion: reduce) { #sheep { display:none; } }
 
+    /* ── PDF 일기장 (인쇄 전용) ── */
+    #print-diary{display:none;}
+    @media print{
+        body > :not(#print-diary){display:none !important;}
+        body{background:#fff !important;}
+        #print-diary{display:block;color:#2a2320;font-family:'Noto Serif KR','Nanum Myeongjo',serif;}
+        .pd-cover{height:90vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+            text-align:center;page-break-after:always;}
+        .pd-cover .pd-moon{font-size:64px;margin-bottom:18px;}
+        .pd-cover h1{font-size:34px;letter-spacing:2px;margin:0 0 10px;}
+        .pd-cover .pd-sub{font-size:15px;color:#8a7a66;letter-spacing:4px;}
+        .pd-cover .pd-range{margin-top:26px;font-size:14px;color:#6b5d4f;}
+        .pd-entry{page-break-inside:avoid;border-bottom:1px solid #e5dccf;padding:18px 6px;}
+        .pd-date{font-size:13px;color:#8a7a66;letter-spacing:1px;}
+        .pd-emo{font-size:15px;font-weight:700;margin:6px 0;}
+        .pd-verse{font-size:13.5px;line-height:1.9;color:#5a4d3f;font-style:italic;margin:8px 0;}
+        .pd-verse .pd-ref{font-style:normal;color:#8a7a66;font-size:12px;}
+        .pd-diary{font-size:14px;line-height:1.9;margin-top:6px;}
+        .pd-foot{text-align:center;font-size:11px;color:#b0a48f;padding:24px 0;letter-spacing:3px;}
+    }
+
     </style>
 </head>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -6701,6 +6722,41 @@ function renderDbMonthly() {
     }
 }
 
+/* ── PDF 내보내기: 이번 달 기록 → 인쇄 다이얼로그 (PDF로 저장) ── */
+function escHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function exportDiaryPdf() {
+    const entries = getMonthEntries();
+    if (!entries.length) { toast('이번 달 기록이 아직 없어요'); return; }
+    const pd = document.getElementById('print-diary');
+    const now = new Date();
+    const ymLabel = `${now.getFullYear()}년 ${now.getMonth() + 1}월`;
+    const fmtDate = ds => {
+        const d = new Date(ds + 'T12:00:00');
+        const dow = ['일','월','화','수','목','금','토'][d.getDay()];
+        return `${d.getMonth() + 1}월 ${d.getDate()}일 (${dow})`;
+    };
+    const entryHtml = entries.map(m => {
+        const pool = VERSE_POOL[`${m.emotion}_${m.need}`];
+        const verse = pool && pool[0];
+        return `<div class="pd-entry">
+            <div class="pd-date">${fmtDate(m.date)}</div>
+            <div class="pd-emo">${m.emoji || ''} ${escHtml(m.emotion)}</div>
+            ${verse ? `<div class="pd-verse">“${verse.v}” <span class="pd-ref">— ${verse.r}</span></div>` : ''}
+            ${m.diary ? `<div class="pd-diary">${escHtml(m.diary)}</div>` : ''}
+        </div>`;
+    }).join('');
+    pd.innerHTML = `
+        <div class="pd-cover">
+            <div class="pd-moon">🌙</div>
+            <h1>나의 신앙 일기장</h1>
+            <div class="pd-sub">밤 의 목 장</div>
+            <div class="pd-range">${ymLabel} · ${entries.length}일의 기록</div>
+        </div>
+        ${entryHtml}
+        <div class="pd-foot">🐑 밤의 목장 — 오늘 밤, 주님이 누이시는 곳</div>`;
+    window.print();
+}
+
 /* 서사 카드 */
 const DB_NARRATIVES = {
     감사: { main:'이번 주, 감사가 넘쳤던 한 주를 보냈군요 🙏', sub:'감사한 마음이 하나님께 닿았을 거예요.' },
@@ -6938,5 +6994,7 @@ function toggleDbDetail() {
     });
 })();
 </script>
+<!-- 인쇄 전용: 나의 신앙 일기장 (화면에선 숨김) -->
+<div id="print-diary" aria-hidden="true"></div>
 </body>
 </html>
