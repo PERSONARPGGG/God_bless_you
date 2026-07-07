@@ -906,16 +906,34 @@
         body.theme-ember  .ab1 { background:radial-gradient(circle,rgba(220,55,20,.3) 0%,transparent 70%); }
         body.theme-ember  .ab2 { background:radial-gradient(circle,rgba(255,110,30,.22) 0%,transparent 70%); }
         body.theme-ember  .ab3 { background:radial-gradient(circle,rgba(255,170,50,.14) 0%,transparent 70%); }
+        /* 설정/보관함 등 오버레이도 테마에 맞춰 즉시 변경 */
+        body.theme-dawn   .overlay { background:linear-gradient(170deg,#180a24 0%,#241238 35%,#12061a 65%,#060210 100%); }
+        body.theme-forest .overlay { background:linear-gradient(170deg,#021408 0%,#041a0c 35%,#020a06 65%,#010503 100%); }
+        body.theme-ocean  .overlay { background:linear-gradient(170deg,#010e1e 0%,#021628 35%,#010c18 65%,#010810 100%); }
+        body.theme-ember  .overlay { background:linear-gradient(170deg,#180404 0%,#240a06 35%,#1a0402 65%,#0e0202 100%); }
 
         /* ── 설정 언어/테마 선택 ── */
         .lang-options, .theme-options { display:flex;gap:8px; }
         .theme-options { flex-wrap:wrap; }
         .lang-opt-btn, .theme-btn {
-            flex:1;padding:11px 4px;border:1.5px solid rgba(255,255,255,.14);border-radius:12px;
+            position:relative;flex:1;padding:11px 4px;border:1.5px solid rgba(255,255,255,.14);border-radius:12px;
             background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);font-family:inherit;
             cursor:pointer;text-align:center;font-size:12px;line-height:1.5;
             transition:all .2s;-webkit-tap-highlight-color:transparent;
         }
+        .theme-btn.locked::after{content:'🔒';position:absolute;top:1px;right:3px;font-size:9px;filter:drop-shadow(0 0 2px rgba(0,0,0,.6));}
+
+        /* ── 보관함 로그인/프리미엄 안내 배너 ── */
+        .vault-banner{border-radius:14px;padding:14px 18px;margin:-6px 0 18px;text-align:center;}
+        .vault-banner.guest{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);}
+        .vault-banner.free{background:rgba(200,168,107,.08);border:1px solid rgba(200,168,107,.22);}
+        .vault-banner.premium{background:rgba(200,168,107,.14);border:1px solid rgba(200,168,107,.3);
+            color:#e8c98a;font-size:13px;font-weight:700;padding:11px 16px;}
+        .vb-title{font-size:14px;font-weight:700;color:#f5e6c8;margin-bottom:4px;}
+        .vb-desc{font-size:12.5px;color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:10px;}
+        .vb-btn{padding:9px 18px;border-radius:20px;border:1px solid rgba(200,168,107,.4);
+            background:rgba(200,168,107,.15);color:#e8c98a;font-size:12.5px;font-weight:700;
+            font-family:inherit;cursor:pointer;}
         .lang-opt-btn.active,.theme-btn.active { background:rgba(255,255,255,.2);border-color:rgba(200,168,112,.65);color:rgba(255,220,150,.96); }
         .lang-opt-btn:hover,.theme-btn:hover   { background:rgba(255,255,255,.12);color:rgba(255,255,255,.9); }
 
@@ -1627,6 +1645,7 @@
         <button id="vault-back" class="overlay-back" onclick="hideOverlay('overlay-vault')">← 돌아가기</button>
         <div id="vault-title" class="overlay-title">🌙 나의 보관함</div>
         <p id="vault-sub" class="vault-sub">별빛 아래 차곡차곡 쌓인 나의 기록</p>
+        <div id="vault-banner"></div>
         <div class="vault-tabs">
             <button class="vault-tab active" onclick="switchTab('mood')">🌙 감정 · 통계 <span class="pm-star">✦</span></button>
             <button class="vault-tab"        onclick="switchTab('saved')">⭐ 즐겨찾기</button>
@@ -4198,6 +4217,12 @@ const LANG_DATA = {
         pm_f1:'📔 일기·감정 기록 평생 보관', pm_f2:'📄 PDF 내보내기 — 나의 신앙 일기장',
         pm_f3:'📊 월간·연간 리포트 — 돌보심의 기록', pm_f4:'🗓️ 묵상 캘린더 + 시즌 챌린지',
         pm_f5:'🐑 양 꾸미기 — 매월 새 소품',
+        pm_f6:'🎨 감성 배경 테마 4종 — 새벽빛·숲속·바다·노을',
+        vb_guest_title:'☁️ 로그인하면 이런 게 가능해요', vb_guest_desc:'여러 기기에서 이어보기 · 감정 기록 자동 백업 · 기기를 바꿔도 안전하게',
+        vb_guest_btn:'Google로 로그인',
+        vb_free_title:'📔 무료는 최근 60일까지 보관돼요', vb_free_desc:'프리미엄은 모든 기록을 평생 보관하고, PDF 신앙 일기장·월간 리포트·테마도 함께 열려요',
+        vb_free_btn:'프리미엄 알아보기',
+        vb_premium_badge:'💎 프리미엄 이용 중 — 모든 기록이 평생 보관돼요',
         pm_price:'월 ₩1,900 · 연 ₩19,000 (2달 무료)', pm_cta:'🔔 출시 알림 받기',
         pm_cta_done:'신청 완료! 준비되면 가장 먼저 알려드릴게요 🙏', pm_close:'닫기',
         pm_lock_title:'월간 리포트 & PDF 내보내기', pm_lock_sub:'프리미엄에서 만나요 · ₩1,900/월',
@@ -4311,6 +4336,12 @@ const LANG_DATA = {
         pm_f1:'📔 Keep all diary & mood records forever', pm_f2:'📄 PDF export — My Faith Journal',
         pm_f3:'📊 Monthly & yearly reports', pm_f4:'🗓️ Devotion calendar + challenges',
         pm_f5:'🐑 Dress up your sheep — new item monthly',
+        pm_f6:'🎨 4 mood themes — dawn, forest, ocean, ember',
+        vb_guest_title:'☁️ Sign in to unlock', vb_guest_desc:'Continue across devices · auto-backup your mood records · safe even if you switch phones',
+        vb_guest_btn:'Sign in with Google',
+        vb_free_title:'📔 Free keeps your last 60 days', vb_free_desc:'Premium keeps everything forever, plus PDF journal, monthly reports, and themes',
+        vb_free_btn:'See Premium',
+        vb_premium_badge:'💎 Premium active — everything is kept forever',
         pm_price:'₩1,900/mo · ₩19,000/yr (2 months free)', pm_cta:'🔔 Notify me at launch',
         pm_cta_done:'Done! You\'ll be the first to know 🙏', pm_close:'Close',
         pm_lock_title:'Monthly report & PDF export', pm_lock_sub:'Coming with Premium · ₩1,900/mo',
@@ -4424,6 +4455,12 @@ const LANG_DATA = {
         pm_f1:'📔 日記・感情記録を永久保存', pm_f2:'📄 PDFエクスポート — 私の信仰日記',
         pm_f3:'📊 月間・年間レポート', pm_f4:'🗓️ 黙想カレンダー＋チャレンジ',
         pm_f5:'🐑 ひつじの着せ替え — 毎月新アイテム',
+        pm_f6:'🎨 感情テーマ4種 — 夜明け・森・海・夕焼け',
+        vb_guest_title:'☁️ ログインするとできること', vb_guest_desc:'複数端末で続き閲覧・感情記録の自動バックアップ・機種変更も安心',
+        vb_guest_btn:'Googleでログイン',
+        vb_free_title:'📔 無料は直近60日まで保存', vb_free_desc:'プレミアムはすべて永久保存、PDF信仰日記・月間レポート・テーマも解放されます',
+        vb_free_btn:'プレミアムを見る',
+        vb_premium_badge:'💎 プレミアム利用中 — すべて永久保存されます',
         pm_price:'月 ₩1,900 · 年 ₩19,000（2ヶ月無料）', pm_cta:'🔔 リリース通知を受け取る',
         pm_cta_done:'受付完了！真っ先にお知らせします 🙏', pm_close:'閉じる',
         pm_lock_title:'月間レポート & PDF', pm_lock_sub:'プレミアムで · 月₩1,900',
@@ -4654,7 +4691,10 @@ function init() {
     appLang  = lsGet('appLang')  || 'ko';
     fontLevel = parseInt(lsGet('fontLevel') || '0');
     applyFont(fontLevel);
-    applyTheme(lsGet('appTheme') || 'night');
+    { let t0 = lsGet('appTheme') || 'night';
+      if (PREMIUM_THEMES.includes(t0) && !isPremium()) t0 = 'night';
+      applyTheme(t0);
+      updateThemeLocks(); }
     checkFirstVisit();
     updateStreak();
     initHeroTeaser();
@@ -5434,7 +5474,30 @@ function renderPagination(containerId, cur, total, onChange) {
 function openVault() {
     moodPage = 0; savedPage = 0;
     switchTab('mood');
+    renderVaultBanner();
     showOverlay('overlay-vault');
+}
+
+/* 보관함 상단 안내 — 로그인/프리미엄을 명확히 구분해 각자의 메리트만 전달 */
+function renderVaultBanner() {
+    const el = document.getElementById('vault-banner');
+    if (!el) return;
+    const L = LANG_DATA[appLang] || LANG_DATA.ko;
+    if (!sbUser && !isDevMode()) {
+        el.innerHTML = `<div class="vault-banner guest">
+            <div class="vb-title">${L.vb_guest_title}</div>
+            <div class="vb-desc">${L.vb_guest_desc}</div>
+            <button class="vb-btn" type="button" onclick="loginWithGoogle()">${L.vb_guest_btn}</button>
+        </div>`;
+    } else if (!isPremium()) {
+        el.innerHTML = `<div class="vault-banner free">
+            <div class="vb-title">${L.vb_free_title}</div>
+            <div class="vb-desc">${L.vb_free_desc}</div>
+            <button class="vb-btn" type="button" onclick="openPremiumModal()">${L.vb_free_btn}</button>
+        </div>`;
+    } else {
+        el.innerHTML = `<div class="vault-banner premium">${L.vb_premium_badge}</div>`;
+    }
 }
 
 function switchTab(tab) {
@@ -5731,6 +5794,7 @@ function openSettings() {
         const t = id.replace('th-','');
         document.getElementById(id).classList.toggle('active', t === theme);
     });
+    updateThemeLocks();
     // 전체화면 버튼 상태 동기화
     const L2 = LANG_DATA[appLang]||LANG_DATA.ko;
     const fbtn = document.getElementById('btn-fullscreen');
@@ -5780,11 +5844,26 @@ function applyTheme(theme) {
     if (theme === 'ember')  document.body.classList.add('theme-ember');
 }
 
+/* 배경 테마 — 밤하늘(night)만 무료, 나머지 4종은 프리미엄 */
+const PREMIUM_THEMES = ['dawn', 'forest', 'ocean', 'ember'];
 function setTheme(theme) {
+    if (PREMIUM_THEMES.includes(theme) && !isPremium()) {
+        openPremiumModal();
+        return;
+    }
     applyTheme(theme);
     lsSet('appTheme', theme);
     ['th-night','th-dawn','th-forest','th-ocean','th-ember'].forEach(id => {
         document.getElementById(id).classList.toggle('active', id.replace('th-','') === theme);
+    });
+}
+
+/* 프리미엄 테마 잠금 배지 갱신 — 설정 열 때, 프리미엄 체험 토글 시 호출 */
+function updateThemeLocks() {
+    const premium = isPremium();
+    PREMIUM_THEMES.forEach(t => {
+        const btn = document.getElementById('th-' + t);
+        if (btn) btn.classList.toggle('locked', !premium);
     });
 }
 
@@ -6146,6 +6225,7 @@ function checkDevPw() {
         lsSet('premiumActive', true);
         toast('💎 프리미엄 체험 모드 ON');
         renderDbMonthly();
+        updateThemeLocks();
         return;
     }
     lsSet('devMode', '1'); // 영속 — 새 세션에도 유지, 로그인 게이트 스킵
@@ -6218,6 +6298,7 @@ function devPremiumTap(ev) {
         lsSet('premiumActive', false);
         toast('🔒 프리미엄 체험 모드 OFF');
         renderDbMonthly();
+        updateThemeLocks();
         return;
     }
     openDevPwModal('premium');
@@ -6227,7 +6308,7 @@ function openPremiumModal() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     document.getElementById('pm-title').textContent = L.pm_title;
     document.getElementById('pm-desc').innerHTML = L.pm_desc.replace(/\n/g,'<br>');
-    document.getElementById('pm-feats').innerHTML = [L.pm_f1,L.pm_f2,L.pm_f3,L.pm_f4,L.pm_f5].map(f=>`<li>${f}</li>`).join('');
+    document.getElementById('pm-feats').innerHTML = [L.pm_f1,L.pm_f2,L.pm_f3,L.pm_f4,L.pm_f5,L.pm_f6].map(f=>`<li>${f}</li>`).join('');
     document.getElementById('pm-price').textContent = L.pm_price;
     document.getElementById('pm-cta').textContent = lsGet('premiumInterest') ? '✓ ' + L.pm_cta : L.pm_cta;
     document.getElementById('pm-close').textContent = L.pm_close;
