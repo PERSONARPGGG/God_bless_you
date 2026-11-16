@@ -1,0 +1,94 @@
+/* 밤의 목장 — js/sheep.js : 양 한 마리 배회
+   (일반 스크립트. index.html 맨 아래에 적힌 순서대로 불러옵니다) */
+
+/* ═══════════════════════════════════════
+   밤의 목장 — 양 한 마리 배회 (걷기 → 멈춤 → 앉기)
+═══════════════════════════════════════ */
+(function(){
+    const sh = document.getElementById('sheep');
+    if (!sh || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const flip = sh.querySelector('.sh-flip');
+    let x = 20 + Math.random()*120, dir = 1, mode = 'walk', modeT = 0, modeDur = 4000;
+    const maxX = () => Math.max(innerWidth - 62, 40);
+    sh.classList.add('walking');
+    function setMode(m, dur) {
+        mode = m; modeT = 0; modeDur = dur;
+        sh.classList.toggle('walking', m === 'walk');
+        sh.classList.toggle('sitting', m === 'sit');
+    }
+    function pickNext() {
+        const r = Math.random();
+        if (mode !== 'sit' && r < .35) setMode('sit', 3500 + Math.random()*5000);
+        else if (r < .55) setMode('idle', 1200 + Math.random()*2000);
+        else { if (Math.random() < .4) dir *= -1; setMode('walk', 2500 + Math.random()*4500); }
+    }
+    let last = performance.now();
+    (function tick(now){
+        const dt = Math.min(now - last, 100); last = now;
+        modeT += dt;
+        if (mode === 'walk') {
+            x += dir * 0.022 * dt;
+            if (x < 4)      { x = 4; dir = 1; }
+            if (x > maxX()) { x = maxX(); dir = -1; }
+        }
+        sh.style.left = x + 'px';
+        flip.style.transform = 'scaleX(' + dir + ')';
+        if (modeT > modeDur) pickNext();
+        requestAnimationFrame(tick);
+    })(last);
+
+    /* ── 양 쓰다듬기: 탭하면 재롱 (하트/폴짝/살랑/빙글/말풍선) ── */
+    let reacting = false;
+    function spawnFloat(emoji, delay) {
+        setTimeout(() => {
+            const r = sh.getBoundingClientRect();
+            const el = document.createElement('div');
+            el.className = 'sheep-float';
+            el.textContent = emoji;
+            el.style.left = (r.left + r.width/2 - 8 + (Math.random()*26 - 13)) + 'px';
+            el.style.top  = (r.top - 8) + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1500);
+        }, delay);
+    }
+    function spawnBubble(text) {
+        const r = sh.getBoundingClientRect();
+        const el = document.createElement('div');
+        el.className = 'sheep-bubble';
+        el.textContent = text;
+        document.body.appendChild(el);
+        const w = el.offsetWidth;
+        el.style.left = Math.max(6, Math.min(innerWidth - w - 6, r.left + r.width/2 - w/2)) + 'px';
+        el.style.top  = (r.top - 34) + 'px';
+        setTimeout(() => el.remove(), 1900);
+    }
+    sh.addEventListener('pointerdown', e => {
+        e.stopPropagation();
+        if (reacting) return;
+        reacting = true;
+        // 자고 있으면 깨어남
+        if (sh.classList.contains('sitting')) setMode('idle', 1500 + Math.random()*1500);
+        const acts = ['heart','hop','wiggle','spin','bubble','heart'];
+        const act = acts[Math.floor(Math.random()*acts.length)];
+        if (act === 'heart') {
+            playSfx('heart');
+            ['💕','💛','💗'].forEach((h, i) => spawnFloat(h, i*170));
+        } else if (act === 'hop') {
+            playSfx('heart');
+            sh.classList.add('hop');
+            setTimeout(() => sh.classList.remove('hop'), 600);
+            spawnFloat('✨', 60);
+        } else if (act === 'wiggle') {
+            sh.classList.add('wiggle');
+            setTimeout(() => sh.classList.remove('wiggle'), 1000);
+            spawnFloat('🎵', 80);
+        } else if (act === 'spin') {
+            playSfx('heart');
+            sh.classList.add('spin');
+            setTimeout(() => sh.classList.remove('spin'), 700);
+        } else {
+            spawnBubble(['메에~ 🐑','오늘도 평안하세요','함께 있어요','메에에!'][Math.floor(Math.random()*4)]);
+        }
+        setTimeout(() => { reacting = false; }, 800);
+    });
+})();

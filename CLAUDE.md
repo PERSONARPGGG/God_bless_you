@@ -5,11 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # 밤의 목장 — Claude 작업 가이드
 
 ## 프로젝트 개요
-크리스천 감정 묵상 PWA "밤의 목장" (부제: "오늘 밤, 주님이 누이시는 곳", 구명: "오늘은 어땠나요?" — 이 질문은 메인 화면 인사말로 유지). 단일 파일(`index.html`, ~7,700줄) + Supabase + Vercel.
+크리스천 감정 묵상 PWA "밤의 목장" (부제: "오늘 밤, 주님이 누이시는 곳", 구명: "오늘은 어땠나요?" — 이 질문은 메인 화면 인사말로 유지). `index.html`(마크업) + `css/app.css` + `js/*.js` 12개 + Supabase + Vercel.
 배포: https://god-bless-you.vercel.app/
 
 ## 코드 구조 원칙
-- **절대 새 파일 금지**: 모든 기능은 index.html 한 파일 안에 구현 (사용자 강한 선호)
+- **파일 구조 (2026-11-16, 사용자 요청으로 단일 파일 원칙을 바꿈)**: 마크업은 `index.html`, 스타일은 `css/app.css`, 스크립트는 `js/` 아래 주제별 파일. 새 기능은 맞는 파일에 넣고, 파일을 새로 만들면 `index.html`의 `<script>` 목록과 `sw.js`의 `ASSETS`에 함께 추가
+- 스크립트는 ES 모듈이 아닌 **일반 스크립트** (HTML의 `onclick="..."`이 전역 함수를 부르기 때문). 불러오는 순서: data → core → i18n → auth → flow → vault → ui → premium → audio → persona → sheep → care. 파일을 불러오는 즉시 실행되는 코드는 앞 파일의 것만 쓸 수 있음
 - Vanilla JS 전용 — 프레임워크·번들러 도입 금지
 - Supabase anon key는 코드에 직접 기재 가능 (RLS로 보호됨, service_role key는 절대 금지)
 
@@ -19,10 +20,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **로컬 실행**: `index.html`을 브라우저로 직접 열거나, PWA/Service Worker 테스트가 필요하면 로컬 서버 사용 (`npx serve` 등). `file://`로 열면 Supabase·Service Worker 관련 코드가 자동으로 비활성화되도록 방어 코드 있음 (`location.protocol === 'file:'` 체크, index.html:4185 등).
 - **배포**: `main` 브랜치 push → Vercel 자동 배포. 별도 빌드 스텝 없음.
 - **검증**: 자동화된 테스트 없음. 수정 후 반드시 `/verify` 스킬로 실제 배포 페이지에서 핵심 플로우 동작 확인 (아래 "에이전트 역할" 참고).
-- **캐시 무효화**: Service Worker 캐시를 갱신하려면 `sw.js`의 `CACHE` 상수(현재 `'god-app-v23'`) 버전 문자열을 올려야 함.
+- **캐시 무효화**: Service Worker 캐시를 갱신하려면 `sw.js`의 `CACHE` 상수(현재 `'god-app-v24'`) 버전 문자열을 올려야 함.
 
 ## 아키텍처 (Architecture)
-`index.html` 한 파일에 `<style>` → `<body>` 마크업 → 단일 `<script>` 순서로 전부 들어있음.
+`index.html`에는 마크업과 스크립트 목록만 있음. 아래 행 번호 설명은 분리 전 기준이라 맞지 않으니 파일명으로 찾을 것.
+
+| 파일 | 내용 |
+|---|---|
+| `css/app.css` | 전체 스타일. 끝부분에 v2.7 블록 |
+| `js/data.js` | 말씀·묵상·응원·기도 콘텐츠 데이터 |
+| `js/core.js` | PWA 설치 프롬프트, 전역 상태(`sel` 등), `lsGet`/`lsSet` |
+| `js/i18n.js` | `LANG_DATA`(ko/en/ja), `applyLang()` |
+| `js/auth.js` | 앱 초기화, Supabase 로그인·동기화 |
+| `js/flow.js` | 이름, 글자 크기, 스트릭, 절기, 스텝 전환, 결과 생성, 복사·공유·저장, 감사 일기 |
+| `js/vault.js` | 보관함, 주간 감정 차트 |
+| `js/ui.js` | 설정, 오버레이, 토스트, 다시 시작, 마무리(클로징) |
+| `js/premium.js` | 개발자 모드, 대시보드, 연속 감정 인식, `isPremium()` |
+| `js/audio.js` | 효과음, 배경 찬송가 |
+| `js/persona.js` | 체험 페르소나 데이터 |
+| `js/sheep.js` | 양 배회 |
+| `js/care.js` | 처리방침·동의, 계정 삭제, 회고 카드, 돌봄 안내, 접근성 |
+
+- **안전장치**: `index.html`의 스크립트 목록 바로 위 인라인 스크립트가 파일 로딩 실패를 감지해 "다시 불러오기" 안내를 띄움
+- **Service Worker**: `index.html`·`css/`·`js/`는 네트워크 우선(실패 시 캐시), 나머지는 캐시 우선
 
 - **`<style>`** (약 16~1195행): 전역 CSS.
 - **HTML 마크업** (약 1198~1815행): `#step1`~`#step4` (감정→주제→필요→결과 4단계 플로우), 보관함/설정/대시보드 오버레이.
@@ -84,7 +104,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Supabase 추가 SQL**: `docs/supabase_v2.7.sql` (계정 삭제 함수 `delete_my_account`, `subscriptions` 테이블). 실행 전에는 계정 삭제가 기록만 지우고, 프리미엄은 항상 무료로 판정
 - **처리방침**: `OPERATOR`(운영자 정보)와 서버 위치가 빈칸 — 정식 출시 전 기재
 - **앱 이름**: "밤의 목장"은 임시. 설문 반응이 좋지 않아 변경 가능 → 상표 출원은 확정 뒤
-- v2.7 코드는 `index.html` 끝의 `§ v2.7` 섹션과 `<style>` 끝의 v2.7 블록에 모여 있음
+- v2.7 코드는 `js/care.js`와 `css/app.css` 끝의 v2.7 블록에 모여 있음
 
 ## 다음 마일스톤 (v3.0)
 감정 통계 대시보드 + Premium 플랜(₩1,900/월) 런칭
