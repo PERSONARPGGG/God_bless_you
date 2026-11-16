@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>밤의 목장</title>
     <meta name="description" content="밤의 목장 — 오늘 밤, 주님이 누이시는 곳. 하루를 마무리하는 감정 묵상 쉼터">
     <meta property="og:type" content="website">
@@ -20,13 +20,23 @@
     <meta name="apple-mobile-web-app-title" content="밤의 목장">
     <link rel="apple-touch-icon" href="icon.svg">
     <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <!-- 글꼴 (둘 다 SIL OFL — 웹 임베딩·상업 이용 가능). 교체 시 아래 --font-ui / --font-verse 변수만 바꾸면 됨 -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap">
     <style>
         /* ── 기본 변수 ── */
         :root {
             --fs-xs:   13px; --fs-sm: 14px; --fs-md: 15px;
             --fs-base: 16px; --fs-lg: 17px; --fs-xl: 20px; --fs-2xl: 24px;
             --fs-btn:  15px; --fs-verse: 16px; --fs-reflect: 16px;
+            --fs-2xs:  12px; /* 보조 라벨 최소 크기 — 고정 px 대신 이 변수를 써야 글자 크기 설정을 따름 */
+            --font-ui: 'Pretendard Variable','Pretendard','Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',-apple-system,BlinkMacSystemFont,sans-serif;
+            --font-verse: 'Nanum Myeongjo','Noto Serif KR','AppleMyungjo','Batang',serif; /* 말씀·묵상 인용 전용 */
         }
+        body.sz-lg { --fs-2xs: 13px; }
+        body.sz-xl { --fs-2xs: 14px; }
         body.sz-lg {
             --fs-xs:   14px; --fs-sm: 15px; --fs-md: 16px;
             --fs-base: 18px; --fs-lg: 19px; --fs-xl: 23px; --fs-2xl: 27px;
@@ -40,7 +50,7 @@
 
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Apple SD Gothic Neo','Pretendard','Malgun Gothic','맑은 고딕',-apple-system,BlinkMacSystemFont,sans-serif;
+            font-family: var(--font-ui);
             background: linear-gradient(170deg,#0e1842 0%,#132050 35%,#0a1030 65%,#050a1e 100%);
             min-height: 100vh; color: #333; overflow-x: hidden; -webkit-font-smoothing: antialiased;
         }
@@ -195,7 +205,7 @@
             background:linear-gradient(135deg,rgba(180,160,255,.06) 0%,rgba(255,200,150,.04) 100%);
         }
         .ht-label {
-            display:block;font-size:10px;font-weight:700;letter-spacing:2.5px;
+            display:block;font-size:var(--fs-2xs);font-weight:700;letter-spacing:2.5px;
             color:rgba(255,200,100,.65);margin-bottom:8px;
         }
         .ht-text {
@@ -205,7 +215,7 @@
             overflow:hidden;
         }
         .ht-ref {
-            font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.5px;
+            font-size:var(--fs-2xs);color:rgba(255,255,255,.4);letter-spacing:.5px;
         }
 
         /* ── 출석 체크인 필 (step1 하단) ── */
@@ -226,7 +236,7 @@
         .blessing-icon { font-size:38px;margin-bottom:14px;display:block; }
         .blessing-title { font-size:17px;font-weight:800;color:#3a2840;margin-bottom:8px; }
         .blessing-sub   { font-size:13px;color:#8a7660;line-height:1.7; }
-        .blessing-streak{ font-size:12px;color:#c08a20;font-weight:700;margin-top:12px;letter-spacing:.2px; }
+        .blessing-streak{ font-size:var(--fs-xs);color:#c08a20;font-weight:700;margin-top:12px;letter-spacing:.2px; }
         #step4.closing .card-blessing {
             display:block; animation:closing-seal-in .6s cubic-bezier(.22,1,.36,1) .45s both;
         }
@@ -238,7 +248,7 @@
         /* ── 결과화면 마무리(클로징) 카운트다운 ── */
         .closing-timer {
             position:fixed; top:calc(env(safe-area-inset-top,0px) + 10px); right:14px;
-            font-size:11px; letter-spacing:.3px; color:rgba(255,255,255,.28);
+            font-size:var(--fs-2xs); letter-spacing:.3px; color:rgba(255,255,255,.28);
             padding:4px 9px; border-radius:20px; background:rgba(255,255,255,.04);
             z-index:40; transition:color .4s ease, background .4s ease;
         }
@@ -315,7 +325,7 @@
             -webkit-tap-highlight-color:transparent;min-width:52px;
         }
         .icon-btn .icon-emoji { font-size:18px;line-height:1.1; }
-        .icon-btn .icon-label { font-size:10px;color:rgba(255,255,255,.78);letter-spacing:.3px; }
+        .icon-btn .icon-label { font-size:var(--fs-2xs);color:rgba(255,255,255,.78);letter-spacing:.3px; }
         .icon-btn:hover,.icon-btn:active { background:rgba(255,255,255,.24);border-color:rgba(255,255,255,.45); }
 
         .moon-icon { font-size:62px;display:inline-block;animation:float 4s ease-in-out infinite;will-change:transform; }
@@ -332,7 +342,7 @@
 
         /* ── s1 카드 데코 라인 ── */
         .s1-decoline {
-            text-align:center;color:rgba(160,120,50,.45);font-size:10px;
+            text-align:center;color:rgba(160,120,50,.45);font-size:var(--fs-2xs);
             letter-spacing:9px;margin-bottom:12px;
         }
 
@@ -421,7 +431,7 @@
         /* ── STEP 4 결과 ── */
         .result-context { font-size:var(--fs-xs);color:#888;text-align:center;margin-bottom:14px;letter-spacing:.3px; }
         .section-header { display:flex;align-items:center;gap:10px;margin-bottom:13px; }
-        .section-label  { font-size:11px;font-weight:700;color:#a08860;text-transform:uppercase;letter-spacing:1.6px;white-space:nowrap; }
+        .section-label  { font-size:var(--fs-2xs);font-weight:700;color:#a08860;text-transform:uppercase;letter-spacing:1.6px;white-space:nowrap; }
         .section-line   { flex:1;height:1px;background:linear-gradient(to right,#e0d8c8,transparent); }
 
         /* 말씀 카드 */
@@ -564,7 +574,7 @@
         @keyframes wt-slide { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
         /* 언어 선택 */
         .lang-select { display:flex;gap:8px;margin-bottom:22px;animation:wt-slide .7s .68s cubic-bezier(.22,1,.36,1) both; }
-        .lang-btn { padding:8px 14px;border:1.5px solid rgba(255,255,255,.18);border-radius:22px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.62);font-size:12px;font-family:inherit;cursor:pointer;transition:all .22s;-webkit-tap-highlight-color:transparent; }
+        .lang-btn { padding:8px 14px;border:1.5px solid rgba(255,255,255,.18);border-radius:22px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.62);font-size:var(--fs-xs);font-family:inherit;cursor:pointer;transition:all .22s;-webkit-tap-highlight-color:transparent; }
         .lang-btn.active { background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.48);color:#fff;font-weight:600; }
         .lang-btn:hover  { background:rgba(255,255,255,.16);color:rgba(255,255,255,.9); }
         /* 카드 */
@@ -583,7 +593,7 @@
         .welcome-start-btn:hover { transform:translateY(-2px);box-shadow:0 12px 36px rgba(60,90,210,.55); }
         .welcome-start-btn:active { transform:translateY(0); }
         /* 건너뛰기 */
-        .welcome-skip-btn { background:none;border:none;color:rgba(255,255,255,.3);font-size:12px;cursor:pointer;margin-top:14px;font-family:inherit;display:block;width:100%;text-align:center;padding:6px;transition:color .2s;-webkit-tap-highlight-color:transparent; }
+        .welcome-skip-btn { background:none;border:none;color:rgba(255,255,255,.3);font-size:var(--fs-xs);cursor:pointer;margin-top:14px;font-family:inherit;display:block;width:100%;text-align:center;padding:6px;transition:color .2s;-webkit-tap-highlight-color:transparent; }
         .welcome-skip-btn:hover { color:rgba(255,255,255,.65); }
 
         /* 보관함 탭 */
@@ -626,7 +636,7 @@
             border-left-color:rgba(200,168,112,.55);
         }
         .svi-date    { font-size:var(--fs-xs);color:rgba(255,255,255,.4);margin-bottom:5px; }
-        .svi-context { font-size:11px;color:rgba(255,200,100,.8);letter-spacing:.6px;margin-bottom:10px;font-weight:600; }
+        .svi-context { font-size:var(--fs-2xs);color:rgba(255,200,100,.8);letter-spacing:.6px;margin-bottom:10px;font-weight:600; }
         .svi-verse   { font-size:var(--fs-md);color:rgba(255,255,255,.9);line-height:1.9;font-weight:500;margin-bottom:7px;word-break:break-word;overflow-wrap:break-word; }
         .svi-ref     { font-size:var(--fs-sm);color:rgba(200,168,112,.85);font-style:italic; }
         .svi-del     { position:absolute;top:12px;right:14px;background:none;border:none;color:rgba(255,255,255,.25);font-size:18px;cursor:pointer;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center; }
@@ -644,11 +654,11 @@
         }
         .vpag-btn:not(:disabled):hover { background:rgba(255,255,255,.16);color:#fff; }
         .vpag-btn:disabled { opacity:.3;cursor:default; }
-        .vpag-info { font-size:12px;color:rgba(255,255,255,.4);min-width:44px;text-align:center; }
+        .vpag-info { font-size:var(--fs-xs);color:rgba(255,255,255,.4);min-width:44px;text-align:center; }
         /* ── 월별 빠른 이동 ── */
         .mood-month-jump { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px; }
         .mmj-btn {
-            padding:5px 13px;border-radius:20px;font-size:11px;font-weight:600;
+            padding:5px 13px;border-radius:20px;font-size:var(--fs-2xs);font-weight:600;
             background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
             color:rgba(255,255,255,.55);cursor:pointer;font-family:inherit;
             transition:all .18s;-webkit-tap-highlight-color:transparent;
@@ -658,7 +668,7 @@
 
         /* 감정 기록 */
         .mood-month-header {
-            font-size:10px;font-weight:700;letter-spacing:2px;
+            font-size:var(--fs-2xs);font-weight:700;letter-spacing:2px;
             color:rgba(255,200,100,.65);padding:14px 4px 8px;
             border-bottom:1px solid rgba(255,255,255,.09);margin-bottom:10px;
         }
@@ -683,8 +693,8 @@
         .wc-subtitle  { font-size:var(--fs-xs);color:rgba(255,255,255,.35);margin-top:3px; }
         .wc-grid      { display:flex;gap:5px;justify-content:space-between;margin:16px 0 6px; }
         .wc-col       { flex:1;display:flex;flex-direction:column;align-items:center;gap:3px; }
-        .wc-day-lbl   { font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.3px; }
-        .wc-date-num  { font-size:11px;color:rgba(255,255,255,.25); }
+        .wc-day-lbl   { font-size:var(--fs-2xs);font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.3px; }
+        .wc-date-num  { font-size:var(--fs-2xs);color:rgba(255,255,255,.25); }
         .wc-col.today .wc-day-lbl  { color:rgba(200,168,112,.9);font-weight:800; }
         .wc-col.today .wc-date-num { color:rgba(200,168,112,.65); }
         .wc-circle {
@@ -697,7 +707,7 @@
         .wc-dot       { width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.1); }
         .wc-dot.has-data { background:var(--dot-bg,rgba(255,255,255,.3)); }
         .wc-divider   { border:none;border-top:1px solid rgba(255,255,255,.08);margin:16px 0 14px; }
-        .wc-summary-label { font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,200,100,.6);margin-bottom:10px; }
+        .wc-summary-label { font-size:var(--fs-2xs);font-weight:700;letter-spacing:2px;color:rgba(255,200,100,.6);margin-bottom:10px; }
         .wc-emo-grid  { display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px; }
         .wc-emo-item  {
             background:rgba(255,255,255,.05);border-radius:12px;padding:10px 12px;
@@ -706,11 +716,11 @@
         }
         .wc-emo-icon  { font-size:16px;flex-shrink:0; }
         .wc-emo-name  { font-size:var(--fs-xs);color:rgba(255,255,255,.7);font-weight:600; }
-        .wc-emo-cnt   { font-size:11px;color:rgba(255,255,255,.32); }
+        .wc-emo-cnt   { font-size:var(--fs-2xs);color:rgba(255,255,255,.32); }
         .wc-no-data   { text-align:center;color:rgba(255,255,255,.28);font-size:var(--fs-sm);padding:18px 0;line-height:1.8; }
         .wc-streak    { text-align:center;padding:14px 16px;margin-top:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px; }
         .wc-streak-num { font-size:26px;font-weight:800;color:rgba(200,168,112,.9);line-height:1; }
-        .wc-streak-lbl { font-size:11px;color:rgba(255,255,255,.35);margin-top:4px; }
+        .wc-streak-lbl { font-size:var(--fs-2xs);color:rgba(255,255,255,.35);margin-top:4px; }
         /* 프리미엄 게이트 */
         .premium-gate {
             text-align:center;padding:36px 20px 32px;margin-top:8px;
@@ -731,8 +741,8 @@
 
         /* 설정 */
         .settings-section { margin-bottom:18px; }
-        .settings-label { font-size:10px;font-weight:700;color:rgba(255,200,100,.65);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px; }
-        .copyright-notice { font-size:11px;color:rgba(255,255,255,0.35);text-align:center;padding:8px 0 4px;letter-spacing:0.3px; }
+        .settings-label { font-size:var(--fs-2xs);font-weight:700;color:rgba(255,200,100,.65);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px; }
+        .copyright-notice { font-size:var(--fs-2xs);color:rgba(255,255,255,0.35);text-align:center;padding:8px 0 4px;letter-spacing:0.3px; }
         .settings-card  { background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:18px 20px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px); }
         .font-options   { display:flex;gap:8px; }
         .font-opt-btn {
@@ -784,7 +794,7 @@
             .top-center::after { display:none; }
             .hero-teaser  { margin:6px 0 8px;padding:9px 14px 7px; }
             .ht-label     { margin-bottom:5px; }
-            .ht-text      { font-size:12px;line-height:1.5;margin-bottom:2px; }
+            .ht-text      { font-size:var(--fs-xs);line-height:1.5;margin-bottom:2px; }
             .s1-decoline  { display:none; }
             .s1-title     { font-size:var(--fs-xl);margin-bottom:3px; }
             .s1-sub       { font-size:var(--fs-sm);margin-bottom:10px; }
@@ -918,7 +928,7 @@
         .lang-opt-btn, .theme-btn {
             position:relative;flex:1;padding:11px 4px;border:1.5px solid rgba(255,255,255,.14);border-radius:12px;
             background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);font-family:inherit;
-            cursor:pointer;text-align:center;font-size:12px;line-height:1.5;
+            cursor:pointer;text-align:center;font-size:var(--fs-xs);line-height:1.5;
             transition:all .2s;-webkit-tap-highlight-color:transparent;
         }
         .theme-btn.locked::after{content:'🔒';position:absolute;top:1px;right:3px;font-size:9px;filter:drop-shadow(0 0 2px rgba(0,0,0,.6));}
@@ -930,9 +940,9 @@
         .vault-banner.premium{background:rgba(200,168,107,.14);border:1px solid rgba(200,168,107,.3);
             color:#e8c98a;font-size:13px;font-weight:700;padding:11px 16px;}
         .vb-title{font-size:14px;font-weight:700;color:#f5e6c8;margin-bottom:4px;}
-        .vb-desc{font-size:12.5px;color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:10px;}
+        .vb-desc{font-size:var(--fs-xs);color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:10px;}
         .vb-btn{padding:9px 18px;border-radius:20px;border:1px solid rgba(200,168,107,.4);
-            background:rgba(200,168,107,.15);color:#e8c98a;font-size:12.5px;font-weight:700;
+            background:rgba(200,168,107,.15);color:#e8c98a;font-size:var(--fs-xs);font-weight:700;
             font-family:inherit;cursor:pointer;}
         .lang-opt-btn.active,.theme-btn.active { background:rgba(255,255,255,.2);border-color:rgba(200,168,112,.65);color:rgba(255,220,150,.96); }
         .lang-opt-btn:hover,.theme-btn:hover   { background:rgba(255,255,255,.12);color:rgba(255,255,255,.9); }
@@ -949,7 +959,7 @@
         }
         #update-banner.hidden { display:none; }
         #update-banner button {
-            padding:7px 14px;border-radius:12px;border:none;cursor:pointer;font-size:12px;font-weight:700;
+            padding:7px 14px;border-radius:12px;border:none;cursor:pointer;font-size:var(--fs-xs);font-weight:700;
             background:linear-gradient(135deg,rgba(200,168,112,.9),rgba(160,120,60,.9));
             color:#fff;-webkit-tap-highlight-color:transparent;flex-shrink:0;
         }
@@ -964,42 +974,42 @@
         .db-narrative-card{background:linear-gradient(135deg,rgba(200,168,107,.1),rgba(200,168,107,.03));
             border:1px solid rgba(200,168,107,.25);border-radius:18px;padding:22px 18px;
             margin-bottom:18px;text-align:center;}
-        .db-narrative-week{font-size:10px;color:#c8a86b;letter-spacing:1.5px;margin-bottom:12px;}
+        .db-narrative-week{font-size:var(--fs-2xs);color:#c8a86b;letter-spacing:1.5px;margin-bottom:12px;}
         .db-narrative-main{font-size:var(--fs-lg);font-weight:800;color:#fff;line-height:1.5;margin-bottom:8px;}
         .db-narrative-sub{font-size:var(--fs-sm);color:rgba(255,255,255,.45);line-height:1.65;}
         .db-sec{margin-bottom:20px;}
-        .db-sec-t{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
+        .db-sec-t{font-size:var(--fs-2xs);font-weight:700;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;}
         .db-emo-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-        .db-emo-lbl{width:32px;font-size:12px;color:rgba(255,255,255,.6);flex-shrink:0;text-align:right;}
+        .db-emo-lbl{width:32px;font-size:var(--fs-xs);color:rgba(255,255,255,.6);flex-shrink:0;text-align:right;}
         .db-emo-track{flex:1;height:16px;background:rgba(255,255,255,.06);border-radius:50px;overflow:hidden;position:relative;}
         .db-emo-fill{height:100%;border-radius:50px;display:flex;align-items:center;justify-content:flex-end;padding-right:7px;transition:width .8s cubic-bezier(.22,1,.36,1);}
-        .db-emo-cnt{font-size:10px;font-weight:700;color:rgba(255,255,255,.85);}
-        .db-emo-zero{padding-left:7px;font-size:10px;color:rgba(255,255,255,.2);}
+        .db-emo-cnt{font-size:var(--fs-2xs);font-weight:700;color:rgba(255,255,255,.85);}
+        .db-emo-zero{padding-left:7px;font-size:var(--fs-2xs);color:rgba(255,255,255,.2);}
         .db-day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
         .db-day-col{display:flex;flex-direction:column;align-items:center;gap:4px;}
         .db-day-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;}
         .db-day-dot.empty{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);}
-        .db-day-name{font-size:9px;color:rgba(255,255,255,.3);}
+        .db-day-name{font-size:var(--fs-2xs);color:rgba(255,255,255,.3);}
         .db-day-today .db-day-name{color:#c8a86b;font-weight:700;}
         .db-pattern{background:rgba(255,255,255,.05);border-radius:12px;padding:12px 14px;margin-bottom:8px;
             font-size:13px;color:rgba(255,255,255,.6);line-height:1.65;}
         .db-pattern strong{color:rgba(255,255,255,.85);}
         .db-diary-item{border-left:2px solid rgba(255,255,255,.12);padding:8px 12px;margin-bottom:8px;border-radius:0 10px 10px 0;background:rgba(255,255,255,.03);transition:background .2s;}
         .db-diary-item:hover{background:rgba(255,255,255,.07);}
-        .db-diary-date{font-size:10px;color:rgba(255,255,255,.35);margin-bottom:3px;letter-spacing:.3px;}
+        .db-diary-date{font-size:var(--fs-2xs);color:rgba(255,255,255,.35);margin-bottom:3px;letter-spacing:.3px;}
         .db-diary-txt{font-size:13px;color:rgba(255,255,255,.65);line-height:1.65;}
         /* ── 페르소나 데모 선택기 ── */
         .persona-demo{margin:14px 0 18px;background:rgba(200,168,107,.06);border-radius:16px;padding:12px 14px;border:1px solid rgba(200,168,107,.18);}
-        .persona-demo-hd{font-size:9px;font-weight:700;color:rgba(200,168,107,.6);letter-spacing:2px;text-align:center;margin-bottom:10px;text-transform:uppercase;}
+        .persona-demo-hd{font-size:var(--fs-2xs);font-weight:700;color:rgba(200,168,107,.6);letter-spacing:2px;text-align:center;margin-bottom:10px;text-transform:uppercase;}
         .persona-row{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
         .persona-row::-webkit-scrollbar{display:none;}
-        .persona-btn{flex:0 0 auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:9px 11px;cursor:pointer;color:rgba(255,255,255,.8);font-family:inherit;font-size:9px;text-align:center;transition:all .22s cubic-bezier(.34,1.56,.64,1);min-width:58px;line-height:1.4;-webkit-tap-highlight-color:transparent;}
+        .persona-btn{flex:0 0 auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:9px 11px;cursor:pointer;color:rgba(255,255,255,.8);font-family:inherit;font-size:var(--fs-2xs);text-align:center;transition:all .22s cubic-bezier(.34,1.56,.64,1);min-width:58px;line-height:1.4;-webkit-tap-highlight-color:transparent;}
         .persona-btn .pb-icon{font-size:20px;display:block;margin-bottom:4px;}
         .persona-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(200,168,107,.4);transform:translateY(-3px);}
         .persona-btn.active{background:rgba(200,168,107,.18);border-color:rgba(200,168,107,.7);color:#c8a86b;box-shadow:0 4px 14px rgba(200,168,107,.2);}
         .persona-btn.active .pb-icon{filter:drop-shadow(0 0 4px rgba(200,168,107,.5));}
         .db-toggle{width:100%;padding:9px;background:none;border:1px solid rgba(255,255,255,.1);
-            border-radius:10px;color:rgba(255,255,255,.35);font-size:12px;cursor:pointer;margin-bottom:14px;transition:all .2s;}
+            border-radius:10px;color:rgba(255,255,255,.35);font-size:var(--fs-xs);cursor:pointer;margin-bottom:14px;transition:all .2s;}
         .db-toggle:hover{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.55);}
         .db-empty{text-align:center;padding:28px 20px;color:rgba(255,255,255,.3);font-size:13px;line-height:2;}
         #devpw-modal{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.78);
@@ -1007,14 +1017,14 @@
         #devpw-modal.hidden{display:none;}
         .devpw-box{background:#0e1842;border:1px solid rgba(200,168,107,.3);border-radius:20px;
             padding:28px 22px;width:min(300px,88vw);text-align:center;}
-        .devpw-label{font-size:12px;color:rgba(255,255,255,.45);margin-bottom:14px;line-height:1.6;}
+        .devpw-label{font-size:var(--fs-xs);color:rgba(255,255,255,.45);margin-bottom:14px;line-height:1.6;}
         #devpw-input{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);
             border-radius:10px;padding:12px;color:#fff;font-size:20px;text-align:center;
             letter-spacing:6px;margin-bottom:14px;outline:none;font-family:monospace;}
         .devpw-btn{background:linear-gradient(135deg,#c8a86b,#e8c98a);color:#080f2e;
             border:none;border-radius:10px;padding:11px 28px;font-size:14px;font-weight:700;cursor:pointer;}
         .devpw-cancel{background:none;border:none;color:rgba(255,255,255,.3);
-            font-size:12px;cursor:pointer;margin-top:10px;display:block;width:100%;}
+            font-size:var(--fs-xs);cursor:pointer;margin-top:10px;display:block;width:100%;}
 
         /* ── 클로징 후 보관함 동선 ── */
         .btn-vault-closing {
@@ -1045,7 +1055,7 @@
         .pm-cta{display:block;width:100%;background:linear-gradient(135deg,#c8a86b,#e8c98a);color:#080f2e;
             border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;
             font-family:inherit;-webkit-tap-highlight-color:transparent;}
-        .pm-close{background:none;border:none;color:rgba(255,255,255,.35);font-size:12px;cursor:pointer;
+        .pm-close{background:none;border:none;color:rgba(255,255,255,.35);font-size:var(--fs-xs);cursor:pointer;
             margin-top:12px;display:block;width:100%;font-family:inherit;}
 
         /* ── 대시보드 프리미엄 잠금 카드 ── */
@@ -1056,7 +1066,7 @@
             transition:all .22s ease;}
         .pm-lock-card:hover{background:rgba(200,168,107,.16);}
         .pm-lock-icon{font-size:22px;flex-shrink:0;}
-        .pm-lock-txt{font-size:12px;color:rgba(255,255,255,.75);line-height:1.6;}
+        .pm-lock-txt{font-size:var(--fs-xs);color:rgba(255,255,255,.75);line-height:1.6;}
         .pm-lock-txt b{color:#e8c98a;font-size:13px;}
         /* ── 월간 리포트 잠금 ── */
         .db-month-wrap{position:relative;border-radius:14px;overflow:hidden;}
@@ -1068,7 +1078,7 @@
             align-items:center;justify-content:center;background:rgba(10,14,30,.35);
             border:none;cursor:pointer;color:#fff;}
         .db-month-lock .lk-ic{font-size:26px;}
-        .db-month-lock .lk-tx{font-size:12.5px;color:rgba(255,255,255,.85);line-height:1.6;text-align:center;}
+        .db-month-lock .lk-tx{font-size:var(--fs-xs);color:rgba(255,255,255,.85);line-height:1.6;text-align:center;}
         .db-month-lock .lk-tx b{color:#e8c98a;font-size:13.5px;}
         .db-pdf-btn{display:block;width:100%;margin-top:10px;padding:12px;border-radius:12px;
             border:1px solid rgba(200,168,107,.4);background:rgba(200,168,107,.12);
@@ -1241,10 +1251,10 @@
 
     /* 음악 세부 옵션 (음색·볼륨·곡 선택) */
     .music-extra { margin-top:4px;padding:2px 16px 14px;border-top:1px solid rgba(255,255,255,.07); }
-    .music-opt-label { font-size:11px;color:rgba(255,255,255,.42);margin:12px 0 7px;letter-spacing:.4px; }
+    .music-opt-label { font-size:var(--fs-2xs);color:rgba(255,255,255,.42);margin:12px 0 7px;letter-spacing:.4px; }
     .music-chips { display:flex;gap:6px;flex-wrap:wrap; }
     .music-chip {
-        padding:6px 13px;border-radius:20px;font-size:12px;cursor:pointer;
+        padding:6px 13px;border-radius:20px;font-size:var(--fs-xs);cursor:pointer;
         border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.05);
         color:rgba(255,255,255,.58);transition:all .22s;font-family:inherit;
     }
@@ -1266,9 +1276,9 @@
     }
     @keyframes hp-in { from { opacity:0;transform:translate(-50%,14px); } to { opacity:1;transform:translate(-50%,0); } }
     .hymn-player.hidden { display:none; }
-    .hp-note { font-size:12px;opacity:.8; }
+    .hp-note { font-size:var(--fs-xs);opacity:.8; }
     .hp-title {
-        font-size:12px;color:rgba(255,255,255,.72);max-width:128px;
+        font-size:var(--fs-xs);color:rgba(255,255,255,.72);max-width:128px;
         white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
     .hp-btn {
@@ -1326,8 +1336,8 @@
     }
     #night-intro.brand .ni-brand { opacity:1;transform:translateY(0); }
     .ni-brand-title { font-size:21px;font-weight:700;color:#f5e6c8;letter-spacing:6px;text-shadow:0 2px 18px rgba(245,230,200,.3); }
-    .ni-brand-sub   { font-size:12px;color:rgba(255,255,255,.55);letter-spacing:2px;margin-top:9px; }
-    .ni-skip { position:absolute;bottom:3%;left:0;right:0;text-align:center;font-size:10px;color:rgba(255,255,255,.22);letter-spacing:2px; }
+    .ni-brand-sub   { font-size:var(--fs-xs);color:rgba(255,255,255,.55);letter-spacing:2px;margin-top:9px; }
+    .ni-skip { position:absolute;bottom:3%;left:0;right:0;text-align:center;font-size:var(--fs-2xs);color:rgba(255,255,255,.22);letter-spacing:2px; }
 
     /* ── 스텝 전환 페이지 넘기기 느낌 ── */
     @keyframes stepEnterNew {
@@ -1440,7 +1450,7 @@
     }
     .sheep-bubble {
         position:fixed; z-index:41; pointer-events:none;
-        font-size:11px; background:rgba(255,252,244,.94); color:#4a4038;
+        font-size:var(--fs-2xs); background:rgba(255,252,244,.94); color:#4a4038;
         border-radius:12px; padding:5px 10px; white-space:nowrap;
         box-shadow:0 4px 14px rgba(0,0,0,.3);
         animation:sheepBubble 1.8s ease forwards;
@@ -1509,6 +1519,103 @@
         .pd-foot{text-align:center;font-size:11px;color:#b0a48f;padding:24px 0;letter-spacing:3px;}
     }
 
+    /* ═══════════════════════════════════════
+       v2.7 — 글꼴 · 접근성 · 처리방침/동의 · 회고 카드 · 돌봄 안내
+    ═══════════════════════════════════════ */
+    /* 말씀·인용은 명조, 나머지는 UI 글꼴 */
+    .verse-text, .verse-ref, .ht-text, .ht-ref, .svi-verse, .svi-ref, .sentence-text,
+    .otd-diary, .ni-brand-title { font-family:var(--font-verse); }
+    .verse-text { font-weight:700; letter-spacing:0; }
+    /* 한글에는 기울임꼴이 없어 브라우저가 글자를 억지로 눕힘 → 한국어·일본어에서는 바로 세움 */
+    body.lang-ko .ht-text, body.lang-ko .verse-ref, body.lang-ko .svi-ref, body.lang-ko .svi-sentence, body.lang-ko .mood-diary,
+    body.lang-ja .ht-text, body.lang-ja .verse-ref, body.lang-ja .svi-ref, body.lang-ja .svi-sentence, body.lang-ja .mood-diary { font-style:normal; }
+
+    /* 키보드 포커스 표시 */
+    :focus-visible { outline:2px solid #e8c98a; outline-offset:2px; border-radius:8px; }
+    .welcome-input:focus-visible, .diary-input:focus-visible, #devpw-input:focus-visible { outline-offset:0; }
+
+    /* 읽기 어려웠던 흐린 글씨 대비 보강 */
+    .copyright-notice { color:rgba(255,255,255,.62); line-height:1.7; }
+    .setting-row-sub { color:rgba(255,255,255,.6); }
+    .welcome-skip-btn { color:rgba(255,255,255,.62); }
+    .ni-skip { color:rgba(255,255,255,.5); }
+    .pm-close, .devpw-cancel { color:rgba(255,255,255,.62); }
+    .db-sec-t, .wc-day-lbl, .wc-date-num, .wc-emo-cnt, .wc-streak-lbl, .db-day-name, .db-diary-date, .vpag-info { color:rgba(255,255,255,.6); }
+    .closing-timer { color:rgba(255,255,255,.55); }
+
+    /* 겹침 수정: 결과 화면에서는 양이 카드·"마치기" 버튼 뒤로 지나가게 */
+    body:has(#step4:not(.hidden)) #sheep { z-index:0; }
+    /* 겹침 수정: 카운트다운이 설정 버튼 글자를 덮지 않게 */
+    @media (max-width:600px) { .closing-timer { top:calc(env(safe-area-inset-top,0px) + 92px); } }
+
+    /* 설정 > 약관 링크 */
+    .policy-links { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:10px 0 8px; }
+    .policy-link {
+        background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); border-radius:10px;
+        color:rgba(255,255,255,.85); font-size:var(--fs-xs); font-family:inherit; padding:9px 14px; cursor:pointer; min-height:40px;
+    }
+    #privacy-text { font-size:var(--fs-xs); color:rgba(255,255,255,.72); line-height:1.7; text-align:center; }
+    .policy-body { color:rgba(255,255,255,.86); font-size:var(--fs-sm); line-height:1.85; padding:4px 4px 40px; word-break:keep-all; overflow-wrap:break-word; }
+    .policy-body h3 { font-size:var(--fs-md); color:#e8c98a; margin:22px 0 8px; }
+    .policy-body p, .policy-body ul { margin-bottom:10px; }
+    .policy-body ul { padding-left:20px; }
+    .policy-body .policy-note { font-size:var(--fs-xs); color:rgba(255,255,255,.6); border:1px dashed rgba(255,255,255,.25); border-radius:10px; padding:10px 12px; }
+
+    /* 로그인 전 동의 모달 */
+    #consent-modal { position:fixed; inset:0; z-index:500; background:rgba(0,0,0,.78); display:flex; align-items:center; justify-content:center; padding:20px; }
+    #consent-modal.hidden { display:none; }
+    .consent-box { width:100%; max-width:400px; max-height:88vh; overflow-y:auto; background:#0e1842; border:1px solid rgba(200,168,107,.35); border-radius:22px; padding:24px 20px 18px; color:rgba(255,255,255,.88); }
+    .consent-title { font-size:var(--fs-lg); font-weight:700; text-align:center; margin-bottom:8px; }
+    .consent-desc { font-size:var(--fs-sm); color:rgba(255,255,255,.66); line-height:1.7; text-align:center; margin-bottom:14px; }
+    .consent-item { display:flex; gap:10px; align-items:flex-start; padding:11px 0; border-top:1px solid rgba(255,255,255,.1); font-size:var(--fs-sm); line-height:1.6; cursor:pointer; word-break:keep-all; overflow-wrap:break-word; }
+    .consent-item input { width:20px; height:20px; margin-top:2px; flex-shrink:0; accent-color:#c8a86b; }
+    .consent-view { display:block; width:100%; background:none; border:none; color:#e8c98a; font-size:var(--fs-xs); font-family:inherit; text-decoration:underline; cursor:pointer; padding:10px 0 14px; }
+    .consent-agree { width:100%; background:linear-gradient(135deg,#c8a86b,#a8884b); color:#1a1408; border:none; border-radius:14px; padding:14px; font-size:var(--fs-base); font-weight:700; font-family:inherit; cursor:pointer; }
+    .consent-agree:disabled { opacity:.4; cursor:not-allowed; }
+    .consent-cancel { width:100%; background:none; border:none; color:rgba(255,255,255,.62); font-size:var(--fs-sm); font-family:inherit; padding:12px 0 2px; cursor:pointer; }
+
+    /* 회고 카드 — "1년 전 오늘 밤" */
+    .otd-card {
+        position:relative; margin:0 0 12px; padding:16px 18px 15px; border-radius:20px;
+        background:linear-gradient(160deg,rgba(200,168,107,.16),rgba(255,255,255,.06));
+        border:1px solid rgba(200,168,107,.38); color:rgba(255,255,255,.9);
+        backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    }
+    .otd-card.hidden { display:none; }
+    .otd-label { font-size:var(--fs-xs); font-weight:700; color:#e8c98a; letter-spacing:1px; margin-bottom:8px; }
+    .otd-meta { font-size:var(--fs-sm); color:rgba(255,255,255,.82); margin-bottom:8px; }
+    .otd-diary { font-size:var(--fs-md); line-height:1.8; color:#fff; margin-bottom:8px; word-break:keep-all; overflow-wrap:break-word; }
+    .otd-msg { font-size:var(--fs-xs); color:rgba(255,255,255,.66); line-height:1.6; }
+    .otd-close { position:absolute; top:6px; right:8px; width:36px; height:36px; background:none; border:none; color:rgba(255,255,255,.6); font-size:16px; cursor:pointer; font-family:inherit; }
+    .otd-btn { margin-top:10px; background:rgba(200,168,107,.2); border:1px solid rgba(200,168,107,.5); color:#f0d9a8; border-radius:12px; padding:10px 14px; font-size:var(--fs-sm); font-weight:700; font-family:inherit; cursor:pointer; min-height:42px; }
+
+    /* 돌봄 안내 카드 — 무거운 마음이 여러 날 이어질 때 */
+    .card.care-card { background:#fbf6ee; border:1.5px solid #e2cfa6; }
+    .card.care-card.hidden { display:none; }
+    .care-title { font-size:var(--fs-md); font-weight:700; color:#5a4324; margin-bottom:8px; }
+    .care-body { font-size:var(--fs-sm); color:#4a4038; line-height:1.85; margin-bottom:12px; word-break:keep-all; overflow-wrap:break-word; }
+    .care-tel { display:block; text-align:center; text-decoration:none; background:#fff; border:1.5px solid #c8a86b; color:#5a4324; border-radius:14px; padding:13px 12px; font-size:var(--fs-base); font-weight:700; }
+    .care-line { font-size:var(--fs-xs); color:#7a6a58; text-align:center; margin-top:8px; line-height:1.6; }
+
+
+    /* ── v2.7 화면 정돈: 이모지 축소 · 그린 달 · 버튼 톤 통일 · 결과 상단 축소 · 양 동선 ── */
+    .hero-floats, .e-decor, .bc-decor { display:none !important; }
+    .moon-shape {
+        display:inline-block; width:.8em; height:.8em; border-radius:50%; vertical-align:middle;
+        box-shadow:.2em .12em 0 0 #f6e7c1;
+        transform:translate(-.1em,-.06em) rotate(-16deg);
+        filter:drop-shadow(0 0 .16em rgba(246,231,193,.55));
+    }
+    .btn-emotion, .btn-choice { background:#fffdf8; color:#3a3450; }
+    .verse-icon { font-size:0; position:relative; width:12px; height:18px; }
+    .verse-icon::before, .verse-icon::after { content:''; position:absolute; background:#c8a86b; border-radius:1px; }
+    .verse-icon::before { left:5px; top:0; width:2px; height:18px; }
+    .verse-icon::after  { left:0; top:5px; width:12px; height:2px; }
+    body:has(#step4:not(.hidden)) .moon-wrap { display:none; }
+    /* 양은 카드 뒤로 지나가고, 맨 아래 여백에서만 온전히 보임(눌러서 재롱 가능) */
+    #sheep { z-index:0; }
+    .page-wrap { pointer-events:none; padding-bottom:calc(68px + env(safe-area-inset-bottom)); }
+    .page-wrap > * { pointer-events:auto; }
     </style>
 </head>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -1521,7 +1628,7 @@
     <div class="ni-star" style="top:8%;left:60%;width:2px;height:2px;animation-delay:.6s;"></div>
     <div class="ni-star" style="top:30%;left:10%;width:2px;height:2px;animation-delay:2s;"></div>
     <div class="ni-star" style="top:34%;left:88%;width:3px;height:3px;animation-delay:1.6s;"></div>
-    <div class="ni-moon">🌙</div>
+    <div class="ni-moon"><span class="moon-shape"></span></div>
     <div class="ni-beam"></div>
     <div class="ni-hill"></div>
     <div class="intro-sheep sheep-el" id="intro-sheep" aria-hidden="true">
@@ -1619,7 +1726,7 @@
     <div id="welcome-particles" aria-hidden="true"></div>
     <div class="welcome-center">
         <div class="welcome-hero">
-            <div class="welcome-moon-wrap"><div class="welcome-moon">🌙</div></div>
+            <div class="welcome-moon-wrap"><div class="welcome-moon"><span class="moon-shape"></span></div></div>
             <h1 class="welcome-title" id="wc-title">오늘 밤, 하나님과 함께하세요</h1>
             <p class="welcome-desc" id="wc-desc">밤의 목장 — 오늘 밤, 주님이 누이시는 곳</p>
         </div>
@@ -1684,10 +1791,17 @@
                 </div>
                 <div class="setting-row" id="row-logout" style="display:none">
                     <div>
-                        <div class="setting-row-label" id="auth-email" style="font-size:12px;word-break:break-all;"></div>
+                        <div class="setting-row-label" id="auth-email" style="font-size:var(--fs-xs);word-break:break-all;"></div>
                         <div class="setting-row-sub">☁️ 클라우드 동기화 중</div>
                     </div>
-                    <button class="btn-setting-action btn-setting-danger" onclick="sbLogout()">로그아웃</button>
+                    <button class="btn-setting-action btn-setting-danger" id="row-logout-btn" onclick="sbLogout()">로그아웃</button>
+                </div>
+                <div class="setting-row" id="row-delete" style="display:none">
+                    <div>
+                        <div class="setting-row-label" id="row-delete-label">계정 삭제</div>
+                        <div class="setting-row-sub" id="row-delete-sub">클라우드의 모든 기록과 계정을 지워요</div>
+                    </div>
+                    <button class="btn-setting-action btn-setting-danger" id="row-delete-btn" onclick="deleteAccount()">삭제</button>
                 </div>
             </div>
         </div>
@@ -1723,9 +1837,9 @@
             <div id="lbl-font" class="settings-label">글자 크기</div>
             <div class="settings-card">
                 <div class="font-options">
-                    <button class="font-opt-btn" id="fo-sm" onclick="setFont(0)">가<br><span id="fo-sm-txt" style="font-size:10px">기본</span></button>
-                    <button class="font-opt-btn" id="fo-md" onclick="setFont(1)"><span style="font-size:17px">가</span><br><span id="fo-md-txt" style="font-size:10px">크게</span></button>
-                    <button class="font-opt-btn" id="fo-lg" onclick="setFont(2)"><span style="font-size:21px">가</span><br><span id="fo-lg-txt" style="font-size:10px">매우 크게</span></button>
+                    <button class="font-opt-btn" id="fo-sm" onclick="setFont(0)">가<br><span id="fo-sm-txt" style="font-size:var(--fs-2xs)">기본</span></button>
+                    <button class="font-opt-btn" id="fo-md" onclick="setFont(1)"><span style="font-size:17px">가</span><br><span id="fo-md-txt" style="font-size:var(--fs-2xs)">크게</span></button>
+                    <button class="font-opt-btn" id="fo-lg" onclick="setFont(2)"><span style="font-size:21px">가</span><br><span id="fo-lg-txt" style="font-size:var(--fs-2xs)">매우 크게</span></button>
                 </div>
             </div>
         </div>
@@ -1809,7 +1923,7 @@
                         <div class="setting-row-label">밤의 목장</div>
                         <div id="row-app-desc" class="setting-row-sub">오늘 밤, 주님이 누이시는 곳</div>
                     </div>
-                    <span id="app-version" style="font-size:11px;color:rgba(255,255,255,.3);">v2.6</span>
+                    <span id="app-version" style="font-size:var(--fs-2xs);color:rgba(255,255,255,.3);">v2.6</span>
                 </div>
                 <div class="setting-row">
                     <div>
@@ -1846,8 +1960,12 @@
                     <button class="btn-setting-action" id="btn-check-update" onclick="checkUpdateManual()">확인</button>
                 </div>
                 <div style="margin-top:10px;padding:10px 14px;background:rgba(255,255,255,.05);border-radius:10px;">
-                    <div id="privacy-text" style="font-size:11px;color:rgba(255,255,255,.38);line-height:1.7;text-align:center;">
-                        🔒 저장된 기록은 기기 내에만 보관되며,<br>외부 서버로 수집되지 않습니다.
+                    <div id="privacy-text">
+                        🔒 로그인하지 않으면 기록은 이 기기에만 보관돼요.
+                    </div>
+                    <div class="policy-links">
+                        <button type="button" class="policy-link" id="btn-policy-privacy" onclick="openPolicy('privacy')">개인정보 처리방침</button>
+                        <button type="button" class="policy-link" id="btn-policy-terms" onclick="openPolicy('terms')">이용약관</button>
                     </div>
                     <div class="copyright-notice">
                         한국어 성경 말씀은 「성경전서 개역한글판」(대한성서공회, 1961)에서 인용했습니다.<br>
@@ -1973,6 +2091,29 @@
     </div>
 </div>
 
+<!-- ══ 개인정보 처리방침 · 이용약관 ══ -->
+<div id="overlay-policy" class="overlay hidden" style="z-index:520">
+    <div class="overlay-inner">
+        <button id="policy-back" class="overlay-back" onclick="hideOverlay('overlay-policy')">← 돌아가기</button>
+        <div id="policy-title" class="overlay-title"></div>
+        <div id="policy-body" class="policy-body"></div>
+    </div>
+</div>
+
+<!-- ══ 로그인 전 동의 ══ -->
+<div id="consent-modal" class="hidden" onclick="if(event.target===this)closeConsent()">
+    <div class="consent-box">
+        <div class="consent-title" id="consent-title"></div>
+        <div class="consent-desc" id="consent-desc"></div>
+        <label class="consent-item"><input type="checkbox" id="consent-c1" onchange="updateConsentBtn()"><span id="consent-c1-txt"></span></label>
+        <label class="consent-item"><input type="checkbox" id="consent-c2" onchange="updateConsentBtn()"><span id="consent-c2-txt"></span></label>
+        <label class="consent-item"><input type="checkbox" id="consent-c3" onchange="updateConsentBtn()"><span id="consent-c3-txt"></span></label>
+        <button type="button" class="consent-view" id="consent-view" onclick="openPolicy('privacy')"></button>
+        <button type="button" class="consent-agree" id="consent-agree" onclick="agreeConsent()" disabled></button>
+        <button type="button" class="consent-cancel" id="consent-cancel" onclick="closeConsent()"></button>
+    </div>
+</div>
+
 <!-- ── 메인 ── -->
 <div class="page-wrap">
     <div class="hero-floats" aria-hidden="true">
@@ -1990,7 +2131,7 @@
         <div class="top-side"></div>
         <div class="top-center">
             <div class="moon-wrap">
-                <div class="moon-icon" id="main-icon">🌙</div>
+                <div class="moon-icon" id="main-icon"><span class="moon-shape"></span></div>
                 <div class="moon-orbital mo1"></div>
                 <div class="moon-orbital mo2"></div>
                 <div class="moon-orbital mo3"></div>
@@ -2028,6 +2169,8 @@
 
     <!-- STEP 1: 감정 -->
     <div id="step1" class="step">
+        <!-- 회고 카드: 1년·6개월·3개월·1개월 전 오늘의 기록이 있을 때만 표시 -->
+        <div id="otd-card" class="otd-card hidden"></div>
         <div class="card">
             <p class="s1-decoline">✦ &nbsp; ✦ &nbsp; ✦</p>
             <h1 class="s1-title">오늘은 어땠나요?</h1>
@@ -2146,7 +2289,7 @@
 
         <!-- 글자 크기 -->
         <div class="font-ctrl">
-            <span style="font-size:10px;color:rgba(255,255,255,.4);">글자</span>
+            <span style="font-size:var(--fs-2xs);color:rgba(255,255,255,.4);">글자</span>
             <button class="font-btn" onclick="cycleFont(-1)" style="font-size:11px;">가-</button>
             <span id="fs-indicator">●</span>
             <button class="font-btn" onclick="cycleFont(1)"  style="font-size:13px;">가+</button>
@@ -2180,6 +2323,14 @@
             <p class="enc-text" id="r-enc"></p>
         </div>
 
+        <!-- 돌봄 안내: 무거운 마음이 3일 이상 이어질 때만 표시 -->
+        <div id="care-card" class="card care-card hidden">
+            <p class="care-title" id="care-title"></p>
+            <p class="care-body" id="care-body"></p>
+            <a class="care-tel" id="care-tel" href="tel:109"></a>
+            <p class="care-line" id="care-line"></p>
+        </div>
+
         <!-- 감사 한 줄 일기 (저장 버튼 없음 — "오늘 묵상 마치기" 시점에 자동 저장) -->
         <div class="card">
             <div class="section-header"><span id="sec-diary" class="section-label">감사 한 줄 일기</span><div class="section-line"></div></div>
@@ -2197,7 +2348,7 @@
         </div>
 
         <button id="btn-dashboard" class="btn-dashboard hidden" type="button" onclick="openDashboard()">📊 이번 주 나의 이야기</button>
-        <button class="btn-restart" type="button" onclick="onFinishClick()">🌙 오늘 묵상 마치기</button>
+        <button class="btn-restart" type="button" onclick="onFinishClick()">오늘 묵상 마치기</button>
         <button id="btn-vault-closing" class="btn-vault-closing hidden" type="button" onclick="openVault()">📖 보관함 보기</button>
     </div>
 </div>
@@ -4133,7 +4284,7 @@ function dismissInstall() {
 /* ═══════════════════════════════════════
    상태
 ═══════════════════════════════════════ */
-const APP_VERSION = '2.6';
+const APP_VERSION = '2.7';
 const SHARE_URL = 'https://god-bless-you.vercel.app/';
 const SUPABASE_URL = 'https://pzakpaomnmahcugkzdff.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_nyWe0_C6prKvfP9R9EMXdA_DgH6bfwf';
@@ -4210,8 +4361,8 @@ const LANG_DATA = {
         topic:['일','가족','공부','사람','잘 모르겠어요'],
         need:['위로받고 싶어요','힘을 얻고 싶어요','방향이 필요해요','그냥 쉬고 싶어요'],
         /* 결과 버튼 */
-        btn_copy:'📋 복사', btn_share:'📤 공유', btn_save:'⭐ 즐겨찾기', btn_saved:'★ 저장됨', btn_restart:'🌙 처음으로',
-        btn_finish:'🌙 오늘 묵상 마치기', closing_extend_hint:'· 연장하기', closing_extended:'5분 더 볼게요',
+        btn_copy:'📋 복사', btn_share:'📤 공유', btn_save:'⭐ 즐겨찾기', btn_saved:'★ 저장됨', btn_restart:'처음으로',
+        btn_finish:'오늘 묵상 마치기', closing_extend_hint:'· 연장하기', closing_extended:'5분 더 볼게요',
         btn_vault_closing:'📖 보관함 보기',
         pm_title:'프리미엄', pm_desc:'무료는 최근 60일을 함께해요.\n프리미엄은 당신의 모든 밤을 평생 간직해요.',
         pm_f1:'📔 일기·감정 기록 평생 보관', pm_f2:'📄 PDF 내보내기 — 나의 신앙 일기장',
@@ -4329,8 +4480,8 @@ const LANG_DATA = {
         topic:['Work','Family','Study','People','Not sure'],
         need:['Comfort','Strength','Direction','Rest'],
         /* 결과 버튼 */
-        btn_copy:'📋 Copy', btn_share:'📤 Share', btn_save:'⭐ Bookmark', btn_saved:'★ Saved', btn_restart:'🌙 Back to Start',
-        btn_finish:'🌙 Finish Today’s Reflection', closing_extend_hint:'· Extend', closing_extended:'5 more minutes',
+        btn_copy:'📋 Copy', btn_share:'📤 Share', btn_save:'⭐ Bookmark', btn_saved:'★ Saved', btn_restart:'Back to Start',
+        btn_finish:'Finish Today’s Reflection', closing_extend_hint:'· Extend', closing_extended:'5 more minutes',
         btn_vault_closing:'📖 View Saved Verses',
         pm_title:'Premium', pm_desc:'Free keeps your last 60 days.\nPremium keeps every night, forever.',
         pm_f1:'📔 Keep all diary & mood records forever', pm_f2:'📄 PDF export — My Faith Journal',
@@ -4448,8 +4599,8 @@ const LANG_DATA = {
         topic:['仕事','家族','勉強','人間関係','わからない'],
         need:['慰めがほしい','力がほしい','方向が必要','ただ休みたい'],
         /* 결과 버튼 */
-        btn_copy:'📋 コピー', btn_share:'📤 共有', btn_save:'⭐ お気に入り', btn_saved:'★ 保存済み', btn_restart:'🌙 はじめに戻る',
-        btn_finish:'🌙 今日の黙想を終える', closing_extend_hint:'· 延長する', closing_extended:'あと5分見ます',
+        btn_copy:'📋 コピー', btn_share:'📤 共有', btn_save:'⭐ お気に入り', btn_saved:'★ 保存済み', btn_restart:'はじめに戻る',
+        btn_finish:'今日の黙想を終える', closing_extend_hint:'· 延長する', closing_extended:'あと5分見ます',
         btn_vault_closing:'📖 保管箱を見る',
         pm_title:'プレミアム', pm_desc:'無料は直近60日をともに。\nプレミアムはすべての夜を永久保存。',
         pm_f1:'📔 日記・感情記録を永久保存', pm_f2:'📄 PDFエクスポート — 私の信仰日記',
@@ -4658,6 +4809,8 @@ function applyLang(lang) {
     updatePlayerUI();
     // 날짜·환영 갱신
     setDate(); setWelcome();
+    // v2.7 추가 UI (처리방침·동의·계정 삭제·회고 카드·돌봄 안내)
+    applyLangV27();
 }
 
 function startWelcomeParticles() {
@@ -4743,8 +4896,10 @@ function initSupabase() {
     });
 }
 
+/* 로그인 = 기록이 서버로 올라가는 시점 → 처음 한 번은 동의(처리방침·민감정보·만 14세 이상)를 먼저 받는다 */
 async function loginWithGoogle() {
     if (!sb) return;
+    if (!hasConsent()) { openConsent(); return; }
     await sb.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo: location.origin + location.pathname }
@@ -4756,28 +4911,31 @@ async function sbLogout() {
     await sb.auth.signOut();
     sbUser = null;
     updateAuthUI();
-    toast('로그아웃 됐어요.');
+    toast((LANG_DATA[appLang]||LANG_DATA.ko).logout_done);
 }
 
 function updateAuthUI() {
     const rowLogin  = document.getElementById('row-login');
     const rowLogout = document.getElementById('row-logout');
+    const rowDelete = document.getElementById('row-delete');
     const emailEl   = document.getElementById('auth-email');
     const privEl    = document.getElementById('privacy-text');
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     if (!rowLogin) return;
     if (sbUser) {
         rowLogin.style.display  = 'none';
         rowLogout.style.display = 'flex';
+        if (rowDelete) rowDelete.style.display = 'flex';
         if (emailEl) emailEl.textContent = sbUser.email;
-        if (privEl) privEl.innerHTML = '☁️ 데이터가 클라우드에 안전하게 저장됩니다.<br>로그아웃 시 이 기기에만 보관됩니다.';
+        if (privEl) privEl.innerHTML = L.privacy_cloud;
     } else {
         rowLogin.style.display  = 'flex';
         rowLogout.style.display = 'none';
-        if (privEl) {
-            const L = LANG_DATA[appLang]||LANG_DATA.ko;
-            privEl.innerHTML = L.privacy;
-        }
+        if (rowDelete) rowDelete.style.display = 'none';
+        if (privEl) privEl.innerHTML = L.privacy;
     }
+    // 로그인 상태가 바뀌면 프리미엄 자격과 회고 카드를 다시 확인
+    refreshEntitlement();
 }
 
 async function migrateLocalToServer() {
@@ -5201,6 +5359,8 @@ function buildResult() {
 
     // 연속 감정 인식 라인 (기록 저장 후 계산해야 오늘 포함됨)
     renderEmotionPattern();
+    // 무거운 마음이 3일 이상 이어지면 돌봄 안내 카드
+    renderCareCard();
 
     // 결과 카드 등장은 go()의 cascadeResultCards()가 담당 (이중 애니메이션 방지)
     // 스텝 표시~cascade 시작 사이 깜빡임 방지: 미리 숨김 상태로
@@ -5960,15 +6120,23 @@ function exportData() {
     }
 }
 
-function clearData() {
+async function clearData() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     if (!confirm(L.confirm_reset)) return;
-    ['savedVerses','moodHistory','visitDates'].forEach(k=>localStorage.removeItem(k));
+    // 서버 삭제가 실패하면 "초기화됐다"고 말하지 않는다 (로컬만 지워지면 다음 로그인 때 기록이 되살아남)
     if (sbUser && sb) {
-        sb.from('mood_history').delete().eq('user_id', sbUser.id).then();
-        sb.from('saved_verses').delete().eq('user_id', sbUser.id).then();
-        sb.from('visit_dates').delete().eq('user_id', sbUser.id).then();
+        try {
+            for (const t of ['mood_history','saved_verses','visit_dates']) {
+                const { error } = await sb.from(t).delete().eq('user_id', sbUser.id);
+                if (error) throw error;
+            }
+        } catch (e) {
+            toast(L.reset_fail);
+            return;
+        }
     }
+    ['savedVerses','moodHistory','visitDates'].forEach(k=>localStorage.removeItem(k));
+    renderOnThisDay();
     toast(L.toast_reset);
     hideOverlay('overlay-settings');
 }
@@ -6226,6 +6394,7 @@ function checkDevPw() {
         toast('💎 프리미엄 체험 모드 ON');
         renderDbMonthly();
         updateThemeLocks();
+        renderOnThisDay();
         return;
     }
     lsSet('devMode', '1'); // 영속 — 새 세션에도 유지, 로그인 게이트 스킵
@@ -6288,17 +6457,41 @@ function renderEmotionPattern() {
    무료: 묵상 플로우 전체·보관함·스트릭·기록 최근 30일
    유료(₩1,900/월): 무제한 보관·PDF 내보내기·월간 리포트·묵상 캘린더
 ═══════════════════════════════════════ */
-function isPremium() { return lsGet('premiumActive') === true; }
+/* 프리미엄 자격의 기준은 서버(Supabase subscriptions 테이블, 본인 행 읽기 전용)다.
+   결제 완료 웹훅만 그 행을 쓸 수 있으므로 브라우저에서 값을 바꿔서는 열리지 않는다.
+   DEMO_UNLOCK: 시연용 비밀번호 체험 허용 — 실결제를 여는 날 false로 바꿀 것. */
+const DEMO_UNLOCK = true;
+let serverPremium = false;
+function isPremium() { return serverPremium || (DEMO_UNLOCK && lsGet('premiumActive') === true); }
+
+async function refreshEntitlement() {
+    let active = false;
+    if (sbUser && sb) {
+        try {
+            const { data, error } = await sb.from('subscriptions')
+                .select('status,current_period_end').eq('user_id', sbUser.id).maybeSingle();
+            if (!error && data && data.status === 'active' &&
+                (!data.current_period_end || new Date(data.current_period_end) > new Date())) active = true;
+        } catch (e) {}
+    }
+    serverPremium = active;
+    // 시작 시점에는 자격 확인 전이라 프리미엄 테마가 기본으로 돌아가 있음 → 확인되면 저장된 테마 복원
+    if (active) { const t = lsGet('appTheme'); if (t) applyTheme(t); }
+    updateThemeLocks();
+    renderOnThisDay();
+}
 
 /* 자물쇠 아이콘 탭 → 프리미엄 체험 토글 (개발자 비밀번호 7501, 시연용·결제 미연동)
    이미 체험 중이면 비번 없이 바로 해제 (달 아이콘 devMode 토글과 동일 패턴) */
 function devPremiumTap(ev) {
+    if (!DEMO_UNLOCK) return; // 체험 비활성화 시 일반 탭처럼 프리미엄 안내 모달이 열림
     ev.stopPropagation();
     if (lsGet('premiumActive') === true) {
         lsSet('premiumActive', false);
         toast('🔒 프리미엄 체험 모드 OFF');
         renderDbMonthly();
         updateThemeLocks();
+        renderOnThisDay();
         return;
     }
     openDevPwModal('premium');
@@ -6709,6 +6902,12 @@ function injectDemoData() {
         return { date: date.toISOString().slice(0,10), emotion: d.emotion,
                  topic: d.topic, need: d.need, emoji: E_EMOJI[d.emotion] || '', diary: d.diary };
     });
+    // 회고 카드("1년 전 오늘 밤") 시연용 — 목록은 최신순이므로 맨 뒤에 붙임
+    const ago = fn => { const x = new Date(); fn(x); return x.toISOString().slice(0,10); };
+    demo.push({ date: ago(x => x.setMonth(x.getMonth()-1)), emotion:'감사', topic:'가족', need:'쉼', emoji:E_EMOJI['감사'],
+                diary:'아이가 먼저 손을 잡아주었다. 그걸로 충분한 하루.' });
+    demo.push({ date: ago(x => x.setFullYear(x.getFullYear()-1)), emotion:'걱정', topic:'일', need:'힘', emoji:E_EMOJI['걱정'],
+                diary:'내일 일이 두렵지만, 오늘 밤은 맡겨드리고 잔다.' });
     lsSet('moodHistory', demo);
 }
 
@@ -6960,7 +7159,7 @@ function renderDbPatterns(data) {
         const tl = DB_TOPIC_LBL[topic] || topic;
         return `<div class="db-pattern"><strong>${tl}</strong>
             <strong style="color:${DB_EMO_COLORS[emo]}">${emo}</strong>한 감정이 많았어요
-            <span style="float:right;font-size:11px;opacity:.4">${c}회</span></div>`;
+            <span style="float:right;font-size:var(--fs-2xs);opacity:.4">${c}회</span></div>`;
     }).join('');
     const needCnt = {};
     data.forEach(m => { if(m.need) needCnt[m.need] = (needCnt[m.need]||0)+1; });
@@ -7091,6 +7290,386 @@ function toggleDbDetail() {
         setTimeout(() => { reacting = false; }, 800);
     });
 })();
+
+/* ═══════════════════════════════════════════════════════════════
+   § v2.7 — 처리방침·동의 / 계정 삭제 / 회고 카드 / 돌봄 안내 / 접근성
+   문구는 V27_TEXT에 ko·en·ja를 함께 두고 LANG_DATA에 병합한다 (3개 언어 키 패리티 유지).
+═══════════════════════════════════════════════════════════════ */
+
+/* 운영자 정보 — 사업자등록 후 채우면 처리방침·약관 하단에 자동 표시됨 (비어 있으면 '베타 운영 중' 안내) */
+const OPERATOR = { name:'', bizNo:'', email:'' };
+const POLICY_DATE = '2026-11-16';
+/* 동의 문구가 바뀌면 이 값을 올려 다시 동의받는다 */
+const CONSENT_VERSION = '2026-11-v1';
+
+const V27_TEXT = {
+    ko: {
+        privacy:'🔒 로그인하지 않으면 기록은 이 기기에만 보관돼요.',
+        privacy_cloud:'☁️ 로그인 중에는 기록이 클라우드에 함께 저장돼요.<br>설정에서 언제든 지우거나 계정을 삭제할 수 있어요.',
+        row_policy:'개인정보 처리방침', row_terms:'이용약관', policy_back:'← 돌아가기',
+        logout_done:'로그아웃 됐어요.', row_logout_btn:'로그아웃',
+        row_delete:'계정 삭제', row_delete_sub:'클라우드의 모든 기록과 계정을 지워요', row_delete_btn:'삭제',
+        del_confirm:'클라우드에 저장된 모든 기록과 계정이 삭제되며 되돌릴 수 없어요. 이 기기의 기록도 함께 지워져요. 계속하시겠어요?',
+        del_done:'계정과 모든 기록이 삭제됐어요.',
+        del_partial:'기록은 모두 삭제됐어요. 로그인 계정 정보 삭제는 운영자가 이어서 처리해요.',
+        del_fail:'삭제하지 못했어요. 네트워크를 확인하고 다시 시도해 주세요.',
+        reset_fail:'클라우드 기록을 지우지 못해 초기화를 중단했어요. 다시 시도해 주세요.',
+        consent_title:'로그인 전에 확인해 주세요',
+        consent_desc:'로그인하면 이 기기의 기록이 클라우드에 저장되어 다른 기기에서도 이어볼 수 있어요.',
+        consent_c1:'(필수) 개인정보 수집·이용에 동의합니다 — 이메일, 감정 기록, 감사 일기, 즐겨찾기 말씀',
+        consent_c2:'(필수) 신앙과 마음 상태가 드러날 수 있는 기록(민감정보)을 저장하는 데 동의합니다',
+        consent_c3:'(필수) 만 14세 이상입니다',
+        consent_view:'개인정보 처리방침 전문 보기', consent_agree:'동의하고 Google로 로그인', consent_cancel:'로그인 없이 계속 쓰기',
+        otd_y1:'✦ 1년 전 오늘 밤', otd_m6:'✦ 6개월 전 오늘 밤', otd_m3:'✦ 3개월 전 오늘 밤', otd_m1:'✦ 한 달 전 오늘 밤',
+        otd_msg:'그 밤에도, 오늘 밤에도 주님이 함께 계세요.',
+        otd_locked:'그날 밤의 기록이 잘 보관되어 있어요. 3개월 넘은 기록 다시 보기는 프리미엄 기능이에요.',
+        otd_locked_btn:'프리미엄 알아보기', otd_close:'회고 카드 닫기',
+        care_title:'혼자 견디기 버거운 밤이라면',
+        care_body:'마음이 무거운 날이 여러 날 이어지고 있어요. 도움을 구하는 것은 믿음이 약해서가 아니에요. 기도와 함께, 사람의 도움을 받는 것도 하나님이 열어 두신 길이에요. 가까운 분이나 목회자, 전문 상담사에게 마음을 나눠 보세요.',
+        care_tel:'📞 마음이 힘들 때 109 (자살예방 상담전화, 24시간)', care_href:'tel:109',
+        care_line:'지금 위험한 상황이라면 112나 119로 바로 연락하세요.',
+        a11y_close:'닫기', a11y_vault:'보관함', a11y_settings:'설정', a11y_dashboard:'이번 주 나의 이야기',
+        a11y_font_down:'글자 작게', a11y_font_up:'글자 크게', a11y_timer:'마무리 시간 연장',
+    },
+    en: {
+        privacy:'🔒 Without signing in, your records stay on this device only.',
+        privacy_cloud:'☁️ While signed in, your records are also saved to the cloud.<br>You can erase them or delete your account anytime in Settings.',
+        row_policy:'Privacy Policy', row_terms:'Terms of Use', policy_back:'← Back',
+        logout_done:'Signed out.', row_logout_btn:'Sign out',
+        row_delete:'Delete account', row_delete_sub:'Erase all cloud records and your account', row_delete_btn:'Delete',
+        del_confirm:'All records saved in the cloud and your account will be permanently deleted. Records on this device will be erased too. Continue?',
+        del_done:'Your account and all records have been deleted.',
+        del_partial:'All records have been deleted. The operator will finish removing your sign-in account.',
+        del_fail:'Could not delete. Please check your connection and try again.',
+        reset_fail:'Could not erase cloud records, so the reset was stopped. Please try again.',
+        consent_title:'Before you sign in',
+        consent_desc:'Signing in saves the records on this device to the cloud so you can continue on other devices.',
+        consent_c1:'(Required) I agree to the collection and use of my email, mood records, gratitude journal and saved verses',
+        consent_c2:'(Required) I agree to the storage of records that may reveal my faith and state of mind (sensitive information)',
+        consent_c3:'(Required) I am 14 years of age or older',
+        consent_view:'Read the full Privacy Policy', consent_agree:'Agree and sign in with Google', consent_cancel:'Continue without signing in',
+        otd_y1:'✦ One year ago tonight', otd_m6:'✦ Six months ago tonight', otd_m3:'✦ Three months ago tonight', otd_m1:'✦ One month ago tonight',
+        otd_msg:'The Lord was with you that night, and He is with you tonight.',
+        otd_locked:'Your record from that night is safely kept. Looking back at records older than three months is a Premium feature.',
+        otd_locked_btn:'About Premium', otd_close:'Close this card',
+        care_title:'If tonight feels too heavy to carry alone',
+        care_body:'Your heart has been heavy for several days. Asking for help is not a sign of weak faith. Along with prayer, receiving help from people is also a path God has opened. Please share how you feel with someone close to you, a pastor, or a professional counselor.',
+        care_tel:'📞 Call or text 988 (U.S., 24 hours)', care_href:'tel:988',
+        care_line:'Outside the U.S., please contact your local crisis line. In immediate danger, call your emergency number.',
+        a11y_close:'Close', a11y_vault:'Vault', a11y_settings:'Settings', a11y_dashboard:'My story this week',
+        a11y_font_down:'Smaller text', a11y_font_up:'Larger text', a11y_timer:'Extend closing time',
+    },
+    ja: {
+        privacy:'🔒 ログインしない場合、記録はこのデバイスにのみ保存されます。',
+        privacy_cloud:'☁️ ログイン中は記録がクラウドにも保存されます。<br>設定からいつでも削除・アカウント削除ができます。',
+        row_policy:'プライバシーポリシー', row_terms:'利用規約', policy_back:'← 戻る',
+        logout_done:'ログアウトしました。', row_logout_btn:'ログアウト',
+        row_delete:'アカウント削除', row_delete_sub:'クラウドの全記録とアカウントを削除します', row_delete_btn:'削除',
+        del_confirm:'クラウドに保存された全ての記録とアカウントが削除され、元に戻せません。このデバイスの記録も削除されます。続けますか？',
+        del_done:'アカウントと全ての記録を削除しました。',
+        del_partial:'記録は全て削除しました。ログインアカウント情報の削除は運営者が引き続き対応します。',
+        del_fail:'削除できませんでした。通信状況を確認して、もう一度お試しください。',
+        reset_fail:'クラウドの記録を削除できなかったため、初期化を中止しました。もう一度お試しください。',
+        consent_title:'ログインの前にご確認ください',
+        consent_desc:'ログインすると、このデバイスの記録がクラウドに保存され、他のデバイスでも続きをご覧いただけます。',
+        consent_c1:'（必須）メールアドレス、感情の記録、感謝日記、お気に入りのみことばの収集・利用に同意します',
+        consent_c2:'（必須）信仰や心の状態が表れる記録（要配慮情報）の保存に同意します',
+        consent_c3:'（必須）14歳以上です',
+        consent_view:'プライバシーポリシー全文を読む', consent_agree:'同意してGoogleでログイン', consent_cancel:'ログインせずに使う',
+        otd_y1:'✦ 1年前の今夜', otd_m6:'✦ 6か月前の今夜', otd_m3:'✦ 3か月前の今夜', otd_m1:'✦ 1か月前の今夜',
+        otd_msg:'あの夜も、今夜も、主が共におられます。',
+        otd_locked:'あの夜の記録は大切に保管されています。3か月より前の記録の振り返りはプレミアム機能です。',
+        otd_locked_btn:'プレミアムについて', otd_close:'このカードを閉じる',
+        care_title:'ひとりで抱えるには重い夜なら',
+        care_body:'心の重い日が何日も続いています。助けを求めることは、信仰が弱いからではありません。祈りと共に、人の助けを受けることも神様が開いてくださった道です。身近な方や牧師、専門の相談員に気持ちを話してみてください。',
+        care_tel:'📞 よりそいホットライン 0120-279-338（24時間）', care_href:'tel:0120279338',
+        care_line:'今すぐ危険な状況のときは、110番または119番へご連絡ください。',
+        a11y_close:'閉じる', a11y_vault:'保管庫', a11y_settings:'設定', a11y_dashboard:'今週のわたしの物語',
+        a11y_font_down:'文字を小さく', a11y_font_up:'文字を大きく', a11y_timer:'終了時間を延長',
+    },
+};
+Object.keys(V27_TEXT).forEach(k => Object.assign(LANG_DATA[k], V27_TEXT[k]));
+
+/* ── 처리방침·약관 본문 (한국어가 기준, 영어·일본어는 요약) ── */
+function operatorHtml() {
+    if (!OPERATOR.name) return `<p class="policy-note">현재 베타 운영 중입니다. 운영자(사업자) 정보와 서버 위치는 정식 출시 전에 이곳에 기재됩니다. 문의는 설정 &gt; 의견 남기기로 보내 주세요.</p>`;
+    return `<p>운영자: ${escHtml(OPERATOR.name)}${OPERATOR.bizNo ? ' · 사업자등록번호 ' + escHtml(OPERATOR.bizNo) : ''}${OPERATOR.email ? ' · ' + escHtml(OPERATOR.email) : ''}</p>`;
+}
+const POLICY_HTML = {
+    privacy: {
+        ko: () => `
+<p>시행일: ${POLICY_DATE}</p>
+<h3>1. 로그인하지 않고 쓰는 경우</h3>
+<p>감정 기록, 감사 일기, 즐겨찾기 말씀, 방문 날짜, 설정은 이 기기(브라우저 저장소)에만 저장되며 서버로 전송되지 않습니다.</p>
+<h3>2. Google로 로그인한 경우 수집하는 항목</h3>
+<ul>
+<li>Google 계정 이메일과 계정 식별자</li>
+<li>입력한 호칭(이름), 언어·테마·글자 크기 설정</li>
+<li>감정 기록(감정·주제·필요), 감사 일기, 즐겨찾기 말씀, 방문 날짜</li>
+</ul>
+<h3>3. 민감정보</h3>
+<p>이 앱의 기록에는 신앙과 마음 상태가 드러날 수 있습니다. 이런 기록은 로그인 전에 별도로 동의하신 경우에만 서버에 저장합니다.</p>
+<h3>4. 이용 목적</h3>
+<p>기기 간 이어보기와 백업, 주간·월간 기록 통계 제공에만 사용합니다. 광고나 제3자 제공에는 사용하지 않습니다.</p>
+<h3>5. 보관 기간과 삭제</h3>
+<p>계정을 삭제하거나 기록을 초기화할 때까지 보관합니다. 설정 &gt; 데이터 초기화로 기록을, 설정 &gt; 계정 삭제로 계정과 모든 기록을 직접 지울 수 있습니다. 설정 &gt; 기록 내보내기로 기록을 받아 갈 수 있습니다.</p>
+<h3>6. 처리 위탁과 국외 이전</h3>
+<p>서비스 운영을 위해 아래 사업자의 서비스를 이용하며, 기록이 해당 사업자의 해외 서버에 저장될 수 있습니다.</p>
+<ul>
+<li>Supabase — 데이터베이스·로그인 인증</li>
+<li>Vercel — 웹 호스팅</li>
+<li>Google — 로그인(계정 인증), 글꼴 제공</li>
+</ul>
+<p>글꼴·QR 이미지 등 외부 자원을 불러올 때 접속 정보(IP 주소 등)가 해당 사업자에게 전달될 수 있습니다.</p>
+<h3>7. 만 14세 미만</h3>
+<p>만 14세 미만은 로그인 기능을 이용할 수 없습니다.</p>
+<h3>8. 이용자의 권리</h3>
+<p>언제든 자신의 기록을 열람·수정·삭제하고 동의를 철회(계정 삭제)할 수 있습니다.</p>
+<h3>9. 문의</h3>
+${operatorHtml()}`,
+        en: () => `
+<p>Effective: ${POLICY_DATE}. This is a summary; the Korean version governs.</p>
+<h3>Without signing in</h3>
+<p>All records stay in this device's browser storage and are not sent to a server.</p>
+<h3>When signed in with Google</h3>
+<p>We store your Google email and account ID, the name you entered, your settings, mood records, gratitude journal, saved verses and visit dates. These records may reveal your faith and state of mind, so they are stored only after your separate consent.</p>
+<h3>Use, retention and deletion</h3>
+<p>Used only for syncing across devices, backup and your own statistics — never for ads or sharing with third parties. Kept until you reset your data or delete your account in Settings.</p>
+<h3>Service providers</h3>
+<p>Supabase (database, authentication), Vercel (hosting) and Google (sign-in, fonts). Records may be stored on their servers outside Korea.</p>
+<h3>Age</h3>
+<p>Sign-in is not available to anyone under 14.</p>
+<h3>Contact</h3>
+<p class="policy-note">The service is in beta. Operator details will be listed here before the official launch. Please use Settings &gt; Feedback to reach us.</p>`,
+        ja: () => `
+<p>施行日: ${POLICY_DATE}。これは要約であり、韓国語版が正本です。</p>
+<h3>ログインしない場合</h3>
+<p>全ての記録はこのデバイスのブラウザ内にのみ保存され、サーバーには送信されません。</p>
+<h3>Googleでログインした場合</h3>
+<p>Googleのメールアドレスとアカウント識別子、入力したお名前、設定、感情の記録、感謝日記、お気に入りのみことば、訪問日を保存します。これらには信仰や心の状態が表れることがあるため、別途同意をいただいた場合にのみ保存します。</p>
+<h3>利用目的・保存期間・削除</h3>
+<p>デバイス間の同期、バックアップ、ご自身の統計表示にのみ利用し、広告や第三者提供には利用しません。設定からデータを初期化するか、アカウントを削除するまで保存します。</p>
+<h3>委託先</h3>
+<p>Supabase（データベース・認証）、Vercel（ホスティング）、Google（ログイン・フォント）。記録は韓国外のサーバーに保存される場合があります。</p>
+<h3>年齢</h3>
+<p>14歳未満の方はログイン機能をご利用いただけません。</p>
+<h3>お問い合わせ</h3>
+<p class="policy-note">現在ベータ運営中です。運営者情報は正式リリース前にここに記載します。設定 &gt; フィードバックからご連絡ください。</p>`,
+    },
+    terms: {
+        ko: () => `
+<p>시행일: ${POLICY_DATE}</p>
+<h3>1. 서비스</h3>
+<p>이 앱은 하루를 돌아보며 말씀과 묵상을 만나는 감정 묵상 서비스입니다. 현재 베타 운영 중이며 모든 기능을 무료로 제공합니다.</p>
+<h3>2. 전문 상담·의료를 대신하지 않습니다</h3>
+<p>앱의 말씀·묵상·응원 문구는 신앙적 위로를 위한 것이며 의료, 심리 상담, 법률 등 전문가의 조언을 대신하지 않습니다. 위급한 상황에서는 112·119 또는 자살예방 상담전화 109로 연락해 주세요.</p>
+<h3>3. 기록의 책임과 보관</h3>
+<p>로그인하지 않은 기록은 기기에만 저장되므로 브라우저 데이터를 지우거나 기기를 바꾸면 복구할 수 없습니다. 로그인하면 클라우드에 함께 저장됩니다.</p>
+<h3>4. 유료 서비스</h3>
+<p>프리미엄은 아직 판매하지 않습니다. 판매를 시작할 때 가격, 결제·자동 갱신, 해지와 환불 기준을 이 약관과 결제 화면에 먼저 알리고 동의를 받습니다.</p>
+<h3>5. 콘텐츠</h3>
+<p>성경 본문과 음원의 출처·저작권 표시는 설정 화면 하단에 있습니다. 앱의 묵상 글과 디자인을 허락 없이 상업적으로 복제·배포할 수 없습니다.</p>
+<h3>6. 변경과 중단</h3>
+<p>서비스 내용이나 약관이 바뀌면 앱 안에서 미리 알립니다. 서비스를 종료할 때에는 기록을 내보낼 수 있는 기간을 둡니다.</p>
+<h3>7. 문의</h3>
+${operatorHtml()}`,
+        en: () => `
+<p>Effective: ${POLICY_DATE}. This is a summary; the Korean version governs.</p>
+<p>This app is a devotional service for reflecting on your day with Scripture. It is in beta and currently free.</p>
+<p>Its verses and devotional texts offer spiritual comfort and do not replace medical, psychological or other professional advice. In an emergency, contact your local emergency number or crisis line.</p>
+<p>Records made without signing in live only on your device and cannot be recovered if browser data is cleared.</p>
+<p>Premium is not on sale yet. Price, renewal, cancellation and refund terms will be shown and agreed to before any purchase.</p>`,
+        ja: () => `
+<p>施行日: ${POLICY_DATE}。これは要約であり、韓国語版が正本です。</p>
+<p>本アプリは、みことばと共に一日を振り返る黙想サービスです。現在ベータ運営中で、無料でご利用いただけます。</p>
+<p>みことばや黙想文は信仰的な慰めのためのものであり、医療・心理相談など専門家の助言に代わるものではありません。緊急の場合は110番・119番、または相談窓口へご連絡ください。</p>
+<p>ログインせずに作成した記録はデバイス内にのみ保存され、ブラウザのデータを消去すると復元できません。</p>
+<p>プレミアムはまだ販売していません。販売開始時には、価格・自動更新・解約・返金の条件を事前に表示し、同意をいただきます。</p>`,
+    },
+};
+
+function openPolicy(kind) {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    const set = POLICY_HTML[kind] || POLICY_HTML.privacy;
+    document.getElementById('policy-title').textContent = kind === 'terms' ? L.row_terms : L.row_policy;
+    document.getElementById('policy-body').innerHTML = (set[appLang] || set.ko)();
+    const ov = document.getElementById('overlay-policy');
+    showOverlay('overlay-policy');
+    ov.scrollTop = 0;
+}
+
+/* ── 로그인 전 동의 ── */
+function hasConsent() { const c = lsGet('consent'); return !!(c && c.v === CONSENT_VERSION); }
+function openConsent() {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    const s = (id,t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
+    s('consent-title', L.consent_title); s('consent-desc', L.consent_desc);
+    s('consent-c1-txt', L.consent_c1); s('consent-c2-txt', L.consent_c2); s('consent-c3-txt', L.consent_c3);
+    s('consent-view', L.consent_view); s('consent-agree', L.consent_agree); s('consent-cancel', L.consent_cancel);
+    ['consent-c1','consent-c2','consent-c3'].forEach(id => { document.getElementById(id).checked = false; });
+    updateConsentBtn();
+    document.getElementById('consent-modal').classList.remove('hidden');
+}
+function closeConsent() { document.getElementById('consent-modal').classList.add('hidden'); }
+function updateConsentBtn() {
+    const ok = ['consent-c1','consent-c2','consent-c3'].every(id => document.getElementById(id).checked);
+    document.getElementById('consent-agree').disabled = !ok;
+}
+function agreeConsent() {
+    lsSet('consent', { v: CONSENT_VERSION, at: new Date().toISOString() });
+    closeConsent();
+    loginWithGoogle();
+}
+
+/* ── 계정 삭제 (탈퇴) ──
+   1순위: 서버 함수 delete_my_account() — 기록 + 로그인 계정까지 삭제 (docs/supabase_v2.7.sql 실행 필요)
+   함수가 아직 없으면: 기록 4개 테이블만 삭제하고, 계정 정보는 남았다고 사실대로 안내 */
+async function deleteAccount() {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    if (!sbUser || !sb) return;
+    if (!confirm(L.del_confirm)) return;
+    let full = false;
+    try {
+        const { error } = await sb.rpc('delete_my_account');
+        if (!error) full = true;
+        else {
+            for (const [t, col] of [['mood_history','user_id'],['saved_verses','user_id'],['visit_dates','user_id'],['profiles','id']]) {
+                const r = await sb.from(t).delete().eq(col, sbUser.id);
+                if (r.error) throw r.error;
+            }
+        }
+    } catch (e) {
+        toast(L.del_fail);
+        return;
+    }
+    ['savedVerses','moodHistory','visitDates','consent','premiumActive'].forEach(k => localStorage.removeItem(k));
+    try { await sb.auth.signOut(); } catch (e) {}
+    sbUser = null;
+    updateAuthUI();
+    hideOverlay('overlay-settings');
+    toast(full ? L.del_done : L.del_partial);
+}
+
+/* ── 회고 카드: "N 전 오늘 밤" ──
+   한 달 전 기록은 누구에게나, 3개월 이상 지난 기록은 프리미엄에게 보여준다 (평생 보관의 가치를 체감시키는 지점).
+   기기에는 최근 30건만 남으므로 오래된 기록은 로그인 사용자의 서버 기록에서 찾는다. */
+function otdTargets() {
+    const ago = fn => { const x = new Date(); fn(x); return x.toISOString().slice(0,10); };
+    return [
+        { key:'otd_y1', premium:true,  date: ago(x => x.setFullYear(x.getFullYear()-1)) },
+        { key:'otd_m6', premium:true,  date: ago(x => x.setMonth(x.getMonth()-6)) },
+        { key:'otd_m3', premium:true,  date: ago(x => x.setMonth(x.getMonth()-3)) },
+        { key:'otd_m1', premium:false, date: ago(x => x.setMonth(x.getMonth()-1)) },
+    ];
+}
+let _otdSeq = 0;
+async function renderOnThisDay() {
+    const el = document.getElementById('otd-card');
+    if (!el) return;
+    const seq = ++_otdSeq;
+    const hide = () => { el.classList.add('hidden'); el.innerHTML = ''; };
+    if (lsGet('otdDismissed') === todayStr()) { hide(); return; }
+    const targets = otdTargets();
+    const byDate = {};
+    (lsGet('moodHistory') || []).forEach(h => { if (h && h.date && !(h.date in byDate)) byDate[h.date] = h; });
+    if (sbUser && sb) {
+        try {
+            const { data } = await sb.from('mood_history').select('date,emotion,topic,need,diary_text')
+                .eq('user_id', sbUser.id).in('date', targets.map(t => t.date));
+            if (seq !== _otdSeq) return; // 더 최근 호출이 있으면 그 결과에 맡김
+            (data || []).forEach(r => {
+                const cur = byDate[r.date];
+                if (!cur || (!cur.diary && r.diary_text)) byDate[r.date] = { date:r.date, emotion:r.emotion, topic:r.topic, need:r.need, diary:r.diary_text };
+            });
+        } catch (e) {}
+    }
+    const t = targets.find(x => byDate[x.date]);
+    if (!t) { hide(); return; }
+    const h = byDate[t.date];
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    const dateTxt = new Date(h.date + 'T00:00:00').toLocaleDateString(L.locale||'ko-KR', { year:'numeric', month:'long', day:'numeric' });
+    const head = `<button type="button" class="otd-close" onclick="dismissOnThisDay()" aria-label="${escHtml(L.otd_close)}">✕</button>
+        <div class="otd-label">${escHtml(L[t.key])}</div>`;
+    if (t.premium && !isPremium()) {
+        el.innerHTML = head + `<div class="otd-meta">${escHtml(dateTxt)}</div>
+            <div class="otd-msg">${escHtml(L.otd_locked)}</div>
+            <button type="button" class="otd-btn" onclick="openPremiumModal()">${escHtml(L.otd_locked_btn)}</button>`;
+    } else {
+        const meta = [h.emotion && eLabel(h.emotion), h.topic && tLabel(h.topic), h.need && nLabel(h.need)].filter(Boolean).join(' · ');
+        el.innerHTML = head + `<div class="otd-meta">${escHtml(dateTxt)} · ${escHtml(meta)}</div>
+            ${h.diary ? `<div class="otd-diary">“${escHtml(h.diary)}”</div>` : ''}
+            <div class="otd-msg">${escHtml(L.otd_msg)}</div>`;
+    }
+    el.classList.remove('hidden');
+}
+function dismissOnThisDay() {
+    lsSet('otdDismissed', todayStr());
+    const el = document.getElementById('otd-card');
+    if (el) el.classList.add('hidden');
+}
+
+/* ── 돌봄 안내 카드: 무거운 마음(걱정·지침·아픔)이 오늘 포함 3일 이상 이어질 때만 ── */
+function renderCareCard() {
+    const el = document.getElementById('care-card');
+    if (!el) return;
+    el.classList.add('hidden');
+    const run = calcEmotionRun();
+    if (!run || run.cat !== 'neg' || run.n < 3) return;
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    document.getElementById('care-title').textContent = L.care_title;
+    document.getElementById('care-body').textContent = L.care_body;
+    const tel = document.getElementById('care-tel');
+    tel.textContent = L.care_tel; tel.setAttribute('href', L.care_href);
+    document.getElementById('care-line').textContent = L.care_line;
+    el.classList.remove('hidden');
+}
+
+/* ── 언어 변경 시 v2.7 UI 갱신 (applyLang 끝에서 호출) ── */
+function applyLangV27() {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    const s = (id,t) => { const el = document.getElementById(id); if (el && t != null) el.textContent = t; };
+    s('btn-policy-privacy', L.row_policy); s('btn-policy-terms', L.row_terms); s('policy-back', L.policy_back);
+    s('row-logout-btn', L.row_logout_btn);
+    s('row-delete-label', L.row_delete); s('row-delete-sub', L.row_delete_sub); s('row-delete-btn', L.row_delete_btn);
+    const priv = document.getElementById('privacy-text');
+    if (priv) priv.innerHTML = sbUser ? L.privacy_cloud : L.privacy;
+    // 아이콘만 있는 버튼의 읽기용 이름
+    const label = (sel, t) => document.querySelectorAll(sel).forEach(el => el.setAttribute('aria-label', t));
+    label('.ib-close', L.a11y_close);
+    label('.icon-btn[onclick="openVault()"]', L.a11y_vault);
+    label('.icon-btn[onclick="openSettings()"]', L.a11y_settings);
+    label('#btn-dashboard-top', L.a11y_dashboard);
+    label('.font-btn[onclick="cycleFont(-1)"]', L.a11y_font_down);
+    label('.font-btn[onclick="cycleFont(1)"]', L.a11y_font_up);
+    label('#closing-timer', L.a11y_timer);
+    if (sel && sel.emotion && !document.getElementById('step4').classList.contains('hidden')) renderCareCard();
+    renderOnThisDay();
+}
+
+/* ── 접근성: 대화상자 역할, Esc로 닫기, 장식 요소 숨김 ── */
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.overlay, #premium-modal, #devpw-modal, #consent-modal').forEach(el => {
+        el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
+        const title = el.querySelector('.overlay-title, .pm-title, .consent-title, .devpw-label');
+        if (title) { if (!title.id) title.id = el.id + '-heading'; el.setAttribute('aria-labelledby', title.id); }
+    });
+    const toastEl = document.getElementById('toast');
+    if (toastEl) { toastEl.setAttribute('role', 'status'); toastEl.setAttribute('aria-live', 'polite'); }
+    document.querySelectorAll('#stars, .aurora, #night-intro .ni-star, .moon-orbital, .e-decor, .bc-decor').forEach(el => el.setAttribute('aria-hidden', 'true'));
+    const timer = document.getElementById('closing-timer');
+    if (timer) {
+        timer.setAttribute('role', 'button'); timer.setAttribute('tabindex', '0');
+        timer.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); extendClosingTimer(); } });
+    }
+    // Esc: 가장 위에 떠 있는 창 하나만 닫음 (첫 방문 이름 입력창은 제외 — 닫으면 시작할 방법이 없음)
+    document.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return;
+        const open = [...document.querySelectorAll('#consent-modal, #devpw-modal, #premium-modal, .overlay')]
+            .filter(el => !el.classList.contains('hidden') && el.id !== 'overlay-name')
+            .sort((a, b) => (parseInt(getComputedStyle(b).zIndex) || 0) - (parseInt(getComputedStyle(a).zIndex) || 0));
+        if (open[0]) open[0].classList.add('hidden');
+    });
+});
 </script>
 <!-- 인쇄 전용: 나의 신앙 일기장 (화면에선 숨김) -->
 <div id="print-diary" aria-hidden="true"></div>

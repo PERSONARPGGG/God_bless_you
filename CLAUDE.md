@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # 밤의 목장 — Claude 작업 가이드
 
 ## 프로젝트 개요
-크리스천 감정 묵상 PWA "밤의 목장" (부제: "오늘 밤, 주님이 누이시는 곳", 구명: "오늘은 어땠나요?" — 이 질문은 메인 화면 인사말로 유지). 단일 파일(`index.html`, ~5,900줄) + Supabase + Vercel.
+크리스천 감정 묵상 PWA "밤의 목장" (부제: "오늘 밤, 주님이 누이시는 곳", 구명: "오늘은 어땠나요?" — 이 질문은 메인 화면 인사말로 유지). 단일 파일(`index.html`, ~7,700줄) + Supabase + Vercel.
 배포: https://god-bless-you.vercel.app/
 
 ## 코드 구조 원칙
@@ -19,7 +19,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **로컬 실행**: `index.html`을 브라우저로 직접 열거나, PWA/Service Worker 테스트가 필요하면 로컬 서버 사용 (`npx serve` 등). `file://`로 열면 Supabase·Service Worker 관련 코드가 자동으로 비활성화되도록 방어 코드 있음 (`location.protocol === 'file:'` 체크, index.html:4185 등).
 - **배포**: `main` 브랜치 push → Vercel 자동 배포. 별도 빌드 스텝 없음.
 - **검증**: 자동화된 테스트 없음. 수정 후 반드시 `/verify` 스킬로 실제 배포 페이지에서 핵심 플로우 동작 확인 (아래 "에이전트 역할" 참고).
-- **캐시 무효화**: Service Worker 캐시를 갱신하려면 `sw.js`의 `CACHE` 상수(`'god-app-v6'`) 버전 문자열을 올려야 함.
+- **캐시 무효화**: Service Worker 캐시를 갱신하려면 `sw.js`의 `CACHE` 상수(현재 `'god-app-v23'`) 버전 문자열을 올려야 함.
 
 ## 아키텍처 (Architecture)
 `index.html` 한 파일에 `<style>` → `<body>` 마크업 → 단일 `<script>` 순서로 전부 들어있음.
@@ -75,6 +75,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `visit_dates` — 스트릭
 - `mood_history` — 감정 기록
 - `saved_verses` — 저장 말씀
+
+## v2.7 메모 (2026-11-16)
+- **글꼴**: `--font-ui`(Pretendard) / `--font-verse`(나눔명조) 변수로 관리. 산돌 성경체는 유료이며 웹폰트 탑재는 산돌에 별도 문의가 필요해 쓰지 않음
+- **글씨 크기**: 고정 px 대신 `--fs-2xs`~`--fs-2xl` 토큰 사용 (글자 크기 설정에 연동). 12px 미만 금지
+- **이모지**: 버튼당 1개까지. 배경·장식 이모지와 달 이모지는 쓰지 않음 (달은 `.moon-shape`)
+- **프리미엄**: `isPremium()` = 서버 `subscriptions` 조회 결과 또는 시연용 `DEMO_UNLOCK`. 실결제를 여는 날 `DEMO_UNLOCK = false`
+- **Supabase 추가 SQL**: `docs/supabase_v2.7.sql` (계정 삭제 함수 `delete_my_account`, `subscriptions` 테이블). 실행 전에는 계정 삭제가 기록만 지우고, 프리미엄은 항상 무료로 판정
+- **처리방침**: `OPERATOR`(운영자 정보)와 서버 위치가 빈칸 — 정식 출시 전 기재
+- **앱 이름**: "밤의 목장"은 임시. 설문 반응이 좋지 않아 변경 가능 → 상표 출원은 확정 뒤
+- v2.7 코드는 `index.html` 끝의 `§ v2.7` 섹션과 `<style>` 끝의 v2.7 블록에 모여 있음
 
 ## 다음 마일스톤 (v3.0)
 감정 통계 대시보드 + Premium 플랜(₩1,900/월) 런칭
