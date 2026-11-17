@@ -34,9 +34,12 @@ create table if not exists public.mood_history (
   topic       text,                       -- 일·가족·공부·사람·모름
   need        text,                       -- 위로·힘·지혜·쉼
   diary_text  text,
+  verse_ref   text,                       -- 그날 본 말씀의 출처 (예: 시편 23:1)
   created_at  timestamptz not null default now()
 );
 create index if not exists mood_history_user_date on public.mood_history (user_id, date desc);
+-- 그날 본 말씀의 출처 (달력·PDF 일기장에서 그날의 말씀을 다시 보여 주는 데 씀)
+alter table public.mood_history add column if not exists verse_ref text;
 
 create table if not exists public.saved_verses (
   id          bigint generated always as identity primary key,

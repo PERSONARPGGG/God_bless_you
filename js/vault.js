@@ -73,7 +73,8 @@ function renderVaultBanner() {
             <button class="vb-btn" type="button" onclick="openPremiumModal()">${L.vb_free_btn}</button>
         </div>`;
     } else {
-        el.innerHTML = `<div class="vault-banner premium">${L.vb_premium_badge}</div>`;
+        el.innerHTML = `<div class="vault-banner premium">${L.vb_premium_badge}
+            <button class="vb-btn" type="button" onclick="hideOverlay('overlay-vault');openDashboard('calendar')">${L.vb_cal_btn}</button></div>`;
     }
 }
 
@@ -229,7 +230,7 @@ function renderMood() {
 }
 
 /* ═══════════════════════════════════════
-   주간 감정 차트 (프리미엄)
+   주간 감정 차트 (로그인 사용자)
 ═══════════════════════════════════════ */
 function renderStats() {
     const el = document.getElementById('stats-content');
@@ -238,9 +239,9 @@ function renderStats() {
 
     if (!sbUser && !isDevMode()) { // 개발자 모드 = 로그인 게이트 스킵
         const gateTexts = {
-            ko: { title:'프리미엄 기능', desc:'주간 감정 차트는 로그인 후<br>이용할 수 있어요.', btn:'Google로 로그인하기' },
-            en: { title:'Premium Feature', desc:'Weekly stats are available<br>after signing in.', btn:'Sign in with Google' },
-            ja: { title:'プレミアム機能', desc:'ログイン後に週間統計が<br>ご覧いただけます。', btn:'Googleでログイン' },
+            ko: { title:'로그인하면 볼 수 있어요', desc:'주간 감정 차트는 로그인 후<br>이용할 수 있어요.', btn:'Google로 로그인하기' },
+            en: { title:'Sign in to see this', desc:'Weekly stats are available<br>after signing in.', btn:'Sign in with Google' },
+            ja: { title:'ログインすると見られます', desc:'ログイン後に週間統計が<br>ご覧いただけます。', btn:'Googleでログイン' },
         };
         const gt = gateTexts[appLang] || gateTexts.ko;
         el.innerHTML = `<div class="premium-gate">

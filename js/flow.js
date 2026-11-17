@@ -285,9 +285,12 @@ function saveMood() {
     const {emotion,topic,need}=sel;
     const today = todayStr();
     const hist = getMoods();
-    hist.unshift({date:today, emotion, topic, need, emoji:E_EMOJI[emotion]});
+    const entry = {date:today, emotion, topic, need, emoji:E_EMOJI[emotion]};
+    if (curVerse && curVerse.r) entry.ref = curVerse.r;   // 그날 본 말씀 (달력·PDF 일기장에서 다시 보여 줌)
+    hist.unshift(entry);
     lsSet('moodHistory', trimMoods(hist));
-    if (sbUser && sb) sb.from('mood_history').insert({user_id:sbUser.id, date:today, emotion, topic, need}).select('id').single()
+    safe('history.cache', () => clearHistoryCache());
+    if (sbUser && sb) insertMoodRows([moodToRow(entry, sbUser.id)], true)
         .then(r => { if (r && r.error) logErr('mood.insert', r.error); else curMoodRowId = (r && r.data && r.data.id) || null; },
               e => logErr('mood.insert', e));
 }
@@ -406,7 +409,7 @@ function makeVerseCardBlob() {
             // 푸터
             x.fillStyle = 'rgba(255,255,255,.42)';
             x.font = '30px ' + FAM;
-            x.fillText('밤의 목장 · god-bless-you.vercel.app', W / 2, H - 80);
+            x.fillText('밤의 목장 · ' + SHARE_URL.replace(/^https?:\/\//, '').replace(/\/$/, ''), W / 2, H - 80);
             c.toBlob(b => b ? resolve(b) : reject(new Error('toBlob failed')), 'image/png');
         } catch (e) { reject(e); }
     });
@@ -506,6 +509,7 @@ function autoSaveDiary() {
     if (!hist.length) return; // 붙일 기록이 없으면 "저장됐다"고 말하지 않는다
     hist[0].diary = text;
     lsSet('moodHistory', hist);
+    safe('history.cache', () => clearHistoryCache());
     if (sbUser && sb) {
         // 방금 넣은 그 줄에만 일기를 붙인다 (id를 모르면 같은 날·같은 선택의 줄)
         let q = sb.from('mood_history').update({diary_text:text}).eq('user_id',sbUser.id);

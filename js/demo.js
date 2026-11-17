@@ -52,12 +52,10 @@ const PERSONA_DATA = {
     ],
 };
 
-let _activePersonaData = null;
 function loadPersona(type, btn) {
     const data = PERSONA_DATA[type];
     if (!data) return;
-    _activePersonaData = data;
-    renderDashboard(data);
+    renderDashboard(data, data[0].date);   // 체험 데이터가 속한 주를 기준으로 그림 (달력·리포트는 실제 기록 그대로)
     document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
     const names = {male:'직장인 준호',female:'워킹맘 수진',housewife:'주부 은혜',pastor:'김요한 목사',foreigner:'유학생 안나'};
@@ -174,12 +172,10 @@ function devPremiumTap(ev) {
     openDevPwModal('premium');
 }
 
-/* 개발자 모드에서만 보이는 버튼(대시보드) 표시/숨김 */
+/* 개발자 모드에서만 보이는 것(나의 이야기의 체험 데이터 선택) 표시/숨김 */
 function setDevUI(on) {
-    ['btn-dashboard', 'btn-dashboard-top'].forEach(id => {
-        const b = document.getElementById(id);
-        if (b) b.classList.toggle('hidden', !on);
-    });
+    const box = document.querySelector('.persona-demo');
+    if (box) box.classList.toggle('hidden', !on);
 }
-/* 앱 시작 시: 개발자 모드였으면 버튼 복원 (매번 비밀번호 입력 불필요) */
+/* 앱 시작 시: 개발자 모드였으면 복원 (매번 비밀번호 입력 불필요) */
 function restoreDevMode() { setDevUI(isDevMode()); }

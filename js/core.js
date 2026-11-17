@@ -5,7 +5,9 @@
 /* ═══════════════════════════════════════
    상태
 ═══════════════════════════════════════ */
-const APP_VERSION = '2.8';
+const APP_VERSION = '2.9';
+/* 앱 주소 — 도메인을 바꿀 때 여기와 index.html의 og:url, sitemap.xml을 함께 바꾼다 (tools/check.mjs가 서로 다르면 알려 줌).
+   Supabase(Authentication > URL Configuration)와 Google OAuth의 허용 주소에도 새 주소를 추가해야 로그인이 된다. */
 const SHARE_URL = 'https://god-bless-you.vercel.app/';
 const SUPABASE_URL = 'https://pzakpaomnmahcugkzdff.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_nyWe0_C6prKvfP9R9EMXdA_DgH6bfwf';
@@ -74,7 +76,7 @@ function lsInt(k, min, max, dflt) {
 const isYmd = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
 const LOCAL_KEEP_DAYS = 62;   // 기기에 남기는 감정 기록·방문일 기간 (이번 달 리포트와 "한 달 전 오늘 밤"에 필요한 만큼)
 
-/* 감정 기록 — 최신순 [{date:'YYYY-MM-DD', emotion, topic, need, emoji, diary?}] */
+/* 감정 기록 — 최신순 [{date:'YYYY-MM-DD', emotion, topic, need, emoji, diary?, ref?(그날 본 말씀의 출처)}] */
 function getMoods()  { return lsArr('moodHistory').filter(h => h && typeof h === 'object' && isYmd(h.date) && h.emotion); }
 /* 즐겨찾기 말씀 — 최신순 [{verse, ref, emotion?, need?, savedAt?, date?, context?}] */
 function getSaved()  { return lsArr('savedVerses').filter(v => v && typeof v === 'object' && v.verse); }

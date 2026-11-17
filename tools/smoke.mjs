@@ -3,6 +3,7 @@
    실행:  node tools/smoke.mjs            전체 시나리오
           node tools/smoke.mjs 날짜        이름에 '날짜'가 들어간 시나리오만
           node tools/smoke.mjs --url=https://god-bless-you.vercel.app/   배포본을 상대로
+          node tools/smoke.mjs 나의 --shots=폴더   시나리오 안의 p.shot('이름') 지점을 PNG로 저장 (눈으로 확인용)
    로컬 파일을 임시 서버로 띄우고, 화면 없는 브라우저로 실제 클릭·입력을 해 본 뒤
    잡히지 않은 오류가 하나라도 있으면 실패로 처리합니다. */
 import fs from 'node:fs';
@@ -16,6 +17,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
 const REMOTE = args.find(a => a.startsWith('--url='))?.slice(6);
 const FILTER = args.filter(a => !a.startsWith('--'));
+const SHOTS = args.find(a => a.startsWith('--shots='))?.slice(8);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 /* ── 임시 서버 ── */
@@ -121,6 +123,13 @@ async function openPage({ seed = {}, intro = false, now = null, tz = 'Asia/Seoul
         await sleep(250);
     };
     page.reload = () => page.goto(BASE);
+    /* 화면 캡처 — --shots=폴더 를 줬을 때만 저장 (평소 점검에서는 아무 일도 하지 않음) */
+    page.shot = async name => {
+        if (!SHOTS) return;
+        fs.mkdirSync(SHOTS, { recursive: true });
+        const { data } = await S('Page.captureScreenshot', { format: 'png' });
+        fs.writeFileSync(path.join(SHOTS, name + '.png'), Buffer.from(data, 'base64'));
+    };
     page.close = async () => { listeners.delete(onMsg); await send('Target.disposeBrowserContext', { browserContextId }).catch(() => {}); };
     /* 감정→주제→필요를 실제로 눌러 결과 화면까지 */
     /* 버튼마다 빠르게 두 번 누른다 (손이 떨리거나 성급한 사용자). 한 번 누른 것과 결과가 같아야 한다 */
@@ -239,7 +248,9 @@ scenario('날짜: 한국 새벽 0시 30분에도 오늘 날짜로 기록', {
     p.eq(await p.eval(`[...document.querySelectorAll('#db-day-flow .db-day-col')].map(c => !c.querySelector('.db-day-dot').classList.contains('empty'))`),
         [true, true, true, false, false, false, false], '대시보드 요일 흐름: 일·월·화에 기록');
     p.eq(await p.eval(`[...document.querySelectorAll('#db-day-flow .db-day-col')].findIndex(c => c.classList.contains('db-day-today'))`), 2, '대시보드 오늘 = 화요일 칸');
-    p.eq(await p.eval(`getMonthEntries().length`), 3, '이번 달 기록 3건');
+    await p.waitFor(`document.querySelectorAll('#hist-cal .hc-day.has').length === 3`, '달력: 이번 달 기록 3일(15·16·17일)');
+    p.eq(await p.eval(`[...document.querySelectorAll('#hist-cal .hc-day.has .hc-num')].map(e => e.textContent).join()`), '15,16,17', '달력 날짜');
+    p.ok(await p.eval(`document.querySelector('#hist-cal .hc-day.today .hc-num').textContent === '17'`), '달력의 오늘 = 17일');
 });
 
 scenario('날짜: 미국 시간대에서도 하루가 밀리지 않음', {
@@ -316,28 +327,31 @@ scenario('마무리 타이머: 활동하면 연장, 0초가 되면 자동 마무
 
 scenario('개발자 모드·대시보드·프리미엄 체험·회고 카드·PDF', { now: '2026-11-17T21:30:00+09:00', seed: { userName: '', devMode: '1' } }, async p => {
     await p.goto();
-    p.ok(await p.eval(`__t.vis('#btn-dashboard-top')`), '개발자 모드면 대시보드 버튼 표시');
+    p.ok(await p.eval(`__t.vis('#btn-dashboard-top')`), '나의 이야기 버튼 표시');
     await p.eval(`injectDemoData(); renderOnThisDay()`);
     await p.waitFor(`__t.vis('#otd-card')`, '회고 카드 표시');
     p.ok((await p.eval(`__t.txt('#otd-card')`)).includes('1년 전') && await p.eval(`!!document.querySelector('#otd-card .otd-btn')`), '무료: 1년 전 기록은 잠금 안내');
     await p.eval(`openDashboard()`);
     await p.waitFor(`__t.vis('#overlay-dashboard')`, '대시보드 열림');
     p.eq(await p.eval(`document.querySelectorAll('#db-day-flow .db-day-dot:not(.empty)').length`), 7, '데모 데이터 7일이 이번 주(일~토)에 모두 표시');
-    p.ok(await p.eval(`!!document.querySelector('#db-monthly .locked')`), '무료: 월간 리포트 잠금');
+    p.ok(await p.eval(`__t.vis('.persona-demo')`), '개발자 모드: 체험 데이터 선택이 보임');
+    await p.waitFor(`!!document.querySelector('#hist-monthly .locked')`, '무료: 월간 리포트 잠금');
     for (const who of ['male', 'female', 'housewife', 'pastor', 'foreigner']) {
         await p.eval(`loadPersona('${who}', null)`);
         p.ok((await p.eval(`__t.txt('#db-narrative')`)).length > 5, `페르소나 ${who} 서사 카드`);
+        p.eq(await p.eval(`document.querySelectorAll('#db-day-flow .db-day-dot:not(.empty)').length`), 7, `페르소나 ${who} 요일 흐름 7일`);
     }
     await p.eval(`__t.click('#db-detail-btn')`);
     p.ok(await p.eval(`__t.vis('#db-detail')`), '상세히 보기 펼침');
     p.ok(await p.eval(`document.querySelectorAll('#db-diaries .db-diary-item').length > 0`), '페르소나 일기 표시');
     // 프리미엄 체험: 틀린 비밀번호 → 그대로, 맞는 비밀번호 → 열림
-    await p.eval(`_activePersonaData = null; openDevPwModal('premium'); document.getElementById('devpw-input').value = '0000'; checkDevPw()`);
+    await p.eval(`openDevPwModal('premium'); document.getElementById('devpw-input').value = '0000'; checkDevPw()`);
     p.ok(!(await p.eval('isPremium()')), '틀린 비밀번호로는 열리지 않음');
     await p.eval(`document.getElementById('devpw-input').value = '7501'; checkDevPw()`);
     p.ok(await p.eval('isPremium()'), '시연 비밀번호로 프리미엄 체험 ON');
-    p.ok(await p.eval(`!!document.querySelector('#db-monthly .db-pdf-btn')`), '프리미엄: PDF 버튼');
-    p.ok((await p.eval(`__t.txt('#db-monthly')`)).includes('7일'), '월간 리포트: 이번 달 7일 — 실제: ' + (await p.eval(`__t.txt('#db-monthly')`)).slice(0, 60));
+    await p.waitFor(`!!document.querySelector('#hist-monthly .db-pdf-btn')`, '프리미엄: PDF 버튼');
+    p.ok((await p.eval(`__t.txt('#hist-monthly')`)).includes('7일'), '월간 리포트: 이번 달 7일 — 실제: ' + (await p.eval(`__t.txt('#hist-monthly')`)).slice(0, 60));
+    p.ok(await p.eval(`__t.vis('#hist-year-sec')`) && (await p.eval(`__t.txt('#hist-yearly')`)).includes('2026'), '프리미엄: 연간 리포트 표시');
     await p.eval(`window.print = () => { window.__printed = true; }; exportDiaryPdf()`);
     p.ok(await p.eval(`window.__printed === true && document.querySelectorAll('#print-diary .pd-entry').length === 7`), 'PDF 일기장 7건 인쇄 호출');
     await p.waitFor(`__t.vis('#otd-card') && !document.querySelector('#otd-card .otd-btn')`, '프리미엄: 1년 전 기록이 열려 보임');
@@ -494,6 +508,104 @@ scenario('클라우드 기록 맞추기(가짜 서버): 올리기·내려받기�
     p.ok(await p.eval(`sbUser === null && __t.vis('#row-login') && !__t.vis('#row-delete')`), '계정 삭제 후 로그아웃 상태');
 });
 
+scenario('나의 이야기(무료·게스트): 달력은 지난달까지, 그날 본 말씀, 리포트 잠금, 3개 언어', {
+    now: '2026-11-17T21:00:00+09:00',
+    seed: { userName: '', moodHistory: JSON.stringify([
+        { date: '2026-11-03', emotion: '걱정', topic: '일', need: '힘', emoji: '😔', diary: '<b>굵게</b> 쓴 일기' },
+        { date: '2026-11-03', emotion: '감사', topic: '가족', need: '쉼', emoji: '😊' },
+        { date: '2026-10-20', emotion: '평안', topic: '모름', need: '쉼', emoji: '😌' },
+        { date: '2026-09-20', emotion: '지침', topic: '일', need: '쉼', emoji: '😞' }]) },
+}, async p => {
+    await p.goto();
+    await p.flow('감사', '가족', '쉼');
+    const shown = await p.eval('({ v: curVerse.v, r: curVerse.r })');
+    p.eq(await p.eval(`__t.ls('moodHistory')[0].ref`), shown.r, '기록에 그날 본 말씀의 출처가 남음');
+    await p.eval(`stopClosingTimer(); openDashboard()`);
+    p.ok(await p.eval(`__t.vis('#overlay-dashboard') && !__t.vis('.persona-demo')`), '게스트도 열리고, 체험 데이터 선택은 보이지 않음');
+    await p.waitFor(`document.querySelectorAll('#hist-cal .hc-day.has').length === 2`, '달력: 11월에 기록 있는 날 2일(3일·17일)');
+    p.eq(await p.eval(`__t.txt('#hist-cal .hc-title')`), '2026년 11월', '달력 제목');
+    p.ok(await p.eval(`document.querySelector('#hist-cal .hc-arrow:last-child').disabled`), '이번 달에서는 다음 달 버튼이 꺼져 있음');
+    await p.eval(`histPick('2026-11-17')`);
+    p.ok((await p.eval(`__t.txt('#hist-cal .hc-entry-verse')`)).includes(shown.v.slice(0, 12)), '날짜를 누르면 그날 본 말씀이 보임');
+    await p.eval(`histPick('2026-11-03')`);
+    p.eq(await p.eval(`document.querySelectorAll('#hist-cal .hc-entry').length`), 2, '하루에 두 번 기록한 날은 두 건 모두');
+    await p.eval(`document.getElementById('hist-cal-sec').scrollIntoView()`); await p.shot('free-calendar');
+    p.ok(await p.eval(`!document.querySelector('#hist-cal .hc-entry-diary b') && __t.txt('#hist-cal .hc-entry-diary').includes('<b>')`), '일기의 특수문자는 글자 그대로');
+    p.ok(!(await p.eval(`!!document.querySelector('#hist-cal .hc-entry-verse')`)), '출처가 없는 예전 기록에는 말씀을 지어내지 않음');
+    p.ok((await p.eval(`__t.txt('#hist-note')`)).includes('두 달'), '게스트 안내 문구');
+    p.ok(await p.eval(`!!document.querySelector('#hist-monthly .locked') && !__t.vis('#hist-year-sec')`), '무료: 월간 잠금, 연간 숨김');
+    await p.eval(`window.print = () => { window.__printed = true; }; exportDiaryPdf()`);
+    p.ok(await p.eval(`window.__printed !== true && __t.vis('#premium-modal')`), '무료: PDF는 인쇄되지 않고 안내 모달');
+    await p.eval(`closePremiumModal(); histMove(-1)`);
+    await p.waitFor(`__t.txt('#hist-cal .hc-title') === '2026년 10월'`, '지난달로 이동');
+    p.eq(await p.eval(`document.querySelectorAll('#hist-cal .hc-day.has').length`), 1, '10월 기록 1일');
+    await p.eval(`histMove(-1)`);
+    p.ok(await p.eval(`__t.vis('#premium-modal') && __t.txt('#hist-cal .hc-title') === '2026년 10월'`), '무료: 지난달보다 이전은 안내 모달, 달력은 그대로');
+    p.eq(await p.eval(`document.querySelectorAll('#pm-feats li').length`), 5, '프리미엄 안내: 구현된 5가지만');
+    p.ok(!/챌린지|꾸미기/.test(await p.eval(`__t.txt('#premium-modal')`)), '안내 문구에 미구현 기능이 없음');
+    await p.eval(`closePremiumModal()`);
+    for (const lang of ['en', 'ja']) {
+        await p.eval(`setLang('${lang}'); openDashboard()`);
+        await p.waitFor(`document.querySelectorAll('#hist-cal .hc-day').length > 27`, lang + ' 달력');
+        const txt = await p.eval(`document.getElementById('overlay-dashboard').innerText`);
+        p.ok(!/undefined|NaN|\{\w+\}/.test(txt), lang + ': 나의 이야기에 undefined·빈 자리 없음');
+        if (lang === 'en') p.ok(!/[가-힣]/.test(txt),'en: 나의 이야기에 한글이 남지 않음 — ' + (txt.match(/[^\n]*[가-힣][^\n]*/) || [''])[0].slice(0, 40));
+    }
+});
+
+scenario('프리미엄(가짜 서버): 지난 해 기록 달력·월간·연간·PDF, 구독이 끝나면 닫힘, verse_ref 열 없는 서버', {
+    now: '2026-11-17T21:00:00+09:00', seed: { userName: '' },
+}, async p => {
+    await p.goto();
+    const ref = await p.eval(`VERSE_POOL['평안_쉼'][0].r`);
+    await p.eval(`sb = ${FAKE_SB}({
+        mood_history: [
+            { id: 1, user_id: 'u1', date: '2026-11-10', emotion: '평안', topic: '모름', need: '쉼', diary_text: null, verse_ref: ${JSON.stringify(ref)} },
+            { id: 2, user_id: 'u1', date: '2026-03-05', emotion: '걱정', topic: '일', need: '힘', diary_text: '봄에 쓴 일기' },
+            { id: 3, user_id: 'u1', date: '2026-03-06', emotion: '걱정', topic: '일', need: '힘', diary_text: null },
+            { id: 4, user_id: 'u1', date: '2025-12-25', emotion: '감사', topic: '가족', need: '위로', diary_text: '성탄의 일기' },
+            { id: 5, user_id: 'u2', date: '2026-03-05', emotion: '아픔', topic: '사람', need: '위로', diary_text: '다른 사람의 기록' }],
+        saved_verses: [], visit_dates: [], profiles: [],
+        subscriptions: [{ user_id: 'u1', status: 'active', current_period_end: '2026-12-17T00:00:00Z' }],
+    }); sbUser = { id: 'u1', email: 'u1@example.com' }; updateAuthUI(); syncWithServer()`);
+    await p.waitFor(`__t.ls('dataOwner') === 'u1' && isPremium()`, '로그인 + 구독 확인');
+    p.eq((await p.eval(`__t.ls('moodHistory')`)).map(m => [m.date, m.ref]), [['2026-11-10', ref]], '기기에는 최근 기록만, 말씀 출처도 함께 내려옴');
+    await p.eval(`openVault()`);
+    p.ok(await p.eval(`!!document.querySelector('#vault-banner .premium .vb-btn')`), '보관함: 프리미엄에게 달력 버튼');
+    await p.eval(`document.querySelector('#vault-banner .premium .vb-btn').click()`);
+    await p.waitFor(`__t.vis('#overlay-dashboard') && !__t.vis('#overlay-vault') && document.querySelectorAll('#hist-cal .hc-day.has').length === 1`, '달력으로 이동, 11월 기록 1일');
+    await p.eval(`histPick('2026-11-10')`);
+    p.ok((await p.eval(`__t.txt('#hist-cal .hc-entry-verse')`)).includes(ref), '서버에서 온 기록의 그날 말씀');
+    p.ok((await p.eval(`__t.txt('#hist-yearly')`)).includes('3일 밤'), '연간 리포트: 2026년 3일 — 실제: ' + (await p.eval(`__t.txt('#hist-yearly')`)).slice(0, 80));
+    p.eq(await p.eval(`__t.txt('#hist-note')`), '', '프리미엄에게는 제한 안내가 없음');
+    for (let i = 0; i < 8; i++) { await p.eval(`histMove(-1)`); await sleep(30); }
+    await p.waitFor(`__t.txt('#hist-cal .hc-title') === '2026년 3월' && document.querySelectorAll('#hist-cal .hc-day.has').length === 2`, '3월: 클라우드 기록 2일');
+    await p.eval(`histPick('2026-03-05')`);
+    p.eq(await p.eval(`[...document.querySelectorAll('#hist-cal .hc-entry-diary')].map(e => e.textContent)`), ['봄에 쓴 일기'], '그날의 일기 (다른 사람의 기록은 보이지 않음)');
+    p.ok((await p.eval(`__t.txt('#hist-monthly')`)).includes('2일 밤') && (await p.eval(`__t.txt('#hist-monthly')`)).includes('1편'), '3월 월간 리포트');
+    await p.eval(`document.getElementById('hist-cal-sec').scrollIntoView()`); await p.shot('premium-calendar');
+    await p.eval(`document.getElementById('hist-year-sec').scrollIntoView()`); await p.shot('premium-yearly');
+    for (let i = 0; i < 3; i++) { await p.eval(`histMove(-1)`); await sleep(30); }
+    await p.waitFor(`__t.txt('#hist-cal .hc-title') === '2025년 12월' && document.querySelectorAll('#hist-cal .hc-day.has').length === 1`, '해를 넘겨 2025년 12월');
+    p.ok((await p.eval(`__t.txt('#hist-yearly')`)).includes('2025'), '연간 리포트도 2025년으로');
+    await p.eval(`window.print = () => { window.__printed = true; }; exportDiaryPdf()`);
+    p.ok(await p.eval(`window.__printed === true && document.querySelectorAll('#print-diary .pd-entry').length === 1 && __t.txt('#print-diary').includes('성탄의 일기')`), 'PDF: 보고 있는 달(2025년 12월)의 기록');
+    // 구독이 끝나면 지난 기록은 닫히고 볼 수 있는 달로 돌아옴
+    await p.eval(`__srv.subscriptions = []; refreshEntitlement()`);
+    await p.waitFor(`!isPremium() && __t.txt('#hist-cal .hc-title') === '2026년 11월'`, '구독 종료 → 이번 달로');
+    p.ok(await p.eval(`!!document.querySelector('#hist-monthly .locked') && !__t.vis('#hist-year-sec')`), '구독 종료 → 리포트 잠금');
+    p.ok((await p.eval(`__t.txt('#hist-note')`)).includes('프리미엄'), '로그인한 무료 사용자 안내 문구');
+    // 서버 테이블에 verse_ref 열이 없어도 기록은 저장됨
+    await p.eval(`hideOverlay('overlay-dashboard'); (() => { const of = sb.from; sb.from = t => { const a = of(t);
+        if (t === 'mood_history') { const ins = a.insert; a.insert = pl => [].concat(pl).some(r => 'verse_ref' in r)
+            ? { select() { return this; }, single() { return this; }, then(res, rej) { return Promise.resolve({ data: null, error: { message: "Could not find the 'verse_ref' column of 'mood_history' in the schema cache" } }).then(res, rej); } }
+            : ins(pl); }
+        return a; }; })()`);
+    await p.flow('감사', '가족', '쉼');
+    await p.waitFor(`curMoodRowId != null`, '열이 없어도 서버에 기록이 들어감');
+    p.ok(await p.eval(`__srv.mood_history.some(r => r.date === '2026-11-17' && !('verse_ref' in r)) && errLog().some(e => e.where === 'mood.verse_ref')`), 'verse_ref 없이 저장되고 사유가 기록됨');
+});
+
 scenario('좁은 화면(360px)·매우 큰 글씨: 가로로 넘치지 않음', { width: 360, height: 640, seed: { userName: '아주긴이름열두글자까지입력', fontLevel: '2' } }, async p => {
     await p.goto();
     const over = async where => {
@@ -507,7 +619,13 @@ scenario('좁은 화면(360px)·매우 큰 글씨: 가로로 넘치지 않음', 
         await sleep(500); await over(`${lang} 결과`);
         await p.eval(`openSettings()`); await over(`${lang} 설정`);
         await p.eval(`hideOverlay('overlay-settings'); openVault()`); await over(`${lang} 보관함`);
-        await p.eval(`hideOverlay('overlay-vault'); restart()`);
+        await p.eval(`hideOverlay('overlay-vault'); openDashboard(); histPick(todayStr())`);
+        await p.waitFor(`document.querySelectorAll('#hist-cal .hc-day').length > 27`, '달력');
+        await over(`${lang} 나의 이야기`);
+        const inner = await p.eval(`(() => { const o = document.querySelector('#overlay-dashboard .overlay-inner'); return o.scrollWidth - o.clientWidth; })()`);
+        p.ok(inner <= 1, `${lang} 나의 이야기 안쪽: 가로로 ${inner}px 넘침`);
+        await p.shot('narrow-' + lang);
+        await p.eval(`hideOverlay('overlay-dashboard'); restart()`);
         await p.waitFor(`__t.vis('#step1')`, '처음으로');
     }
 });

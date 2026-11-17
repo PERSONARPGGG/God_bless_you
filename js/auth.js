@@ -72,6 +72,27 @@ function updateAuthUI() {
    가족이 함께 쓰는 기기를 위해: 기기의 기록이 다른 계정으로 맞춰졌던 것이면 올리지 않고
    지금 로그인한 계정의 기록으로 바꾼다 (이전 계정의 기록은 그 계정 클라우드에 그대로 있음).
 ═══════════════════════════════════════ */
+/* 기기의 기록 한 건 → 서버에 넣을 한 줄 */
+function moodToRow(h, uid) {
+    return { user_id: uid, date: h.date, emotion: h.emotion, topic: h.topic, need: h.need,
+             diary_text: h.diary || null, verse_ref: h.ref || null };
+}
+/* 감정 기록 넣기. 서버 테이블에 verse_ref 열이 아직 없으면(docs/supabase_schema.sql 실행 전) 그 열만 빼고 다시 넣는다
+   — 열 하나 때문에 기록 저장 전체가 실패하지 않게. one=true면 넣은 줄의 id를 돌려받는다 */
+let _noVerseRefCol = false;
+async function insertMoodRows(rows, one) {
+    const run = list => { const q = sb.from('mood_history').insert(one ? list[0] : list); return one ? q.select('id').single() : q; };
+    const strip = list => list.map(r => { const c = { ...r }; delete c.verse_ref; return c; });
+    if (_noVerseRefCol) return run(strip(rows));
+    const res = await run(rows);
+    if (res && res.error && /verse_ref/.test(String(res.error.message || ''))) {
+        _noVerseRefCol = true;
+        logErr('mood.verse_ref', '서버에 verse_ref 열이 없음 — docs/supabase_schema.sql을 실행하세요');
+        return run(strip(rows));
+    }
+    return res;
+}
+
 let _syncedUser = null, _syncing = false;
 async function syncWithServer() {
     if (!sb || !sbUser || _syncing || _syncedUser === sbUser.id) return;
@@ -99,6 +120,7 @@ async function syncWithServer() {
             if (!isYmd(r.date) || !r.emotion) return;
             const h = { date:r.date, emotion:r.emotion, topic:r.topic, need:r.need, emoji:E_EMOJI[r.emotion] || '' };
             if (r.diary_text) h.diary = r.diary_text;
+            if (r.verse_ref) h.ref = r.verse_ref;
             const k = mKey(h), old = serverMoods.get(k);
             if (!old || (!old.diary && h.diary)) serverMoods.set(k, h);
         });
@@ -106,12 +128,11 @@ async function syncWithServer() {
         const localKeys = new Set(localMoods.map(mKey));
         const upMoods = localMoods.filter(h => h.date >= cut && !serverMoods.has(mKey(h)));
         if (upMoods.length) {
-            const { error } = await sb.from('mood_history').insert(upMoods.map(h => ({
-                user_id: uid, date: h.date, emotion: h.emotion, topic: h.topic, need: h.need, diary_text: h.diary || null })));
+            const { error } = await insertMoodRows(upMoods.map(h => moodToRow(h, uid)), false);
             if (error) throw error;
             pushed += upMoods.length;
         }
-        localMoods.forEach(h => { const r = serverMoods.get(mKey(h)); if (r && !h.diary && r.diary) h.diary = r.diary; });
+        localMoods.forEach(h => { const r = serverMoods.get(mKey(h)); if (!r) return; if (!h.diary && r.diary) h.diary = r.diary; if (!h.ref && r.ref) h.ref = r.ref; });
         const downMoods = [...serverMoods.values()].filter(h => !localKeys.has(mKey(h)));
         pulled += downMoods.length;
         // 기기 기록의 순서(최근에 한 것이 앞)를 지키면서 날짜순으로
@@ -163,7 +184,7 @@ async function syncWithServer() {
 
         lsSet('dataOwner', uid);
         _syncedUser = uid;
-        safe('sync.render', () => { updateStreak(); setWelcome(); renderOnThisDay(); refreshVaultIfOpen(); });
+        safe('sync.render', () => { updateStreak(); setWelcome(); renderOnThisDay(); refreshVaultIfOpen(); refreshHistoryIfOpen(); });
         const L = LANG_DATA[appLang]||LANG_DATA.ko;
         if (pulled) toast(L.sync_pulled); else if (pushed) toast(L.sync_pushed);
     } catch (e) {

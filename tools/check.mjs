@@ -161,6 +161,18 @@ for (const f of scripts) {
 }
 const get = name => { try { return vm.runInContext(name, ctx); } catch { return undefined; } };
 
+/* 앱 주소: js/core.js의 SHARE_URL과 index.html og:url, sitemap.xml이 같아야 한다 (도메인을 바꿀 때 빠뜨리지 않게) */
+{
+    const share = (fs.readFileSync(path.join(ROOT, 'js/core.js'), 'utf8').match(/const SHARE_URL = '([^']+)'/) || [])[1];
+    const og = (fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').match(/property="og:url" content="([^"]+)"/) || [])[1];
+    const sm = fs.existsSync(path.join(ROOT, 'sitemap.xml')) ? (fs.readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8').match(/<loc>([^<]+)<\/loc>/) || [])[1] : share;
+    if (!share) err('js/core.js에서 SHARE_URL을 찾지 못함');
+    else {
+        if (og !== share) err(`index.html og:url(${og}) 이 SHARE_URL(${share}) 과 다름`);
+        if (sm !== share) err(`sitemap.xml 주소(${sm}) 가 SHARE_URL(${share}) 과 다름`);
+    }
+}
+
 const LANG = get('LANG_DATA');
 if (!LANG) err('LANG_DATA를 읽지 못함');
 else {

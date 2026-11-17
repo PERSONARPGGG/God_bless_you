@@ -412,11 +412,11 @@
 <!-- ══ 대시보드 오버레이 ══ -->
 <div id="overlay-dashboard" class="overlay hidden">
     <div class="overlay-inner">
-        <button class="overlay-back" onclick="hideOverlay('overlay-dashboard')">← 돌아가기</button>
-        <div class="overlay-title">📊 이번 주 나의 이야기</div>
+        <button class="overlay-back" id="db-back" onclick="hideOverlay('overlay-dashboard')">← 돌아가기</button>
+        <div class="overlay-title" id="db-title">📊 나의 이야기</div>
 
         <!-- 체험 데이터 페르소나 선택 (개발자 데모) -->
-        <div class="persona-demo">
+        <div class="persona-demo hidden">
             <div class="persona-demo-hd">✦ 체험 데이터 선택 ✦</div>
             <div class="persona-row">
                 <button class="persona-btn" onclick="loadPersona('male',this)">
@@ -440,7 +440,7 @@
         <div id="db-narrative" class="db-narrative-card"></div>
 
         <div id="db-emo-section" class="db-sec">
-            <div class="db-sec-t">이번 주 감정</div>
+            <div class="db-sec-t" id="db-sec-emo">이번 주 감정</div>
             <div id="db-emo-bars"></div>
         </div>
 
@@ -448,27 +448,36 @@
 
         <div id="db-detail" class="hidden">
             <div class="db-sec">
-                <div class="db-sec-t">요일별 감정 흐름</div>
+                <div class="db-sec-t" id="db-sec-flow">요일별 감정 흐름</div>
                 <div id="db-day-flow" class="db-day-grid"></div>
             </div>
             <div class="db-sec">
-                <div class="db-sec-t">이런 때 이런 마음이었어요</div>
+                <div class="db-sec-t" id="db-sec-pattern">이런 때 이런 마음이었어요</div>
                 <div id="db-patterns"></div>
             </div>
             <div class="db-sec">
-                <div class="db-sec-t">이번 주 일기</div>
+                <div class="db-sec-t" id="db-sec-diary">이번 주 일기</div>
                 <div id="db-diaries"></div>
             </div>
         </div>
 
-        <!-- 월간 리포트 (프리미엄 경계) -->
-        <div class="db-sec" id="db-monthly-sec">
-            <div class="db-sec-t">이번 달 돌보심의 기록</div>
-            <div id="db-monthly"></div>
+        <!-- 기록 달력 · 월간/연간 리포트 (js/history.js — 무료/프리미엄 경계) -->
+        <div class="db-sec" id="hist-cal-sec">
+            <div class="db-sec-t" id="hist-sec-cal">기록 달력</div>
+            <div id="hist-cal"></div>
+            <div id="hist-note" class="hist-note" aria-live="polite"></div>
+        </div>
+        <div class="db-sec">
+            <div class="db-sec-t" id="hist-sec-month">이 달 돌보심의 기록</div>
+            <div id="hist-monthly"></div>
+        </div>
+        <div class="db-sec hidden" id="hist-year-sec">
+            <div class="db-sec-t" id="hist-sec-year">한 해 돌보심의 기록</div>
+            <div id="hist-yearly"></div>
         </div>
 
         <!-- 프리미엄 잠금 카드 (무료/유료 경계) -->
-        <button class="pm-lock-card" type="button" onclick="openPremiumModal()">
+        <button class="pm-lock-card hidden" id="pm-lock-card" type="button" onclick="openPremiumModal()">
             <span class="pm-lock-icon" onclick="devPremiumTap(event)">🔒</span>
             <span class="pm-lock-txt"><b id="pm-lock-title">월간 리포트 &amp; PDF 내보내기</b><br><span id="pm-lock-sub">프리미엄에서 만나요 · ₩1,900/월</span></span>
         </button>
@@ -540,9 +549,9 @@
         </div>
         <div class="top-side">
             <div class="top-icons">
-                <button id="btn-dashboard-top" class="icon-btn hidden" onclick="openDashboard()" title="이번 주 나의 이야기">
+                <button id="btn-dashboard-top" class="icon-btn" onclick="openDashboard()" title="나의 이야기">
                     <span class="icon-emoji">📊</span>
-                    <span class="icon-label">내 이야기</span>
+                    <span class="icon-label" id="db-icon-label">내 이야기</span>
                 </button>
                 <button class="icon-btn" onclick="openVault()" title="보관함">
                     <span class="icon-emoji">📖</span>
@@ -729,7 +738,7 @@
             <p class="blessing-streak" id="blessing-streak"></p>
         </div>
 
-        <button id="btn-dashboard" class="btn-dashboard hidden" type="button" onclick="openDashboard()">📊 이번 주 나의 이야기</button>
+        <button id="btn-dashboard" class="btn-dashboard" type="button" onclick="openDashboard()">📊 나의 이야기</button>
         <button class="btn-restart" type="button" onclick="onFinishClick()">오늘 묵상 마치기</button>
         <button id="btn-vault-closing" class="btn-vault-closing hidden" type="button" onclick="openVault()">📖 보관함 보기</button>
     </div>
@@ -783,6 +792,7 @@
 <script src="js/ui.js"></script>
 <script src="js/premium.js"></script>
 <script src="js/dashboard.js"></script>
+<script src="js/history.js"></script>
 <script src="js/demo.js"></script>
 <script src="js/sheep.js"></script>
 <script src="js/care.js"></script>

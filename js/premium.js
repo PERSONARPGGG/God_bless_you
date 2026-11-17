@@ -7,8 +7,9 @@
 
 /* ═══════════════════════════════════════
    프리미엄 (무료/유료 경계)
-   무료: 묵상 플로우 전체·보관함·스트릭·최근 60일 기록·한 달 전 회고
-   유료(₩1,900/월): 프리미엄 테마·월간 리포트·PDF 일기장·3개월 이상 지난 회고
+   무료: 묵상 플로우 전체·보관함·스트릭·나의 이야기(이번 주)·달력(이번 달·지난달)·한 달 전 회고
+   유료(₩1,900/월): 모든 달의 기록 달력·월간/연간 리포트·PDF 일기장·3개월 이상 지난 회고·프리미엄 테마
+   ※ 안내 모달(pm_f1~5)에는 실제로 구현된 것만 적는다
 ═══════════════════════════════════════ */
 /* 프리미엄 자격의 기준은 서버(Supabase subscriptions 테이블, 본인 행 읽기 전용)다.
    결제 완료 웹훅만 그 행을 쓸 수 있으므로 브라우저에서 값을 바꿔서는 열리지 않는다.
@@ -48,7 +49,7 @@ async function refreshEntitlement() {
 /* 프리미엄 여부에 따라 달라지는 화면을 모두 다시 맞춘다 */
 function onPremiumChanged() {
     safe('premium.theme',   () => restoreTheme());        // 자격이 없으면 프리미엄 테마 → 기본, 있으면 저장된 테마로
-    safe('premium.monthly', () => renderDbMonthly());     // 대시보드 월간 리포트 잠금/해제
+    safe('premium.history', () => refreshHistoryIfOpen()); // 달력 범위, 월간·연간 리포트 잠금/해제
     safe('premium.vault',   () => refreshVaultIfOpen());  // 보관함 상단 안내
     safe('premium.otd',     () => renderOnThisDay());     // 회고 카드 잠금/해제
 }
@@ -57,7 +58,7 @@ function openPremiumModal() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     document.getElementById('pm-title').textContent = L.pm_title;
     document.getElementById('pm-desc').innerHTML = L.pm_desc.replace(/\n/g,'<br>');
-    document.getElementById('pm-feats').innerHTML = [L.pm_f1,L.pm_f2,L.pm_f3,L.pm_f4,L.pm_f5,L.pm_f6].map(f=>`<li>${f}</li>`).join('');
+    document.getElementById('pm-feats').innerHTML = [L.pm_f1,L.pm_f2,L.pm_f3,L.pm_f4,L.pm_f5].map(f=>`<li>${f}</li>`).join('');
     document.getElementById('pm-price').textContent = L.pm_price;
     document.getElementById('pm-cta').textContent = lsGet('premiumInterest') ? '✓ ' + L.pm_cta : L.pm_cta;
     document.getElementById('pm-close').textContent = L.pm_close;

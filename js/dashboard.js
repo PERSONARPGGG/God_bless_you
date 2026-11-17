@@ -1,209 +1,194 @@
-/* 밤의 목장 — js/dashboard.js : 이번 주 나의 이야기(대시보드) · 월간 리포트 · PDF 일기장
-   (일반 스크립트. index.html 맨 아래에 적힌 순서대로 불러옵니다) */
+/* 밤의 목장 — js/dashboard.js : 나의 이야기(이번 주) — 서사 카드 · 감정 막대 · 요일 흐름 · 패턴 · 이번 주 일기
+   (일반 스크립트. index.html 맨 아래에 적힌 순서대로 불러옵니다)
 
-/* ── 주간 범위 계산 (일요일 시작) ── */
-function getWeekRange() {
-    const now = new Date();
+   누구나(게스트 포함) 볼 수 있는 무료 화면. 같은 오버레이 아래쪽의 달력·월간/연간 리포트·PDF는 js/history.js.
+   이번 주 기록은 기기 기록만 본다 (최근 62일은 로그인 때 클라우드와 맞춰져 있으므로 서버를 다시 묻지 않음). */
+
+const DB_TEXT = {
+    ko: {
+        db_title:'📊 나의 이야기', db_btn:'📊 나의 이야기', db_icon_label:'내 이야기',
+        db_sec_emo:'이번 주 감정', db_sec_flow:'요일별 감정 흐름', db_sec_pattern:'이런 때 이런 마음이었어요', db_sec_diary:'이번 주 일기',
+        db_more:'상세히 보기 ▾', db_less:'간략히 보기 ▴',
+        db_emo:['감사','평안','걱정','지침','아픔','기도'],
+        db_when:['일할 때','가족과 함께일 때','공부할 때','사람들과 있을 때','무언가 있었을 때'],
+        db_needing:['위로가 필요해서','힘이 필요해서','지혜가 필요해서','쉬고 싶어서'],
+        db_nar_main:['이번 주, 감사가 넘쳤던 한 주를 보냈군요','이번 주, 마음이 평안했군요','이번 주, 걱정이 마음에 있었군요',
+                     '이번 주, 많이 지치셨군요','이번 주, 마음이 많이 아팠군요','이번 주, 기도로 하루를 마쳤네요'],
+        db_nar_sub:['감사한 마음이 하나님께 닿았을 거예요.','하나님의 평안이 함께했던 한 주예요.','그래도 여기 오셨네요. 그것만으로 충분해요.',
+                    '정말 수고하셨어요. 오늘 밤은 푹 쉬세요.','그 아픔도 하나님이 아세요. 혼자가 아니에요.','하나님이 그 기도를 들으셨어요.'],
+        db_nar_none:'이번 주 아직 기록이 없어요', db_nar_none_sub:'오늘 하루를 남겨보세요 ✦',
+        db_times:'{n}회',
+        db_pat_combo:'{w} <strong style="color:{c}">{e}</strong>의 마음이 많았어요',
+        db_pat_need:'이번 주 가장 많이 <strong>{n}</strong> 하나님 앞에 나왔어요',
+        db_pat_empty:'기록이 쌓이면 패턴을 보여드려요',
+        db_diary_empty:'이번 주 일기가 없어요<br>오늘 한 줄 남겨보세요 ✦',
+    },
+    en: {
+        db_title:'📊 My Story', db_btn:'📊 My Story', db_icon_label:'My story',
+        db_sec_emo:'This week', db_sec_flow:'Day by day', db_sec_pattern:'When you felt this way', db_sec_diary:'Notes this week',
+        db_more:'Show details ▾', db_less:'Show less ▴',
+        db_emo:['Grateful','At peace','Worried','Worn out','Hurting','Prayerful'],
+        db_when:['At work,','With family,','While studying,','Around people,','On hard-to-name days,'],
+        db_needing:['needing comfort','needing strength','needing wisdom','needing rest'],
+        db_nar_main:['A week overflowing with thanks','A week of a quiet heart','A week with worry on your heart',
+                     'A week that wore you out','A week when your heart hurt','A week you closed in prayer'],
+        db_nar_sub:['Your thanks has reached God.','God\'s peace was with you this week.','And still you came here. That is enough.',
+                    'You have done so much. Rest well tonight.','God knows that pain. You are not alone.','God has heard those prayers.'],
+        db_nar_none:'No records yet this week', db_nar_none_sub:'Leave a note about today ✦',
+        db_times:'{n}×',
+        db_pat_combo:'{w} you were often <strong style="color:{c}">{e}</strong>',
+        db_pat_need:'This week you most often came before God <strong>{n}</strong>',
+        db_pat_empty:'Patterns appear as your records grow',
+        db_diary_empty:'No notes this week<br>Leave one line tonight ✦',
+    },
+    ja: {
+        db_title:'📊 わたしの物語', db_btn:'📊 わたしの物語', db_icon_label:'物語',
+        db_sec_emo:'今週の気持ち', db_sec_flow:'曜日ごとの流れ', db_sec_pattern:'こんなとき、こんな気持ちでした', db_sec_diary:'今週の日記',
+        db_more:'くわしく見る ▾', db_less:'かんたんに見る ▴',
+        db_emo:['感謝','平安','心配','疲れ','痛み','祈り'],
+        db_when:['仕事のとき、','家族といるとき、','勉強のとき、','人といるとき、','言葉にしにくい日、'],
+        db_needing:['慰めを求めて','力を求めて','知恵を求めて','休みを求めて'],
+        db_nar_main:['今週は、感謝があふれた一週間でしたね','今週は、心が平安でしたね','今週は、心配が心にありましたね',
+                     '今週は、とても疲れましたね','今週は、心がとても痛みましたね','今週は、祈りで一日を終えましたね'],
+        db_nar_sub:['その感謝は神様に届いています。','神様の平安がともにあった一週間です。','それでもここに来ましたね。それだけで十分です。',
+                    '本当におつかれさまでした。今夜はゆっくり休んでください。','その痛みも神様はご存じです。ひとりではありません。','神様はその祈りを聞いておられます。'],
+        db_nar_none:'今週はまだ記録がありません', db_nar_none_sub:'今日のことを残してみましょう ✦',
+        db_times:'{n}回',
+        db_pat_combo:'{w}<strong style="color:{c}">{e}</strong>の気持ちが多かったです',
+        db_pat_need:'今週はいちばん多く<strong>{n}</strong>神様の前に来ました',
+        db_pat_empty:'記録がたまるとパターンをお見せします',
+        db_diary_empty:'今週の日記はありません<br>今夜ひとこと残してみましょう ✦',
+    },
+};
+Object.keys(DB_TEXT).forEach(k => Object.assign(LANG_DATA[k], DB_TEXT[k]));
+
+const DB_EMO_LIST = ['감사','평안','걱정','지침','아픔','기도'];
+const DB_TOPIC_LIST = ['일','가족','공부','사람','모름'];
+const DB_NEED_LIST = ['위로','힘','지혜','쉼'];
+const DB_EMO_COLORS = {감사:'#f59e0b',평안:'#10b981',걱정:'#6366f1',지침:'#8b5cf6',아픔:'#ef4444',기도:'#3b82f6'};
+const HEAVY_EMOS = ['걱정', '지침', '아픔'];
+
+/* 문구의 {이름} 자리에 값을 넣는다 */
+function fillText(s, vars) { return String(s).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m)); }
+/* 감정의 짧은 이름 (현재 언어) */
+function emoShort(e) {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko, i = DB_EMO_LIST.indexOf(e);
+    return i >= 0 ? L.db_emo[i] : String(e || '');
+}
+
+/* ── 주간 범위 (일요일 시작). base가 있으면 그 날짜가 속한 주 ── */
+function getWeekRange(base) {
+    const now = base ? parseYmd(base) : new Date();
     const sun = addDays(now, -now.getDay());
     return { startStr: ymd(sun), endStr: ymd(addDays(sun, 6)) };
 }
 
-/* ── 대시보드 열기 ── */
-async function openDashboard() {
-    if (!isDevMode()) { toast('🔒 준비 중인 기능입니다'); return; }
-    _activePersonaData = null;
-    const data = await getDashboardData();
-    renderDashboard(data);
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    const lt = document.getElementById('pm-lock-title'), ls = document.getElementById('pm-lock-sub');
-    if (lt) lt.textContent = L.pm_lock_title;
-    if (ls) ls.textContent = L.pm_lock_sub;
-    showOverlay('overlay-dashboard');
-}
-
-/* ── 데이터 (Supabase 우선, localStorage 폴백) ── */
-async function getDashboardData() {
+/* 이번 주 기록 (기기 기록, 날짜순) */
+function getDashboardData() {
     const { startStr, endStr } = getWeekRange();
-    if (sbUser && sb) {
-        try {
-            const { data } = await sb.from('mood_history')
-                .select('*').eq('user_id', sbUser.id)
-                .gte('date', startStr).lte('date', endStr)
-                .order('date', { ascending: true });
-            if (data && data.length > 0) return data.map(r => ({
-                date: r.date, emotion: r.emotion, topic: r.topic,
-                need: r.need, diary: r.diary_text, emoji: E_EMOJI[r.emotion]
-            }));
-        } catch(e) {}
-    }
     return getMoods().filter(m => m.date >= startStr && m.date <= endStr)
-               .sort((a,b) => a.date.localeCompare(b.date));
+                     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-/* ── 렌더링 ── */
-function renderDashboard(data) {
-    const { startStr } = getWeekRange();
-    renderDbNarrative(data);
-    renderDbEmoBars(data);
-    renderDbDayFlow(data, startStr);
-    renderDbPatterns(data);
-    renderDbDiaries(data);
-    renderDbMonthly();
+/* ── 열기: focus === 'calendar' 이면 달력 위치로 내려감 ── */
+function openDashboard(focus) {
+    safe('db.labels', () => applyDbLabels());
+    safe('db.persona', () => {
+        const box = document.querySelector('.persona-demo');
+        if (box) box.classList.toggle('hidden', !isDevMode());   // 체험 데이터 선택은 시연(개발자 모드)에서만
+        document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
+    });
+    renderDashboard(getDashboardData());
+    safe('db.history', () => openHistory());
+    showOverlay('overlay-dashboard');
+    if (focus === 'calendar') later('db.focus', () => {
+        const sec = document.getElementById('hist-cal-sec');
+        if (sec && sec.scrollIntoView) sec.scrollIntoView({ block: 'start' });
+    }, 60);
+}
+
+/* 오버레이 안의 고정 글자를 현재 언어로 */
+function applyDbLabels() {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    const s = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
+    s('db-title', L.db_title); s('db-back', L.policy_back);
+    s('db-sec-emo', L.db_sec_emo); s('db-sec-flow', L.db_sec_flow);
+    s('db-sec-pattern', L.db_sec_pattern); s('db-sec-diary', L.db_sec_diary);
+    s('btn-dashboard', L.db_btn); s('db-icon-label', L.db_icon_label);
     const det = document.getElementById('db-detail');
-    const btn = document.getElementById('db-detail-btn');
+    s('db-detail-btn', det && !det.classList.contains('hidden') ? L.db_less : L.db_more);
+}
+
+/* ── 그리기: 한 칸이 실패해도 나머지 칸은 그려지게 칸마다 따로 ──
+   weekBase: 체험 데이터처럼 이번 주가 아닌 기록을 보여 줄 때 그 주의 아무 날짜 */
+function renderDashboard(data, weekBase) {
+    const range = getWeekRange(weekBase);
+    safe('db.narrative', () => renderDbNarrative(data, range));
+    safe('db.bars',      () => renderDbEmoBars(data));
+    safe('db.flow',      () => renderDbDayFlow(data, range.startStr));
+    safe('db.patterns',  () => renderDbPatterns(data));
+    safe('db.diaries',   () => renderDbDiaries(data));
+    const det = document.getElementById('db-detail');
     if (det) det.classList.add('hidden');
-    if (btn) btn.textContent = '상세히 보기 ▾';
-}
-
-/* ── 이번 달 기록 (localStorage 기준 — 시연 목적, Supabase 월간 조회는 v3.0 본구현에서) ── */
-function getMonthEntries() {
-    const ym = todayStr().slice(0, 7); // 'YYYY-MM'
-    // 하루에 여러 번 기록했으면 그날의 마지막 기록 하나만 (목록은 최신순이라 먼저 나온 것이 마지막 기록)
-    const byDay = new Map();
-    getMoods().forEach(m => { if (m.date.startsWith(ym) && !byDay.has(m.date)) byDay.set(m.date, m); });
-    return [...byDay.values()].sort((a, b) => a.date.localeCompare(b.date));
-}
-
-/* ── 월간 리포트: 프리미엄이면 실데이터, 아니면 블러+자물쇠 ── */
-const HEAVY_EMOS = ['걱정', '지침', '아픔'];
-function renderDbMonthly() {
-    const el = document.getElementById('db-monthly');
-    if (!el) return;
-    const entries = _activePersonaData || getMonthEntries();
-    const cnt = {};
-    DB_EMO_LIST.forEach(e => cnt[e] = 0);
-    entries.forEach(m => { if (cnt[m.emotion] !== undefined) cnt[m.emotion]++; });
-    const total = entries.length;
-    const heavy = entries.filter(m => HEAVY_EMOS.includes(m.emotion)).length;
-    const top = Object.entries(cnt).sort((a, b) => b[1] - a[1])[0];
-    const monthNum = new Date().getMonth() + 1;
-
-    /* 돌보심의 기록 — 숫자가 아니라 문장으로 */
-    const lines = [];
-    if (!total) {
-        lines.push(`${monthNum}월의 기록이 아직 없어요. 오늘 밤부터 시작해보세요 ✦`);
-    } else {
-        lines.push(`${monthNum}월, <b>${total}일 밤</b>을 목장에서 보내셨어요.`);
-        if (heavy > 0) lines.push(`마음이 무거웠던 <b>${heavy}일</b>에도, 매일 말씀이 함께했어요.`);
-        if (top && top[1] > 0) lines.push(`가장 자주 머문 마음은 <b>‘${top[0]}’</b>(${top[1]}일)이었어요.`);
-    }
-    const bodyHtml = `<div class="db-month-body">
-        ${lines.map(l => `<div class="db-month-line">${l}</div>`).join('')}
-    </div>`;
-
-    if (isPremium()) {
-        el.innerHTML = `<div class="db-month-wrap">${bodyHtml}</div>
-            <button class="db-pdf-btn" type="button" onclick="exportDiaryPdf()">📄 PDF로 내보내기 — 나의 신앙 일기장</button>`;
-    } else {
-        el.innerHTML = `<div class="db-month-wrap locked">${bodyHtml}
-            <button class="db-month-lock" type="button" onclick="openPremiumModal()">
-                <span class="lk-ic">🔒</span>
-                <span class="lk-tx"><b>월간 리포트 &amp; PDF 일기장</b><br>프리미엄에서 만나요 · ₩1,900/월</span>
-            </button>
-        </div>`;
-    }
-}
-
-/* ── PDF 내보내기: 이번 달 기록 → 인쇄 다이얼로그 (PDF로 저장) ── */
-function exportDiaryPdf() {
-    const entries = getMonthEntries();
-    if (!entries.length) { toast('이번 달 기록이 아직 없어요'); return; }
-    const pd = document.getElementById('print-diary');
-    const now = new Date();
-    const ymLabel = `${now.getFullYear()}년 ${now.getMonth() + 1}월`;
-    const fmtDate = ds => {
-        const d = parseYmd(ds);
-        const dow = ['일','월','화','수','목','금','토'][d.getDay()];
-        return `${d.getMonth() + 1}월 ${d.getDate()}일 (${dow})`;
-    };
-    const entryHtml = entries.map(m => {
-        const pool = VERSE_POOL[`${m.emotion}_${m.need}`];
-        const verse = pool && pool[0];
-        return `<div class="pd-entry">
-            <div class="pd-date">${fmtDate(m.date)}</div>
-            <div class="pd-emo">${m.emoji || ''} ${escHtml(m.emotion)}</div>
-            ${verse ? `<div class="pd-verse">“${escHtml(verse.v)}” <span class="pd-ref">— ${escHtml(verse.r)}</span></div>` : ''}
-            ${m.diary ? `<div class="pd-diary">${escHtml(m.diary)}</div>` : ''}
-        </div>`;
-    }).join('');
-    pd.innerHTML = `
-        <div class="pd-cover">
-            <div class="pd-moon">🌙</div>
-            <h1>나의 신앙 일기장</h1>
-            <div class="pd-sub">밤 의 목 장</div>
-            <div class="pd-range">${ymLabel} · ${entries.length}일의 기록</div>
-        </div>
-        ${entryHtml}
-        <div class="pd-foot">🐑 밤의 목장 — 오늘 밤, 주님이 누이시는 곳</div>`;
-    window.print();
+    safe('db.labels', () => applyDbLabels());
 }
 
 /* 서사 카드 */
-const DB_NARRATIVES = {
-    감사: { main:'이번 주, 감사가 넘쳤던 한 주를 보냈군요 🙏', sub:'감사한 마음이 하나님께 닿았을 거예요.' },
-    평안: { main:'이번 주, 마음이 평안했군요 🍃', sub:'하나님의 평안이 함께했던 한 주예요.' },
-    걱정: { main:'이번 주, 걱정이 마음에 있었군요 💙', sub:'그래도 여기 오셨네요. 그것만으로 충분해요.' },
-    지침: { main:'이번 주, 많이 지치셨군요 🌙', sub:'정말 수고하셨어요. 오늘 밤은 푹 쉬세요.' },
-    아픔: { main:'이번 주, 마음이 많이 아팠군요 🌷', sub:'그 아픔도 하나님이 아세요. 혼자가 아니에요.' },
-    기도: { main:'이번 주, 기도로 하루를 마쳤네요 ✨', sub:'하나님이 그 기도를 들으셨어요.' }
-};
-function renderDbNarrative(data) {
+function renderDbNarrative(data, range) {
     const el = document.getElementById('db-narrative');
     if (!el) return;
-    const { startStr, endStr } = getWeekRange();
-    const wl = `${startStr.slice(5).replace('-','/')}(일) ~ ${endStr.slice(5).replace('-','/')}(토)`;
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    const md = s => s.slice(5).replace('-', '/');
+    const wl = `${md(range.startStr)}(${L.day_names[0]}) ~ ${md(range.endStr)}(${L.day_names[6]})`;
     if (!data.length) {
         el.innerHTML = `<div class="db-narrative-week">${wl}</div>
-            <div class="db-narrative-main">이번 주 아직 기록이 없어요</div>
-            <div class="db-narrative-sub">오늘 하루를 남겨보세요 ✦</div>`;
+            <div class="db-narrative-main">${L.db_nar_none}</div>
+            <div class="db-narrative-sub">${L.db_nar_none_sub}</div>`;
         return;
     }
     const cnt = {};
     data.forEach(m => { cnt[m.emotion] = (cnt[m.emotion]||0)+1; });
     const top = Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0][0];
-    const n = DB_NARRATIVES[top] || { main:'이번 주를 함께해주셨어요', sub:'하나님이 함께하셨어요.' };
+    const i = Math.max(0, DB_EMO_LIST.indexOf(top));
     el.innerHTML = `<div class="db-narrative-week">${wl}</div>
-        <div class="db-narrative-main">${n.main}</div>
-        <div class="db-narrative-sub">${n.sub}</div>`;
+        <div class="db-narrative-main">${L.db_nar_main[i]}</div>
+        <div class="db-narrative-sub">${L.db_nar_sub[i]}</div>`;
 }
 
-/* 감정 바 */
-const DB_EMO_COLORS = {감사:'#f59e0b',평안:'#10b981',걱정:'#6366f1',지침:'#8b5cf6',아픔:'#ef4444',기도:'#3b82f6'};
-const DB_EMO_LIST = ['감사','평안','걱정','지침','아픔','기도'];
+/* 감정 막대 */
 function renderDbEmoBars(data) {
     const el = document.getElementById('db-emo-bars');
     if (!el) return;
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const cnt = {};
     DB_EMO_LIST.forEach(e => cnt[e] = 0);
     data.forEach(m => { if (cnt[m.emotion] !== undefined) cnt[m.emotion]++; });
     const max = Math.max(...Object.values(cnt), 1);
-    // 먼저 width:0 으로 렌더링 후 transition으로 늘어남
-    el.innerHTML = DB_EMO_LIST.map((e, i) => {
+    // 먼저 width:0 으로 그린 뒤 transition으로 늘어남
+    el.innerHTML = DB_EMO_LIST.map(e => {
         const c = cnt[e], pct = Math.round(c/max*100), col = DB_EMO_COLORS[e];
         return `<div class="db-emo-row">
-            <span class="db-emo-lbl">${e}</span>
+            <span class="db-emo-lbl">${escHtml(emoShort(e))}</span>
             <div class="db-emo-track">
                 <div class="db-emo-fill" data-pct="${pct}" style="width:0;background:linear-gradient(90deg,${col},${col}99);">
-                    ${c > 0 ? `<span class="db-emo-cnt">${c}회</span>` : ''}
+                    ${c > 0 ? `<span class="db-emo-cnt">${fillText(L.db_times, { n: c })}</span>` : ''}
                 </div>
                 ${c === 0 ? '<span class="db-emo-zero">-</span>' : ''}
             </div>
         </div>`;
     }).join('');
-    // 한 프레임 후 실제 너비로 transition
     requestAnimationFrame(() => {
         el.querySelectorAll('.db-emo-fill[data-pct]').forEach((bar, i) => {
-            setTimeout(() => { bar.style.width = bar.dataset.pct + '%'; }, i * 90);
+            later('db.bar', () => { bar.style.width = bar.dataset.pct + '%'; }, i * 90);
         });
     });
 }
 
 /* 요일별 흐름 */
-const DB_DAY_NAMES = ['일','월','화','수','목','금','토'];
-const DB_EMO_EMOJI = {감사:'🙏',평안:'😌',걱정:'😔',지침:'😞',아픔:'😢',기도:'✨'};
 function renderDbDayFlow(data, startStr) {
     const el = document.getElementById('db-day-flow');
     if (!el) return;
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const byDate = {};
     data.forEach(m => { byDate[m.date] = m; });
     const today = todayStr();
@@ -211,61 +196,52 @@ function renderDbDayFlow(data, startStr) {
     el.innerHTML = Array.from({length:7}, (_,i) => {
         const ds = ymd(addDays(start, i));
         const m = byDate[ds];
-        const isToday = ds === today;
-        const col = m ? DB_EMO_COLORS[m.emotion] : '';
-        const emoji = m ? (DB_EMO_EMOJI[m.emotion]||'·') : '';
-        return `<div class="db-day-col${isToday?' db-day-today':''}">
+        const col = m ? (DB_EMO_COLORS[m.emotion] || '#888') : '';
+        return `<div class="db-day-col${ds === today ? ' db-day-today' : ''}">
             <div class="db-day-dot${m?'':' empty'}"
-                style="${m?`background:${col}22;border:2px solid ${col};`:''}">${emoji}</div>
-            <div class="db-day-name">${DB_DAY_NAMES[i]}</div>
+                style="${m?`background:${col}22;border:2px solid ${col};`:''}">${m ? (E_EMOJI[m.emotion] || '·') : ''}</div>
+            <div class="db-day-name">${L.day_names[i]}</div>
         </div>`;
     }).join('');
 }
 
-/* 패턴 인사이트 */
-const DB_TOPIC_LBL = {일:'일할 때',가족:'가족과 함께일 때',공부:'공부할 때',사람:'사람들과 있을 때',모름:'무언가 있었을 때'};
-const DB_NEED_LBL = {위로:'위로가 필요했고',힘:'힘이 필요했고',지혜:'지혜가 필요했고',쉼:'쉬고 싶었고'};
+/* 패턴 */
 function renderDbPatterns(data) {
     const el = document.getElementById('db-patterns');
     if (!el) return;
-    if (!data.length) { el.innerHTML = '<div class="db-empty">기록이 쌓이면 패턴을 보여드려요</div>'; return; }
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    if (!data.length) { el.innerHTML = `<div class="db-empty">${L.db_pat_empty}</div>`; return; }
     const combos = {};
     data.forEach(m => {
-        if (!m.topic || !m.emotion) return;
+        if (!DB_TOPIC_LIST.includes(m.topic) || !DB_EMO_LIST.includes(m.emotion)) return;
         const k = m.topic + '|' + m.emotion;
         combos[k] = (combos[k]||0) + 1;
     });
-    const sorted = Object.entries(combos).sort((a,b)=>b[1]-a[1]).slice(0,2);
-    let html = sorted.map(([k, c]) => {
+    let html = Object.entries(combos).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([k, c]) => {
         const [topic, emo] = k.split('|');
-        const tl = DB_TOPIC_LBL[topic] || topic;
-        return `<div class="db-pattern"><strong>${escHtml(tl)}</strong>
-            <strong style="color:${DB_EMO_COLORS[emo] || 'inherit'}">${escHtml(emo)}</strong>한 감정이 많았어요
-            <span style="float:right;font-size:var(--fs-2xs);opacity:.4">${c}회</span></div>`;
+        const line = fillText(L.db_pat_combo, { w: `<strong>${escHtml(L.db_when[DB_TOPIC_LIST.indexOf(topic)])}</strong>`,
+                                                c: DB_EMO_COLORS[emo], e: escHtml(emoShort(emo)) });
+        return `<div class="db-pattern">${line}
+            <span style="float:right;font-size:var(--fs-2xs);opacity:.4">${fillText(L.db_times, { n: c })}</span></div>`;
     }).join('');
     const needCnt = {};
-    data.forEach(m => { if(m.need) needCnt[m.need] = (needCnt[m.need]||0)+1; });
+    data.forEach(m => { if (DB_NEED_LIST.includes(m.need)) needCnt[m.need] = (needCnt[m.need]||0)+1; });
     const topNeed = Object.entries(needCnt).sort((a,b)=>b[1]-a[1])[0];
-    if (topNeed) {
-        const nl = DB_NEED_LBL[topNeed[0]] || topNeed[0];
-        html += `<div class="db-pattern">이번 주 가장 많이 <strong>${escHtml(nl)}</strong> 하나님 앞에 나왔어요</div>`;
-    }
-    el.innerHTML = html || '<div class="db-empty">패턴 분석을 위해 더 많은 기록이 필요해요</div>';
+    if (topNeed) html += `<div class="db-pattern">${fillText(L.db_pat_need, { n: escHtml(L.db_needing[DB_NEED_LIST.indexOf(topNeed[0])]) })}</div>`;
+    el.innerHTML = html || `<div class="db-empty">${L.db_pat_empty}</div>`;
 }
 
 /* 이번 주 일기 */
 function renderDbDiaries(data) {
     const el = document.getElementById('db-diaries');
     if (!el) return;
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const withDiary = data.filter(m => m.diary).slice().reverse();
-    if (!withDiary.length) {
-        el.innerHTML = '<div class="db-empty">이번 주 일기가 없어요<br>오늘 한 줄 남겨보세요 ✦</div>';
-        return;
-    }
+    if (!withDiary.length) { el.innerHTML = `<div class="db-empty">${L.db_diary_empty}</div>`; return; }
     el.innerHTML = withDiary.map(m => {
         const col = DB_EMO_COLORS[m.emotion] || 'rgba(255,255,255,.2)';
         return `<div class="db-diary-item" style="border-left-color:${col}">
-            <div class="db-diary-date">${escHtml(m.date.slice(5).replace('-','/'))} · ${escHtml(m.emotion)}</div>
+            <div class="db-diary-date">${escHtml(m.date.slice(5).replace('-','/'))} · ${escHtml(emoShort(m.emotion))}</div>
             <div class="db-diary-txt">${escHtml(m.diary)}</div>
         </div>`;
     }).join('');
@@ -274,9 +250,7 @@ function renderDbDiaries(data) {
 /* 상세 토글 */
 function toggleDbDetail() {
     const det = document.getElementById('db-detail');
-    const btn = document.getElementById('db-detail-btn');
     if (!det) return;
-    const open = !det.classList.contains('hidden');
-    det.classList.toggle('hidden', open);
-    if (btn) btn.textContent = open ? '상세히 보기 ▾' : '간략히 보기 ▴';
+    det.classList.toggle('hidden');
+    applyDbLabels();
 }
