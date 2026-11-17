@@ -11,7 +11,7 @@ const _EMO_ICON = ['😊','😌','😔','😞','😢','🙏'];
 const _TOP_IDX  = { 일:0, 가족:1, 공부:2, 사람:3, 모름:4 };
 const _TOP_ICON = ['💼','🏠','📚','🤝','🌫️'];
 const _NEE_IDX  = { 위로:0, 힘:1, 지혜:2, 쉼:3 };
-const _NEE_ICON = ['🌸','💪','💡','🌙'];
+const _NEE_ICON = ['🌸','💪','💡','🍃'];
 function eLabel(k){ const L=LANG_DATA[appLang]||LANG_DATA.ko; const i=_EMO_IDX[k]; return i!=null?_EMO_ICON[i]+' '+L.emo[i]:k; }
 function tLabel(k){ const L=LANG_DATA[appLang]||LANG_DATA.ko; const i=_TOP_IDX[k];  return i!=null?_TOP_ICON[i]+' '+L.topic[i]:k; }
 function nLabel(k){ const L=LANG_DATA[appLang]||LANG_DATA.ko; const i=_NEE_IDX[k];  return i!=null?_NEE_ICON[i]+' '+L.need[i]:k; }

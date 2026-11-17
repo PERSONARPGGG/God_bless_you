@@ -465,7 +465,7 @@ scenario('클라우드 기록 맞추기(가짜 서버): 올리기·내려받기�
     p.eq(await p.eval(`[__t.ls('moodHistory').length, __srv.mood_history.length, __srv.saved_verses.length]`), [3, 5, 2], '다시 맞춰도 중복이 생기지 않음');
     // 보관함: 예전 방식 즐겨찾기와 새 방식이 함께 보이고, 지우면 서버에서도 지워짐
     await p.eval(`openVault(); switchTab('saved')`);
-    p.eq(await p.eval(`[...document.querySelectorAll('.svi-context')].map(e => e.textContent)`), ['😊 감사했어요 · 🌙 그냥 쉬고 싶어요', '😌 평안했어요 · 🌙 그냥 쉬고 싶어요'], '즐겨찾기 표시(예전 방식·서버에서 온 것)');
+    p.eq(await p.eval(`[...document.querySelectorAll('.svi-context')].map(e => e.textContent)`), ['😊 감사했어요 · 🌙 그냥 쉬고 싶어요', '😌 평안했어요 · 🍃 그냥 쉬고 싶어요'], '즐겨찾기 표시(예전 방식·서버에서 온 것)');
     await p.eval(`document.querySelectorAll('#saved-list .svi-del')[1].click()`);
     await sleep(100);
     p.eq(await p.eval(`__srv.saved_verses.map(r => r.verse_ref)`), ['시편 23:1'], '즐겨찾기를 지우면 서버에서도 지워짐');
@@ -709,6 +709,49 @@ scenario('구독 결제·해지·AI 돌아보기 화면(가짜 서버·가짜 �
     const before = await p.eval(`__api.filter(a => a.name === 'billing-cancel').length`);
     await p.eval(`deleteAccount()`); await sleep(300);
     p.eq(await p.eval(`[__api.filter(a => a.name === 'billing-cancel').length, sbUser]`), [before + 1, null], '계정 삭제 때 구독 해지를 먼저 요청');
+});
+
+/* 화면 둘러보기: 주요 화면을 차례로 열어 본다. --shots=폴더 를 주면 화면마다 PNG가 남아 디자인을 눈으로 볼 수 있다 */
+scenario('화면 둘러보기: 주요 화면이 모두 열리고 빈 글·undefined가 없음', {
+    now: '2026-11-17T21:00:00+09:00',
+    seed: { userName: '은혜', visitDates: JSON.stringify(['2026-11-15', '2026-11-16']), moodHistory: JSON.stringify([
+        { date: '2026-11-16', emotion: '걱정', topic: '일', need: '힘', emoji: '😔', diary: '내일 일이 걱정이지만 맡겨드린다.' },
+        { date: '2026-11-15', emotion: '감사', topic: '가족', need: '쉼', emoji: '😊' },
+        { date: '2026-10-17', emotion: '평안', topic: '모름', need: '쉼', emoji: '😌', diary: '한 달 전의 일기' }]) },
+}, async p => {
+    await p.goto();
+    const look = async name => {
+        await sleep(350);
+        const txt = await p.eval(`document.body.innerText`);
+        p.ok(!/undefined|\bNaN\b|\[object /.test(txt), name + ': 화면에 undefined·NaN·[object 가 보임');
+        const w = await p.eval(`document.documentElement.scrollWidth - window.innerWidth`);
+        p.ok(w <= 1, name + ': 가로로 ' + w + 'px 넘침');
+        await p.shot('tour-' + name);
+    };
+    await look('01-main');
+    await p.eval(`__t.click('#step1 .emo-btn, #step1 button')`).catch(() => {});
+    await p.flow('지침', '일', '쉼');
+    await p.waitFor(`!document.getElementById('r-verse').classList.contains('typing')`, '말씀 타이핑 끝', 15000);
+    await look('02-result-top');
+    await p.eval(`window.scrollTo(0, document.body.scrollHeight)`);
+    await look('03-result-bottom');
+    await p.eval(`document.getElementById('diary-input').value = '오늘도 감사합니다'; __t.click('.btn-restart')`);
+    await p.waitFor(`document.getElementById('step4').classList.contains('closing')`, '마무리');
+    await p.eval(`window.scrollTo(0, 0)`);
+    await look('04-closing');
+    await p.eval(`openVault()`); await look('05-vault-mood');
+    await p.eval(`switchTab('saved')`); await look('06-vault-saved');
+    await p.eval(`hideOverlay('overlay-vault'); openSettings()`); await look('07-settings-top');
+    await p.eval(`document.getElementById('overlay-settings').scrollTop = 99999`); await look('08-settings-bottom');
+    await p.eval(`hideOverlay('overlay-settings'); openPremiumModal()`); await look('09-premium');
+    await p.eval(`closePremiumModal(); openDashboard()`);
+    await p.waitFor(`document.querySelectorAll('#hist-cal .hc-day').length > 27`, '달력');
+    await look('10-story');
+    await p.eval(`hideOverlay('overlay-dashboard'); openPolicy('privacy')`); await look('11-policy');
+    await p.eval(`hideOverlay('overlay-policy'); restart()`);
+    await p.waitFor(`__t.vis('#step1')`, '처음으로');
+    await p.eval(`window.scrollTo(0, 0)`);
+    await look('12-main-after');
 });
 
 scenario('좁은 화면(360px)·매우 큰 글씨: 가로로 넘치지 않음', { width: 360, height: 640, seed: { userName: '아주긴이름열두글자까지입력', fontLevel: '2' } }, async p => {

@@ -651,23 +651,6 @@
         .wc-streak    { text-align:center;padding:14px 16px;margin-top:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px; }
         .wc-streak-num { font-size:26px;font-weight:800;color:rgba(200,168,112,.9);line-height:1; }
         .wc-streak-lbl { font-size:var(--fs-2xs);color:rgba(255,255,255,.35);margin-top:4px; }
-        /* 프리미엄 게이트 */
-        .premium-gate {
-            text-align:center;padding:36px 20px 32px;margin-top:8px;
-            background:rgba(255,255,255,.04);border:1px solid rgba(200,168,112,.15);
-            border-radius:20px;
-        }
-        .premium-gate-icon  { font-size:34px;margin-bottom:10px; }
-        .premium-gate-title { font-size:var(--fs-lg);font-weight:700;color:rgba(255,255,255,.85);margin-bottom:6px; }
-        .premium-gate-desc  { font-size:var(--fs-sm);color:rgba(255,255,255,.4);line-height:1.75;margin-bottom:20px; }
-        .premium-gate-btn {
-            padding:12px 28px;border-radius:14px;border:none;
-            background:linear-gradient(135deg,rgba(60,100,210,.85),rgba(80,40,180,.85));
-            color:#fff;font-size:var(--fs-base);font-family:inherit;cursor:pointer;
-            font-weight:600;transition:all .2s;-webkit-tap-highlight-color:transparent;
-        }
-        .premium-gate-btn:hover { transform:translateY(-1px);box-shadow:0 6px 20px rgba(60,80,200,.35); }
-        .vault-tab .pm-star { font-size:8px; /* 장식 기호 */color:rgba(200,168,112,.75);vertical-align:super;margin-left:1px; }
 
         /* 설정 */
         .settings-section { margin-bottom:18px; }
@@ -1612,3 +1595,13 @@
     .ai-card p{font-size:var(--fs-sm);color:rgba(255,255,255,.88);line-height:1.85;margin:0 0 10px;overflow-wrap:anywhere;}
     .ai-note{font-size:var(--fs-2xs);color:rgba(255,255,255,.6);line-height:1.6;border-top:1px dashed rgba(255,255,255,.18);padding-top:10px;}
     .ai-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;margin-top:6px;}
+
+    /* ═══════════════════════════════════════════════════════
+       v2.9 중간 점검 (2026-11-17)
+    ═══════════════════════════════════════════════════════ */
+    /* 한국어 말씀·묵상은 단어 중간에서 줄을 바꾸지 않는다 ("마/음이" 처럼 끊기던 문제) */
+    .verse-text, .reflect-text, .enc-text, .ht-text, .svi-verse, .hc-entry-verse, .mood-diary, .db-diary-txt { word-break:keep-all; overflow-wrap:break-word; }
+    /* 마무리 타이머: 스크롤하면 카드 위에 흐릿한 숫자만 겹쳐 보이던 것 → 읽히는 알약 모양 */
+    .closing-timer { background:rgba(10,14,40,.72); color:rgba(255,255,255,.72); border:1px solid rgba(255,255,255,.14); }
+    /* 설치 안내가 떠 있는 동안 맨 아래 내용이 가려지지 않게 */
+    body:has(.install-nudge.visible) .page-wrap { padding-bottom:150px; }

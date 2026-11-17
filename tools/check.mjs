@@ -137,9 +137,10 @@ for (const f of scripts)
 /* ── 7. 금지 패턴 ── */
 for (const f of scripts) {
     code[f].split('\n').forEach((line, i) => {
+        if (line.includes('🌙')) err(`${f}:${i + 1}: 달 이모지 사용 금지 (CLAUDE.md v2.7 — 달은 .moon-shape 로만)`);
         if (f !== 'js/core.js' && /toISOString\(\)\s*\.slice\(0,\s*(10|7)\)/.test(line))
             err(`${f}:${i + 1}: toISOString().slice() 로 날짜를 만들면 UTC 기준이라 한국 자정~오전 9시에 하루가 밀림 → ymd() / todayStr() 사용`);
-        if (/service_role|sb_secret_/.test(line)) err(`${f}:${i + 1}: 서버 전용 키가 브라우저 코드에 있음`);
+        if (/service_role|sb_secret_|test_sk_|live_sk_|sk-or-/.test(line)) err(`${f}:${i + 1}: 서버 전용 키가 브라우저 코드에 있음`);
         if (/\bsk-or-|\btest_sk_|\blive_sk_/.test(line)) err(`${f}:${i + 1}: 비밀 키(OpenRouter/토스 시크릿)가 브라우저 코드에 있음`);
     });
 }

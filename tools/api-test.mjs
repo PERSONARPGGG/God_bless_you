@@ -123,6 +123,13 @@ test('구독 시작: 로그인 확인 → 빌링키 발급 → 첫 결제 → �
     eq([again.status, w.toss.charges.length], [200, 1], '같은 요청이 한 번 더 와도 성공으로 답하고 이중 결제 없음');
 });
 
+test('기간 없는 이용권을 가진 사람은 결제되지 않음', async () => {
+    const w = world('2026-11-17T12:00:00Z');
+    w.tables.subscriptions.push({ user_id: U1, status: 'active', current_period_end: null, plan: null });
+    const r = await w.call('billing-confirm', { token: 'tok-u1', body: { authKey: 'a1', plan: 'monthly' } });
+    eq([r.status, w.toss.issued, w.toss.charges.length, w.sub(U1).current_period_end], [200, 0, 0, null], '카드 등록도 결제도 하지 않고 이용권 유지');
+});
+
 test('연간 요금제', async () => {
     const w = world('2026-11-17T12:00:00Z');
     const r = await w.call('billing-confirm', { token: 'tok-u1', body: { authKey: 'a1', plan: 'yearly' } });

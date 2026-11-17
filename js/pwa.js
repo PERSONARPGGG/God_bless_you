@@ -94,9 +94,16 @@ function checkInstallNudge(streak) {
     if (isStandalone()) return;
     const key = streak === 7 ? 'installNudge7' : streak === 3 ? 'installNudge3' : null;
     if (!key || lsGet(key)) return;
-    lsSet(key, '1');
-    setTimeout(() => showInstallNudge(streak), 1600);
+    later('installNudge', () => {
+        // 메인 화면을 보고 있을 때만 띄운다 (말씀을 읽는 중이거나 다른 창이 열려 있으면 다음 기회에)
+        const s1 = document.getElementById('step1');
+        const busy = !s1 || s1.classList.contains('hidden') || !!document.querySelector('.overlay:not(.hidden)');
+        if (busy) return;
+        lsSet(key, '1');
+        showInstallNudge(streak);
+    }, 1600);
 }
+let _nudgeTimer = null;
 function showInstallNudge(streak) {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const nudge = document.getElementById('install-nudge');
@@ -108,10 +115,13 @@ function showInstallNudge(streak) {
     document.getElementById('in-btn-skip').textContent = L.install_nudge_skip;
     nudge.classList.remove('hidden');
     requestAnimationFrame(() => requestAnimationFrame(() => nudge.classList.add('visible')));
+    clearTimeout(_nudgeTimer);
+    _nudgeTimer = later('nudge.auto', () => dismissNudge(), 12000);
 }
 function dismissNudge() {
     const nudge = document.getElementById('install-nudge');
-    if (!nudge) return;
+    if (!nudge || nudge.classList.contains('hidden')) return;
+    clearTimeout(_nudgeTimer);
     nudge.classList.remove('visible');
     setTimeout(() => nudge.classList.add('hidden'), 380);
 }

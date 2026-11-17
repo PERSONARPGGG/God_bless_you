@@ -23,8 +23,10 @@
     <!-- 글꼴 (둘 다 SIL OFL — 웹 임베딩·상업 이용 가능). 교체 시 아래 --font-ui / --font-verse 변수만 바꾸면 됨 -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap">
+    <!-- 글꼴은 화면을 막지 않게 따로 받는다 (느린 통신에서 첫 화면이 글꼴 서버를 기다리지 않도록). 받기 전에는 기기 글꼴로 보임 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap"></noscript>
     <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
@@ -158,17 +160,17 @@
 <div id="overlay-vault" class="overlay hidden">
     <div class="overlay-inner">
         <button id="vault-back" class="overlay-back" onclick="hideOverlay('overlay-vault')">← 돌아가기</button>
-        <div id="vault-title" class="overlay-title">🌙 나의 보관함</div>
+        <div id="vault-title" class="overlay-title">📖 나의 보관함</div>
         <p id="vault-sub" class="vault-sub">별빛 아래 차곡차곡 쌓인 나의 기록</p>
         <div id="vault-banner"></div>
         <div class="vault-tabs">
-            <button class="vault-tab active" onclick="switchTab('mood')">🌙 감정 · 통계 <span class="pm-star">✦</span></button>
+            <button class="vault-tab active" onclick="switchTab('mood')">📔 감정 · 통계</button>
             <button class="vault-tab"        onclick="switchTab('saved')">⭐ 즐겨찾기</button>
         </div>
         <div id="vault-mood" class="vault-pane active">
             <div class="vault-sec"><span class="vault-sec-icon">✦</span><span id="vault-sec-stats">이번 주 마음 날씨</span><div class="vault-sec-line"></div></div>
             <div id="stats-content"></div>
-            <div class="vault-sec"><span class="vault-sec-icon">🌙</span><span id="vault-sec-mood">하루하루의 기록</span><div class="vault-sec-line"></div></div>
+            <div class="vault-sec"><span class="vault-sec-icon">✦</span><span id="vault-sec-mood">하루하루의 기록</span><div class="vault-sec-line"></div></div>
             <div id="mood-month-jump" class="mood-month-jump"></div>
             <div id="mood-list"></div>
             <div id="mood-pagination" class="vault-pagination"></div>
@@ -238,7 +240,7 @@
             <div id="lbl-theme" class="settings-label">배경 테마</div>
             <div class="settings-card">
                 <div class="theme-options">
-                    <button class="theme-btn" id="th-night"  onclick="setTheme('night')">🌙<br><span id="th-night-txt">밤하늘</span></button>
+                    <button class="theme-btn" id="th-night"  onclick="setTheme('night')">🌌<br><span id="th-night-txt">밤하늘</span></button>
                     <button class="theme-btn" id="th-dawn"   onclick="setTheme('dawn')">🌅<br><span id="th-dawn-txt">새벽빛</span></button>
                     <button class="theme-btn" id="th-forest" onclick="setTheme('forest')">🌿<br><span id="th-forest-txt">숲속</span></button>
                     <button class="theme-btn" id="th-ocean"  onclick="setTheme('ocean')">🌊<br><span id="th-ocean-txt">바다</span></button>
@@ -758,7 +760,7 @@
             <p class="blessing-streak" id="blessing-streak"></p>
         </div>
 
-        <button id="btn-dashboard" class="btn-dashboard" type="button" onclick="openDashboard()">📊 나의 이야기</button>
+        <button id="btn-dashboard" class="btn-dashboard hidden" type="button" onclick="openDashboard()">📊 나의 이야기</button>
         <button class="btn-restart" type="button" onclick="onFinishClick()">오늘 묵상 마치기</button>
         <button id="btn-vault-closing" class="btn-vault-closing hidden" type="button" onclick="openVault()">📖 보관함 보기</button>
     </div>

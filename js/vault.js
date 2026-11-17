@@ -230,28 +230,12 @@ function renderMood() {
 }
 
 /* ═══════════════════════════════════════
-   주간 감정 차트 (로그인 사용자)
+   주간 감정 차트 (기기 기록 — 누구나)
 ═══════════════════════════════════════ */
 function renderStats() {
     const el = document.getElementById('stats-content');
     el.innerHTML = '';
     const L = LANG_DATA[appLang] || LANG_DATA.ko;
-
-    if (!sbUser && !isDevMode()) { // 개발자 모드 = 로그인 게이트 스킵
-        const gateTexts = {
-            ko: { title:'로그인하면 볼 수 있어요', desc:'주간 감정 차트는 로그인 후<br>이용할 수 있어요.', btn:'Google로 로그인하기' },
-            en: { title:'Sign in to see this', desc:'Weekly stats are available<br>after signing in.', btn:'Sign in with Google' },
-            ja: { title:'ログインすると見られます', desc:'ログイン後に週間統計が<br>ご覧いただけます。', btn:'Googleでログイン' },
-        };
-        const gt = gateTexts[appLang] || gateTexts.ko;
-        el.innerHTML = `<div class="premium-gate">
-            <div class="premium-gate-icon">✨</div>
-            <div class="premium-gate-title">${gt.title}</div>
-            <div class="premium-gate-desc">${gt.desc}</div>
-            <button class="premium-gate-btn" onclick="hideOverlay('overlay-vault');loginWithGoogle()">${gt.btn}</button>
-        </div>`;
-        return;
-    }
 
     const hist = getMoods();
     const EMO_BG = {

@@ -32,10 +32,10 @@ const LANG_DATA = {
         vb_free_btn:'프리미엄 알아보기',
         vb_premium_badge:'💎 프리미엄 이용 중 — 모든 기록이 평생 보관돼요',
         pm_price:'월 ₩1,900 · 연 ₩19,000 (2달 무료)', pm_cta:'🔔 출시 알림 받기',
-        pm_cta_done:'신청 완료! 준비되면 가장 먼저 알려드릴게요 🙏', pm_close:'닫기',
+        pm_cta_done:'신청 완료! 출시되면 이 앱에서 가장 먼저 알려드릴게요 🙏', pm_close:'닫기',
         pm_lock_title:'월간·연간 리포트 & PDF 일기장', pm_lock_sub:'프리미엄에서 만나요 · ₩1,900/월',
-        pat_neg_2:'🌙 어제도 오늘도 마음이 무거우셨네요. 그럴수록 곁에 계신 하나님을 기억해요.',
-        pat_neg_n:'🌙 벌써 {n}일째 이어지는 마음이에요. 혼자 견디지 마세요 — 하나님이 알고 계세요.',
+        pat_neg_2:'💙 어제도 오늘도 마음이 무거우셨네요. 그럴수록 곁에 계신 하나님을 기억해요.',
+        pat_neg_n:'💙 벌써 {n}일째 이어지는 마음이에요. 혼자 견디지 마세요 — 하나님이 알고 계세요.',
         pat_pos_n:'✨ {n}일째 감사와 평안이 이어지고 있어요. 그 마음, 참 귀해요.',
         pat_pray_n:'🙏 {n}일째 기도로 하루를 맺고 있어요. 그 기도, 하늘에 쌓이고 있습니다.',
         toast_img_saved:'🖼️ 말씀 카드 이미지가 저장됐어요',
@@ -56,8 +56,8 @@ const LANG_DATA = {
         song_0:'나 같은 죄인 살리신', song_1:'죄짐 맡은 우리 구주', song_2:'거룩 거룩 거룩', song_3:'주 음성 외에는', song_4:'저 장미꽃 위에 이슬',
         song_5:'큰 죄에 빠진 날 위해', song_6:'구주 예수 의지함이', song_7:'해보다 더 밝은 저 천국', song_8:'주의 친절한 팔에 안기세', song_9:'나의 죄를 씻기는',
         /* 보관함 */
-        vault_title:'🌙 나의 보관함', vault_back:'← 돌아가기', vault_sub:'별빛 아래 차곡차곡 쌓인 나의 기록',
-        v_tab_journal:'🌙 감정 · 통계', v_tab1:'⭐ 즐겨찾기',
+        vault_title:'📖 나의 보관함', vault_back:'← 돌아가기', vault_sub:'별빛 아래 차곡차곡 쌓인 나의 기록',
+        v_tab_journal:'📔 감정 · 통계', v_tab1:'⭐ 즐겨찾기',
         vault_sec_stats:'이번 주 마음 날씨', vault_sec_mood:'하루하루의 기록',
         vault_empty_saved:'아직 즐겨찾기한 항목이 없어요.<br>말씀 카드의 ⭐ 버튼을 눌러 저장해 보세요.',
         vault_empty_mood:'아직 기록이 없어요.<br>오늘의 감정을 남기면 여기에 쌓여요.',
@@ -114,7 +114,7 @@ const LANG_DATA = {
         install_nudge_sub:'홈 화면에 추가하면 더 편리해요',
         install_nudge_add:'추가하기', install_nudge_skip:'다음에',
         /* 공유 */
-        share_title:'오늘의 말씀', share_app:'🌙 밤의 목장',
+        share_title:'오늘의 말씀', share_app:'🐑 밤의 목장',
         /* 절기 */
         season_msg:{
             christmas:'🎄 예수님의 탄생을 기다리는 계절입니다.\n오늘 밤도 그 빛 안에서 쉬어가세요.',
@@ -150,10 +150,10 @@ const LANG_DATA = {
         vb_free_btn:'See Premium',
         vb_premium_badge:'💎 Premium active — everything is kept forever',
         pm_price:'₩1,900/mo · ₩19,000/yr (2 months free)', pm_cta:'🔔 Notify me at launch',
-        pm_cta_done:'Done! You\'ll be the first to know 🙏', pm_close:'Close',
+        pm_cta_done:'Done! This app will let you know first at launch 🙏', pm_close:'Close',
         pm_lock_title:'Monthly & yearly reports, PDF journal', pm_lock_sub:'Coming with Premium · ₩1,900/mo',
-        pat_neg_2:'🌙 Yesterday and today, your heart has been heavy. Remember — God is near.',
-        pat_neg_n:'🌙 It\'s been {n} days of heaviness. You don\'t have to carry it alone — God knows.',
+        pat_neg_2:'💙 Yesterday and today, your heart has been heavy. Remember — God is near.',
+        pat_neg_n:'💙 It\'s been {n} days of heaviness. You don\'t have to carry it alone — God knows.',
         pat_pos_n:'✨ {n} days of gratitude and peace in a row. What a precious heart.',
         pat_pray_n:'🙏 {n} days of ending your day in prayer. Those prayers are being kept in heaven.',
         toast_img_saved:'🖼️ Verse card image saved',
@@ -174,8 +174,8 @@ const LANG_DATA = {
         song_0:'Amazing Grace', song_1:'What a Friend We Have in Jesus', song_2:'Holy, Holy, Holy', song_3:'I Need Thee Every Hour', song_4:'In the Garden',
         song_5:'Just As I Am', song_6:"'Tis So Sweet to Trust in Jesus", song_7:'Sweet By and By', song_8:'Leaning on the Everlasting Arms', song_9:'Nothing but the Blood',
         /* 보관함 */
-        vault_title:'🌙 My Vault', vault_back:'← Back', vault_sub:'Your story, gathered under the stars',
-        v_tab_journal:'🌙 History & Stats', v_tab1:'⭐ Saved',
+        vault_title:'📖 My Vault', vault_back:'← Back', vault_sub:'Your story, gathered under the stars',
+        v_tab_journal:'📔 History & Stats', v_tab1:'⭐ Saved',
         vault_sec_stats:'This Week\'s Heart', vault_sec_mood:'Day by Day',
         vault_empty_saved:'No bookmarks yet.<br>Tap ⭐ on a verse card to save one.',
         vault_empty_mood:'No history yet.<br>Come back daily to build your record.',
@@ -232,7 +232,7 @@ const LANG_DATA = {
         install_nudge_sub:'Add to Home Screen for easy access',
         install_nudge_add:'Add Now', install_nudge_skip:'Later',
         /* 공유 */
-        share_title:'Today\'s Verse', share_app:'🌙 Night Pasture',
+        share_title:'Today\'s Verse', share_app:'🐑 Night Pasture',
         /* 절기 */
         season_msg:{
             christmas:'🎄 The season of awaiting Jesus\'s birth.\nRest in His light tonight.',
@@ -268,10 +268,10 @@ const LANG_DATA = {
         vb_free_btn:'プレミアムを見る',
         vb_premium_badge:'💎 プレミアム利用中 — すべて永久保存されます',
         pm_price:'月 ₩1,900 · 年 ₩19,000（2ヶ月無料）', pm_cta:'🔔 リリース通知を受け取る',
-        pm_cta_done:'受付完了！真っ先にお知らせします 🙏', pm_close:'閉じる',
+        pm_cta_done:'受付完了！リリース時にこのアプリで真っ先にお知らせします 🙏', pm_close:'閉じる',
         pm_lock_title:'月間・年間レポート & PDF日記', pm_lock_sub:'プレミアムで · 月₩1,900',
-        pat_neg_2:'🌙 昨日も今日も、心が重い日でしたね。そばにおられる神様を覚えていてください。',
-        pat_neg_n:'🌙 もう{n}日続いている心です。一人で抱えないで — 神様はご存知です。',
+        pat_neg_2:'💙 昨日も今日も、心が重い日でしたね。そばにおられる神様を覚えていてください。',
+        pat_neg_n:'💙 もう{n}日続いている心です。一人で抱えないで — 神様はご存知です。',
         pat_pos_n:'✨ {n}日連続で感謝と平安が続いています。尊い心ですね。',
         pat_pray_n:'🙏 {n}日連続、祈りで一日を締めくくっています。その祈りは天に積まれています。',
         toast_img_saved:'🖼️ 御言葉カードを保存しました',
@@ -292,8 +292,8 @@ const LANG_DATA = {
         song_0:'アメイジング・グレイス', song_1:'いつくしみ深き', song_2:'聖なるかな', song_3:'I Need Thee Every Hour', song_4:'In the Garden',
         song_5:'いさおなき我を', song_6:"'Tis So Sweet to Trust in Jesus", song_7:'まもなくかなたの', song_8:'Leaning on the Everlasting Arms', song_9:'Nothing but the Blood',
         /* 보관함 */
-        vault_title:'🌙 ボールト', vault_back:'← 戻る', vault_sub:'星あかりの下に積もった私の記録',
-        v_tab_journal:'🌙 記録 · 統計', v_tab1:'⭐ お気に入り',
+        vault_title:'📖 ボールト', vault_back:'← 戻る', vault_sub:'星あかりの下に積もった私の記録',
+        v_tab_journal:'📔 記録 · 統計', v_tab1:'⭐ お気に入り',
         vault_sec_stats:'今週のこころ模様', vault_sec_mood:'日々の記録',
         vault_empty_saved:'まだお気に入りがありません。<br>みことばカードの⭐で保存できます。',
         vault_empty_mood:'まだ記録がありません。<br>毎日訪れると記録が増えていきます。',
@@ -350,7 +350,7 @@ const LANG_DATA = {
         install_nudge_sub:'ホーム画面に追加すると便利です',
         install_nudge_add:'追加する', install_nudge_skip:'あとで',
         /* 공유 */
-        share_title:'今日のみことば', share_app:'🌙 夜の牧場',
+        share_title:'今日のみことば', share_app:'🐑 夜の牧場',
         /* 절기 */
         season_msg:{
             christmas:'🎄 イエス様の誕生を待ち望む季節です。\n今夜もその光の中で安らいでください。',
@@ -404,7 +404,7 @@ function applyLang(lang) {
     s('vault-title',L.vault_title); s('vault-back',L.vault_back); s('vault-sub',L.vault_sub);
     s('vault-sec-stats',L.vault_sec_stats); s('vault-sec-mood',L.vault_sec_mood);
     const tabs=document.querySelectorAll('.vault-tab');
-    if(tabs[0]) tabs[0].innerHTML=(L.v_tab_journal||'🌙 감정 · 통계')+'<span class="pm-star"> ✦</span>';
+    if(tabs[0]) tabs[0].textContent=L.v_tab_journal;
     if(tabs[1]) tabs[1].textContent=L.v_tab1;
     // 설정 오버레이
     s('settings-title',L.settings_title); s('settings-back',L.settings_back);

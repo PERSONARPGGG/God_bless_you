@@ -8,3 +8,8 @@ README.md
 docs/archive/
 docs/superpowers/
 docs/*.sql
+# 앱이 쓰지 않는 파일 (음원 원본·미리보기 시안)
+At the End of the Day.mp3
+card_preview.html
+docs/*.mp3
+docs/*.mp4

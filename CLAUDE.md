@@ -29,7 +29,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **로컬 실행**: `index.html`을 브라우저로 직접 열거나, PWA/Service Worker 테스트가 필요하면 로컬 서버 사용 (`npx serve` 등). `file://`로 열면 Supabase·Service Worker 관련 코드가 자동으로 비활성화됨 (`location.protocol === 'file:'` 체크)
 - **검증 (수정할 때마다, 커밋 전에 반드시 둘 다)**:
   - `node tools/check.mjs` — 정적 점검 (1초). 문법, 파일 목록 일치, 이름 충돌, 죽은 코드, 3개 언어 문구 누락, 콘텐츠 빈 조합, 금지 패턴. `--deps`를 붙이면 파일 간 의존 관계와 localStorage 키 목록
-  - `node tools/smoke.mjs` — 실행 점검 (약 1분). PC의 Chrome/Edge를 화면 없이 띄워 17개 시나리오를 실제로 눌러 봄. 이름 일부를 주면 그 시나리오만 (`node tools/smoke.mjs 날짜`), `--url=https://…`로 배포본 대상 실행, `--shots=폴더`로 시나리오 안의 `p.shot('이름')` 지점을 PNG로 저장 (디자인을 눈으로 확인할 때)
+  - `node tools/smoke.mjs` — 실행 점검 (약 1분). PC의 Chrome/Edge를 화면 없이 띄워 18개 시나리오를 실제로 눌러 봄. 이름 일부를 주면 그 시나리오만 (`node tools/smoke.mjs 날짜`), `--url=https://…`로 배포본 대상 실행, `--shots=폴더`로 시나리오 안의 `p.shot('이름')` 지점을 PNG로 저장 (디자인을 눈으로 확인할 때)
   - `node tools/api-test.mjs` — 서버 함수 점검 (1초). `lib/server.mjs`를 그대로 돌리고 Supabase·토스·OpenRouter만 가짜로 바꿔 결제·해지·갱신·AI 규칙을 확인. `api/`·`lib/`를 고치면 반드시 실행
   - 버그를 고칠 때는 **먼저 그 버그를 재현하는 시나리오를 `tools/smoke.mjs`에 추가**하고 고친다. 새 기능도 시나리오를 함께 추가
 - **배포**: `main` 브랜치 push → Vercel 자동 배포. 별도 빌드 스텝 없음. 다른 브랜치를 push하면 Vercel이 미리보기 주소를 만들어 주므로, 큰 변경은 브랜치 → 미리보기에서 `--url=`로 점검 → main 병합 순서를 권장. 웹에 공개하지 않을 파일은 `.vercelignore`
@@ -135,7 +135,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 서버 규칙: 금액·대상은 서버가 정함(브라우저 값 무시), 갱신은 끝나기 24시간 안쪽에 결제, 3번 연속 실패하면 종료, 해지하면 빌링키 삭제(다시 구독하려면 카드 재등록)
 - 환불은 자동화하지 않음 → 토스 상점관리자에서 취소한 뒤 Supabase `subscriptions` 행을 직접 고침
 - 환불 조건 문구(`js/billing.js`의 `PAID_TERMS`: 7일 이내 미사용 시 전액)는 초안 — 운영자가 확정할 것
-- AI 프롬프트(`lib/server.mjs`의 `AI_SYSTEM`)는 `/god` 목회 검토를 아직 거치지 않음 — 켜기 전에 검토
+- AI 프롬프트(`lib/server.mjs`의 `AI_SYSTEM`)는 2026-11-17에 `/god` 목회 검토를 거침 (하나님의 음성으로 말하기·결과 약속·신앙 평가 금지를 추가). 지시문을 고치면 다시 검토
 - Vercel 무료(Hobby) 요금제의 상업적 이용 가능 여부는 약관을 확인하지 못함 — 유료 판매 전에 확인. Hobby의 Cron은 하루 한 번·시각 부정확(±1시간)이라 그에 맞춰 설계해 둠
 
 ## v2.9 메모 (2026-11-17)
@@ -144,7 +144,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 가격 문구에 "연 ₩19,000"이 있음 → 결제를 붙일 때 연간 요금제도 함께 만들거나 문구에서 뺄 것
 - 달력의 프리미엄 제한은 화면에서만 막는 것 (자기 기록은 RLS상 본인이 읽을 수 있음 — 의도된 것). 결제 없이는 열 수 없어야 하는 것은 서버가 판정하는 `subscriptions` 뿐
 - PDF는 `window.print()` — 아이폰 홈 화면 앱(standalone)에서 인쇄 창이 뜨는지 실기기 확인 필요
-- 보관함의 주간 차트는 여전히 로그인해야 보임 (나의 이야기는 게스트에게도 열림) — 정책을 하나로 맞출지 결정 필요
+- (해결) 보관함 주간 차트도 로그인 없이 보임
+- **화면을 바꾸면 눈으로 확인**: `node tools/smoke.mjs 둘러보기 --shots=폴더` → 주요 화면 12장 PNG. 2026-11-17 중간 점검에서 테스트는 통과하지만 화면에서만 보이는 문제(설치 안내가 버튼을 가림, 단어 중간 줄바꿈)를 이 방법으로 찾음
+- 설치 안내(`install-nudge`)는 메인 화면에서만 뜨고 `go()`·`showOverlay()`가 내린다 — 화면 아래에 고정되는 요소를 새로 만들면 같은 규칙을 따를 것
+- 저장소에 있지만 앱이 쓰지 않는 파일: `At the End of the Day.mp3`, `card_preview.html`, `docs/죄짐맡은우리구주_CC0.mp3` (배포에서만 제외해 둠 — 지울지는 사용자 결정)
 
 ## v2.8 메모 (2026-11-17)
 - **Supabase 프로젝트(`pzakpaomnmahcugkzdff`) 주소가 DNS에 없음** — 장기 미사용으로 정지·삭제된 것으로 보임. 대시보드에서 복구하거나 새 프로젝트를 만들어 `docs/supabase_schema.sql` 실행 후 `js/core.js`의 URL·키 교체. 그 전까지 로그인·동기화·프리미엄 서버 확인이 동작하지 않음 (앱 자체는 게스트로 정상 동작)

@@ -128,7 +128,7 @@ function calcStreak(dates) {
 ═══════════════════════════════════════ */
 function checkSeason() {
     const now=new Date(), m=now.getMonth()+1, d=now.getDate();
-    let season=null, icon='🌙';
+    let season=null, icon='';
     if (m===12&&d>=20&&d<=26)              { season='christmas'; icon='⭐'; }
     else if (m===1&&d<=5)                  { season='newyear';   icon='🌟'; }
     else if ((m===3&&d>=28)||(m===4&&d<=10)){ season='easter';   icon='🌸'; }
@@ -186,6 +186,7 @@ function cascadeResultCards() {
 
 function go(fromId, toId) {
     const from=document.getElementById(fromId), to=document.getElementById(toId);
+    safe('nudge.hide', () => dismissNudge());
     // 밤하늘이 함께 흐르는 전환 (밤길 걷는 느낌)
     document.body.classList.remove('sky-shift');
     void document.body.offsetWidth;
@@ -264,8 +265,7 @@ function buildResult() {
     // 마무리(클로징) 상태 초기화
     closingTriggered = false;
     document.body.classList.remove('closing-sky');
-    const bvB = document.getElementById('btn-vault-closing');
-    if (bvB) bvB.classList.add('hidden');
+    ['btn-vault-closing', 'btn-dashboard'].forEach(id => { const b = document.getElementById(id); if (b) b.classList.add('hidden'); });
     document.getElementById('step4').classList.remove('closing');
     document.querySelectorAll('#step4 .card').forEach(c=>c.classList.remove('closing-collapsed'));
     const br = document.querySelector('.btn-restart');
@@ -386,7 +386,7 @@ function makeVerseCardBlob() {
             x.textAlign = 'center';
             // 달
             x.font = '110px serif';
-            x.fillText('🌙', W / 2, 250);
+            x.fillText('✦', W / 2, 250);
             // 말씀 본문 (단어 단위 줄바꿈, 길면 글자 단위)
             const words = ('“' + curVerse.v + '”').split(' ');
             const maxW = 860, lines = [];

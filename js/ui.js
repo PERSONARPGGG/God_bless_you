@@ -178,6 +178,7 @@ function showOverlay(id) {
     const el = document.getElementById(id);
     if (!el) return;
     el.classList.remove('hidden');
+    safe('nudge.hide', () => dismissNudge());   // 창이 열리면 설치 안내는 내린다
     el.classList.add('overlay-anim');
     setTimeout(() => el.classList.remove('overlay-anim'), 500);
 }
@@ -201,8 +202,7 @@ function restart() {
     stopClosingTimer();
     document.body.classList.remove('closing-sky');
     document.body.classList.remove('emo-tinted');
-    const bvR = document.getElementById('btn-vault-closing');
-    if (bvR) bvR.classList.add('hidden');
+    ['btn-vault-closing', 'btn-dashboard'].forEach(id => { const b = document.getElementById(id); if (b) b.classList.add('hidden'); });
     document.getElementById('step4').classList.remove('closing');
     document.querySelectorAll('#step4 .card').forEach(c=>c.classList.remove('closing-collapsed'));
     safe('setWelcome', () => setWelcome());
@@ -290,6 +290,8 @@ function triggerClosing() {
     // 마무리 후 동선: 보관함 진입 버튼 노출
     const bv = document.getElementById('btn-vault-closing');
     if (bv) { bv.textContent = L.btn_vault_closing; bv.classList.remove('hidden'); }
+    const bd = document.getElementById('btn-dashboard');
+    if (bd) { bd.textContent = L.db_btn; bd.classList.remove('hidden'); }
 }
 
 function onFinishClick() {

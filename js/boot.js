@@ -43,6 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('name-input').addEventListener('keydown', e => { if (e.key === 'Enter') saveName(); });
     });
     safe('restoreDevMode', () => restoreDevMode());
+    // "출시 알림 받기"를 눌렀던 사람에게는 판매가 열린 뒤 한 번 프리미엄 안내를 보여 준다 (약속한 알림)
+    later('launchNotice', () => {
+        if (paymentsOn() && lsGet('premiumInterest') === true && !lsGet('premiumNotified') && !isPremium()) {
+            lsSet('premiumNotified', true); openPremiumModal();
+        }
+    }, 9500);
     // Supabase 라이브러리는 따로(async) 받는다. init() 때 아직 안 왔으면, 도착했을 때 스스로 initSupabase()를 부른다 (index.html 맨 아래)
     window.__booted = true;
 });
