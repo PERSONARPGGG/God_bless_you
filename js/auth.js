@@ -11,6 +11,7 @@ function initSupabase() {
         sbUser = (session && session.user) || null;
         safe('updateAuthUI', updateAuthUI);
         if (sbUser) syncWithServer();
+        if (sbUser) safe('billing.resume', () => resumeBilling());   // 결제창에서 돌아온 직후라면 여기서 마무리
     };
     // 이 콜백 안에서 곧바로 Supabase를 다시 부르면 내부 잠금에 걸릴 수 있어 한 박자 늦춘다
     sb.auth.onAuthStateChange((event, session) => { setTimeout(() => onSession(session), 0); });

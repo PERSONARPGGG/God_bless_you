@@ -5,12 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # 밤의 목장 — Claude 작업 가이드
 
 ## 프로젝트 개요
-크리스천 감정 묵상 PWA "밤의 목장" (부제: "오늘 밤, 주님이 누이시는 곳", 구명: "오늘은 어땠나요?" — 이 질문은 메인 화면 인사말로 유지). `index.html`(마크업) + `css/app.css` + `js/*.js` 17개 + Supabase + Vercel.
+크리스천 감정 묵상 PWA "밤의 목장" (부제: "오늘 밤, 주님이 누이시는 곳", 구명: "오늘은 어땠나요?" — 이 질문은 메인 화면 인사말로 유지). `index.html`(마크업) + `css/app.css` + `js/*.js` 19개 + 서버 함수(`api/`, `lib/`) + Supabase + Vercel.
 배포: https://god-bless-you.vercel.app/
 
 ## 코드 구조 원칙
 - **파일 구조 (2026-11-16, 사용자 요청으로 단일 파일 원칙을 바꿈)**: 마크업은 `index.html`, 스타일은 `css/app.css`, 스크립트는 `js/` 아래 주제별 파일. 새 기능은 맞는 파일에 넣고, 파일을 새로 만들면 `index.html`의 `<script>` 목록과 `sw.js`의 `ASSETS`에 함께 추가 (빠뜨리면 `tools/check.mjs`가 오류로 잡음)
-- 스크립트는 ES 모듈이 아닌 **일반 스크립트** (HTML의 `onclick="..."`이 전역 함수를 부르기 때문). 불러오는 순서: data → core → i18n → effects → audio → pwa → auth → flow → vault → ui → premium → dashboard → history → demo → sheep → care → boot. 파일을 불러오는 즉시 실행되는 코드는 앞 파일의 것만 쓸 수 있음
+- 스크립트는 ES 모듈이 아닌 **일반 스크립트** (HTML의 `onclick="..."`이 전역 함수를 부르기 때문). 불러오는 순서: data → core → i18n → effects → audio → pwa → auth → flow → vault → ui → premium → billing → dashboard → history → aireport → demo → sheep → care → boot. 파일을 불러오는 즉시 실행되는 코드는 앞 파일의 것만 쓸 수 있음
 - Vanilla JS 전용 — 프레임워크·번들러 도입 금지 (`tools/`의 점검 스크립트는 앱에 실리지 않는 개발용이며 설치할 의존성이 없음)
 - Supabase anon key는 코드에 직접 기재 가능 (RLS로 보호됨, service_role key는 절대 금지). 결제·AI 등 **비밀 키가 필요한 일은 브라우저 코드에 넣지 않고 서버(서버리스 함수)에서만** 한다
 
@@ -29,10 +29,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **로컬 실행**: `index.html`을 브라우저로 직접 열거나, PWA/Service Worker 테스트가 필요하면 로컬 서버 사용 (`npx serve` 등). `file://`로 열면 Supabase·Service Worker 관련 코드가 자동으로 비활성화됨 (`location.protocol === 'file:'` 체크)
 - **검증 (수정할 때마다, 커밋 전에 반드시 둘 다)**:
   - `node tools/check.mjs` — 정적 점검 (1초). 문법, 파일 목록 일치, 이름 충돌, 죽은 코드, 3개 언어 문구 누락, 콘텐츠 빈 조합, 금지 패턴. `--deps`를 붙이면 파일 간 의존 관계와 localStorage 키 목록
-  - `node tools/smoke.mjs` — 실행 점검 (약 1분). PC의 Chrome/Edge를 화면 없이 띄워 16개 시나리오를 실제로 눌러 봄. 이름 일부를 주면 그 시나리오만 (`node tools/smoke.mjs 날짜`), `--url=https://…`로 배포본 대상 실행, `--shots=폴더`로 시나리오 안의 `p.shot('이름')` 지점을 PNG로 저장 (디자인을 눈으로 확인할 때)
+  - `node tools/smoke.mjs` — 실행 점검 (약 1분). PC의 Chrome/Edge를 화면 없이 띄워 17개 시나리오를 실제로 눌러 봄. 이름 일부를 주면 그 시나리오만 (`node tools/smoke.mjs 날짜`), `--url=https://…`로 배포본 대상 실행, `--shots=폴더`로 시나리오 안의 `p.shot('이름')` 지점을 PNG로 저장 (디자인을 눈으로 확인할 때)
+  - `node tools/api-test.mjs` — 서버 함수 점검 (1초). `lib/server.mjs`를 그대로 돌리고 Supabase·토스·OpenRouter만 가짜로 바꿔 결제·해지·갱신·AI 규칙을 확인. `api/`·`lib/`를 고치면 반드시 실행
   - 버그를 고칠 때는 **먼저 그 버그를 재현하는 시나리오를 `tools/smoke.mjs`에 추가**하고 고친다. 새 기능도 시나리오를 함께 추가
 - **배포**: `main` 브랜치 push → Vercel 자동 배포. 별도 빌드 스텝 없음. 다른 브랜치를 push하면 Vercel이 미리보기 주소를 만들어 주므로, 큰 변경은 브랜치 → 미리보기에서 `--url=`로 점검 → main 병합 순서를 권장. 웹에 공개하지 않을 파일은 `.vercelignore`
-- **캐시 무효화**: Service Worker 캐시를 갱신하려면 `sw.js`의 `CACHE` 상수(현재 `'god-app-v26'`) 버전 문자열을 올려야 함. 사용자 화면에 보이는 버전은 `js/core.js`의 `APP_VERSION` (CHANGELOG 최신 항목과 맞출 것)
+- **캐시 무효화**: Service Worker 캐시를 갱신하려면 `sw.js`의 `CACHE` 상수(현재 `'god-app-v27'`) 버전 문자열을 올려야 함. 사용자 화면에 보이는 버전은 `js/core.js`의 `APP_VERSION` (CHANGELOG 최신 항목과 맞출 것)
 
 ## 아키텍처 (Architecture)
 `index.html`에는 마크업과 스크립트 목록만 있음. 코드 안의 `═══...═══` 배너 주석이 섹션 구분자.
@@ -51,6 +52,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `js/vault.js` | 보관함, 주간 감정 차트 |
 | `js/ui.js` | 설정, 언어·테마, 내보내기·초기화, 오버레이, 토스트, 다시 시작, 마무리(클로징) |
 | `js/premium.js` | `isPremium()`, 구독 확인(`refreshEntitlement`), `onPremiumChanged()`, 프리미엄 안내 모달 |
+| `js/billing.js` | 구독 결제(토스 결제창 호출·돌아온 뒤 마무리)·해지·설정의 구독 줄·유료 약관 조항. `PAYMENTS.on`이 꺼져 있으면 아무것도 보이지 않음 |
+| `js/aireport.js` | AI 돌아보기 버튼·별도 동의·결과 표시. `AI_REPORT.on`이 꺼져 있으면 보이지 않음 |
+| `api/*.mjs` | 서버 함수 진입점 (Vercel이 `/api/이름` 주소로 실행). 내용은 전부 `lib/server.mjs` |
+| `lib/server.mjs` | 서버 공용 코드: 로그인 토큰 확인, 토스 결제·해지·갱신, AI 호출. **비밀 키는 환경 변수에서만** (파일 맨 위에 목록) |
 | `js/dashboard.js` | 나의 이야기 — 이번 주 (서사 카드·감정 막대·요일 흐름·패턴·일기). 무료, 기기 기록만 |
 | `js/history.js` | 기록 달력, 월간·연간 리포트, PDF 일기장. **무료/프리미엄 경계가 여기 모여 있음**. 기록 읽기는 `loadYear()` 하나 (프리미엄+로그인이면 클라우드) |
 | `js/demo.js` | **시연·개발자 전용**: 개발자 모드, 프리미엄 체험 비밀번호, 체험 페르소나, 데모 데이터 |
@@ -119,6 +124,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **처리방침**: `OPERATOR`(운영자 정보)와 서버 위치가 빈칸 — 정식 출시 전 기재
 - **앱 이름**: "밤의 목장"은 임시. 설문 반응이 좋지 않아 변경 가능 → 상표 출원은 확정 뒤
 - v2.7 코드는 `js/care.js`와 `css/app.css` 끝의 v2.7 블록에 모여 있음
+
+## 결제·AI를 켜는 순서 (2026-11-17 작성, 아직 꺼져 있음)
+코드는 들어가 있고 `js/core.js`의 `PAYMENTS.on`·`AI_REPORT.on`이 false라 화면에 나타나지 않는다. 켜려면 순서대로:
+1. Supabase 프로젝트를 살리고 `docs/supabase_schema.sql` 실행, `js/core.js`의 URL·키 교체
+2. Vercel 환경 변수: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `TOSS_SECRET_KEY`, `CRON_SECRET`, `APP_ORIGIN` (+ AI: `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`)
+3. `PAYMENTS.clientKey`에 토스 **테스트** 클라이언트 키(`test_ck_…`, API 개별 연동 키)를 넣고 `on: true` → 브랜치 미리보기에서 실제 테스트 결제 (테스트 키는 돈이 나가지 않음)
+4. 실제 확인이 필요한 것(가짜 서버로는 못 본 것): 토스 결제창이 뜨고 돌아오는지, 실패 주소의 `code` 값, 빌링키 발급·결제 응답 모양, Cron이 하루 한 번 `/api/billing-renew`를 부르는지, OpenRouter 응답
+5. 토스 자동결제(빌링) 계약·심사 통과 후 라이브 키로 교체, `js/premium.js`의 `DEMO_UNLOCK = false`, `js/care.js`의 `OPERATOR` 기재
+- 서버 규칙: 금액·대상은 서버가 정함(브라우저 값 무시), 갱신은 끝나기 24시간 안쪽에 결제, 3번 연속 실패하면 종료, 해지하면 빌링키 삭제(다시 구독하려면 카드 재등록)
+- 환불은 자동화하지 않음 → 토스 상점관리자에서 취소한 뒤 Supabase `subscriptions` 행을 직접 고침
+- 환불 조건 문구(`js/billing.js`의 `PAID_TERMS`: 7일 이내 미사용 시 전액)는 초안 — 운영자가 확정할 것
+- AI 프롬프트(`lib/server.mjs`의 `AI_SYSTEM`)는 `/god` 목회 검토를 아직 거치지 않음 — 켜기 전에 검토
+- Vercel 무료(Hobby) 요금제의 상업적 이용 가능 여부는 약관을 확인하지 못함 — 유료 판매 전에 확인. Hobby의 Cron은 하루 한 번·시각 부정확(±1시간)이라 그에 맞춰 설계해 둠
 
 ## v2.9 메모 (2026-11-17)
 - 프리미엄 안내 문구와 실제 기능을 맞춤 (달력·월간/연간 리포트·PDF 구현, 시즌 챌린지·양 꾸미기는 문구에서 뺌 — 만들게 되면 그때 다시 넣기)

@@ -16,6 +16,7 @@
    DEMO_UNLOCK: 시연용 비밀번호 체험 허용 — 실결제를 여는 날 false로 바꿀 것. */
 const DEMO_UNLOCK = true;
 let serverPremium = false;
+let serverSub = null;   // 서버의 구독 한 줄 { status, current_period_end, plan } — 결제 화면(billing.js)이 다음 결제일 표시에 씀
 function isPremium() { return serverPremium || (DEMO_UNLOCK && lsGet('premiumActive') === true); }
 
 /* 구독 한 줄이 "지금 프리미엄인가"
@@ -33,16 +34,17 @@ function subscriptionIsActive(row, now) {
 let _entSeq = 0;
 async function refreshEntitlement() {
     const seq = ++_entSeq;
-    let active = false;
+    let active = false, row = null;
     if (sbUser && sb) {
         try {
             const { data, error } = await sb.from('subscriptions')
-                .select('status,current_period_end').eq('user_id', sbUser.id).maybeSingle();
-            if (!error) active = subscriptionIsActive(data);
+                .select('status,current_period_end,plan').eq('user_id', sbUser.id).maybeSingle();
+            if (!error) { row = data || null; active = subscriptionIsActive(data); }
         } catch (e) { logErr('entitlement', e); }
     }
     if (seq !== _entSeq) return; // 더 최근 확인이 진행 중이면 그 결과에 맡김
     serverPremium = active;
+    serverSub = row;
     onPremiumChanged();
 }
 
@@ -52,6 +54,8 @@ function onPremiumChanged() {
     safe('premium.history', () => refreshHistoryIfOpen()); // 달력 범위, 월간·연간 리포트 잠금/해제
     safe('premium.vault',   () => refreshVaultIfOpen());  // 보관함 상단 안내
     safe('premium.otd',     () => renderOnThisDay());     // 회고 카드 잠금/해제
+    safe('premium.subrow',  () => renderSubRow());        // 설정의 구독 줄
+    safe('premium.paybox',  () => { const m = document.getElementById('premium-modal'); if (m && !m.classList.contains('hidden')) renderPayBox(); });
 }
 
 function openPremiumModal() {
@@ -62,6 +66,8 @@ function openPremiumModal() {
     document.getElementById('pm-price').textContent = L.pm_price;
     document.getElementById('pm-cta').textContent = lsGet('premiumInterest') ? '✓ ' + L.pm_cta : L.pm_cta;
     document.getElementById('pm-close').textContent = L.pm_close;
+    document.getElementById('pm-cta').disabled = false;
+    safe('premium.paybox', () => renderPayBox());   // 결제가 켜져 있으면 요금제 선택·구독 상태로 바뀜 (billing.js)
     document.getElementById('premium-modal').classList.remove('hidden');
 }
 function closePremiumModal() { document.getElementById('premium-modal').classList.add('hidden'); }

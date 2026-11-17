@@ -11,6 +11,12 @@ const APP_VERSION = '2.9';
 const SHARE_URL = 'https://god-bless-you.vercel.app/';
 const SUPABASE_URL = 'https://pzakpaomnmahcugkzdff.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_nyWe0_C6prKvfP9R9EMXdA_DgH6bfwf';
+/* 결제·AI 스위치 — 준비가 끝나기 전에는 둘 다 false (화면에 아무것도 나타나지 않음).
+   켜기 전 확인: ① Supabase에 docs/supabase_schema.sql 실행 ② Vercel 환경 변수 설정 (lib/server.mjs 맨 위 목록)
+   ③ PAYMENTS.clientKey에 토스 클라이언트 키(test_ck_… → 심사 후 live_ck_…; 공개돼도 되는 키) ④ js/premium.js의 DEMO_UNLOCK = false
+   시크릿 키(test_sk_/live_sk_)와 AI 키는 절대 여기에 적지 않는다 — 서버 환경 변수에만. */
+const PAYMENTS = { on: false, clientKey: '' };
+const AI_REPORT = { on: false };
 let sb = null;
 let sbUser = null;
 

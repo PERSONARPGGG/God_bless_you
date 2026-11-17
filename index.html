@@ -204,6 +204,13 @@
                     </div>
                     <button class="btn-setting-action btn-setting-danger" id="row-logout-btn" onclick="sbLogout()">로그아웃</button>
                 </div>
+                <div class="setting-row" id="row-sub" style="display:none">
+                    <div>
+                        <div class="setting-row-label" id="row-sub-label">프리미엄 구독</div>
+                        <div class="setting-row-sub" id="row-sub-sub"></div>
+                    </div>
+                    <button class="btn-setting-action" id="row-sub-btn" onclick="openPremiumModal()">관리</button>
+                </div>
                 <div class="setting-row" id="row-delete" style="display:none">
                     <div>
                         <div class="setting-row-label" id="row-delete-label">계정 삭제</div>
@@ -492,6 +499,7 @@
         <div class="pm-desc" id="pm-desc"></div>
         <ul class="pm-feats" id="pm-feats"></ul>
         <div class="pm-price" id="pm-price"></div>
+        <div id="pm-pay" class="pm-pay hidden"></div>
         <button class="pm-cta" id="pm-cta" onclick="premiumInterest()"></button>
         <button class="pm-close" id="pm-close" onclick="closePremiumModal()">닫기</button>
     </div>
@@ -528,6 +536,18 @@
         <button type="button" class="consent-view" id="consent-view" onclick="openPolicy('privacy')"></button>
         <button type="button" class="consent-agree" id="consent-agree" onclick="agreeConsent()" disabled></button>
         <button type="button" class="consent-cancel" id="consent-cancel" onclick="closeConsent()"></button>
+    </div>
+</div>
+
+<!-- ══ AI 돌아보기 이용 동의 (js/aireport.js) ══ -->
+<div id="ai-modal" class="hidden" onclick="if(event.target===this)closeAiConsent()">
+    <div class="consent-box">
+        <div class="consent-title" id="ai-consent-title"></div>
+        <div class="consent-desc" id="ai-consent-desc"></div>
+        <label class="consent-item"><input type="checkbox" id="ai-consent-check" onchange="updateAiConsentBtn()"><span id="ai-consent-check-txt"></span></label>
+        <button type="button" class="consent-view" id="ai-consent-view" onclick="openPolicy('privacy')"></button>
+        <button type="button" class="consent-agree" id="ai-consent-agree" onclick="agreeAiConsent()" disabled></button>
+        <button type="button" class="consent-cancel" id="ai-consent-cancel" onclick="closeAiConsent()"></button>
     </div>
 </div>
 
@@ -791,8 +811,10 @@
 <script src="js/vault.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/premium.js"></script>
+<script src="js/billing.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/history.js"></script>
+<script src="js/aireport.js"></script>
 <script src="js/demo.js"></script>
 <script src="js/sheep.js"></script>
 <script src="js/care.js"></script>

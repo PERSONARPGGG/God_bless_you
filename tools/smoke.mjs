@@ -606,6 +606,111 @@ scenario('프리미엄(가짜 서버): 지난 해 기록 달력·월간·연간�
     p.ok(await p.eval(`__srv.mood_history.some(r => r.date === '2026-11-17' && !('verse_ref' in r)) && errLog().some(e => e.where === 'mood.verse_ref')`), 'verse_ref 없이 저장되고 사유가 기록됨');
 });
 
+/* 결제·AI 화면: 우리 서버(/api/*)와 토스 결제창은 가짜로 바꿔, 브라우저 쪽 흐름만 확인한다 (서버 규칙은 tools/api-test.mjs) */
+scenario('구독 결제·해지·AI 돌아보기 화면(가짜 서버·가짜 결제창): 꺼져 있으면 안 보임, 켜면 동의→결제→해지', {
+    now: '2026-11-17T21:00:00+09:00', seed: { userName: '' },
+}, async p => {
+    await p.goto();
+    // 기본값(판매 전): 결제 화면이 전혀 없음
+    await p.eval(`openPremiumModal()`);
+    p.ok(await p.eval(`!__t.vis('#pm-pay') && __t.txt('#pm-cta').includes('알림') && !paymentsOn() && !aiReportOn()`), '스위치가 꺼져 있으면 "출시 알림 받기" 그대로');
+    await p.eval(`closePremiumModal(); openPolicy('terms')`);
+    p.ok((await p.eval(`__t.txt('#policy-body')`)).includes('아직 판매하지'), '판매 전 약관 문구');
+    await p.eval(`hideOverlay('overlay-policy')`);
+    // 켜기 + 가짜 서버·결제창
+    await p.eval(`PAYMENTS.on = true; PAYMENTS.clientKey = 'test_ck_x'; AI_REPORT.on = true;
+        window.__api = []; window.__toss = [];
+        window.TossPayments = key => ({ payment: o => ({ requestBillingAuth: async r => { __toss.push({ key, customerKey: o.customerKey, ...r }); } }) });
+        const realFetch = window.fetch;
+        window.fetch = async (url, init) => {
+            if (!String(url).startsWith('/api/')) return realFetch(url, init);
+            const name = String(url).slice(5), body = JSON.parse(init.body || '{}');
+            __api.push({ name, body, auth: init.headers.authorization });
+            const reply = (status, o) => new Response(JSON.stringify(o), { status });
+            if (init.headers.authorization !== 'Bearer tok-u1') return reply(401, { ok: false, code: 'BAD_LOGIN' });
+            if (name === 'billing-confirm') { __srv.subscriptions = [{ user_id: 'u1', status: 'active', plan: body.plan, current_period_end: '2027-11-17T12:00:00Z' }]; return reply(200, { ok: true, status: 'active' }); }
+            if (name === 'billing-cancel') { if (__srv.subscriptions[0]) __srv.subscriptions[0].status = 'canceled'; return reply(200, { ok: true, status: 'canceled' }); }
+            if (name === 'ai-report') {
+                if (!(__srv.profiles.find(r => r.id === 'u1') || {}).ai_consent_at) return reply(403, { ok: false, code: 'NO_AI_CONSENT' });
+                return reply(200, { ok: true, period: body.period, content: '첫 문단 <img src=x onerror=window.__xss=1>\\n\\n둘째 문단', made: 1, left: 1 });
+            }
+            return reply(404, { ok: false });
+        }`);
+    await p.eval(`openPremiumModal()`);
+    p.ok(await p.eval(`__t.vis('#pm-pay') && document.querySelectorAll('#pm-pay .bl-plan').length === 2 && __t.txt('#pm-cta').includes('로그인')`), '게스트: 요금제 2개, 버튼은 로그인으로');
+    p.ok((await p.eval(`__t.txt('#pm-pay')`)).includes('자동 결제'), '결제 전 자동 갱신 고지');
+    await p.eval(`closePremiumModal()`);
+    // 로그인
+    await p.eval(`sb = ${FAKE_SB}({ mood_history: [
+            { id: 1, user_id: 'u1', date: '2026-11-10', emotion: '평안', topic: '모름', need: '쉼', diary_text: null },
+            { id: 2, user_id: 'u1', date: '2026-11-11', emotion: '감사', topic: '가족', need: '쉼', diary_text: '일기' },
+            { id: 3, user_id: 'u1', date: '2026-11-12', emotion: '걱정', topic: '일', need: '힘', diary_text: null }],
+        saved_verses: [], visit_dates: [], profiles: [], subscriptions: [] });
+        sb.auth.getSession = async () => ({ data: { session: { access_token: 'tok-u1' } } });
+        sbUser = { id: 'u1', email: 'u1@example.com' }; updateAuthUI(); syncWithServer()`);
+    await p.waitFor(`__t.ls('dataOwner') === 'u1'`, '로그인');
+    await p.eval(`openSettings()`);
+    p.ok(await p.eval(`__t.vis('#row-sub') && __t.txt('#row-sub-sub').length > 2`), '설정에 구독 줄 (구독하지 않음)');
+    await p.eval(`hideOverlay('overlay-settings'); openPremiumModal()`);
+    p.ok(await p.eval(`document.getElementById('pm-cta').disabled`), '동의에 체크하기 전에는 구독 버튼이 꺼져 있음');
+    await p.eval(`__t.click('#pm-cta')`);
+    p.eq(await p.eval('__toss.length'), 0, '동의 없이 눌러도 결제창이 열리지 않음');
+    await p.eval(`document.querySelectorAll('#pm-pay .bl-plan')[1].click(); document.getElementById('bl-agree').click()`);
+    p.ok(!(await p.eval(`document.getElementById('pm-cta').disabled`)), '동의하면 켜짐');
+    await p.eval(`__t.click('#pm-cta')`);
+    await p.waitFor('__toss.length === 1', '결제창 호출');
+    const t = await p.eval('__toss[0]');
+    p.eq([t.key, t.customerKey, t.method], ['test_ck_x', 'u1', 'CARD'], '결제창: 클라이언트 키, 계정 번호, 카드');
+    p.ok(t.successUrl.endsWith('?billing=success&plan=yearly') && t.failUrl.endsWith('?billing=fail') && t.successUrl.startsWith('http'), '돌아올 주소: ' + t.successUrl);
+    p.eq(await p.eval('__api.length'), 0, '결제창을 여는 것만으로는 서버에 아무것도 보내지 않음');
+    await p.eval(`closePremiumModal()`);
+    // 결제창에서 실패·취소로 돌아옴
+    await p.eval(`history.replaceState(null, '', location.pathname + '?billing=fail&code=PAY_PROCESS_CANCELED&message=x'); captureBillingReturn(); resumeBilling()`);
+    await sleep(100);
+    p.eq(await p.eval(`[location.search, sessionStorage.getItem('billingReturn'), __api.length]`), ['', null, 0], '취소로 돌아오면 주소를 정리하고 서버를 부르지 않음');
+    // 다른 계정의 인증값으로 돌아옴
+    await p.eval(`history.replaceState(null, '', location.pathname + '?billing=success&plan=yearly&customerKey=someone&authKey=ak0'); captureBillingReturn(); resumeBilling()`);
+    await sleep(100);
+    p.eq(await p.eval(`[__api.length, isPremium()]`), [0, false], '계정이 다르면 결제를 진행하지 않음');
+    // 성공으로 돌아옴
+    await p.eval(`history.replaceState(null, '', location.pathname + '?billing=success&plan=yearly&customerKey=u1&authKey=ak1'); captureBillingReturn(); resumeBilling(); resumeBilling()`);
+    await p.waitFor('isPremium()', '결제 확인 후 프리미엄');
+    p.eq(await p.eval(`__api.map(a => [a.name, a.body.authKey, a.body.plan, a.auth])`), [['billing-confirm', 'ak1', 'yearly', 'Bearer tok-u1']], '인증값을 로그인 토큰과 함께 서버로 한 번만 보냄');
+    p.eq(await p.eval(`[location.search, sessionStorage.getItem('billingReturn')]`), ['', null], '주소·임시값 정리');
+    await p.eval(`openPremiumModal()`);
+    p.ok(await p.eval(`__t.txt('#pm-pay').includes('이용 중') && __t.txt('#pm-pay').includes('2027') && __t.vis('#bl-cancel') && !__t.vis('#pm-cta')`), '구독 중: 다음 결제일과 해지 버튼');
+    await p.eval(`__t.click('#bl-cancel')`);
+    await p.waitFor(`__t.txt('#pm-pay').includes('해지됨')`, '해지 반영');
+    p.ok(await p.eval(`isPremium() && __t.vis('#pm-cta') && __api[1].name === 'billing-cancel'`), '해지해도 기간이 남아 프리미엄 유지, 다시 구독 버튼');
+    await p.eval(`closePremiumModal(); openSettings()`);
+    p.ok((await p.eval(`__t.txt('#row-sub-sub')`)).includes('2027'), '설정의 구독 줄에 이용 기한');
+    await p.eval(`hideOverlay('overlay-settings'); openPolicy('terms')`);
+    p.ok(await p.eval(`__t.txt('#policy-body').includes('자동 갱신') && __t.txt('#policy-body').includes('환불') && !__t.txt('#policy-body').includes('아직 판매하지')`), '판매 중 약관: 자동 갱신·환불 조항');
+    await p.eval(`openPolicy('privacy')`);
+    p.ok(await p.eval(`__t.txt('#policy-body').includes('토스페이먼츠') && __t.txt('#policy-body').includes('OpenRouter')`), '처리방침: 결제 위탁·AI 국외 전송');
+    await p.eval(`hideOverlay('overlay-policy')`);
+    // AI 돌아보기: 동의 → 생성 → 철회
+    await p.eval(`openDashboard()`);
+    await p.waitFor(`!!document.getElementById('ai-btn')`, 'AI 돌아보기 버튼');
+    await p.eval(`__t.click('#ai-btn')`);
+    p.ok(await p.eval(`__t.vis('#ai-modal') && document.getElementById('ai-consent-agree').disabled && !__api.some(a => a.name === 'ai-report')`), '처음에는 별도 동의 창, 동의 전에는 서버를 부르지 않음');
+    await p.eval(`document.getElementById('ai-consent-check').click(); __t.click('#ai-consent-agree')`);
+    await p.waitFor(`document.querySelectorAll('#ai-out .ai-card p').length === 2`, 'AI 글 표시(문단 2개)');
+    p.ok(await p.eval(`!!__srv.profiles.find(r => r.id === 'u1').ai_consent_at && !document.querySelector('#ai-out img') && window.__xss !== 1 && __t.txt('#ai-out').includes('<img')`), '동의 시각 저장, AI 글은 글자 그대로(태그 실행 안 됨)');
+    p.eq(await p.eval(`__api.filter(a => a.name === 'ai-report').map(a => [a.body.period, a.body.lang])`), [['2026-11', 'ko']], '보고 있는 달·언어로 요청');
+    p.ok((await p.eval(`__t.txt('#ai-out')`)).includes('대신하지 않아요'), 'AI 글 아래 안내 문구');
+    await p.shot('ai-report');
+    await p.eval(`withdrawAiConsent()`);
+    await p.waitFor(`__srv.profiles.find(r => r.id === 'u1').ai_consent_at === null && __t.txt('#ai-out') === ''`, '동의 철회');
+    await p.eval(`__t.click('#ai-btn')`);
+    p.ok(await p.eval(`__t.vis('#ai-modal')`), '철회 뒤에는 다시 동의 창');
+    await p.eval(`closeAiConsent(); hideOverlay('overlay-dashboard')`);
+    // 계정 삭제: 자동결제부터 멈춤
+    const before = await p.eval(`__api.filter(a => a.name === 'billing-cancel').length`);
+    await p.eval(`deleteAccount()`); await sleep(300);
+    p.eq(await p.eval(`[__api.filter(a => a.name === 'billing-cancel').length, sbUser]`), [before + 1, null], '계정 삭제 때 구독 해지를 먼저 요청');
+});
+
 scenario('좁은 화면(360px)·매우 큰 글씨: 가로로 넘치지 않음', { width: 360, height: 640, seed: { userName: '아주긴이름열두글자까지입력', fontLevel: '2' } }, async p => {
     await p.goto();
     const over = async where => {

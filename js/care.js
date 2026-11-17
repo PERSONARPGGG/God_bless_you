@@ -182,7 +182,7 @@ ${operatorHtml()}`,
 <h3>3. 기록의 책임과 보관</h3>
 <p>로그인하지 않은 기록은 기기에만 저장되므로 브라우저 데이터를 지우거나 기기를 바꾸면 복구할 수 없습니다. 로그인하면 클라우드에 함께 저장됩니다.</p>
 <h3>4. 유료 서비스</h3>
-<p>프리미엄은 아직 판매하지 않습니다. 판매를 시작할 때 가격, 결제·자동 갱신, 해지와 환불 기준을 이 약관과 결제 화면에 먼저 알리고 동의를 받습니다.</p>
+<p id="terms-paid">프리미엄은 아직 판매하지 않습니다. 판매를 시작할 때 가격, 결제·자동 갱신, 해지와 환불 기준을 이 약관과 결제 화면에 먼저 알리고 동의를 받습니다.</p>
 <h3>5. 콘텐츠</h3>
 <p>성경 본문과 음원의 출처·저작권 표시는 설정 화면 하단에 있습니다. 앱의 묵상 글과 디자인을 허락 없이 상업적으로 복제·배포할 수 없습니다.</p>
 <h3>6. 변경과 중단</h3>
@@ -194,13 +194,13 @@ ${operatorHtml()}`,
 <p>This app is a devotional service for reflecting on your day with Scripture. It is in beta and currently free.</p>
 <p>Its verses and devotional texts offer spiritual comfort and do not replace medical, psychological or other professional advice. In an emergency, contact your local emergency number or crisis line.</p>
 <p>Records made without signing in live only on your device and cannot be recovered if browser data is cleared.</p>
-<p>Premium is not on sale yet. Price, renewal, cancellation and refund terms will be shown and agreed to before any purchase.</p>`,
+<p id="terms-paid">Premium is not on sale yet. Price, renewal, cancellation and refund terms will be shown and agreed to before any purchase.</p>`,
         ja: () => `
 <p>施行日: ${POLICY_DATE}。これは要約であり、韓国語版が正本です。</p>
 <p>本アプリは、みことばと共に一日を振り返る黙想サービスです。現在ベータ運営中で、無料でご利用いただけます。</p>
 <p>みことばや黙想文は信仰的な慰めのためのものであり、医療・心理相談など専門家の助言に代わるものではありません。緊急の場合は110番・119番、または相談窓口へご連絡ください。</p>
 <p>ログインせずに作成した記録はデバイス内にのみ保存され、ブラウザのデータを消去すると復元できません。</p>
-<p>プレミアムはまだ販売していません。販売開始時には、価格・自動更新・解約・返金の条件を事前に表示し、同意をいただきます。</p>`,
+<p id="terms-paid">プレミアムはまだ販売していません。販売開始時には、価格・自動更新・解約・返金の条件を事前に表示し、同意をいただきます。</p>`,
     },
 };
 
@@ -209,6 +209,7 @@ function openPolicy(kind) {
     const set = POLICY_HTML[kind] || POLICY_HTML.privacy;
     document.getElementById('policy-title').textContent = kind === 'terms' ? L.row_terms : L.row_policy;
     document.getElementById('policy-body').innerHTML = (set[appLang] || set.ko)();
+    safe('policy.paid', () => applyPaidPolicy(kind));   // 결제·AI를 켰을 때의 조항 (billing.js)
     const ov = document.getElementById('overlay-policy');
     showOverlay('overlay-policy');
     ov.scrollTop = 0;
@@ -245,6 +246,8 @@ async function deleteAccount() {
     if (!sbUser || !sb) return;
     if (!confirm(L.del_confirm)) return;
     let full = false;
+    // 구독 중이면 자동결제부터 멈춘다 (실패해도 삭제는 계속 — 구독 기록이 함께 지워지면 서버는 더 결제하지 않음)
+    if (paymentsOn()) await apiPost('billing-cancel');
     try {
         const { error } = await sb.rpc('delete_my_account');
         if (!error) full = true;
@@ -258,7 +261,7 @@ async function deleteAccount() {
         toast(L.del_fail);
         return;
     }
-    ['savedVerses','moodHistory','visitDates','consent','premiumActive','dataOwner'].forEach(k => localStorage.removeItem(k));
+    ['savedVerses','moodHistory','visitDates','consent','premiumActive','dataOwner','aiConsent'].forEach(k => localStorage.removeItem(k));
     try { await sb.auth.signOut(); } catch (e) {}
     sbUser = null;
     _syncedUser = null;
@@ -365,7 +368,7 @@ function applyLangV27() {
 
 /* ── 접근성: 대화상자 역할, Esc로 닫기, 장식 요소 숨김 ── */
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.overlay, #premium-modal, #devpw-modal, #consent-modal').forEach(el => {
+    document.querySelectorAll('.overlay, #premium-modal, #devpw-modal, #consent-modal, #ai-modal').forEach(el => {
         el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
         const title = el.querySelector('.overlay-title, .pm-title, .consent-title, .devpw-label');
         if (title) { if (!title.id) title.id = el.id + '-heading'; el.setAttribute('aria-labelledby', title.id); }
@@ -381,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Esc: 가장 위에 떠 있는 창 하나만 닫음 (첫 방문 이름 입력창은 제외 — 닫으면 시작할 방법이 없음)
     document.addEventListener('keydown', e => {
         if (e.key !== 'Escape') return;
-        const open = [...document.querySelectorAll('#consent-modal, #devpw-modal, #premium-modal, .overlay')]
+        const open = [...document.querySelectorAll('#ai-modal, #consent-modal, #devpw-modal, #premium-modal, .overlay')]
             .filter(el => !el.classList.contains('hidden') && el.id !== 'overlay-name')
             .sort((a, b) => (parseInt(getComputedStyle(b).zIndex) || 0) - (parseInt(getComputedStyle(a).zIndex) || 0));
         if (open[0]) open[0].classList.add('hidden');

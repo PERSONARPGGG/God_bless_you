@@ -275,7 +275,7 @@ function renderHistMonthly() {
     const body = `<div class="db-month-body">${lines.map(l => `<div class="db-month-line">${l}</div>`).join('')}</div>`;
     if (isPremium()) {
         el.innerHTML = `<div class="db-month-wrap">${body}</div>
-            <button class="db-pdf-btn" type="button" onclick="exportDiaryPdf()">${L.hm_pdf}</button>`;
+            <button class="db-pdf-btn" type="button" onclick="exportDiaryPdf()">${L.hm_pdf}</button>` + safe('ai.button', () => aiReportButtonHtml(), '');
     } else {
         el.innerHTML = `<div class="db-month-wrap locked">${body}
             <button class="db-month-lock" type="button" onclick="openPremiumModal()">

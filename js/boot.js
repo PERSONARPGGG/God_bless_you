@@ -28,7 +28,9 @@ function init() {
     safe('applyLang', () => applyLang(appLang));
     safe('registerSW', () => registerSW());
     safe('installBanner', () => { if (isIOS() && !isStandalone()) scheduleInstallBanner(); });
+    safe('billingReturn', () => captureBillingReturn());   // 결제창에서 돌아온 주소 정리 — 반드시 Supabase 시작보다 먼저
     safe('initSupabase', () => initSupabase());
+    safe('billing.resume', () => resumeBilling());           // 결제 실패·취소 안내 (성공은 로그인 확인 뒤 auth.js에서)
 }
 
 document.addEventListener('DOMContentLoaded', () => {

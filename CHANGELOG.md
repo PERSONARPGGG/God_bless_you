@@ -29,8 +29,18 @@
 - `tools/smoke.mjs`: 시나리오 14 → 16개, `--shots=폴더`로 화면 캡처
 - Service Worker 캐시 v26
 
+### 결제·AI 돌아보기 준비 (스위치가 꺼져 있어 화면에는 아직 나타나지 않음)
+- **서버 함수** (`api/*.mjs` → `lib/server.mjs`): 구독 시작(`billing-confirm`), 해지(`billing-cancel`), 하루 한 번 자동 갱신(`billing-renew`, Vercel Cron), 토스 웹훅(`toss-webhook`), AI 돌아보기(`ai-report`). 비밀 키는 전부 서버 환경 변수
+- **구독 결제 화면** (`js/billing.js`): 요금제 선택 → 자동 갱신 고지와 약관 동의 → 토스 결제창(카드 등록) → 서버가 결제. 프리미엄 안내·설정에서 다음 결제일 확인과 해지. 계정 삭제 시 자동결제부터 멈춤
+- **AI 돌아보기** (`js/aireport.js`): 한 달 기록을 AI가 줄글로 돌아봄. 별도 동의(해외 전송) 후에만 동작, 이름·이메일은 보내지 않음, 한 달에 2번까지 생성, 동의 철회 가능
+- 유료 약관(자동 갱신·해지·환불)과 처리방침 조항(결제 위탁·AI 국외 전송)은 스위치를 켜면 자동으로 표시
+- DB: `billing_keys`(서버 전용), `payments`, `ai_reports`, `subscriptions.fail_count`, `profiles.ai_consent_at`
+- `tools/api-test.mjs`: 서버 함수 점검 10묶음(결제·해지·갱신·실패·웹훅·권한·AI). 화면 쪽은 smoke 시나리오 1개 추가 (총 17개)
+- Service Worker 캐시 v27
+
 ### 운영자가 할 일
-- Supabase SQL Editor에서 `docs/supabase_schema.sql` 다시 실행 (`mood_history.verse_ref` 열 추가 — 여러 번 실행해도 안전)
+- Supabase SQL Editor에서 `docs/supabase_schema.sql` 다시 실행 (`mood_history.verse_ref` 열과 결제·AI용 테이블 추가 — 여러 번 실행해도 안전)
+- 결제를 켜는 순서는 `CLAUDE.md`의 "결제·AI를 켜는 순서"
 
 ---
 

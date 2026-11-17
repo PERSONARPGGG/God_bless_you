@@ -66,6 +66,42 @@ create table if not exists public.subscriptions (
   provider_ref       text,                       -- 결제사 구독/빌링 키 식별자
   updated_at         timestamptz not null default now()
 );
+alter table public.subscriptions add column if not exists fail_count int not null default 0;   -- 갱신 결제 연속 실패 횟수
+
+-- 결제 수단(토스 빌링키): 서버만 읽고 쓴다. 정책을 하나도 만들지 않으므로 브라우저에서는 보이지 않는다.
+create table if not exists public.billing_keys (
+  user_id      uuid primary key references auth.users(id) on delete cascade,
+  billing_key  text not null,
+  card_label   text,                              -- 화면 표시용 (예: 신용 4330****123*)
+  updated_at   timestamptz not null default now()
+);
+
+-- 결제 내역: 서버가 쓰고, 사용자는 자기 것을 읽기만 한다.
+create table if not exists public.payments (
+  id           bigint generated always as identity primary key,
+  user_id      uuid references auth.users(id) on delete set null,   -- 계정을 지워도 거래 기록은 법정 기간 동안 남김
+  order_id     text not null unique,
+  payment_key  text,
+  amount       int not null,
+  plan         text,
+  status       text not null,
+  approved_at  timestamptz,
+  receipt_url  text,
+  created_at   timestamptz not null default now()
+);
+create index if not exists payments_user on public.payments (user_id, created_at desc);
+
+-- AI 돌아보기: 한 달에 한 편 저장 (다시 만들기 횟수 제한에도 씀). 서버가 쓰고, 사용자는 읽기만.
+create table if not exists public.ai_reports (
+  user_id     uuid not null references auth.users(id) on delete cascade,
+  period      text not null,                      -- 'YYYY-MM'
+  content     text not null,
+  made_count  int not null default 1,
+  updated_at  timestamptz not null default now(),
+  primary key (user_id, period)
+);
+-- AI 돌아보기 이용 동의 시각 (기록을 해외 AI 사업자에게 보내는 데 대한 별도 동의). 비어 있으면 서버가 거절한다.
+alter table public.profiles add column if not exists ai_consent_at timestamptz;
 
 -- ─────────────────────────────────────────────
 -- 2) RLS: 본인 데이터만 접근
@@ -75,6 +111,9 @@ alter table public.visit_dates   enable row level security;
 alter table public.mood_history  enable row level security;
 alter table public.saved_verses  enable row level security;
 alter table public.subscriptions enable row level security;
+alter table public.billing_keys  enable row level security;   -- 정책 없음 = 서버(service_role)만 접근
+alter table public.payments      enable row level security;
+alter table public.ai_reports    enable row level security;
 
 drop policy if exists "own profile" on public.profiles;
 create policy "own profile" on public.profiles
@@ -94,6 +133,14 @@ create policy "own saved_verses" on public.saved_verses
 
 drop policy if exists "read own subscription" on public.subscriptions;
 create policy "read own subscription" on public.subscriptions
+  for select to authenticated using (auth.uid() = user_id);
+
+drop policy if exists "read own payments" on public.payments;
+create policy "read own payments" on public.payments
+  for select to authenticated using (auth.uid() = user_id);
+
+drop policy if exists "read own ai_reports" on public.ai_reports;
+create policy "read own ai_reports" on public.ai_reports
   for select to authenticated using (auth.uid() = user_id);
 
 -- ─────────────────────────────────────────────
@@ -124,9 +171,9 @@ revoke all on function public.delete_my_account() from public, anon;
 grant execute on function public.delete_my_account() to authenticated;
 
 -- ─────────────────────────────────────────────
--- 4) 점검: 다섯 테이블 모두 rowsecurity = true 여야 합니다
+-- 4) 점검: 여덟 테이블 모두 rowsecurity = true 여야 합니다
 -- ─────────────────────────────────────────────
 select tablename, rowsecurity
 from pg_tables
 where schemaname = 'public'
-  and tablename in ('profiles','visit_dates','mood_history','saved_verses','subscriptions');
+  and tablename in ('profiles','visit_dates','mood_history','saved_verses','subscriptions','billing_keys','payments','ai_reports');

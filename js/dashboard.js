@@ -170,7 +170,7 @@ function renderDbEmoBars(data) {
         return `<div class="db-emo-row">
             <span class="db-emo-lbl">${escHtml(emoShort(e))}</span>
             <div class="db-emo-track">
-                <div class="db-emo-fill" data-pct="${pct}" style="width:0;background:linear-gradient(90deg,${col},${col}99);">
+                <div class="db-emo-fill" data-pct="${pct}" style="width:0;${c === 0 ? 'padding:0;' : ''}background:linear-gradient(90deg,${col},${col}99);">
                     ${c > 0 ? `<span class="db-emo-cnt">${fillText(L.db_times, { n: c })}</span>` : ''}
                 </div>
                 ${c === 0 ? '<span class="db-emo-zero">-</span>' : ''}
