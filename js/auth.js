@@ -1,88 +1,41 @@
-/* 밤의 목장 — js/auth.js : 앱 초기화 · Supabase 인증/동기화
+/* 밤의 목장 — js/auth.js : Supabase 로그인 · 기기↔클라우드 기록 맞추기
    (일반 스크립트. index.html 맨 아래에 적힌 순서대로 불러옵니다) */
 
 /* ═══════════════════════════════════════
-   초기화
-═══════════════════════════════════════ */
-function init() {
-    // file:// 환경에서 manifest CORS 오류 방지: http/https일 때만 동적 추가
-    if (location.protocol !== 'file:') {
-        const ml = document.createElement('link');
-        ml.rel = 'manifest'; ml.href = 'manifest.json';
-        document.head.appendChild(ml);
-    }
-    generateStars();
-    const verEl = document.getElementById('app-version');
-    if (verEl) verEl.textContent = 'v' + APP_VERSION;
-    appLang  = lsGet('appLang')  || 'ko';
-    fontLevel = parseInt(lsGet('fontLevel') || '0');
-    applyFont(fontLevel);
-    { let t0 = lsGet('appTheme') || 'night';
-      if (PREMIUM_THEMES.includes(t0) && !isPremium()) t0 = 'night';
-      applyTheme(t0);
-      updateThemeLocks(); }
-    checkFirstVisit();
-    updateStreak();
-    initHeroTeaser();
-    checkSeason();
-    applyLang(appLang);
-    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-        navigator.serviceWorker.register('sw.js').then(reg => {
-            // 페이지 로드 시 즉시 업데이트 확인 (기본 24시간 간격 보완)
-            reg.update();
-            reg.addEventListener('updatefound', () => {
-                const newSW = reg.installing;
-                newSW.addEventListener('statechange', () => {
-                    // 기존 SW 위에 새 SW가 설치 완료된 경우에만 배너 표시
-                    if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-                        document.getElementById('update-banner').classList.remove('hidden');
-                    }
-                });
-            });
-        }).catch(()=>{});
-        // SKIP_WAITING 후 새 SW가 활성화되면 자동 새로고침
-        // 단, 첫 설치(controller 없던 상태)에서는 리로드하지 않음 — 인트로가 끊기고 불필요한 재로딩
-        let refreshing = false, hadController = !!navigator.serviceWorker.controller;
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (!hadController) { hadController = true; return; }
-            if (!refreshing) { refreshing = true; location.reload(); }
-        });
-    }
-    if (isIOS() && !isStandalone()) scheduleInstallBanner();
-    initSupabase();
-}
-
-/* ═══════════════════════════════════════
-   Supabase 인증 / 동기화
+   Supabase 인증
 ═══════════════════════════════════════ */
 function initSupabase() {
-    if (location.protocol === 'file:' || typeof supabase === 'undefined') return;
+    if (sb || location.protocol === 'file:' || typeof supabase === 'undefined') return;
     sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    sb.auth.onAuthStateChange((event, session) => {
-        sbUser = session?.user || null;
-        updateAuthUI();
-        if (event === 'SIGNED_IN') migrateLocalToServer();
-    });
-    sb.auth.getSession().then(({data:{session}}) => {
-        sbUser = session?.user || null;
-        updateAuthUI();
-    });
+    const onSession = session => {
+        sbUser = (session && session.user) || null;
+        safe('updateAuthUI', updateAuthUI);
+        if (sbUser) syncWithServer();
+    };
+    // 이 콜백 안에서 곧바로 Supabase를 다시 부르면 내부 잠금에 걸릴 수 있어 한 박자 늦춘다
+    sb.auth.onAuthStateChange((event, session) => { setTimeout(() => onSession(session), 0); });
+    sb.auth.getSession().then(({ data }) => onSession(data && data.session)).catch(e => logErr('getSession', e));
 }
 
 /* 로그인 = 기록이 서버로 올라가는 시점 → 처음 한 번은 동의(처리방침·민감정보·만 14세 이상)를 먼저 받는다 */
 async function loginWithGoogle() {
-    if (!sb) return;
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    if (!sb) { toast(L.login_unavailable); return; }
     if (!hasConsent()) { openConsent(); return; }
-    await sb.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: location.origin + location.pathname }
-    });
+    try {
+        const { error } = await sb.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: location.origin + location.pathname }
+        });
+        if (error) throw error;
+    } catch (e) { logErr('login', e); toast(L.login_unavailable); }
 }
 
 async function sbLogout() {
     if (!sb) return;
-    await sb.auth.signOut();
+    try { await sb.auth.signOut(); } catch (e) { logErr('logout', e); }
     sbUser = null;
+    _syncedUser = null;
     updateAuthUI();
     toast((LANG_DATA[appLang]||LANG_DATA.ko).logout_done);
 }
@@ -111,84 +64,111 @@ function updateAuthUI() {
     refreshEntitlement();
 }
 
-async function migrateLocalToServer() {
-    if (!sbUser || !sb) return;
-    const {data: existing} = await sb.from('mood_history').select('id').limit(1);
-    if (existing && existing.length > 0) {
-        toast('클라우드 데이터를 불러왔어요 ☁️');
-        return;
-    }
-    const moods = lsGet('moodHistory') || [];
-    if (moods.length) {
-        const rows = moods.map(m => ({
-            user_id: sbUser.id, date: m.date,
-            emotion: m.emotion, topic: m.topic,
-            need: m.need, diary_text: m.diary || null
-        }));
-        await sb.from('mood_history').insert(rows);
-    }
-    const verses = lsGet('savedVerses') || [];
-    if (verses.length) {
-        const rows = verses.map(v => ({
-            user_id: sbUser.id, verse_text: v.verse,
-            verse_ref: v.ref, emotion: v.context
-        }));
-        await sb.from('saved_verses').insert(rows);
-    }
-    const dates = lsGet('visitDates') || [];
-    if (dates.length) {
-        const rows = dates.map(d => ({user_id: sbUser.id, visit_date: d}));
-        await sb.from('visit_dates').upsert(rows, {onConflict: 'user_id,visit_date'});
-    }
-    await sb.from('profiles').upsert({
-        id: sbUser.id, name: lsGet('userName') || '',
-        lang: lsGet('appLang') || 'ko',
-        theme: lsGet('appTheme') || 'night',
-        font_level: parseInt(lsGet('fontLevel') || '0')
-    });
-    toast('기존 데이터를 클라우드에 저장했어요 ☁️');
-}
+/* ═══════════════════════════════════════
+   기기 ↔ 클라우드 기록 맞추기
+   로그인했을 때·로그인된 채로 앱을 열 때 한 번 실행한다.
+   · 기기에만 있는 기록 → 클라우드에 올림   · 클라우드에만 있는 기록 → 기기로 내려받음
+   · 같은 기록(날짜·감정·주제·필요가 같음)은 한 건으로 보고, 일기가 있는 쪽을 살림
+   가족이 함께 쓰는 기기를 위해: 기기의 기록이 다른 계정으로 맞춰졌던 것이면 올리지 않고
+   지금 로그인한 계정의 기록으로 바꾼다 (이전 계정의 기록은 그 계정 클라우드에 그대로 있음).
+═══════════════════════════════════════ */
+let _syncedUser = null, _syncing = false;
+async function syncWithServer() {
+    if (!sb || !sbUser || _syncing || _syncedUser === sbUser.id) return;
+    _syncing = true;
+    const uid = sbUser.id;
+    try {
+        const owner = lsGet('dataOwner');
+        const mine = !owner || owner === uid;
+        const cut = ymd(addDays(new Date(), -LOCAL_KEEP_DAYS));
+        const [m, s, v, p] = await Promise.all([
+            sb.from('mood_history').select('*').eq('user_id', uid).gte('date', cut).limit(2000),
+            sb.from('saved_verses').select('*').eq('user_id', uid).limit(1000),
+            sb.from('visit_dates').select('visit_date').eq('user_id', uid).gte('visit_date', cut).limit(1000),
+            sb.from('profiles').select('*').eq('id', uid).maybeSingle(),
+        ]);
+        const failed = m.error || s.error || v.error;
+        if (failed) throw failed;
+        if (!sbUser || sbUser.id !== uid) return; // 그 사이 로그아웃함
+        let pulled = 0, pushed = 0;
 
-/* ── 히어로 묵상 초기화 ── */
-const TEASER_POOL = [
-    { t:'여호와는 나의 목자시니 내게 부족함이 없으리로다', r:'시편 23:1', te:'The LORD is my shepherd; I shall not want.', re:'Psalm 23:1' },
-    { t:'수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라', r:'마태복음 11:28', te:'Come to me, all who labor and are heavy laden, and I will give you rest.', re:'Matthew 11:28' },
-    { t:'내가 너희에게 평안을 끼치노니 곧 나의 평안을 너희에게 주노라', r:'요한복음 14:27', te:'Peace I leave with you; my peace I give to you.', re:'John 14:27' },
-    { t:'모든 것이 협력하여 선을 이루느니라', r:'로마서 8:28', te:'All things work together for good for those who love God.', re:'Romans 8:28' },
-    { t:'하나님은 우리의 피난처시요 힘이시니 환난 중에 만날 큰 도움이시라', r:'시편 46:1', te:'God is our refuge and strength, a very present help in trouble.', re:'Psalm 46:1' },
-    { t:'내가 세상 끝날까지 너희와 항상 함께 있으리라', r:'마태복음 28:20', te:'I am with you always, to the end of the age.', re:'Matthew 28:20' },
-    { t:'주님의 인자하심이 영원하시며 그의 진실하심이 대대에 이르리로다', r:'시편 100:5', te:'The LORD is good; his steadfast love endures forever, and his faithfulness to all generations.', re:'Psalm 100:5' },
-    { t:'너희는 마음에 근심하지 말라 하나님을 믿으니 또 나를 믿으라', r:'요한복음 14:1', te:'Let not your hearts be troubled. Believe in God; believe also in me.', re:'John 14:1' },
-    { t:'여호와를 앙망하는 자는 새 힘을 얻으리니', r:'이사야 40:31', te:'They who wait for the LORD shall renew their strength.', re:'Isaiah 40:31' },
-    { t:'주의 말씀은 내 발에 등이요 내 길에 빛이니이다', r:'시편 119:105', te:'Your word is a lamp to my feet and a light to my path.', re:'Psalm 119:105' },
-    { t:'사랑은 오래 참고 사랑은 온유하며 시기하지 아니하며', r:'고린도전서 13:4', te:'Love is patient and kind; love does not envy or boast', re:'1 Corinthians 13:4' },
-    { t:'항상 기뻐하라 쉬지 말고 기도하라 범사에 감사하라', r:'데살로니가전서 5:16-18', te:'Rejoice always, pray without ceasing, give thanks in all circumstances.', re:'1 Thessalonians 5:16-18' },
-];
+        /* 감정 기록 */
+        const mKey = h => [h.date, h.emotion, h.topic, h.need].join('|');
+        const serverMoods = new Map();
+        (m.data || []).forEach(r => {
+            if (!isYmd(r.date) || !r.emotion) return;
+            const h = { date:r.date, emotion:r.emotion, topic:r.topic, need:r.need, emoji:E_EMOJI[r.emotion] || '' };
+            if (r.diary_text) h.diary = r.diary_text;
+            const k = mKey(h), old = serverMoods.get(k);
+            if (!old || (!old.diary && h.diary)) serverMoods.set(k, h);
+        });
+        const localMoods = mine ? getMoods() : [];
+        const localKeys = new Set(localMoods.map(mKey));
+        const upMoods = localMoods.filter(h => h.date >= cut && !serverMoods.has(mKey(h)));
+        if (upMoods.length) {
+            const { error } = await sb.from('mood_history').insert(upMoods.map(h => ({
+                user_id: uid, date: h.date, emotion: h.emotion, topic: h.topic, need: h.need, diary_text: h.diary || null })));
+            if (error) throw error;
+            pushed += upMoods.length;
+        }
+        localMoods.forEach(h => { const r = serverMoods.get(mKey(h)); if (r && !h.diary && r.diary) h.diary = r.diary; });
+        const downMoods = [...serverMoods.values()].filter(h => !localKeys.has(mKey(h)));
+        pulled += downMoods.length;
+        // 기기 기록의 순서(최근에 한 것이 앞)를 지키면서 날짜순으로
+        const moods = [...localMoods, ...downMoods].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+        lsSet('moodHistory', trimMoods(moods));
 
-function initHeroTeaser() {
-    const storeKey = 'shownTeaser';
-    let shown = lsGet(storeKey) || [];
-    const allIdx = TEASER_POOL.map((_,i)=>i);
-    let avail = allIdx.filter(i=>!shown.includes(i));
-    if (!avail.length) { shown=[]; avail=allIdx; lsSet(storeKey,[]); }
-    const picked = avail[Math.floor(Math.random()*avail.length)];
-    lsSet(storeKey, [...shown, picked]);
-    const item = TEASER_POOL[picked];
-    const tEl = document.getElementById('ht-text');
-    const rEl = document.getElementById('ht-ref');
-    const useEn = appLang==='en' && item.te;
-    if (tEl) tEl.textContent = `"${useEn ? item.te : item.t}"`;
-    if (rEl) rEl.textContent = `— ${useEn ? item.re : item.r}`;
-}
+        /* 즐겨찾기 말씀 */
+        const vKey = x => x.ref + '|' + x.verse;
+        const serverSaved = new Map();
+        (s.data || []).forEach(r => {
+            if (!r.verse_text) return;
+            const known = r.emotion != null && _EMO_IDX[r.emotion] != null;
+            const x = { verse:r.verse_text, ref:r.verse_ref || '', savedAt: r.saved_at || r.created_at || null };
+            if (known) { x.emotion = r.emotion; if (r.need) x.need = r.need; }
+            else if (r.emotion) x.context = r.emotion; // 예전 방식: 감정 칸에 표시용 글이 들어 있음
+            if (!serverSaved.has(vKey(x))) serverSaved.set(vKey(x), x);
+        });
+        const localSaved = mine ? getSaved() : [];
+        const localSavedKeys = new Set(localSaved.map(vKey));
+        const upSaved = localSaved.filter(x => !serverSaved.has(vKey(x)));
+        if (upSaved.length) {
+            const { error } = await sb.from('saved_verses').insert(upSaved.map(x => ({
+                user_id: uid, verse_text: x.verse, verse_ref: x.ref, emotion: x.emotion || x.context || null, need: x.need || null })));
+            if (error) throw error;
+            pushed += upSaved.length;
+        }
+        const downSaved = [...serverSaved.values()].filter(x => !localSavedKeys.has(vKey(x)))
+            .sort((a, b) => String(b.savedAt || '').localeCompare(String(a.savedAt || '')));
+        pulled += downSaved.length;
+        lsSet('savedVerses', [...localSaved, ...downSaved].slice(0, SAVED_MAX));
 
-/* ── 별 생성 ── */
-function generateStars() {
-    const frag = document.createDocumentFragment();
-    for (let i=0;i<65;i++) {
-        const el=document.createElement('div'); el.className='star';
-        const big=Math.random()<.12, sz=big?(Math.random()*1.8+2.4):(Math.random()*1.4+0.5);
-        el.style.cssText=`left:${(Math.random()*100).toFixed(2)}%;top:${(Math.random()*100).toFixed(2)}%;width:${sz.toFixed(2)}px;height:${sz.toFixed(2)}px;--dur:${(Math.random()*3+2).toFixed(1)}s;--delay:${(Math.random()*5).toFixed(1)}s;--mop:${(Math.random()*.45+.5).toFixed(2)};`;
-        frag.appendChild(el);
+        /* 방문일(연속 출석) */
+        const serverVisits = (v.data || []).map(r => r.visit_date).filter(isYmd);
+        const localVisits = mine ? getVisits() : [todayStr()];
+        const upVisits = localVisits.filter(d => !serverVisits.includes(d));
+        if (upVisits.length) {
+            const { error } = await sb.from('visit_dates').upsert(upVisits.map(d => ({ user_id: uid, visit_date: d })), { onConflict: 'user_id,visit_date' });
+            if (error) throw error;
+        }
+        lsSet('visitDates', [...new Set([...localVisits, ...serverVisits])].sort());
+
+        /* 프로필: 이 기기에 호칭이 없으면 클라우드 것을 쓰고, 설정은 이 기기 것을 올림 */
+        const prof = p && !p.error ? p.data : null;
+        if (prof && prof.name && !lsGet('userName')) lsSet('userName', prof.name);
+        const up = await sb.from('profiles').upsert({
+            id: uid, name: lsGet('userName') || '', lang: appLang,
+            theme: lsGet('appTheme') || 'night', font_level: fontLevel });
+        if (up && up.error) logErr('sync.profile', up.error);
+
+        lsSet('dataOwner', uid);
+        _syncedUser = uid;
+        safe('sync.render', () => { updateStreak(); setWelcome(); renderOnThisDay(); refreshVaultIfOpen(); });
+        const L = LANG_DATA[appLang]||LANG_DATA.ko;
+        if (pulled) toast(L.sync_pulled); else if (pushed) toast(L.sync_pushed);
+    } catch (e) {
+        logErr('sync', e); // 다음에 앱을 열 때 다시 시도
+    } finally {
+        _syncing = false;
     }
-    document.getElementById('stars').appendChild(frag);
 }

@@ -74,8 +74,8 @@ const LANG_DATA = {
         row_update:'업데이트 확인', row_update_btn:'확인', row_app_desc:'오늘 밤, 주님이 누이시는 곳',
         privacy:'🔒 저장된 기록은 기기 내에만 보관되며,<br>외부 서버로 수집되지 않습니다.',
         /* 결과 섹션 */
-        sec_verse:'오늘의 말씀', sec_story:'오늘의 이야기', sec_prayer:'오늘의 기도',
-        sec_sentence:'오늘의 한 문장', sec_diary:'감사 한 줄 일기', sec_enc:'당신을 위한 응원',
+        sec_verse:'오늘의 말씀', sec_story:'오늘의 이야기',
+        sec_diary:'감사 한 줄 일기', sec_enc:'당신을 위한 응원',
         /* 일기 */
         diary_label:'오늘 딱 한 줄, 마음에 남는 것을 남겨보세요.',
         diary_ph:'아무리 작은 것도 괜찮아요...',
@@ -110,7 +110,6 @@ const LANG_DATA = {
         already_installed:'이미 앱으로 실행 중입니다 ✓',
         lbl_feedback_cat:'피드백',
         row_feedback:'의견 남기기', row_feedback_sub:'베타 피드백을 보내주세요',
-        row_feedback_btn:'보내기',
         install_nudge_3:'🌟 3일 연속 달성!', install_nudge_7:'🔥 7일 연속 달성!',
         install_nudge_sub:'홈 화면에 추가하면 더 편리해요',
         install_nudge_add:'추가하기', install_nudge_skip:'다음에',
@@ -193,8 +192,8 @@ const LANG_DATA = {
         row_update:'Check Updates', row_update_btn:'Check', row_app_desc:'Night Pasture — where He lays you down to rest',
         privacy:'🔒 Your data stays on this device only.<br>Nothing is sent to external servers.',
         /* 결과 섹션 */
-        sec_verse:'Today\'s Verse', sec_story:'Today\'s Story', sec_prayer:'Today\'s Prayer',
-        sec_sentence:'A Word for Today', sec_diary:'Gratitude Journal', sec_enc:'Encouragement for You',
+        sec_verse:'Today\'s Verse', sec_story:'Today\'s Story',
+        sec_diary:'Gratitude Journal', sec_enc:'Encouragement for You',
         /* 일기 */
         diary_label:'Write one thing you\'re grateful for today.',
         diary_ph:'Even small things count...',
@@ -229,7 +228,6 @@ const LANG_DATA = {
         already_installed:'Already running as an app ✓',
         lbl_feedback_cat:'Feedback',
         row_feedback:'Leave Feedback', row_feedback_sub:'Send us your beta feedback',
-        row_feedback_btn:'Send',
         install_nudge_3:'🌟 3-Day Streak!', install_nudge_7:'🔥 7-Day Streak!',
         install_nudge_sub:'Add to Home Screen for easy access',
         install_nudge_add:'Add Now', install_nudge_skip:'Later',
@@ -312,8 +310,8 @@ const LANG_DATA = {
         row_update:'アップデートを確認', row_update_btn:'確認', row_app_desc:'夜の牧場 — 今夜、主が休ませてくださる場所',
         privacy:'🔒 保存された記録はこのデバイス内にのみ保管され、<br>外部サーバーには送信されません。',
         /* 결과 섹션 */
-        sec_verse:'今日のみことば', sec_story:'今日のお話', sec_prayer:'今日のお祈り',
-        sec_sentence:'今日の一言', sec_diary:'感謝の日記', sec_enc:'あなたへの励まし',
+        sec_verse:'今日のみことば', sec_story:'今日のお話',
+        sec_diary:'感謝の日記', sec_enc:'あなたへの励まし',
         /* 일기 */
         diary_label:'今日感謝したことを一つ書いてみましょう。',
         diary_ph:'小さなことでも大丈夫...',
@@ -348,7 +346,6 @@ const LANG_DATA = {
         already_installed:'アプリとして実行中です ✓',
         lbl_feedback_cat:'フィードバック',
         row_feedback:'ご意見を送る', row_feedback_sub:'ベータフィードバックをお送りください',
-        row_feedback_btn:'送信',
         install_nudge_3:'🌟 3日連続達成！', install_nudge_7:'🔥 7日連続達成！',
         install_nudge_sub:'ホーム画面に追加すると便利です',
         install_nudge_add:'追加する', install_nudge_skip:'あとで',
@@ -364,7 +361,6 @@ const LANG_DATA = {
     }
 };
 let appLang = 'ko';
-let _wpTimer = null;
 
 function setWelcomeLang(lang) {
     appLang = lang;
@@ -429,13 +425,12 @@ function applyLang(lang) {
     if(fb) fb.textContent=document.fullscreenElement?L.fullscreen_off:L.fullscreen_on;
     s('lbl-feedback-cat',L.lbl_feedback_cat);
     s('row-feedback-label',L.row_feedback); s('row-feedback-sub',L.row_feedback_sub);
-    sh('privacy-text',L.privacy);
     // 스트릭 넛지 버튼 텍스트
     const inba=document.getElementById('in-btn-add'); if(inba) inba.textContent=L.install_nudge_add;
     const inbs=document.getElementById('in-btn-skip'); if(inbs) inbs.textContent=L.install_nudge_skip;
     // 결과 섹션 라벨
-    s('sec-verse',L.sec_verse); s('sec-story',L.sec_story); s('sec-prayer',L.sec_prayer);
-    s('sec-sentence',L.sec_sentence); s('sec-diary',L.sec_diary); s('sec-enc',L.sec_enc);
+    s('sec-verse',L.sec_verse); s('sec-story',L.sec_story);
+    s('sec-diary',L.sec_diary); s('sec-enc',L.sec_enc);
     // 일기
     s('diary-label',L.diary_label); s('diary-saved-msg',L.diary_saved);
     const di=document.getElementById('diary-input'); if(di) di.placeholder=L.diary_ph;
@@ -463,24 +458,12 @@ function applyLang(lang) {
     s('chip-song-2',L.song_2); s('chip-song-3',L.song_3); s('chip-song-4',L.song_4);
     s('chip-song-5',L.song_5); s('chip-song-6',L.song_6); s('chip-song-7',L.song_7);
     s('chip-song-8',L.song_8); s('chip-song-9',L.song_9);
-    updatePlayerUI();
+    safe('updatePlayerUI', () => updatePlayerUI());
     // 날짜·환영 갱신
-    setDate(); setWelcome();
+    safe('setDate', () => setDate()); safe('setWelcome', () => setWelcome());
     // v2.7 추가 UI (처리방침·동의·계정 삭제·회고 카드·돌봄 안내)
-    applyLangV27();
+    safe('applyLangV27', () => applyLangV27());
+    // 화면에 떠 있는 것 중 언어에 따라 달라지는 것 다시 그리기
+    safe('lang.vault', () => refreshVaultIfOpen());
 }
 
-function startWelcomeParticles() {
-    const c=document.getElementById('welcome-particles'); if(!c) return;
-    const sym=['🌸','✨','⭐','🌟','💫','🌷','🌺','🍀','🌼','💐'];
-    function spawn() {
-        if(document.getElementById('overlay-name').classList.contains('hidden')) return;
-        const el=document.createElement('div'); el.className='wp';
-        const sz=11+Math.random()*15, dur=5+Math.random()*5;
-        el.textContent=sym[Math.floor(Math.random()*sym.length)];
-        el.style.cssText=`left:${3+Math.random()*94}%;font-size:${sz}px;animation-duration:${dur}s;`;
-        c.appendChild(el); setTimeout(()=>el.remove(),(dur+.5)*1000);
-        _wpTimer=setTimeout(spawn,260+Math.random()*340);
-    }
-    spawn();
-}

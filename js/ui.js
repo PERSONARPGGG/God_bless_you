@@ -1,4 +1,4 @@
-/* 밤의 목장 — js/ui.js : 설정 · 오버레이 · 토스트 · 다시 시작 · 마무리(클로징)
+/* 밤의 목장 — js/ui.js : 설정 · 언어/테마 · 내보내기/초기화 · 오버레이 · 토스트 · 다시 시작 · 마무리(클로징)
    (일반 스크립트. index.html 맨 아래에 적힌 순서대로 불러옵니다) */
 
 /* ═══════════════════════════════════════
@@ -14,12 +14,8 @@ function openSettings() {
         const lang = id.replace('lo-','');
         document.getElementById(id).classList.toggle('active', lang === appLang);
     });
-    // 테마 버튼 active 동기화
-    const theme = lsGet('appTheme') || 'night';
-    ['th-night','th-dawn','th-forest','th-ocean','th-ember'].forEach(id => {
-        const t = id.replace('th-','');
-        document.getElementById(id).classList.toggle('active', t === theme);
-    });
+    // 테마 버튼 active 동기화 (저장값이 아니라 지금 화면에 적용된 테마 기준)
+    markActiveTheme(currentTheme());
     updateThemeLocks();
     // 전체화면 버튼 상태 동기화
     const L2 = LANG_DATA[appLang]||LANG_DATA.ko;
@@ -52,6 +48,7 @@ function openSettings() {
 
 /* 언어 변경 */
 function setLang(lang) {
+    if (!LANG_DATA[lang]) return;
     appLang = lang;
     lsSet('appLang', lang);
     applyLang(lang);
@@ -61,27 +58,36 @@ function setLang(lang) {
     toast({ ko:'언어가 변경되었습니다', en:'Language changed', ja:'言語を変更しました' }[lang] || '');
 }
 
-/* 배경 테마 */
-function applyTheme(theme) {
-    document.body.classList.remove('theme-dawn','theme-forest','theme-ocean','theme-ember');
-    if (theme === 'dawn')   document.body.classList.add('theme-dawn');
-    if (theme === 'forest') document.body.classList.add('theme-forest');
-    if (theme === 'ocean')  document.body.classList.add('theme-ocean');
-    if (theme === 'ember')  document.body.classList.add('theme-ember');
-}
-
 /* 배경 테마 — 밤하늘(night)만 무료, 나머지 4종은 프리미엄 */
+const THEMES = ['night', 'dawn', 'forest', 'ocean', 'ember'];
 const PREMIUM_THEMES = ['dawn', 'forest', 'ocean', 'ember'];
+function applyTheme(theme) {
+    THEMES.forEach(t => document.body.classList.toggle('theme-' + t, t === theme && t !== 'night'));
+}
+function currentTheme() { return THEMES.find(t => document.body.classList.contains('theme-' + t)) || 'night'; }
+function markActiveTheme(theme) {
+    THEMES.forEach(t => { const b = document.getElementById('th-' + t); if (b) b.classList.toggle('active', t === theme); });
+}
+/* 저장된 테마를 화면에 적용. 프리미엄 테마인데 지금 자격이 없으면 화면만 기본으로 돌린다
+   (저장값은 그대로 두어, 자격이 확인되면 다시 그 테마로 돌아옴).
+   앱 시작·자격 확인 직후·체험 토글 때 호출 */
+function restoreTheme() {
+    let t = lsGet('appTheme');
+    if (!THEMES.includes(t)) t = 'night';
+    if (PREMIUM_THEMES.includes(t) && !isPremium()) t = 'night';
+    applyTheme(t);
+    markActiveTheme(t);
+    updateThemeLocks();
+}
 function setTheme(theme) {
+    if (!THEMES.includes(theme)) return;
     if (PREMIUM_THEMES.includes(theme) && !isPremium()) {
         openPremiumModal();
         return;
     }
     applyTheme(theme);
     lsSet('appTheme', theme);
-    ['th-night','th-dawn','th-forest','th-ocean','th-ember'].forEach(id => {
-        document.getElementById(id).classList.toggle('active', id.replace('th-','') === theme);
-    });
+    markActiveTheme(theme);
 }
 
 /* 프리미엄 테마 잠금 배지 갱신 — 설정 열 때, 프리미엄 체험 토글 시 호출 */
@@ -111,69 +117,27 @@ document.addEventListener('fullscreenchange', () => {
     if (btn) btn.textContent = document.fullscreenElement ? L.fullscreen_off : L.fullscreen_on;
 });
 
-/* 스트릭 설치 넛지 */
-function checkInstallNudge(streak) {
-    if (isStandalone()) return;
-    const key = streak === 7 ? 'installNudge7' : streak === 3 ? 'installNudge3' : null;
-    if (!key || lsGet(key)) return;
-    lsSet(key, '1');
-    setTimeout(() => showInstallNudge(streak), 1600);
-}
-function showInstallNudge(streak) {
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    const nudge = document.getElementById('install-nudge');
-    if (!nudge) return;
-    document.getElementById('in-icon').textContent  = streak >= 7 ? '🔥' : '🌟';
-    document.getElementById('in-title').textContent = L['install_nudge_'+streak] || (streak+'일 연속 달성!');
-    document.getElementById('in-sub').textContent   = L.install_nudge_sub;
-    document.getElementById('in-btn-add').textContent  = L.install_nudge_add;
-    document.getElementById('in-btn-skip').textContent = L.install_nudge_skip;
-    nudge.classList.remove('hidden');
-    requestAnimationFrame(() => requestAnimationFrame(() => nudge.classList.add('visible')));
-}
-function dismissNudge() {
-    const nudge = document.getElementById('install-nudge');
-    if (!nudge) return;
-    nudge.classList.remove('visible');
-    setTimeout(() => nudge.classList.add('hidden'), 380);
-}
-function nudgeInstall() {
-    dismissNudge();
-    setTimeout(() => triggerInstall(), 420);
-}
-
-/* 홈 화면 추가 */
-function triggerInstall() {
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    if (isStandalone()) { toast(L.already_installed); return; }
-    if (isIOS()) { hideOverlay('overlay-settings'); showOverlay('ios-install-guide'); return; }
-    if (deferredInstall) {
-        deferredInstall.prompt();
-        deferredInstall.userChoice.then(r => { if (r.outcome==='accepted') deferredInstall=null; });
-    } else {
-        toast(L.install_unavailable);
-    }
-}
-
 /* 데이터 내보내기 */
 function exportData() {
-    const hist   = lsGet('moodHistory') || [];
-    const saved  = lsGet('savedVerses') || [];
+    const hist   = getMoods();
+    const saved  = getSaved();
     const lines  = ['=== 밤의 목장 데이터 내보내기 ===',''];
 
     if (saved.length) {
         lines.push('[ 저장된 말씀 ]');
         saved.forEach(s => {
-            lines.push(`${s.date} · ${s.context||''}`);
+            lines.push([savedDateText(s), savedContext(s)].filter(Boolean).join(' · '));
             lines.push(`"${s.verse}"`);
             lines.push(`— ${s.ref}`);
-            if (s.diary) lines.push(`일기: ${s.diary}`);
             lines.push('');
         });
     }
     if (hist.length) {
-        lines.push('[ 감정 기록 ]');
-        hist.forEach(h => lines.push(`${h.date}  ${h.emoji||''} ${h.emotion||''} · ${h.topic||''} · ${h.need||''}`));
+        lines.push('[ 감정 기록 · 감사 일기 ]');
+        hist.forEach(h => {
+            lines.push(`${h.date}  ${h.emoji||''} ${h.emotion||''} · ${h.topic||''} · ${h.need||''}`);
+            if (h.diary) lines.push(`    일기: ${h.diary}`);
+        });
     }
     const text = lines.join('\n');
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
@@ -202,46 +166,9 @@ async function clearData() {
         }
     }
     ['savedVerses','moodHistory','visitDates'].forEach(k=>localStorage.removeItem(k));
-    renderOnThisDay();
+    safe('reset.render', () => { updateStreak(); renderOnThisDay(); refreshVaultIfOpen(); });
     toast(L.toast_reset);
     hideOverlay('overlay-settings');
-}
-
-/* 수동 업데이트 확인 */
-function checkUpdateManual() {
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    if (!('serviceWorker' in navigator) || location.protocol === 'file:') {
-        _setUpdateStatus(L.upd_manual);
-        _resetUpdateBtn();
-        return;
-    }
-    const btn = document.getElementById('btn-check-update');
-    if (btn) { btn.disabled = true; btn.textContent = L.upd_btn_checking; }
-    _setUpdateStatus(L.upd_checking);
-
-    navigator.serviceWorker.getRegistration().then(reg => {
-        if (!reg) { _setUpdateStatus(L.upd_no_sw); _resetUpdateBtn(); return; }
-        reg.update().then(() => {
-            if (reg.waiting) {
-                _setUpdateStatus(L.upd_ready_msg);
-                if (btn) { btn.disabled = false; btn.textContent = L.upd_btn_apply; btn.onclick = () => { applyUpdate(); hideOverlay('overlay-settings'); }; }
-                document.getElementById('update-banner').classList.remove('hidden');
-            } else {
-                _setUpdateStatus(L.upd_latest_v);
-                _resetUpdateBtn();
-            }
-        }).catch(() => { _setUpdateStatus(L.upd_fail); _resetUpdateBtn(); });
-    });
-}
-
-function _setUpdateStatus(msg) {
-    const el = document.getElementById('update-status-text');
-    if (el) el.textContent = msg;
-}
-function _resetUpdateBtn() {
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    const btn = document.getElementById('btn-check-update');
-    if (btn) { btn.disabled = false; btn.textContent = L.upd_btn; btn.onclick = checkUpdateManual; }
 }
 
 /* ═══════════════════════════════════════
@@ -249,30 +176,21 @@ function _resetUpdateBtn() {
 ═══════════════════════════════════════ */
 function showOverlay(id) {
     const el = document.getElementById(id);
+    if (!el) return;
     el.classList.remove('hidden');
     el.classList.add('overlay-anim');
     setTimeout(() => el.classList.remove('overlay-anim'), 500);
 }
-function hideOverlay(id) { document.getElementById(id).classList.add('hidden'); }
+function hideOverlay(id) { const el = document.getElementById(id); if (el) el.classList.add('hidden'); }
 
 /* ═══════════════════════════════════════
    Toast
 ═══════════════════════════════════════ */
 let toastTimer;
 function toast(msg) {
-    const el=document.getElementById('toast'); el.textContent=msg;
+    const el=document.getElementById('toast'); if (!el || !msg) return; el.textContent=msg;
     el.classList.add('show'); clearTimeout(toastTimer);
     toastTimer=setTimeout(()=>el.classList.remove('show'),2200);
-}
-
-/* 업데이트 배너 → 새 SW 활성화 요청 */
-function applyUpdate() {
-    document.getElementById('update-banner').classList.add('hidden');
-    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-        navigator.serviceWorker.getRegistration().then(reg => {
-            if (reg && reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
-        }).catch(()=>{});
-    }
 }
 
 /* ═══════════════════════════════════════
@@ -287,7 +205,8 @@ function restart() {
     if (bvR) bvR.classList.add('hidden');
     document.getElementById('step4').classList.remove('closing');
     document.querySelectorAll('#step4 .card').forEach(c=>c.classList.remove('closing-collapsed'));
-    setWelcome();
+    safe('setWelcome', () => setWelcome());
+    safe('renderOnThisDay', () => renderOnThisDay());
     go('step4','step1');
 }
 
@@ -351,19 +270,21 @@ function triggerClosing() {
     if (closingTriggered) return;
     closingTriggered = true;
     stopClosingTimer();
-    autoSaveDiary();
+    safe('autoSaveDiary', () => autoSaveDiary());
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const step4 = document.getElementById('step4');
     step4.classList.add('closing');
-    const streak = calcStreak(lsGet('visitDates')||[]);
-    const streakEl = document.getElementById('blessing-streak');
-    if (streakEl) streakEl.textContent = streak>0 ? `🔥 ${streak}${L.streak_unit}` : '';
+    safe('blessingStreak', () => {
+        const streak = calcStreak(getVisits());
+        const streakEl = document.getElementById('blessing-streak');
+        if (streakEl) streakEl.textContent = streak>0 ? `🔥 ${streak}${L.streak_unit}` : '';
+    });
     setTimeout(() => {
         document.querySelectorAll('#step4 .card:not(.card-blessing)').forEach(c=>c.classList.add('closing-collapsed'));
     }, 520);
     // 밤하늘 밝아짐 + 별똥별 하나 (마무리 순간 연출)
     document.body.classList.add('closing-sky');
-    setTimeout(spawnShootingStar, 900);
+    later('spawnShootingStar', () => spawnShootingStar(), 900);
     const br = document.querySelector('.btn-restart');
     if (br) br.textContent = L.btn_restart;
     // 마무리 후 동선: 보관함 진입 버튼 노출
@@ -386,17 +307,3 @@ function onFinishClick() {
     window.addEventListener('scroll', onActivity, { passive:true });
 })();
 
-/* ── 이름 입력 엔터 처리 ── */
-document.addEventListener('DOMContentLoaded', ()=>{
-    init();
-    playIntro();
-    restoreBgMusic();
-    document.getElementById('name-input').addEventListener('keydown', e=>{ if(e.key==='Enter') saveName(); });
-    // 개발자 모드 복원 (localStorage 영속 — 매번 비밀번호 입력 불필요)
-    if (isDevMode()) {
-        const btn = document.getElementById('btn-dashboard');
-        if (btn) btn.classList.remove('hidden');
-        const btnTop = document.getElementById('btn-dashboard-top');
-        if (btnTop) btnTop.classList.remove('hidden');
-    }
-});

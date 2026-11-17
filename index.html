@@ -27,7 +27,6 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap">
     <link rel="stylesheet" href="css/app.css">
 </head>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <body>
 
 <!-- ── 밤의 목장 오프닝: 양이 걸어와 달빛 아래 잠들다 ── -->
@@ -332,7 +331,7 @@
                         <div class="setting-row-label">밤의 목장</div>
                         <div id="row-app-desc" class="setting-row-sub">오늘 밤, 주님이 누이시는 곳</div>
                     </div>
-                    <span id="app-version" style="font-size:var(--fs-2xs);color:rgba(255,255,255,.3);">v2.6</span>
+                    <span id="app-version" style="font-size:var(--fs-2xs);color:rgba(255,255,255,.3);"></span>
                 </div>
                 <div class="setting-row">
                     <div>
@@ -673,7 +672,7 @@
         <!-- 글자 크기 -->
         <div class="font-ctrl">
             <span style="font-size:var(--fs-2xs);color:rgba(255,255,255,.4);">글자</span>
-            <button class="font-btn" onclick="cycleFont(-1)" style="font-size:11px;">가-</button>
+            <button class="font-btn" onclick="cycleFont(-1)" style="font-size:12px;">가-</button>
             <span id="fs-indicator">●</span>
             <button class="font-btn" onclick="cycleFont(1)"  style="font-size:13px;">가+</button>
         </div>
@@ -775,15 +774,24 @@
 <script src="js/data.js"></script>
 <script src="js/core.js"></script>
 <script src="js/i18n.js"></script>
+<script src="js/effects.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/pwa.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/flow.js"></script>
 <script src="js/vault.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/premium.js"></script>
-<script src="js/audio.js"></script>
-<script src="js/persona.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/demo.js"></script>
 <script src="js/sheep.js"></script>
 <script src="js/care.js"></script>
+<script src="js/boot.js"></script>
+<!-- 로그인용 Supabase 라이브러리: 화면을 막지 않도록 맨 뒤에서 따로 받는다 (CDN이 느리거나 죽어도 앱은 켜짐).
+     버전을 고정하고 무결성 해시를 건다 — 올릴 때는 버전·해시를 함께 바꾸고 로그인을 다시 확인할 것 -->
+<script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.min.js"
+        integrity="sha384-gnyZit14c5lnGcarmA166QQjjJXpucw25ogZXuwH3HxxY904zHkBqmxVpelsPorb" crossorigin="anonymous"
+        onload="if (window.__booted) safe('initSupabase', initSupabase)"></script>
 <!-- 인쇄 전용: 나의 신앙 일기장 (화면에선 숨김) -->
 <div id="print-diary" aria-hidden="true"></div>
 </body>

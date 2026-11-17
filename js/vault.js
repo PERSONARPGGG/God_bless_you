@@ -26,9 +26,33 @@ function renderPagination(containerId, cur, total, onChange) {
 
 function openVault() {
     moodPage = 0; savedPage = 0;
-    switchTab('mood');
-    renderVaultBanner();
+    safe('vault.tab', () => switchTab('mood'));
+    safe('vault.banner', () => renderVaultBanner());
     showOverlay('overlay-vault');
+}
+
+/* 보관함이 열려 있을 때만 다시 그린다 (기록 맞추기·프리미엄 변경·초기화 뒤에 호출) */
+function refreshVaultIfOpen() {
+    const ov = document.getElementById('overlay-vault');
+    if (!ov || ov.classList.contains('hidden')) return;
+    renderVaultBanner();
+    const savedOn = document.getElementById('vault-saved').classList.contains('active');
+    if (savedOn) renderSaved(); else { renderStats(); renderMood(); }
+}
+
+/* 즐겨찾기 한 건의 표시용 글 — 저장된 원래 값(감정·필요·시각)으로 현재 언어에 맞춰 만든다.
+   예전 방식으로 저장된 것(표시용 글이 통째로 들어 있음)은 그 글을 그대로 쓴다. */
+const SAVED_MAX = 200;
+function savedContext(v) {
+    if (v.emotion && _EMO_IDX[v.emotion] != null) return eLabel(v.emotion) + (v.need ? ' · ' + nLabel(v.need) : '');
+    return v.context || '';
+}
+function savedDateText(v) {
+    if (v.savedAt) {
+        const d = new Date(v.savedAt);
+        if (!isNaN(d)) return d.toLocaleDateString((LANG_DATA[appLang]||LANG_DATA.ko).locale || 'ko-KR', { month:'long', day:'numeric' });
+    }
+    return v.date || '';
 }
 
 /* 보관함 상단 안내 — 로그인/프리미엄을 명확히 구분해 각자의 메리트만 전달 */
@@ -59,11 +83,11 @@ function switchTab(tab) {
     document.getElementById('vault-mood').classList.toggle('active',  tab==='mood');
     document.getElementById('vault-saved').classList.toggle('active', tab==='saved');
     if (tab==='saved') { savedPage=0; renderSaved(); }
-    if (tab==='mood')  { moodPage=0; renderStats(); renderMood(); }
+    if (tab==='mood')  { moodPage=0; safe('renderStats', () => renderStats()); renderMood(); }
 }
 
 function renderSaved() {
-    const list = lsGet('savedVerses') || [];
+    const list = getSaved();
     const el   = document.getElementById('saved-list');
     el.innerHTML = '';
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
@@ -81,15 +105,16 @@ function renderSaved() {
         const idx = start + pi;
         const item = document.createElement('div');
         item.className = 'saved-verse-item';
-        const emoKey = Object.keys(EMO_BORDER).find(em => (v.context||'').includes(em));
+        const context = savedContext(v);
+        const emoKey = Object.keys(EMO_BORDER).find(em => context.includes(em));
         if (emoKey) item.style.borderLeftColor = EMO_BORDER[emoKey];
 
         const del = document.createElement('button');
         del.className = 'svi-del'; del.textContent = '×';
         del.addEventListener('click', () => deleteSaved(idx));
 
-        const date = document.createElement('div'); date.className = 'svi-date'; date.textContent = v.date;
-        const ctx  = document.createElement('div'); ctx.className  = 'svi-context'; ctx.textContent = v.context;
+        const date = document.createElement('div'); date.className = 'svi-date'; date.textContent = savedDateText(v);
+        const ctx  = document.createElement('div'); ctx.className  = 'svi-context'; ctx.textContent = context;
         const verse = document.createElement('div'); verse.className = 'svi-verse'; verse.textContent = v.verse;
         const ref   = document.createElement('div'); ref.className   = 'svi-ref'; ref.textContent = '— ' + v.ref;
 
@@ -106,14 +131,17 @@ function renderSaved() {
 }
 
 function deleteSaved(idx) {
-    const list = lsGet('savedVerses') || [];
-    list.splice(idx,1); lsSet('savedVerses',list);
+    const list = getSaved();
+    const [gone] = list.splice(idx,1); lsSet('savedVerses',list);
+    // 클라우드에서도 지운다 (안 지우면 다음에 기록을 맞출 때 되살아남)
+    if (gone && sbUser && sb) sb.from('saved_verses').delete().eq('user_id', sbUser.id).eq('verse_ref', gone.ref).eq('verse_text', gone.verse)
+        .then(r => { if (r && r.error) logErr('saved.delete', r.error); }, e => logErr('saved.delete', e));
     if (savedPage > 0 && savedPage >= Math.ceil(list.length / SAVED_PER_PAGE)) savedPage--;
     renderSaved();
 }
 
 function renderMood() {
-    const hist = lsGet('moodHistory') || [];
+    const hist = getMoods();
     const el   = document.getElementById('mood-list');
     const jumpEl = document.getElementById('mood-month-jump');
     el.innerHTML = '';
@@ -121,13 +149,13 @@ function renderMood() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const dn = L.day_names, mn = L.month_names;
     const fmtDate = str => {
-        const d = new Date(str);
+        const d = parseYmd(str);
         if (appLang==='en') return `${mn[d.getMonth()]} ${d.getDate()} (${dn[d.getDay()]})`;
         if (appLang==='ja') return `${mn[d.getMonth()]}${d.getDate()}日 (${dn[d.getDay()]})`;
         return `${d.getMonth()+1}월 ${d.getDate()}일 (${dn[d.getDay()]})`;
     };
     const fmtMonth = str => {
-        const d = new Date(str);
+        const d = parseYmd(str);
         if (appLang==='en') return `${mn[d.getMonth()]} ${d.getFullYear()}`;
         if (appLang==='ja') return `${d.getFullYear()}年 ${mn[d.getMonth()]}`;
         return `${d.getFullYear()}년 ${d.getMonth()+1}월`;
@@ -224,7 +252,7 @@ function renderStats() {
         return;
     }
 
-    const hist = lsGet('moodHistory') || [];
+    const hist = getMoods();
     const EMO_BG = {
         '감사':'rgba(240,190,60,.85)', '평안':'rgba(80,200,160,.85)',
         '걱정':'rgba(120,150,255,.85)', '지침':'rgba(160,130,255,.85)',
@@ -241,9 +269,8 @@ function renderStats() {
     const todayD = new Date();
     const days = [];
     for (let i = 6; i >= 0; i--) {
-        const d = new Date(todayD);
-        d.setDate(d.getDate() - i);
-        const ds = d.toISOString().slice(0, 10);
+        const d = addDays(todayD, -i);
+        const ds = ymd(d);
         const entry = hist.find(h => h.date === ds) || null;
         days.push({ ds, dayName: dayNames[d.getDay()], dateNum: d.getDate(), entry, isToday: i === 0 });
     }
@@ -311,7 +338,7 @@ function renderStats() {
             item.style.borderLeftColor = EMO_BG[emo] || 'rgba(255,255,255,.2)';
             item.innerHTML = `<div class="wc-emo-icon">${emoji}</div>
                 <div class="wc-emo-info">
-                    <div class="wc-emo-name">${emoName}</div>
+                    <div class="wc-emo-name">${escHtml(emoName)}</div>
                     <div class="wc-emo-cnt">${cntText}</div>
                 </div>`;
             emoGrid.appendChild(item);
@@ -320,8 +347,7 @@ function renderStats() {
     }
 
     /* 연속 방문 스트릭 */
-    const visitDates = lsGet('visitDates') || [];
-    const streak = calcStreak(visitDates);
+    const streak = calcStreak(getVisits());
     const streakUnit = L.streak_unit || '일 연속';
     const streakEl = document.createElement('div'); streakEl.className = 'wc-streak';
     streakEl.innerHTML = `<div class="wc-streak-num">${streak}</div><div class="wc-streak-lbl">🔥 ${streak}${streakUnit}</div>`;

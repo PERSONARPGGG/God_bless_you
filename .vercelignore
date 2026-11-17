@@ -1,0 +1,10 @@
+# 배포(웹에 공개)에서 빼는 것 — 앱이 쓰지 않는 개발용 파일
+# Vercel은 저장소의 모든 파일을 주소로 열 수 있게 올리므로, 사이트에 필요 없는 것은 여기서 뺀다.
+tools/
+.claude/
+CLAUDE.md
+CHANGELOG.md
+README.md
+docs/archive/
+docs/superpowers/
+docs/*.sql

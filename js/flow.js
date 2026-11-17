@@ -1,4 +1,4 @@
-/* 밤의 목장 — js/flow.js : 이름·글자 크기·스트릭·절기·스텝 전환·결과 생성·복사/공유/저장·감사 일기
+/* 밤의 목장 — js/flow.js : 이름·글자 크기·스트릭·절기·스텝 전환·결과 생성·복사/공유/저장·감사 일기·말씀 선택·연속 감정 인식
    (일반 스크립트. index.html 맨 아래에 적힌 순서대로 불러옵니다) */
 
 /* ═══════════════════════════════════════
@@ -7,7 +7,7 @@
 function checkFirstVisit() {
     if (localStorage.getItem('userName') === null) {
         showOverlay('overlay-name');
-        setTimeout(startWelcomeParticles, 600);
+        later('startWelcomeParticles', () => startWelcomeParticles(), 600);
     }
 }
 
@@ -32,7 +32,7 @@ function changeName() {
     document.getElementById('name-input').value = lsGet('userName') || '';
     setWelcomeLang(appLang);
     showOverlay('overlay-name');
-    setTimeout(startWelcomeParticles, 400);
+    later('startWelcomeParticles', () => startWelcomeParticles(), 400);
 }
 
 /* ── 환영 문구 ── */
@@ -68,7 +68,7 @@ function applyFont(level) {
     if (level===1) document.body.classList.add('sz-lg');
     if (level===2) document.body.classList.add('sz-xl');
     const ind = document.getElementById('fs-indicator');
-    if (ind) ind.textContent = ['●','●●','●●●'][level];
+    if (ind) ind.textContent = ['●','●●','●●●'][level] || '●';
     // 설정 버튼 active 상태
     ['fo-sm','fo-md','fo-lg'].forEach((id,i)=>{
         const el=document.getElementById(id);
@@ -88,14 +88,14 @@ function cycleFont(dir) {
 ═══════════════════════════════════════ */
 function updateStreak() {
     const today = todayStr();
-    let dates = lsGet('visitDates') || [];
+    let dates = getVisits();
     if (!dates.includes(today)) {
         dates.push(today);
-        lsSet('visitDates', dates);
-        if (sbUser && sb) sb.from('visit_dates').upsert({user_id:sbUser.id, visit_date:today},{onConflict:'user_id,visit_date'}).then();
+        if (sbUser && sb) sb.from('visit_dates').upsert({user_id:sbUser.id, visit_date:today},{onConflict:'user_id,visit_date'})
+            .then(r => { if (r && r.error) logErr('visit.upsert', r.error); }, e => logErr('visit.upsert', e));
     }
-    const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-60);
-    dates = dates.filter(d => new Date(d) >= cutoff);
+    const cutoff = ymd(addDays(new Date(), -LOCAL_KEEP_DAYS));
+    dates = dates.filter(d => d >= cutoff).sort();
     lsSet('visitDates', dates);
 
     const streak = calcStreak(dates);
@@ -112,15 +112,15 @@ function updateStreak() {
     checkInstallNudge(streak);
 }
 
+/* 가장 최근 방문일부터 거슬러 올라가며 하루도 빠지지 않은 날 수 */
 function calcStreak(dates) {
-    const sorted = [...new Set(dates)].sort().reverse();
-    let streak=1, prev=new Date(sorted[0]);
-    for (let i=1;i<sorted.length;i++) {
-        const cur=new Date(sorted[i]);
-        const diff=(prev-cur)/(1000*60*60*24);
-        if (Math.round(diff)===1) { streak++; prev=cur; } else break;
+    const sorted = [...new Set((dates || []).filter(isYmd))].sort().reverse();
+    if (!sorted.length) return 0;
+    let streak = 1;
+    for (let i = 1; i < sorted.length; i++) {
+        if (sorted[i] === ymd(addDays(parseYmd(sorted[i-1]), -1))) streak++; else break;
     }
-    return sorted.length ? streak : 0;
+    return streak;
 }
 
 /* ═══════════════════════════════════════
@@ -149,112 +149,31 @@ function checkSeason() {
 ═══════════════════════════════════════ */
 /* ── 감정 선택 (리플 + 꽃잎 파티클) ── */
 function pickEmo(type, value, event) {
-    if (event && event.currentTarget) addRipple(event.currentTarget, event);
-    setTimeout(() => { if (event) spawnEmoEffect(value, event); }, 80);
+    if (_picking) return;
+    if (event && event.currentTarget) safe('addRipple', () => addRipple(event.currentTarget, event));
+    if (event) { const pos = { clientX: event.clientX, clientY: event.clientY }; later('spawnEmoEffect', () => spawnEmoEffect(value, pos), 80); }
     pick(type, value);
 }
 
-/* ── 감정별 이펙트 ── */
-function spawnEmoEffect(emotion, event) {
-    const cx = event.clientX || window.innerWidth/2;
-    const cy = event.clientY || window.innerHeight/2;
-    const map = {
-        '감사': { icons:['✨','⭐','🌟','💛','☀️','🌸','💫'], size:[18,22] },
-        '평안': { icons:['🍃','🌿','💚','🕊️','🌾','🌱','🍀'], size:[16,20] },
-        '걱정': { icons:['💙','🌀','💭','🌊','🔷','❄️','✦'],  size:[16,20] },
-        '지침': { icons:['💜','🌙','✦','🕯️','🫧','🔮','🌫️'], size:[16,20] },
-        '아픔': { icons:['🌷','💗','🌸','🫶','💝','🌹','🥀'], size:[16,20] },
-        '기도': { icons:['🙏','✨','💛','⭐','🌟','🕊️','🌠'], size:[18,22] },
-    };
-    const e = map[emotion] || map['감사'];
-    for (let i = 0; i < 10; i++) {
-        setTimeout(() => {
-            const el = document.createElement('div');
-            el.className = 'petal-particle';
-            const angle = (i/10)*360 + Math.random()*30;
-            const dist  = 55 + Math.random()*65;
-            const dx = Math.cos(angle*Math.PI/180)*dist;
-            const dy = Math.sin(angle*Math.PI/180)*dist;
-            const fs  = e.size[0] + Math.random()*(e.size[1]-e.size[0]);
-            el.textContent = e.icons[i % e.icons.length];
-            el.style.cssText = `left:${cx}px;top:${cy}px;--dx:${dx}px;--dy:${dy}px;font-size:${fs}px;`;
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 950);
-        }, i * 22);
-    }
-}
-
-/* ── 리플 효과 ── */
-function addRipple(btn, event) {
-    const rect = btn.getBoundingClientRect();
-    const x = ((event && event.clientX) ? event.clientX : rect.left + rect.width/2) - rect.left;
-    const y = ((event && event.clientY) ? event.clientY : rect.top + rect.height/2) - rect.top;
-    const r = document.createElement('div');
-    r.className = 'ripple-effect';
-    r.style.cssText = `left:${x}px;top:${y}px;`;
-    btn.appendChild(r);
-    setTimeout(() => r.remove(), 650);
-}
-
-/* ── 꽃잎 파티클 ── */
-function spawnPetals(event) {
-    const pets = ['🌸','🌺','🌷','🌼','🍀','🌹','💐','🌻'];
-    const cx = event.clientX || window.innerWidth/2;
-    const cy = event.clientY || window.innerHeight/2;
-    for (let i=0;i<8;i++) {
-        const el = document.createElement('div');
-        el.className = 'petal-particle';
-        el.textContent = pets[i%pets.length];
-        const angle = (i/8)*360 + Math.random()*25;
-        const dist  = 50 + Math.random()*50;
-        const dx = Math.cos(angle*Math.PI/180)*dist;
-        const dy = Math.sin(angle*Math.PI/180)*dist;
-        el.style.cssText = `left:${cx}px;top:${cy}px;--dx:${dx}px;--dy:${dy}px;`;
-        document.body.appendChild(el);
-        setTimeout(()=>el.remove(),950);
-    }
-}
-
-/* ── 축복 파티클 (step 4 진입) ── */
-function spawnBlessing() {
-    const syms = ['✨','🌟','💫','⭐','🌸','🌺','💝','🎊','🌼','🌷'];
-    for (let i=0;i<14;i++) {
-        setTimeout(()=>{
-            const el = document.createElement('div');
-            el.className = 'blessing-particle';
-            el.textContent = syms[Math.floor(Math.random()*syms.length)];
-            const left = 5 + Math.random()*90;
-            const dx   = (Math.random()-.5)*80;
-            const dur  = 1.3 + Math.random()*1;
-            el.style.cssText = `left:${left}%;top:-30px;--dx:${dx}px;--dy:${70+Math.random()*30}vh;animation-duration:${dur}s;`;
-            document.body.appendChild(el);
-            setTimeout(()=>el.remove(),(dur*1000)+300);
-        }, i*65);
-    }
-}
-
-/* ── 감정색 물들임 ── */
-const EMO_TINT = {
-    감사:['rgba(240,192,64,.55)','rgba(240,192,64,.30)'],
-    평안:['rgba(125,216,176,.55)','rgba(125,216,176,.30)'],
-    걱정:['rgba(160,138,224,.55)','rgba(160,138,224,.30)'],
-    지침:['rgba(125,160,232,.55)','rgba(125,160,232,.30)'],
-    아픔:['rgba(232,138,176,.55)','rgba(232,138,176,.30)'],
-    기도:['rgba(144,216,144,.55)','rgba(144,216,144,.30)'],
-};
-function applyEmoTint(e) {
-    const t = EMO_TINT[e];
-    if (!t) return;
-    document.body.style.setProperty('--emo-glow', t[0]);
-    document.body.style.setProperty('--emo-glow-soft', t[1]);
-    document.body.classList.add('emo-tinted');
-}
-
+/* 화면이 넘어가는 동안의 두 번째 탭은 무시한다 (빠르게 두 번 누르면 기록이 두 건 생기던 문제) */
+let _picking = false;
 function pick(type, value) {
+    if (_picking) return;
+    _picking = true;
+    setTimeout(() => { _picking = false; }, 340); // go()가 화면을 바꾸는 시점(320ms) 직후
     sel[type] = value;
-    if (type==='emotion') { applyEmoTint(value); document.getElementById('badge2').textContent=eLabel(value); go('step1','step2'); }
-    else if (type==='topic') { document.getElementById('badge3').textContent=eLabel(sel.emotion)+' · '+tLabel(value); go('step2','step3'); }
-    else if (type==='need')  { buildResult(); go('step3','step4'); setTimeout(spawnBlessing,400); }
+    if (type==='emotion') {
+        safe('applyEmoTint', () => applyEmoTint(value));
+        safe('badge2', () => { document.getElementById('badge2').textContent = eLabel(value); });
+        go('step1','step2');
+    } else if (type==='topic') {
+        safe('badge3', () => { document.getElementById('badge3').textContent = eLabel(sel.emotion)+' · '+tLabel(value); });
+        go('step2','step3');
+    } else if (type==='need') {
+        safe('buildResult', buildResult);
+        go('step3','step4');
+        later('spawnBlessing', () => spawnBlessing(), 400);
+    }
 }
 
 function cascadeResultCards() {
@@ -293,14 +212,18 @@ function go(fromId, toId) {
 /* ═══════════════════════════════════════
    결과 생성
 ═══════════════════════════════════════ */
+/* 순서: ① 말씀·묵상·응원 글을 먼저 화면에 넣고 ② 기록 저장·연출·타이머는 그 뒤에 각각 따로.
+   ②의 어느 하나가 실패해도 사용자는 결과 화면을 본다. */
 function buildResult() {
     const {emotion,topic,need}=sel;
     curVerse = getVerseForMood(emotion, need);
     verseSaved = false;
+    curMoodRowId = null;
 
     document.getElementById('r-context').textContent = eLabel(emotion)+' · '+tLabel(topic)+' · '+nLabel(need);
     document.getElementById('r-ref').textContent = '— '+curVerse.r;
-    typewriterVerse(curVerse.v);
+    document.getElementById('r-verse').textContent = curVerse.v; // 타이핑 연출이 실패해도 말씀은 보이도록 먼저 넣어 둠
+    safe('typewriterVerse', () => typewriterVerse(curVerse.v));
     const isEn = appLang==='en';
     const rKey = emotion+'_'+topic, nKey = emotion+'_'+need;
     const pickPool = (obj, key, trackKey) => {
@@ -308,13 +231,12 @@ function buildResult() {
         if (!Array.isArray(v) || v.length === 0) return v||'';
         if (!trackKey || v.length <= 2) return rand(v);
         const storageKey = 'shownC_' + trackKey;
-        let seen = [];
-        try { seen = JSON.parse(localStorage.getItem(storageKey)||'[]'); } catch(e){}
+        let seen = lsArr(storageKey);
         const unseen = v.map((_,i)=>i).filter(i=>!seen.includes(i));
         const pool = unseen.length > 0 ? unseen : v.map((_,i)=>i);
         const idx = pool[Math.floor(Math.random()*pool.length)];
         seen = [idx, ...seen.filter(i=>i!==idx)].slice(0, Math.max(3, Math.floor(v.length*0.7)));
-        try { localStorage.setItem(storageKey, JSON.stringify(seen)); } catch(e){}
+        lsSet(storageKey, seen);
         return v[idx];
     };
     document.getElementById('r-reflection').textContent = isEn ? (pickPool(REFLECTIONS_EN,rKey,'ref_'+rKey)||pickPool(REFLECTIONS,rKey,'ref_'+rKey)) : pickPool(REFLECTIONS,rKey,'ref_'+rKey);
@@ -335,19 +257,12 @@ function buildResult() {
     const btn=document.getElementById('btn-save');
     btn.textContent=(LANG_DATA[appLang]||LANG_DATA.ko).btn_save; btn.classList.remove('saved');
 
-    // 감정 기록 저장
-    saveMood();
-
-    // 연속 감정 인식 라인 (기록 저장 후 계산해야 오늘 포함됨)
-    renderEmotionPattern();
-    // 무거운 마음이 3일 이상 이어지면 돌봄 안내 카드
-    renderCareCard();
-
     // 결과 카드 등장은 go()의 cascadeResultCards()가 담당 (이중 애니메이션 방지)
     // 스텝 표시~cascade 시작 사이 깜빡임 방지: 미리 숨김 상태로
     document.querySelectorAll('#step4 .card').forEach(c => { c.classList.add('card-cascade'); c.classList.remove('revealed'); });
 
-    // 마무리(클로징) 상태 초기화 + 5분 타이머 시작
+    // 마무리(클로징) 상태 초기화
+    closingTriggered = false;
     document.body.classList.remove('closing-sky');
     const bvB = document.getElementById('btn-vault-closing');
     if (bvB) bvB.classList.add('hidden');
@@ -355,16 +270,26 @@ function buildResult() {
     document.querySelectorAll('#step4 .card').forEach(c=>c.classList.remove('closing-collapsed'));
     const br = document.querySelector('.btn-restart');
     if (br) br.textContent = (LANG_DATA[appLang]||LANG_DATA.ko).btn_finish;
-    startClosingTimer();
+
+    // ② 여기부터는 하나가 실패해도 나머지와 결과 화면에 영향이 없어야 하는 일들
+    safe('saveMood', () => saveMood());
+    // 연속 감정 인식 라인 (기록 저장 후 계산해야 오늘 포함됨)
+    safe('renderEmotionPattern', () => renderEmotionPattern());
+    // 무거운 마음이 3일 이상 이어지면 돌봄 안내 카드
+    safe('renderCareCard', () => renderCareCard());
+    // 5분 타이머 시작
+    safe('startClosingTimer', () => startClosingTimer());
 }
 
 function saveMood() {
     const {emotion,topic,need}=sel;
     const today = todayStr();
-    const hist = lsGet('moodHistory') || [];
+    const hist = getMoods();
     hist.unshift({date:today, emotion, topic, need, emoji:E_EMOJI[emotion]});
-    lsSet('moodHistory', hist.slice(0,30));
-    if (sbUser && sb) sb.from('mood_history').insert({user_id:sbUser.id, date:today, emotion, topic, need}).then();
+    lsSet('moodHistory', trimMoods(hist));
+    if (sbUser && sb) sb.from('mood_history').insert({user_id:sbUser.id, date:today, emotion, topic, need}).select('id').single()
+        .then(r => { if (r && r.error) logErr('mood.insert', r.error); else curMoodRowId = (r && r.data && r.data.id) || null; },
+              e => logErr('mood.insert', e));
 }
 
 /* ═══════════════════════════════════════
@@ -556,15 +481,13 @@ function legacyCopy(text) {
 function toggleSave() {
     if (!curVerse||verseSaved) return;
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    const {emotion,topic,need}=sel;
-    const saved = lsGet('savedVerses') || [];
-    saved.unshift({
-        date: new Date().toLocaleDateString(L.locale||'ko-KR',{month:'long',day:'numeric'}),
-        context: eLabel(emotion)+' · '+nLabel(need),
-        verse: curVerse.v, ref: curVerse.r
-    });
-    lsSet('savedVerses', saved.slice(0,50));
-    if (sbUser && sb) sb.from('saved_verses').insert({user_id:sbUser.id, verse_text:curVerse.v, verse_ref:curVerse.r, emotion:sel.emotion, need:sel.need}).then();
+    const {emotion,need}=sel;
+    // 표시용 글(날짜·감정 이름)은 저장하지 않고 원래 값만 저장 → 보관함이 그때그때 현재 언어로 보여 줌
+    const saved = getSaved().filter(x => !(x.ref === curVerse.r && x.verse === curVerse.v));
+    saved.unshift({ verse: curVerse.v, ref: curVerse.r, emotion, need, savedAt: new Date().toISOString() });
+    lsSet('savedVerses', saved.slice(0, SAVED_MAX));
+    if (sbUser && sb) sb.from('saved_verses').insert({user_id:sbUser.id, verse_text:curVerse.v, verse_ref:curVerse.r, emotion, need})
+        .then(r => { if (r && r.error) logErr('saved.insert', r.error); }, e => logErr('saved.insert', e));
     verseSaved=true;
     const btn=document.getElementById('btn-save');
     btn.textContent=L.btn_saved; btn.classList.add('saved');
@@ -579,12 +502,113 @@ function autoSaveDiary() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const text = document.getElementById('diary-input').value.trim();
     if (!text) return;
-    const hist = lsGet('moodHistory') || [];
-    if (hist.length) {
-        hist[0].diary = text;
-        lsSet('moodHistory', hist);
-        if (sbUser && sb) sb.from('mood_history').update({diary_text:text}).eq('user_id',sbUser.id).eq('date',todayStr()).then();
+    const hist = getMoods();
+    if (!hist.length) return; // 붙일 기록이 없으면 "저장됐다"고 말하지 않는다
+    hist[0].diary = text;
+    lsSet('moodHistory', hist);
+    if (sbUser && sb) {
+        // 방금 넣은 그 줄에만 일기를 붙인다 (id를 모르면 같은 날·같은 선택의 줄)
+        let q = sb.from('mood_history').update({diary_text:text}).eq('user_id',sbUser.id);
+        q = curMoodRowId != null ? q.eq('id', curMoodRowId)
+            : q.eq('date', hist[0].date).eq('emotion', hist[0].emotion).eq('topic', hist[0].topic).eq('need', hist[0].need);
+        q.then(r => { if (r && r.error) logErr('diary.update', r.error); }, e => logErr('diary.update', e));
     }
     document.getElementById('diary-saved-msg').style.display='block';
     toast(L.toast_diary_saved);
+}
+
+/* 중복 방지 말씀 선택
+   한국어 묶음과 영어 묶음은 구절 수가 서로 다르므로(같은 번호가 같은 구절이 아님)
+   먼저 언어에 맞는 묶음을 고르고, "이미 본 구절" 기록도 언어별로 따로 둔다. */
+function getVerseForMood(emotion, need) {
+    const key = `${emotion}_${need}`;
+    const en = appLang === 'en' && Array.isArray(VERSE_POOL_EN[key]) && VERSE_POOL_EN[key].length > 0;
+    const pool = en ? VERSE_POOL_EN[key] : (VERSE_POOL[key] || []);
+    if (!pool.length) return { v: '', r: '' };
+    if (pool.length === 1) return pool[0];
+
+    const storeKey = (en ? 'shownV_en_' : 'shownV_') + key;
+    let shown = lsArr(storeKey).filter(i => Number.isInteger(i) && i >= 0 && i < pool.length);
+
+    const allIdx = pool.map((_, i) => i);
+    let avail = allIdx.filter(i => !shown.includes(i));
+
+    // 전부 다 봤으면 절반 리셋
+    if (!avail.length) {
+        shown = shown.slice(-Math.floor(pool.length / 2));
+        avail = allIdx.filter(i => !shown.includes(i));
+    }
+
+    const picked = avail[Math.floor(Math.random() * avail.length)];
+    lsSet(storeKey, [...shown, picked]);
+    return pool[picked];
+}
+
+/* ── 히어로 묵상 초기화 ── */
+const TEASER_POOL = [
+    { t:'여호와는 나의 목자시니 내게 부족함이 없으리로다', r:'시편 23:1', te:'The LORD is my shepherd; I shall not want.', re:'Psalm 23:1' },
+    { t:'수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라', r:'마태복음 11:28', te:'Come to me, all who labor and are heavy laden, and I will give you rest.', re:'Matthew 11:28' },
+    { t:'내가 너희에게 평안을 끼치노니 곧 나의 평안을 너희에게 주노라', r:'요한복음 14:27', te:'Peace I leave with you; my peace I give to you.', re:'John 14:27' },
+    { t:'모든 것이 협력하여 선을 이루느니라', r:'로마서 8:28', te:'All things work together for good for those who love God.', re:'Romans 8:28' },
+    { t:'하나님은 우리의 피난처시요 힘이시니 환난 중에 만날 큰 도움이시라', r:'시편 46:1', te:'God is our refuge and strength, a very present help in trouble.', re:'Psalm 46:1' },
+    { t:'내가 세상 끝날까지 너희와 항상 함께 있으리라', r:'마태복음 28:20', te:'I am with you always, to the end of the age.', re:'Matthew 28:20' },
+    { t:'주님의 인자하심이 영원하시며 그의 진실하심이 대대에 이르리로다', r:'시편 100:5', te:'The LORD is good; his steadfast love endures forever, and his faithfulness to all generations.', re:'Psalm 100:5' },
+    { t:'너희는 마음에 근심하지 말라 하나님을 믿으니 또 나를 믿으라', r:'요한복음 14:1', te:'Let not your hearts be troubled. Believe in God; believe also in me.', re:'John 14:1' },
+    { t:'여호와를 앙망하는 자는 새 힘을 얻으리니', r:'이사야 40:31', te:'They who wait for the LORD shall renew their strength.', re:'Isaiah 40:31' },
+    { t:'주의 말씀은 내 발에 등이요 내 길에 빛이니이다', r:'시편 119:105', te:'Your word is a lamp to my feet and a light to my path.', re:'Psalm 119:105' },
+    { t:'사랑은 오래 참고 사랑은 온유하며 시기하지 아니하며', r:'고린도전서 13:4', te:'Love is patient and kind; love does not envy or boast', re:'1 Corinthians 13:4' },
+    { t:'항상 기뻐하라 쉬지 말고 기도하라 범사에 감사하라', r:'데살로니가전서 5:16-18', te:'Rejoice always, pray without ceasing, give thanks in all circumstances.', re:'1 Thessalonians 5:16-18' },
+];
+
+function initHeroTeaser() {
+    const storeKey = 'shownTeaser';
+    let shown = lsArr(storeKey);
+    const allIdx = TEASER_POOL.map((_,i)=>i);
+    let avail = allIdx.filter(i=>!shown.includes(i));
+    if (!avail.length) { shown=[]; avail=allIdx; lsSet(storeKey,[]); }
+    const picked = avail[Math.floor(Math.random()*avail.length)];
+    lsSet(storeKey, [...shown, picked]);
+    const item = TEASER_POOL[picked];
+    const tEl = document.getElementById('ht-text');
+    const rEl = document.getElementById('ht-ref');
+    const useEn = appLang==='en' && item.te;
+    if (tEl) tEl.textContent = `"${useEn ? item.te : item.t}"`;
+    if (rEl) rEl.textContent = `— ${useEn ? item.re : item.r}`;
+}
+
+/* ═══════════════════════════════════════
+   연속 감정 인식 — moodHistory 기반, AI 없이 "나를 아는" 문장
+═══════════════════════════════════════ */
+const EMO_CATEGORY = { 걱정:'neg', 지침:'neg', 아픔:'neg', 감사:'pos', 평안:'pos', 기도:'pray' };
+
+/* 오늘 감정과 같은 결(카테고리)이 며칠째 이어지는지 (오늘 포함) */
+function calcEmotionRun() {
+    const hist = getMoods();
+    if (!hist.length) return null;
+    const today = todayStr();
+    if (hist[0].date !== today) return null;
+    const cat = EMO_CATEGORY[hist[0].emotion];
+    if (!cat) return null;
+    // 날짜별 최신 감정 (hist는 최신순)
+    const byDay = {};
+    hist.forEach(h => { if (!(h.date in byDay)) byDay[h.date] = EMO_CATEGORY[h.emotion]; });
+    let n = 0;
+    for (let d = new Date(); n <= LOCAL_KEEP_DAYS && byDay[ymd(d)] === cat; d = addDays(d, -1)) n++;
+    return { cat, n };
+}
+
+function renderEmotionPattern() {
+    const el = document.getElementById('r-pattern');
+    if (!el) return;
+    el.classList.add('hidden');
+    const run = calcEmotionRun();
+    if (!run || run.n < 2) return;
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    let msg = null;
+    if (run.cat === 'neg')  msg = run.n === 2 ? L.pat_neg_2 : L.pat_neg_n;
+    if (run.cat === 'pos')  msg = L.pat_pos_n;
+    if (run.cat === 'pray') msg = L.pat_pray_n;
+    if (!msg) return;
+    el.textContent = msg.replace('{n}', run.n);
+    el.classList.remove('hidden');
 }

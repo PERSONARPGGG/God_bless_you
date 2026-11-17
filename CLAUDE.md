@@ -5,57 +5,68 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # 밤의 목장 — Claude 작업 가이드
 
 ## 프로젝트 개요
-크리스천 감정 묵상 PWA "밤의 목장" (부제: "오늘 밤, 주님이 누이시는 곳", 구명: "오늘은 어땠나요?" — 이 질문은 메인 화면 인사말로 유지). `index.html`(마크업) + `css/app.css` + `js/*.js` 12개 + Supabase + Vercel.
+크리스천 감정 묵상 PWA "밤의 목장" (부제: "오늘 밤, 주님이 누이시는 곳", 구명: "오늘은 어땠나요?" — 이 질문은 메인 화면 인사말로 유지). `index.html`(마크업) + `css/app.css` + `js/*.js` 16개 + Supabase + Vercel.
 배포: https://god-bless-you.vercel.app/
 
 ## 코드 구조 원칙
-- **파일 구조 (2026-11-16, 사용자 요청으로 단일 파일 원칙을 바꿈)**: 마크업은 `index.html`, 스타일은 `css/app.css`, 스크립트는 `js/` 아래 주제별 파일. 새 기능은 맞는 파일에 넣고, 파일을 새로 만들면 `index.html`의 `<script>` 목록과 `sw.js`의 `ASSETS`에 함께 추가
-- 스크립트는 ES 모듈이 아닌 **일반 스크립트** (HTML의 `onclick="..."`이 전역 함수를 부르기 때문). 불러오는 순서: data → core → i18n → auth → flow → vault → ui → premium → audio → persona → sheep → care. 파일을 불러오는 즉시 실행되는 코드는 앞 파일의 것만 쓸 수 있음
-- Vanilla JS 전용 — 프레임워크·번들러 도입 금지
-- Supabase anon key는 코드에 직접 기재 가능 (RLS로 보호됨, service_role key는 절대 금지)
+- **파일 구조 (2026-11-16, 사용자 요청으로 단일 파일 원칙을 바꿈)**: 마크업은 `index.html`, 스타일은 `css/app.css`, 스크립트는 `js/` 아래 주제별 파일. 새 기능은 맞는 파일에 넣고, 파일을 새로 만들면 `index.html`의 `<script>` 목록과 `sw.js`의 `ASSETS`에 함께 추가 (빠뜨리면 `tools/check.mjs`가 오류로 잡음)
+- 스크립트는 ES 모듈이 아닌 **일반 스크립트** (HTML의 `onclick="..."`이 전역 함수를 부르기 때문). 불러오는 순서: data → core → i18n → effects → audio → pwa → auth → flow → vault → ui → premium → dashboard → demo → sheep → care → boot. 파일을 불러오는 즉시 실행되는 코드는 앞 파일의 것만 쓸 수 있음
+- Vanilla JS 전용 — 프레임워크·번들러 도입 금지 (`tools/`의 점검 스크립트는 앱에 실리지 않는 개발용이며 설치할 의존성이 없음)
+- Supabase anon key는 코드에 직접 기재 가능 (RLS로 보호됨, service_role key는 절대 금지). 결제·AI 등 **비밀 키가 필요한 일은 브라우저 코드에 넣지 않고 서버(서버리스 함수)에서만** 한다
+
+### 연쇄 고장을 막는 규칙 (2026-11-17, 모듈화의 목적)
+한 구역의 오류가 다른 기능까지 멈추지 않게 하려고 아래를 지킨다.
+- **여러 일을 차례로 하는 곳은 단계마다 `safe('이름', () => …)`** (`js/core.js`). 앱 시작(`boot.js`), 결과 화면(`buildResult`), 마무리(`triggerClosing`), 언어 적용(`applyLang`), 프리미엄 변경(`onPremiumChanged`)이 그렇게 되어 있다. 나중에 실행되는 연출은 `later()`
+- **저장소는 모양을 믿지 않는다**: 기록은 `getMoods()`/`getSaved()`/`getVisits()`, 배열은 `lsArr()`, 숫자 설정은 `lsInt()`로 읽는다. `lsGet('moodHistory') || []` 같은 직접 읽기 금지
+- **날짜는 현지 기준**: `todayStr()`·`ymd(d)`·`parseYmd(s)`·`addDays()`·`monthsAgo()`. `toISOString().slice(0,10)`과 `new Date('YYYY-MM-DD')`는 금지 (한국 새벽에 하루가 밀림)
+- **프리미엄 여부는 `isPremium()`만** 묻고, 상태가 바뀌면 `onPremiumChanged()` 한 곳에서 화면을 맞춘다
+- 사용자 글(일기·이름)이나 서버에서 온 값을 `innerHTML`에 넣을 때는 `escHtml()`
+- 서버 요청은 `.then()`으로 버리지 말고 실패를 `logErr()`에 남긴다. 잡힌 오류는 기기에 30건 남고 콘솔에서 `errLog()`로 본다
 
 ## 명령어 (Commands)
-빌드 시스템·패키지 매니저·테스트 러너 없음 (순수 정적 파일).
+빌드 시스템·패키지 매니저 없음 (순수 정적 파일). 점검 도구는 Node(22+)만 있으면 돈다.
 
-- **로컬 실행**: `index.html`을 브라우저로 직접 열거나, PWA/Service Worker 테스트가 필요하면 로컬 서버 사용 (`npx serve` 등). `file://`로 열면 Supabase·Service Worker 관련 코드가 자동으로 비활성화되도록 방어 코드 있음 (`location.protocol === 'file:'` 체크, index.html:4185 등).
-- **배포**: `main` 브랜치 push → Vercel 자동 배포. 별도 빌드 스텝 없음.
-- **검증**: 자동화된 테스트 없음. 수정 후 반드시 `/verify` 스킬로 실제 배포 페이지에서 핵심 플로우 동작 확인 (아래 "에이전트 역할" 참고).
-- **캐시 무효화**: Service Worker 캐시를 갱신하려면 `sw.js`의 `CACHE` 상수(현재 `'god-app-v24'`) 버전 문자열을 올려야 함.
+- **로컬 실행**: `index.html`을 브라우저로 직접 열거나, PWA/Service Worker 테스트가 필요하면 로컬 서버 사용 (`npx serve` 등). `file://`로 열면 Supabase·Service Worker 관련 코드가 자동으로 비활성화됨 (`location.protocol === 'file:'` 체크)
+- **검증 (수정할 때마다, 커밋 전에 반드시 둘 다)**:
+  - `node tools/check.mjs` — 정적 점검 (1초). 문법, 파일 목록 일치, 이름 충돌, 죽은 코드, 3개 언어 문구 누락, 콘텐츠 빈 조합, 금지 패턴. `--deps`를 붙이면 파일 간 의존 관계와 localStorage 키 목록
+  - `node tools/smoke.mjs` — 실행 점검 (약 1분). PC의 Chrome/Edge를 화면 없이 띄워 14개 시나리오를 실제로 눌러 봄. 이름 일부를 주면 그 시나리오만 (`node tools/smoke.mjs 날짜`), `--url=https://…`로 배포본 대상 실행
+  - 버그를 고칠 때는 **먼저 그 버그를 재현하는 시나리오를 `tools/smoke.mjs`에 추가**하고 고친다. 새 기능도 시나리오를 함께 추가
+- **배포**: `main` 브랜치 push → Vercel 자동 배포. 별도 빌드 스텝 없음. 다른 브랜치를 push하면 Vercel이 미리보기 주소를 만들어 주므로, 큰 변경은 브랜치 → 미리보기에서 `--url=`로 점검 → main 병합 순서를 권장. 웹에 공개하지 않을 파일은 `.vercelignore`
+- **캐시 무효화**: Service Worker 캐시를 갱신하려면 `sw.js`의 `CACHE` 상수(현재 `'god-app-v25'`) 버전 문자열을 올려야 함. 사용자 화면에 보이는 버전은 `js/core.js`의 `APP_VERSION` (CHANGELOG 최신 항목과 맞출 것)
 
 ## 아키텍처 (Architecture)
-`index.html`에는 마크업과 스크립트 목록만 있음. 아래 행 번호 설명은 분리 전 기준이라 맞지 않으니 파일명으로 찾을 것.
+`index.html`에는 마크업과 스크립트 목록만 있음. 코드 안의 `═══...═══` 배너 주석이 섹션 구분자.
 
 | 파일 | 내용 |
 |---|---|
 | `css/app.css` | 전체 스타일. 끝부분에 v2.7 블록 |
-| `js/data.js` | 말씀·묵상·응원·기도 콘텐츠 데이터 |
-| `js/core.js` | PWA 설치 프롬프트, 전역 상태(`sel` 등), `lsGet`/`lsSet` |
+| `js/data.js` | 말씀·묵상·응원 콘텐츠 (`VERSE_POOL`/`REFLECTIONS`/`ENCS` + `_EN`), 감정·주제·필요 라벨 함수 |
+| `js/core.js` | 전역 상태(`sel` 등), 오류 격리(`safe`/`later`/`logErr`), 저장소(`lsGet`·`getMoods` 등), 날짜 도구, `escHtml`. **화면(DOM)을 건드리지 않음** |
 | `js/i18n.js` | `LANG_DATA`(ko/en/ja), `applyLang()` |
-| `js/auth.js` | 앱 초기화, Supabase 로그인·동기화 |
-| `js/flow.js` | 이름, 글자 크기, 스트릭, 절기, 스텝 전환, 결과 생성, 복사·공유·저장, 감사 일기 |
-| `js/vault.js` | 보관함, 주간 감정 차트 |
-| `js/ui.js` | 설정, 오버레이, 토스트, 다시 시작, 마무리(클로징) |
-| `js/premium.js` | 개발자 모드, 대시보드, 연속 감정 인식, `isPremium()` |
+| `js/effects.js` | 화면 연출 (별·별똥별·꽃잎·리플·타이핑·오프닝) |
 | `js/audio.js` | 효과음, 배경 찬송가 |
-| `js/persona.js` | 체험 페르소나 데이터 |
+| `js/pwa.js` | 홈 화면 설치 안내, Service Worker 등록·업데이트 |
+| `js/auth.js` | Supabase 로그인, 기기↔클라우드 기록 맞추기(`syncWithServer`) |
+| `js/flow.js` | 이름, 글자 크기, 스트릭, 절기, 스텝 전환, 결과 생성, 말씀 선택, 복사·공유·저장, 감사 일기, 연속 감정 인식 |
+| `js/vault.js` | 보관함, 주간 감정 차트 |
+| `js/ui.js` | 설정, 언어·테마, 내보내기·초기화, 오버레이, 토스트, 다시 시작, 마무리(클로징) |
+| `js/premium.js` | `isPremium()`, 구독 확인(`refreshEntitlement`), `onPremiumChanged()`, 프리미엄 안내 모달 |
+| `js/dashboard.js` | 이번 주 나의 이야기(대시보드), 월간 리포트, PDF 일기장 |
+| `js/demo.js` | **시연·개발자 전용**: 개발자 모드, 프리미엄 체험 비밀번호, 체험 페르소나, 데모 데이터 |
 | `js/sheep.js` | 양 배회 |
 | `js/care.js` | 처리방침·동의, 계정 삭제, 회고 카드, 돌봄 안내, 접근성 |
+| `js/boot.js` | 앱 시작 순서 (`init()`, 맨 마지막에 불러옴) |
+| `tools/` | 점검 스크립트 (배포 제외) |
+| `docs/supabase_schema.sql` | DB 전체 스키마 (새 프로젝트를 이 파일로 다시 만들 수 있음) |
+| `docs/archive/` | 지금 화면에 쓰지 않는 콘텐츠 원고 (기도문·한 문장) |
 
 - **안전장치**: `index.html`의 스크립트 목록 바로 위 인라인 스크립트가 파일 로딩 실패를 감지해 "다시 불러오기" 안내를 띄움
-- **Service Worker**: `index.html`·`css/`·`js/`는 네트워크 우선(실패 시 캐시), 나머지는 캐시 우선
-
-- **`<style>`** (약 16~1195행): 전역 CSS.
-- **HTML 마크업** (약 1198~1815행): `#step1`~`#step4` (감정→주제→필요→결과 4단계 플로우), 보관함/설정/대시보드 오버레이.
-- **메인 `<script>`** (약 1815~5768행): 아래 순서로 큰 블록이 이어짐. 코드 내 `═══...═══` 형태 배너 주석이 섹션 구분자 역할을 하므로 탐색 시 grep 기준으로 활용.
-  - **콘텐츠 풀**: `SENTENCES*`, `VERSE_POOL`/`VERSE_POOL_EN`, `REFLECTIONS`/`REFLECTIONS_EN`, `ENCS`/`ENCS_EN`, `PRAYERS`/`PRAYERS_EN` — 감정(6)×필요(4) 조합 키(`emotion_need`)로 콘텐츠 매핑. 한국어/영어가 별도 상수로 분리되어 있어 콘텐츠 추가 시 항상 양쪽 다 수정 필요.
-  - **`LANG_DATA`**: ko/en/ja 다국어 UI 텍스트 전체를 담는 단일 객체. `applyLang(lang)`이 이 객체 기준으로 DOM 텍스트를 일괄 교체.
-  - **PWA 설치/업데이트**: `deferredInstall`, `doInstall`, Service Worker 등록·업데이트 배너 로직 (`sw.js`와 연동, `postMessage('SKIP_WAITING')`로 즉시 갱신).
-  - **Supabase 연동**: `SUPABASE_URL`/`SUPABASE_KEY` 상수, `initSupabase()`, `loginWithGoogle()`/`sbLogout()`, `migrateLocalToServer()` (로컬 게스트 데이터를 로그인 시 서버로 1회 이관).
-  - **상태**: 전역 `sel = {emotion, topic, need}`가 현재 플로우 선택값을 담음. `lsGet`/`lsSet`이 `localStorage` 읽기/쓰기 헬퍼 (JSON 자동 직렬화).
-  - **스트릭/체크인**: `updateStreak()`, `calcStreak()` — 방문일(`visitDates`) 기반 연속 출석 계산, 60일 지난 기록은 자동 정리.
-  - **테마/계절**: `checkSeason()` — 크리스마스/설/부활절/추석 기간에 UI 테마 자동 전환.
-- **`sw.js`**: 네트워크 우선 전략(HTML)과 캐시 우선 전략(정적 에셋)을 분리 적용하는 Service Worker. 오프라인 폴백 담당.
-- **게스트 vs 로그인 사용자**: 비로그인 시 전 데이터가 `localStorage`에만 저장되고, Google 로그인 시 `migrateLocalToServer()`로 Supabase 테이블에 병합 이관됨 — 두 경로 모두 유지·테스트 필요.
+- **Service Worker** (`sw.js`): 우리 사이트의 GET 요청만 다룸. `index.html`·`css/`·`js/`는 네트워크 우선(실패 시 캐시), 나머지는 캐시 우선. 새 버전은 "지금 업데이트"를 눌렀을 때만 교체·새로고침
+- **콘텐츠 풀**: 감정(6)×필요(4) 또는 감정(6)×주제(5) 조합 키(`감정_필요`)로 매핑. 한국어/영어가 별도 상수이고 **구절 수가 서로 달라도 됨**(언어별로 따로 고름). 콘텐츠를 추가하면 양쪽 다 수정. 일본어 화면은 UI만 일본어이고 말씀·묵상은 한국어가 나옴 (일본어 콘텐츠 없음)
+- **상태**: 전역 `sel = {emotion, topic, need}`가 현재 플로우 선택값
+- **스트릭**: `updateStreak()`, `calcStreak()` — 방문일(`visitDates`) 기반. 기기에는 감정 기록·방문일을 최근 62일(`LOCAL_KEEP_DAYS`)만 둠
+- **게스트 vs 로그인 사용자**: 비로그인 시 전 데이터가 `localStorage`에만 저장. 로그인하면 `syncWithServer()`가 기기에만 있는 기록은 올리고 클라우드에만 있는 기록은 내려받아 합침 (같은 날짜·감정·주제·필요 = 같은 기록). 기기 기록의 주인은 `dataOwner`에 남기며, 다른 계정이 로그인하면 올리지 않고 그 계정 기록으로 바꿈. 두 경로 모두 유지·테스트 필요
+- **프리미엄**: 서버 `subscriptions` 행이 기준 (`active`, 또는 `canceled`인데 `current_period_end`가 남음). 그 행은 결제 웹훅만 씀
 
 ## 에이전트 역할 정의 (4개)
 
@@ -65,9 +76,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **사용 방법**: `Agent(subagent_type: "fork")` — 컨텍스트 공유가 핵심
 
 ### 2. 구현 검증 에이전트 (Verify)
-**언제 쓰나**: index.html 수정 후 실제 동작 확인이 필요할 때
+**언제 쓰나**: 코드 수정 후 실제 동작 확인이 필요할 때
 **역할**: 배포된 앱(https://god-bless-you.vercel.app/)을 Chrome에서 열어 핵심 플로우(감정선택→결과화면→저장)가 정상 동작하는지 테스트. 모바일 뷰포트에서도 확인.
-**사용 방법**: `/verify` 스킬 또는 `claude-in-chrome` 도구 직접 사용
+**사용 방법**: 먼저 `node tools/check.mjs` 와 `node tools/smoke.mjs` (로컬). 배포 후에는 `node tools/smoke.mjs --url=https://god-bless-you.vercel.app/`. 눈으로 봐야 하는 것(디자인·실제 Google 로그인)은 `claude-in-chrome` 도구로 확인
 
 ### 3. 목사님 에이전트 (Pastoral Review)
 **언제 쓰나**: 새 말씀 추가, 묵상글·기도문 작성, 새 기능의 신앙적 적절성 검토 시
@@ -77,8 +88,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **교단 설정**: 한국 개신교 장로교 (한국기독교총연합회 인정 기준, 이단 제외). 말씀 해석은 개혁주의 신학 기반, 한국 장로교 예배 문화 기준으로 검토.
 
 ### 4. 코드 리뷰 에이전트 (Code Review)
-**언제 쓰나**: index.html 수정 커밋 전, PR 생성 전, 큰 리팩터링 후 — 정식 테스트 스위트가 없는 프로젝트라 리뷰가 사실상 유일한 회귀 방지선
-**역할**: 변경분(diff)에서 버그, 보안 이슈(특히 Supabase 키·RLS 관련), 코드 구조 원칙 위반("새 파일 금지", "vanilla JS 전용") 위반 여부, 불필요한 리팩터링/중복 점검. 발견 사항은 심각도순 1줄 요약.
+**언제 쓰나**: 커밋 전, PR 생성 전, 큰 리팩터링 후 — `tools/`의 점검이 잡지 못하는 것(설계·보안·신앙적 맥락)을 보는 단계
+**역할**: 변경분(diff)에서 버그, 보안 이슈(특히 Supabase 키·RLS 관련), 코드 구조 원칙·연쇄 고장 방지 규칙 위반 여부, 불필요한 리팩터링/중복 점검. 발견 사항은 심각도순 1줄 요약.
 **사용 방법**:
 - 로컬 작업 중인 diff → `/code-review` (레벨: low/medium/high/max/ultra), `--fix`로 바로 적용 가능
 - GitHub PR → `/review`
@@ -86,7 +97,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 핵심 플로우 (테스트 기준)
 1. 감정 선택 (6종) → 주제 선택 → 필요 선택 → 결과 화면
-2. 결과: 말씀 + 묵상 + 기도 + 한 문장 + 감사 일기
+2. 결과: 말씀 + 오늘의 이야기(묵상) + 응원 + 감사 일기 → "오늘 묵상 마치기"(마무리 카드)
 3. 말씀 보관함 저장/조회
 4. Google 로그인 → 클라우드 동기화
 
@@ -105,6 +116,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **처리방침**: `OPERATOR`(운영자 정보)와 서버 위치가 빈칸 — 정식 출시 전 기재
 - **앱 이름**: "밤의 목장"은 임시. 설문 반응이 좋지 않아 변경 가능 → 상표 출원은 확정 뒤
 - v2.7 코드는 `js/care.js`와 `css/app.css` 끝의 v2.7 블록에 모여 있음
+
+## v2.8 메모 (2026-11-17)
+- **Supabase 프로젝트(`pzakpaomnmahcugkzdff`) 주소가 DNS에 없음** — 장기 미사용으로 정지·삭제된 것으로 보임. 대시보드에서 복구하거나 새 프로젝트를 만들어 `docs/supabase_schema.sql` 실행 후 `js/core.js`의 URL·키 교체. 그 전까지 로그인·동기화·프리미엄 서버 확인이 동작하지 않음 (앱 자체는 게스트로 정상 동작)
+- 기기↔클라우드 맞추기(`syncWithServer`)는 가짜 서버로만 검증됨 → Supabase 복구 후 실제 Google 로그인으로 확인 필요
+- 프리미엄 안내 문구에 있지만 **아직 구현되지 않은 것**: 평생 보관 기록 열람(보관함은 최근 62일만 보여 줌), 연간 리포트, 묵상 캘린더·시즌 챌린지, 양 꾸미기. 월간 리포트·PDF는 기기 기록 기준이고 개발자 모드 대시보드 안에만 있음. PDF의 말씀은 그날 본 구절이 아니라 조합의 첫 구절 → **결제를 열기 전에 구현하거나 문구에서 뺄 것**
+- `js/demo.js`의 시연 비밀번호와 `DEMO_UNLOCK`은 브라우저 코드에 그대로 보임 — 실결제를 여는 날 `DEMO_UNLOCK = false`
+- `docs/`의 기획서·발표자료 html은 지금 웹에 공개되어 있음 (`.vercelignore`에 넣으면 비공개)
 
 ## 다음 마일스톤 (v3.0)
 감정 통계 대시보드 + Premium 플랜(₩1,900/월) 런칭

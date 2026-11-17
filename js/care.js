@@ -40,6 +40,8 @@ const V27_TEXT = {
         care_line:'지금 위험한 상황이라면 112나 119로 바로 연락하세요.',
         a11y_close:'닫기', a11y_vault:'보관함', a11y_settings:'설정', a11y_dashboard:'이번 주 나의 이야기',
         a11y_font_down:'글자 작게', a11y_font_up:'글자 크게', a11y_timer:'마무리 시간 연장',
+        sync_pulled:'클라우드의 기록을 불러왔어요 ☁️', sync_pushed:'이 기기의 기록을 클라우드에 저장했어요 ☁️',
+        login_unavailable:'지금은 로그인할 수 없어요. 잠시 뒤에 다시 시도해 주세요.',
     },
     en: {
         privacy:'🔒 Without signing in, your records stay on this device only.',
@@ -68,6 +70,8 @@ const V27_TEXT = {
         care_line:'Outside the U.S., please contact your local crisis line. In immediate danger, call your emergency number.',
         a11y_close:'Close', a11y_vault:'Vault', a11y_settings:'Settings', a11y_dashboard:'My story this week',
         a11y_font_down:'Smaller text', a11y_font_up:'Larger text', a11y_timer:'Extend closing time',
+        sync_pulled:'Your cloud records have been loaded ☁️', sync_pushed:'Records on this device were saved to the cloud ☁️',
+        login_unavailable:'Sign-in is unavailable right now. Please try again shortly.',
     },
     ja: {
         privacy:'🔒 ログインしない場合、記録はこのデバイスにのみ保存されます。',
@@ -96,6 +100,8 @@ const V27_TEXT = {
         care_line:'今すぐ危険な状況のときは、110番または119番へご連絡ください。',
         a11y_close:'閉じる', a11y_vault:'保管庫', a11y_settings:'設定', a11y_dashboard:'今週のわたしの物語',
         a11y_font_down:'文字を小さく', a11y_font_up:'文字を大きく', a11y_timer:'終了時間を延長',
+        sync_pulled:'クラウドの記録を読み込みました ☁️', sync_pushed:'このデバイスの記録をクラウドに保存しました ☁️',
+        login_unavailable:'現在ログインできません。しばらくしてからもう一度お試しください。',
     },
 };
 Object.keys(V27_TEXT).forEach(k => Object.assign(LANG_DATA[k], V27_TEXT[k]));
@@ -252,9 +258,11 @@ async function deleteAccount() {
         toast(L.del_fail);
         return;
     }
-    ['savedVerses','moodHistory','visitDates','consent','premiumActive'].forEach(k => localStorage.removeItem(k));
+    ['savedVerses','moodHistory','visitDates','consent','premiumActive','dataOwner'].forEach(k => localStorage.removeItem(k));
     try { await sb.auth.signOut(); } catch (e) {}
     sbUser = null;
+    _syncedUser = null;
+    safe('delete.render', () => { updateStreak(); refreshVaultIfOpen(); });
     updateAuthUI();
     hideOverlay('overlay-settings');
     toast(full ? L.del_done : L.del_partial);
@@ -264,12 +272,11 @@ async function deleteAccount() {
    한 달 전 기록은 누구에게나, 3개월 이상 지난 기록은 프리미엄에게 보여준다 (평생 보관의 가치를 체감시키는 지점).
    기기에는 최근 30건만 남으므로 오래된 기록은 로그인 사용자의 서버 기록에서 찾는다. */
 function otdTargets() {
-    const ago = fn => { const x = new Date(); fn(x); return x.toISOString().slice(0,10); };
     return [
-        { key:'otd_y1', premium:true,  date: ago(x => x.setFullYear(x.getFullYear()-1)) },
-        { key:'otd_m6', premium:true,  date: ago(x => x.setMonth(x.getMonth()-6)) },
-        { key:'otd_m3', premium:true,  date: ago(x => x.setMonth(x.getMonth()-3)) },
-        { key:'otd_m1', premium:false, date: ago(x => x.setMonth(x.getMonth()-1)) },
+        { key:'otd_y1', premium:true,  date: ymd(monthsAgo(12)) },
+        { key:'otd_m6', premium:true,  date: ymd(monthsAgo(6)) },
+        { key:'otd_m3', premium:true,  date: ymd(monthsAgo(3)) },
+        { key:'otd_m1', premium:false, date: ymd(monthsAgo(1)) },
     ];
 }
 let _otdSeq = 0;
@@ -281,7 +288,7 @@ async function renderOnThisDay() {
     if (lsGet('otdDismissed') === todayStr()) { hide(); return; }
     const targets = otdTargets();
     const byDate = {};
-    (lsGet('moodHistory') || []).forEach(h => { if (h && h.date && !(h.date in byDate)) byDate[h.date] = h; });
+    getMoods().forEach(h => { if (!(h.date in byDate)) byDate[h.date] = h; });
     if (sbUser && sb) {
         try {
             const { data } = await sb.from('mood_history').select('date,emotion,topic,need,diary_text')
@@ -297,7 +304,7 @@ async function renderOnThisDay() {
     if (!t) { hide(); return; }
     const h = byDate[t.date];
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    const dateTxt = new Date(h.date + 'T00:00:00').toLocaleDateString(L.locale||'ko-KR', { year:'numeric', month:'long', day:'numeric' });
+    const dateTxt = parseYmd(h.date).toLocaleDateString(L.locale||'ko-KR', { year:'numeric', month:'long', day:'numeric' });
     const head = `<button type="button" class="otd-close" onclick="dismissOnThisDay()" aria-label="${escHtml(L.otd_close)}">✕</button>
         <div class="otd-label">${escHtml(L[t.key])}</div>`;
     if (t.premium && !isPremium()) {
