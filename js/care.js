@@ -16,7 +16,7 @@ const V27_TEXT = {
     ko: {
         privacy:'🔒 로그인하지 않으면 기록은 이 기기에만 보관돼요.',
         privacy_cloud:'☁️ 로그인 중에는 기록이 클라우드에 함께 저장돼요.<br>설정에서 언제든 지우거나 계정을 삭제할 수 있어요.',
-        row_policy:'개인정보 처리방침', row_terms:'이용약관', policy_back:'← 돌아가기',
+        row_policy:'개인정보 처리방침', row_terms:'이용약관', row_standards:'서비스 운영 기준', policy_back:'← 돌아가기',
         logout_done:'로그아웃 됐어요.', row_logout_btn:'로그아웃',
         row_delete:'계정 삭제', row_delete_sub:'클라우드의 모든 기록과 계정을 지워요', row_delete_btn:'삭제',
         del_confirm:'클라우드에 저장된 모든 기록과 계정이 삭제되며 되돌릴 수 없어요. 이 기기의 기록도 함께 지워져요. 계속하시겠어요?',
@@ -46,7 +46,7 @@ const V27_TEXT = {
     en: {
         privacy:'🔒 Without signing in, your records stay on this device only.',
         privacy_cloud:'☁️ While signed in, your records are also saved to the cloud.<br>You can erase them or delete your account anytime in Settings.',
-        row_policy:'Privacy Policy', row_terms:'Terms of Use', policy_back:'← Back',
+        row_policy:'Privacy Policy', row_terms:'Terms of Use', row_standards:'How the service works', policy_back:'← Back',
         logout_done:'Signed out.', row_logout_btn:'Sign out',
         row_delete:'Delete account', row_delete_sub:'Erase all cloud records and your account', row_delete_btn:'Delete',
         del_confirm:'All records saved in the cloud and your account will be permanently deleted. Records on this device will be erased too. Continue?',
@@ -76,7 +76,7 @@ const V27_TEXT = {
     ja: {
         privacy:'🔒 ログインしない場合、記録はこのデバイスにのみ保存されます。',
         privacy_cloud:'☁️ ログイン中は記録がクラウドにも保存されます。<br>設定からいつでも削除・アカウント削除ができます。',
-        row_policy:'プライバシーポリシー', row_terms:'利用規約', policy_back:'← 戻る',
+        row_policy:'プライバシーポリシー', row_terms:'利用規約', row_standards:'サービスの運営基準', policy_back:'← 戻る',
         logout_done:'ログアウトしました。', row_logout_btn:'ログアウト',
         row_delete:'アカウント削除', row_delete_sub:'クラウドの全記録とアカウントを削除します', row_delete_btn:'削除',
         del_confirm:'クラウドに保存された全ての記録とアカウントが削除され、元に戻せません。このデバイスの記録も削除されます。続けますか？',
@@ -202,12 +202,34 @@ ${operatorHtml()}`,
 <p>ログインせずに作成した記録はデバイス内にのみ保存され、ブラウザのデータを消去すると復元できません。</p>
 <p id="terms-paid">プレミアムはまだ販売していません。販売開始時には、価格・自動更新・解約・返金の条件を事前に表示し、同意をいただきます。</p>`,
     },
+    standards: {
+        ko: () => `
+<p>시행일: ${POLICY_DATE}</p>
+<h3>1. 말씀</h3>
+<p>한국어 말씀은 「성경전서 개역한글판」(대한성서공회)을 본문 그대로 인용합니다. 번역본의 저작권 보호기간이 지난 판이며, 본문을 고쳐 쓰지 않습니다. 영어·일본어는 번역본 이용 조건을 확인하는 동안 제공하지 않습니다.</p>
+<h3>2. 기록은 어디에 보관되나요</h3>
+<ul>
+<li>로그인하지 않으면 모든 기록이 이 기기에만 있고, 기기에는 최근 62일의 감정 기록과 방문 날짜를 둡니다. 더 오래 남기려면 로그인하세요.</li>
+<li>로그인하면 기록이 클라우드에도 저장됩니다. 기기와 클라우드의 내용이 다르면 합치기 전에 먼저 물어봅니다.</li>
+<li>같은 날 두 곳에 서로 다른 일기가 있으면 어느 쪽도 지우지 않고 이어 붙입니다.</li>
+<li>인터넷이 없어도 묵상과 기록은 됩니다. 연결되면 맞출 수 있습니다.</li>
+<li>같은 날 같은 감정·주제·필요를 여러 번 기록하면 클라우드에는 한 건으로 합쳐집니다.</li>
+</ul>
+<h3>3. 무료와 프리미엄</h3>
+<p>묵상 흐름(감정 선택 → 말씀 → 이야기·응원 → 일기 → 마치기), 보관함, 나의 이야기(이번 주), 이번 달·지난달 달력은 계속 무료입니다. 모든 달의 달력, 월간·연간 리포트, PDF 일기장, 오래된 회고, 테마는 프리미엄 기능이며 아직 판매하지 않습니다.</p>
+<h3>4. 말씀을 고르는 기준</h3>
+<p>감정과 필요에 맞는 말씀을 본문의 앞뒤 맥락을 살펴 골랐고, 목회자 관점의 검토를 거쳤습니다. 아픈 날 성급한 위로가 되거나 오해되기 쉬운 구절은 뺐습니다. 이 앱의 말씀·묵상은 신앙의 도움을 위한 것이며 의료·심리 상담을 대신하지 않습니다.</p>
+<h3>5. 마음이 많이 힘들 때</h3>
+<p>스스로를 해치고 싶은 생각이 들면 혼자 견디지 말고 자살예방 상담전화 109(24시간) 또는 가까운 사람·교회·의료기관에 바로 연락하세요.</p>
+<h3>6. 운영자 정보</h3>
+${operatorHtml()}`,
+    },
 };
 
 function openPolicy(kind) {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const set = POLICY_HTML[kind] || POLICY_HTML.privacy;
-    document.getElementById('policy-title').textContent = kind === 'terms' ? L.row_terms : L.row_policy;
+    document.getElementById('policy-title').textContent = kind === 'terms' ? L.row_terms : kind === 'standards' ? L.row_standards : L.row_policy;
     document.getElementById('policy-body').innerHTML = (set[appLang] || set.ko)();
     safe('policy.paid', () => applyPaidPolicy(kind));   // 결제·AI를 켰을 때의 조항 (billing.js)
     const ov = document.getElementById('overlay-policy');
@@ -261,7 +283,7 @@ async function deleteAccount() {
         toast(L.del_fail);
         return;
     }
-    ['savedVerses','moodHistory','visitDates','consent','premiumActive','dataOwner','aiConsent','resumeSel'].forEach(k => localStorage.removeItem(k));
+    ['savedVerses','moodHistory','visitDates','consent','premiumActive','dataOwner','aiConsent','resumeSel','savedDeleted'].forEach(k => localStorage.removeItem(k));
     try { await sb.auth.signOut(); } catch (e) {}
     sbUser = null;
     _syncedUser = null;
@@ -348,7 +370,7 @@ function renderCareCard() {
 function applyLangV27() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const s = (id,t) => { const el = document.getElementById(id); if (el && t != null) el.textContent = t; };
-    s('btn-policy-privacy', L.row_policy); s('btn-policy-terms', L.row_terms); s('policy-back', L.policy_back);
+    s('btn-policy-privacy', L.row_policy); s('btn-policy-terms', L.row_terms); s('btn-policy-standards', L.row_standards); s('policy-back', L.policy_back);
     s('row-logout-btn', L.row_logout_btn);
     s('row-delete-label', L.row_delete); s('row-delete-sub', L.row_delete_sub); s('row-delete-btn', L.row_delete_btn);
     const priv = document.getElementById('privacy-text');

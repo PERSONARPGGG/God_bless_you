@@ -197,6 +197,35 @@ scenario('오프라인에서 쓴 일기: 인터넷이 돌아오면 묻고, 허�
     p.eq(await p.eval(`__srv.mood_history.length`), 1, '기록이 중복되지 않음');
 });
 
+scenario('동기화: 서로 다른 일기는 둘 다 살리고, 기기에서 지운 즐겨찾기는 되살아나지 않음', { now: '2026-11-17T21:00:00+09:00', seed: { userName: '', dataOwner: 'u1',
+    moodHistory: JSON.stringify([{ date: '2026-11-17', emotion: '걱정', topic: '일', need: '힘', emoji: '😔', diary: '기기에서 쓴 글' }]),
+    savedDeleted: JSON.stringify(['시편 23:1|여호와는 나의 목자시니']) } }, async p => {
+    await p.goto();
+    await p.eval(`sb = ${FAKE_SB}({
+        mood_history: [{ id: 9, user_id: 'u1', date: '2026-11-17', emotion: '걱정', topic: '일', need: '힘', diary_text: '클라우드에서 쓴 글' }],
+        saved_verses: [{ id: 1, user_id: 'u1', verse_text: '여호와는 나의 목자시니', verse_ref: '시편 23:1', emotion: '평안', need: '쉼' }], visit_dates: [], profiles: [], subscriptions: [] });
+        sbUser = { id: 'u1', email: 'u1@example.com' }; updateAuthUI(); _syncedUser = null; _syncAsked = null; window.dispatchEvent(new Event('online'))`);
+    await p.waitFor(`__t.vis('#sync-modal')`, '다른 점이 있으면 먼저 물음');
+    await p.eval(`__t.click('#sync-yes')`);
+    await p.waitFor(`__srv.saved_verses.length === 0`, '기기에서 지운 즐겨찾기는 클라우드에서도 지워짐');
+    const d = await p.eval(`__srv.mood_history[0].diary_text`);
+    p.ok(d.includes('기기에서 쓴 글') && d.includes('클라우드에서 쓴 글'), '서로 다른 일기는 둘 다 남음: ' + d);
+    p.eq(await p.eval(`getSaved().length`), 0, '기기에도 되살아나지 않음');
+    p.eq(await p.eval(`__t.ls('savedDeleted')`), [], '삭제 기록은 처리 후 비워짐');
+});
+
+scenario('서비스 운영 기준 화면, 즐겨찾기 삭제 기록(오프라인에서 지워도 되살아나지 않게)', { width: 390, height: 800, seed: { userName: '은혜', savedVerses: JSON.stringify([{ verse: '여호와는 나의 목자시니', ref: '시편 23:1', savedAt: '2026-11-01T00:00:00Z' }]) } }, async p => {
+    await p.goto();
+    await p.eval(`openPolicy('standards')`);
+    p.ok((await p.eval(`__t.txt('#policy-body')`)).includes('개역한글'), '운영 기준에 말씀 출처(개역한글)가 적혀 있음');
+    p.eq(await p.eval(`__t.txt('#policy-title')`), '서비스 운영 기준', '운영 기준 제목');
+    p.ok(await p.eval(`!!document.getElementById('btn-policy-standards')`), '설정에 운영 기준 버튼이 있음');
+    p.eq(await p.eval(`getSaved().length`), 1, '시작: 저장한 말씀 1개');
+    await p.eval(`deleteSaved(0)`);
+    p.eq(await p.eval(`__t.ls('savedDeleted')`), ['시편 23:1|여호와는 나의 목자시니'], '지운 즐겨찾기는 삭제 기록으로 남음 (다음 동기화에서 클라우드도 지움)');
+    p.eq(await p.eval(`getSaved().length`), 0, '기기에서는 지워짐');
+});
+
 scenario('질문 단계: 뒤로 가기, 건너뛰고 말씀 보기(2번 만에), 작은 화면에서도 버튼이 보임', { width: 375, height: 667, seed: { userName: '은혜' } }, async p => {
     const ready = `typeof _picking === 'undefined' || !_picking`;
     await p.goto();
@@ -223,6 +252,7 @@ scenario('질문 단계: 뒤로 가기, 건너뛰고 말씀 보기(2번 만에),
     await p.waitFor(`__t.vis('#step4') && !__t.vis('#step2')`, '주제 화면에서 건너뛰면 결과 화면');
     const h = await p.eval(`__t.ls('moodHistory')[0]`);
     p.eq([h.emotion, h.topic, h.need], ['아픔', '모름', '위로'], '건너뛴 기록: 주제 모름 · 아픔의 기본 필요(위로)');
+    p.eq(h.skip, 1, '건너뛴 기록에는 skip 표시가 붙음 (통계에서 기본 필요를 뺌)');
     await p.waitFor(`__t.txt('#r-verse').length > 8 && !document.getElementById('r-verse').classList.contains('typing')`, '말씀 타이핑이 끝남', 12000);
     p.ok((await p.eval(`__t.txt('#r-reflection')`)).length > 5, '건너뛰어도 말씀·묵상이 나옴');
     // 주제는 고르고 필요에서 건너뛰기

@@ -191,6 +191,7 @@ function visibleQStep() { return ['step3', 'step2'].find(id => !document.getElem
 function skipToResult() {
     if (_picking || !sel.emotion) return;
     if (!sel.topic) sel.topic = '모름';
+    sel.skipped = true;   // 필요는 직접 고른 게 아니라 기본값 → 통계(자주 필요했던 것)에서 뺀다
     pick('need', DEFAULT_NEED[sel.emotion] || '위로');
 }
 function goBack(from) {
@@ -375,6 +376,7 @@ function saveMood() {
     const today = todayStr();
     const hist = getMoods();
     const entry = {date:today, emotion, topic, need, emoji:E_EMOJI[emotion]};
+    if (sel.skipped) entry.skip = 1;
     if (curVerse && curVerse.r) entry.ref = curVerse.r;   // 그날 본 말씀 (달력·PDF 일기장에서 다시 보여 줌)
     hist.unshift(entry);
     if (!lsSet('moodHistory', trimMoods(hist))) toast((LANG_DATA[appLang]||LANG_DATA.ko).toast_store_fail);
@@ -578,6 +580,7 @@ function toggleSave() {
     const saved = getSaved().filter(x => !(x.ref === curVerse.r && x.verse === curVerse.v));
     saved.unshift({ verse: curVerse.v, ref: curVerse.r, emotion, need, savedAt: new Date().toISOString() });
     lsSet('savedVerses', saved.slice(0, SAVED_MAX));
+    lsSet('savedDeleted', lsArr('savedDeleted').filter(k => k !== curVerse.r + '|' + curVerse.v));   // 다시 저장하면 삭제 기록을 지움
     if (sbUser && sb) sb.from('saved_verses').insert({user_id:sbUser.id, verse_text:curVerse.v, verse_ref:curVerse.r, emotion, need})
         .then(r => { if (r && r.error) logErr('saved.insert', r.error); }, e => logErr('saved.insert', e));
     verseSaved=true;

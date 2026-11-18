@@ -225,7 +225,7 @@ function renderDbPatterns(data) {
             <span style="float:right;font-size:var(--fs-2xs);opacity:.4">${fillText(L.db_times, { n: c })}</span></div>`;
     }).join('');
     const needCnt = {};
-    data.forEach(m => { if (DB_NEED_LIST.includes(m.need)) needCnt[m.need] = (needCnt[m.need]||0)+1; });
+    data.forEach(m => { if (!m.skip && DB_NEED_LIST.includes(m.need)) needCnt[m.need] = (needCnt[m.need]||0)+1; });
     const topNeed = Object.entries(needCnt).sort((a,b)=>b[1]-a[1])[0];
     if (topNeed) html += `<div class="db-pattern">${fillText(L.db_pat_need, { n: escHtml(L.db_needing[DB_NEED_LIST.indexOf(topNeed[0])]) })}</div>`;
     el.innerHTML = html || `<div class="db-empty">${L.db_pat_empty}</div>`;

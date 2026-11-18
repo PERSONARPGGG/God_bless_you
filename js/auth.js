@@ -135,7 +135,11 @@ async function syncWithServer(opts) {
         const localKeys = new Set(localMoods.map(mKey));
         const upMoods = localMoods.filter(h => h.date >= cut && !serverMoods.has(mKey(h)));
         // 같은 기록인데 클라우드 쪽에만 일기가 없는 것 — 오프라인에서 쓴 일기
-        const upDiaries = localMoods.filter(h => h.diary && serverMoods.has(mKey(h)) && !serverMoods.get(mKey(h)).diary && serverIds.get(mKey(h)) != null);
+        // 같은 날 기기와 클라우드에 서로 다른 일기가 있으면 둘 다 살려 이어 붙인다 (어느 쪽도 잃지 않음)
+        const mergeDiary = (a, b) => (a === b || a.includes(b)) ? a : b.includes(a) ? b : a + '\n\n' + b;
+        const upDiaries = localMoods.filter(h => h.diary && serverMoods.has(mKey(h)) && serverIds.get(mKey(h)) != null && serverMoods.get(mKey(h)).diary !== mergeDiary(h.diary, serverMoods.get(mKey(h)).diary || ''))
+            .map(h => ({ h, text: mergeDiary(h.diary, serverMoods.get(mKey(h)).diary || '') }));
+        const upDiaryKeys = new Set(upDiaries.map(x => mKey(x.h)));
         const downMoods = [...serverMoods.values()].filter(h => !localKeys.has(mKey(h)));
 
         const vKey = x => x.ref + '|' + x.verse;
@@ -151,10 +155,13 @@ async function syncWithServer(opts) {
         const localSaved = mine ? getSaved() : [];
         const localSavedKeys = new Set(localSaved.map(vKey));
         const upSaved = localSaved.filter(x => !serverSaved.has(vKey(x)));
-        const downSaved = [...serverSaved.values()].filter(x => !localSavedKeys.has(vKey(x)))
+        // 기기에서 지운 즐겨찾기가 클라우드에 남아 있으면 되살리지 않고 클라우드에서도 지운다
+        const gone = new Set(mine ? lsArr('savedDeleted') : []);
+        const delSaved = [...serverSaved.values()].filter(x => gone.has(vKey(x)));
+        const downSaved = [...serverSaved.values()].filter(x => !localSavedKeys.has(vKey(x)) && !gone.has(vKey(x)))
             .sort((a, b) => String(b.savedAt || '').localeCompare(String(a.savedAt || '')));
 
-        const nUp = upMoods.length + upDiaries.length + upSaved.length, nDown = downMoods.length + downSaved.length;
+        const nUp = upMoods.length + upDiaries.length + upSaved.length + delSaved.length, nDown = downMoods.length + downSaved.length;
         if (mine && (nUp || nDown) && !opts.confirmed) {
             _syncAsked = uid;            // 이번 접속에서는 한 번만 묻는다 ("나중에"를 고르면 다음에 앱을 열 때 다시)
             askSync(nUp, nDown);
@@ -168,9 +175,10 @@ async function syncWithServer(opts) {
             if (error) throw error;
             pushed += upMoods.length;
         }
-        for (const h of upDiaries) {
-            const { error } = await sb.from('mood_history').update({ diary_text: h.diary }).eq('id', serverIds.get(mKey(h)));
+        for (const { h, text } of upDiaries) {
+            const { error } = await sb.from('mood_history').update({ diary_text: text }).eq('id', serverIds.get(mKey(h)));
             if (error) throw error;
+            h.diary = text;
             pushed++;
         }
         localMoods.forEach(h => { const r = serverMoods.get(mKey(h)); if (!r) return; if (!h.diary && r.diary) h.diary = r.diary; if (!h.ref && r.ref) h.ref = r.ref; });
@@ -185,6 +193,11 @@ async function syncWithServer(opts) {
             if (error) throw error;
             pushed += upSaved.length;
         }
+        for (const x of delSaved) {
+            const { error } = await sb.from('saved_verses').delete().eq('user_id', uid).eq('verse_ref', x.ref).eq('verse_text', x.verse);
+            if (error) throw error;
+        }
+        lsSet('savedDeleted', []);
         pulled += downSaved.length;
         lsSet('savedVerses', [...localSaved, ...downSaved].slice(0, SAVED_MAX));
 

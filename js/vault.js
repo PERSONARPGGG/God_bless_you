@@ -135,8 +135,13 @@ function deleteSaved(idx) {
     const list = getSaved();
     const [gone] = list.splice(idx,1); lsSet('savedVerses',list);
     // 클라우드에서도 지운다 (안 지우면 다음에 기록을 맞출 때 되살아남)
-    if (gone && sbUser && sb) sb.from('saved_verses').delete().eq('user_id', sbUser.id).eq('verse_ref', gone.ref).eq('verse_text', gone.verse)
-        .then(r => { if (r && r.error) logErr('saved.delete', r.error); }, e => logErr('saved.delete', e));
+    if (gone) {
+        // 오프라인이거나 로그인 전이라 클라우드에서 못 지우면 "지웠다"는 기록을 남겨 다음 동기화에서 지운다
+        const gk = gone.ref + '|' + gone.verse;
+        lsSet('savedDeleted', [...lsArr('savedDeleted').filter(k => k !== gk), gk].slice(-200));
+        if (sbUser && sb) sb.from('saved_verses').delete().eq('user_id', sbUser.id).eq('verse_ref', gone.ref).eq('verse_text', gone.verse)
+            .then(r => { if (r && r.error) logErr('saved.delete', r.error); else lsSet('savedDeleted', lsArr('savedDeleted').filter(k => k !== gk)); }, e => logErr('saved.delete', e));
+    }
     if (savedPage > 0 && savedPage >= Math.ceil(list.length / SAVED_PER_PAGE)) savedPage--;
     renderSaved();
 }

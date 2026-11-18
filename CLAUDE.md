@@ -33,7 +33,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `node tools/api-test.mjs` — 서버 함수 점검 (1초). `lib/server.mjs`를 그대로 돌리고 Supabase·토스·OpenRouter만 가짜로 바꿔 결제·해지·갱신·AI 규칙을 확인. `api/`·`lib/`를 고치면 반드시 실행
   - 버그를 고칠 때는 **먼저 그 버그를 재현하는 시나리오를 `tools/smoke.mjs`에 추가**하고 고친다. 새 기능도 시나리오를 함께 추가
 - **배포**: `main` 브랜치 push → Vercel 자동 배포. 별도 빌드 스텝 없음. 다른 브랜치를 push하면 Vercel이 미리보기 주소를 만들어 주므로, 큰 변경은 브랜치 → 미리보기에서 `--url=`로 점검 → main 병합 순서를 권장. 웹에 공개하지 않을 파일은 `.vercelignore`
-- **캐시 무효화**: Service Worker 캐시를 갱신하려면 `sw.js`의 `CACHE` 상수(현재 `'god-app-v29'`) 버전 문자열을 올려야 함. 사용자 화면에 보이는 버전은 `js/core.js`의 `APP_VERSION` (CHANGELOG 최신 항목과 맞출 것)
+- **캐시 무효화**: Service Worker 캐시를 갱신하려면 `sw.js`의 `CACHE` 상수(현재 `'god-app-v30'`) 버전 문자열을 올려야 함. 사용자 화면에 보이는 버전은 `js/core.js`의 `APP_VERSION` (CHANGELOG 최신 항목과 맞출 것)
 
 ## 아키텍처 (Architecture)
 `index.html`에는 마크업과 스크립트 목록만 있음. 코드 안의 `═══...═══` 배너 주석이 섹션 구분자.
@@ -147,7 +147,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - (해결) 보관함 주간 차트도 로그인 없이 보임
 - **화면을 바꾸면 눈으로 확인**: `node tools/smoke.mjs 둘러보기 --shots=폴더` → 주요 화면 12장 PNG. 2026-11-17 중간 점검에서 테스트는 통과하지만 화면에서만 보이는 문제(설치 안내가 버튼을 가림, 단어 중간 줄바꿈)를 이 방법으로 찾음
 - 설치 안내(`install-nudge`)는 메인 화면에서만 뜨고 `go()`·`showOverlay()`가 내린다 — 화면 아래에 고정되는 요소를 새로 만들면 같은 규칙을 따를 것
-- 저장소에 있지만 앱이 쓰지 않는 파일: `card_preview.html`, `docs/죄짐맡은우리구주_CC0.mp3` (배포에서만 제외해 둠 — 지울지는 사용자 결정)
+- 저장소에 있지만 앱이 쓰지 않는 파일: `card_preview.html` (배포에서만 제외해 둠 — 지울지는 사용자 결정)
 
 ## v2.8 메모 (2026-11-17)
 - **Supabase 프로젝트(`pzakpaomnmahcugkzdff`) 주소가 DNS에 없음** — 장기 미사용으로 정지·삭제된 것으로 보임. 대시보드에서 복구하거나 새 프로젝트를 만들어 `docs/supabase_schema.sql` 실행 후 `js/core.js`의 URL·키 교체. 그 전까지 로그인·동기화·프리미엄 서버 확인이 동작하지 않음 (앱 자체는 게스트로 정상 동작)
@@ -194,3 +194,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `At the End of the Day.mp3`는 삭제함 (Suno로 만든 곡, 앱 미사용). 과거 기록에는 남아 있으나 레미제라블 곡이 아니라 본인 생성곡이라 기록 삭제는 하지 않음
 - 배경 찬송가 10곡(`audio/tracks/`)은 일단 유지. **유료 버전에서는 사용자가 별도 음원을 준비할 예정** → 결제를 켜기 전에 교체 필요
 - 보안 헤더(`vercel.json`): nosniff, X-Frame-Options DENY, Referrer-Policy, Permissions-Policy. 아직 안 한 것: CSP(인라인 스크립트·onclick 때문에 단계적 전환 필요), CDN 스크립트 SRI, 크론 비밀번호 상수시간 비교
+
+## 3단계 + 보류 보완 처리 (2026-11-18)
+- 말씀 풀: 목사님 검토로 맥락이 어긋나는 22건 추가 정리, 사 41:10 7→3곳, 같은 장절 중복 버전 제거, 시편 34:4·126:5·100:4·107:1 보충(개역한글 본문). 모든 조합 9~14개. 건너뛰기 기본 필요(`DEFAULT_NEED`)는 목사님 확인: 감사·평안·지침=쉼, 걱정·아픔·기도=위로
+- 건너뛴 기록은 `entry.skip=1`(기기에만) → 나의 이야기의 "자주 필요했던 것"에서 제외
+- 동기화: 기기에서 지운 즐겨찾기는 `savedDeleted`에 남겨 다음 동기화 때 클라우드에서도 지움(되살아나지 않음). 같은 날 서로 다른 일기는 이어 붙여 둘 다 보존. 같은 날 같은 감정·주제·필요 중복 기록이 한 건으로 합쳐지는 것은 스키마를 바꿔야 해서 그대로 둠(운영 기준에 안내)
+- 설정 > "서비스 운영 기준"(`openPolicy('standards')`): 말씀 출처, 기록 보관(62일·동기화), 무료/프리미엄, 말씀 선정 기준, 위기 안내, 운영자 정보. 내용이 바뀌면 함께 고칠 것
+- 보안: 크론 비밀 비교 상수시간(`safeEqual`), CSP는 `Content-Security-Policy-Report-Only`로 먼저 관찰(콘솔 위반 메시지 확인 후 enforcing 전환), CDN 스크립트 SRI는 이미 적용
+- 유료 버전용 음원 준비는 후순위로 미룸
