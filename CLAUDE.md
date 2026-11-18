@@ -33,7 +33,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `node tools/api-test.mjs` — 서버 함수 점검 (1초). `lib/server.mjs`를 그대로 돌리고 Supabase·토스·OpenRouter만 가짜로 바꿔 결제·해지·갱신·AI 규칙을 확인. `api/`·`lib/`를 고치면 반드시 실행
   - 버그를 고칠 때는 **먼저 그 버그를 재현하는 시나리오를 `tools/smoke.mjs`에 추가**하고 고친다. 새 기능도 시나리오를 함께 추가
 - **배포**: `main` 브랜치 push → Vercel 자동 배포. 별도 빌드 스텝 없음. 다른 브랜치를 push하면 Vercel이 미리보기 주소를 만들어 주므로, 큰 변경은 브랜치 → 미리보기에서 `--url=`로 점검 → main 병합 순서를 권장. 웹에 공개하지 않을 파일은 `.vercelignore`
-- **캐시 무효화**: Service Worker 캐시를 갱신하려면 `sw.js`의 `CACHE` 상수(현재 `'god-app-v28'`) 버전 문자열을 올려야 함. 사용자 화면에 보이는 버전은 `js/core.js`의 `APP_VERSION` (CHANGELOG 최신 항목과 맞출 것)
+- **캐시 무효화**: Service Worker 캐시를 갱신하려면 `sw.js`의 `CACHE` 상수(현재 `'god-app-v29'`) 버전 문자열을 올려야 함. 사용자 화면에 보이는 버전은 `js/core.js`의 `APP_VERSION` (CHANGELOG 최신 항목과 맞출 것)
 
 ## 아키텍처 (Architecture)
 `index.html`에는 마크업과 스크립트 목록만 있음. 코드 안의 `═══...═══` 배너 주석이 섹션 구분자.
@@ -147,7 +147,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - (해결) 보관함 주간 차트도 로그인 없이 보임
 - **화면을 바꾸면 눈으로 확인**: `node tools/smoke.mjs 둘러보기 --shots=폴더` → 주요 화면 12장 PNG. 2026-11-17 중간 점검에서 테스트는 통과하지만 화면에서만 보이는 문제(설치 안내가 버튼을 가림, 단어 중간 줄바꿈)를 이 방법으로 찾음
 - 설치 안내(`install-nudge`)는 메인 화면에서만 뜨고 `go()`·`showOverlay()`가 내린다 — 화면 아래에 고정되는 요소를 새로 만들면 같은 규칙을 따를 것
-- 저장소에 있지만 앱이 쓰지 않는 파일: `At the End of the Day.mp3`, `card_preview.html`, `docs/죄짐맡은우리구주_CC0.mp3` (배포에서만 제외해 둠 — 지울지는 사용자 결정)
+- 저장소에 있지만 앱이 쓰지 않는 파일: `card_preview.html`, `docs/죄짐맡은우리구주_CC0.mp3` (배포에서만 제외해 둠 — 지울지는 사용자 결정)
 
 ## v2.8 메모 (2026-11-17)
 - **Supabase 프로젝트(`pzakpaomnmahcugkzdff`) 주소가 DNS에 없음** — 장기 미사용으로 정지·삭제된 것으로 보임. 대시보드에서 복구하거나 새 프로젝트를 만들어 `docs/supabase_schema.sql` 실행 후 `js/core.js`의 URL·키 교체. 그 전까지 로그인·동기화·프리미엄 서버 확인이 동작하지 않음 (앱 자체는 게스트로 정상 동작)
@@ -165,3 +165,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **감정 화면은 한 화면**: 감정 버튼 5개 + 기도 버튼(`.emotion-pray`)이 스크롤 없이 보여야 한다 (360~1920px, 글자 크기 3단계, 이어하기 바가 떠 있어도). `tools/smoke.mjs`의 '여러 기기에서 스크롤 없이 한 화면'이 잰다. 감정 칸 위에 높이를 차지하는 요소를 새로 넣지 말 것 (회고 카드는 버튼 아래)
 - **출퇴근길 보완**: 이어하기(`resumeSel`, 45분·같은 날), 홈 화면 바로가기(`manifest.json shortcuts`, 주소 `?e=worry|tired|hurt|pray`, Android만), 탭 진동(직접 누른 경우만), 운전 안내(`#drive-note`). 사용자 선택을 담는 `resumeSel`은 설정 초기화·계정 삭제 때 함께 지운다
 - 감정을 6개째로 늘리면(예정: 외로움) 격자가 짝수가 되어 마지막 칸이 혼자 한 줄 쓰는 지금 모양이 자연스럽게 풀린다
+
+## 작업 방식 · 토큰 절약 · 배포 흐름 (2026-11-18, 사용자 지시)
+**토큰을 쓸데없이 쓰지 않는다.** 아래를 기본으로 한다.
+- 부가 산출물(진행판·아티팩트·문서·보고서 파일)을 **만들지 않는다.** 진행 상황은 로컬 서버로 앱 자체를 보여 주는 것으로 대신한다. 사용자가 요청할 때만 만든다
+- 서브에이전트(`Agent`)는 사용자가 이름을 대거나 요청할 때만. 직접 읽고 직접 고친다
+- 파일은 전체를 읽지 말고 `Grep`으로 위치를 찾은 뒤 필요한 범위만 읽는다 (`offset`/`limit`). 고친 뒤 다시 읽어 확인하지 않는다 (Edit가 실패하면 알려 준다)
+- 점검은 **먼저 좁게**: `node tools/smoke.mjs 이름일부` 로 해당 시나리오만 → 끝날 즈음 **전체 한 번**. 출력은 `| grep -E "✗|✓ 실행"` 처럼 실패와 요약만 본다. 전체 점검을 같은 상태에서 두 번 돌리지 않는다
+- 스크린샷은 **레이아웃을 바꿨을 때만**, 필요한 한두 장만 본다
+- 같은 단계의 변경은 모아서 **한 번에** 고치고, 한 번에 점검하고, **단계당 커밋 1개**로 묶는다
+- 결정이 꼭 필요한 것만 짧게 묻는다. 권장안이 있는 제안은 묻지 않고 적용하고 결과에 적는다. 보고는 짧게(바뀐 것·점검 결과·사용자가 할 일)
+- 사용자가 거절한 도구 호출을 같은 모양으로 다시 시도하지 않는다
+
+**배포 흐름 (서버에 바로 올리지 않는다)**
+1. 로컬에서 고치고 `node tools/check.mjs` + `node tools/smoke.mjs` 통과 (api/·lib/를 건드렸으면 `node tools/api-test.mjs`도)
+2. **사용자가 로컬 서버(`http://127.0.0.1:5500`)에서 직접 보고 OK** 해 줄 때까지 커밋·푸시하지 않는다
+3. OK 후 커밋 → `v2.8`(작업 브랜치) 푸시 → Vercel 미리보기 주소에서 `node tools/smoke.mjs --url=…` 점검
+4. 운영(https://god-bless-you.vercel.app/)은 **`main` 브랜치 기준**이다. 작업 브랜치를 푸시해도 운영에는 나타나지 않는다. 운영 반영은 사용자 확인 후 `main`에 병합·푸시할 때만
+
+## Supabase 복구·안정화 (2026-11-18)
+- 2026-11-18 현재 `pzakpaomnmahcugkzdff.supabase.co`가 DNS에서 사라져 있음(NXDOMAIN, 다른 도메인은 정상). 가장 유력한 원인: 무료 플랜의 **7일 저활동 자동 일시정지** 후 복원 기한 경과. 공식 문서는 복원 기한을 90일(변경 로그·문제 해결 문서)과 1년(정지 안내 문서)으로 달리 적어 둠 → 대시보드의 프로젝트 상태에서 확인
+- 복구 확인은 **`node tools/supabase-check.mjs`** 한 줄: 주소·REST·테이블 5개·RLS(로그인 없이 남의 기록이 안 보이는지)·Google 로그인 켜짐을 점검
+- 되살릴 수 있으면: 대시보드 → 프로젝트 → Restore project. 불가하면 새 프로젝트(서울 리전) → SQL Editor에서 `docs/supabase_schema.sql`, `docs/supabase_v2.7.sql` 실행 → Authentication > Providers > Google 켜기(Google Cloud의 OAuth 클라이언트, 리디렉션 `https://<ref>.supabase.co/auth/v1/callback`) → URL Configuration의 Site URL·Redirect URLs에 운영 주소·미리보기 주소·`http://127.0.0.1:5500` 추가 → `js/core.js`의 `SUPABASE_URL`·`SUPABASE_KEY`(공개 키)만 교체
+- 재발 방지: `.github/workflows/supabase-keepalive.yml`이 3일마다 가볍게 호출하고 실패하면 GitHub이 메일로 알림. 결제를 받기 시작하면 **Pro 플랜**(정지 없음, 자동 백업)으로 올릴 것 — 무료 플랜은 백업이 없고 정지될 수 있어 유료 서비스의 기반으로 부적합
+
+## 저작권·음원 결정 (2026-11-18)
+- 한국어 말씀은 개역한글(보호기간 소멸) 그대로 사용 — **본문을 바꾸지 않는 조건**. 전체 193개 본문을 점검해 개역개정 표현은 없었고 오타 1건만 수정(빌 4:19). 개역한글이 아닌 표현을 새로 넣지 말 것
+- `At the End of the Day.mp3`는 삭제함 (Suno로 만든 곡, 앱 미사용). 과거 기록에는 남아 있으나 레미제라블 곡이 아니라 본인 생성곡이라 기록 삭제는 하지 않음
+- 배경 찬송가 10곡(`audio/tracks/`)은 일단 유지. **유료 버전에서는 사용자가 별도 음원을 준비할 예정** → 결제를 켜기 전에 교체 필요
+- 보안 헤더(`vercel.json`): nosniff, X-Frame-Options DENY, Referrer-Policy, Permissions-Policy. 아직 안 한 것: CSP(인라인 스크립트·onclick 때문에 단계적 전환 필요), CDN 스크립트 SRI, 크론 비밀번호 상수시간 비교

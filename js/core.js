@@ -77,7 +77,8 @@ window.addEventListener('unhandledrejection', e => { logErr('promise', e && e.re
    (저장소가 깨졌거나 예전 형식이어도 배열·정상 항목만 돌려줌)
 ═══════════════════════════════════════ */
 function lsGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { try { return localStorage.getItem(k); } catch { return null; } } }
-function lsSet(k,v) { try { localStorage.setItem(k, typeof v==='object' ? JSON.stringify(v) : String(v)); } catch {} }
+/* 저장에 성공하면 true. 저장 공간이 가득 찼거나 시크릿 모드라 실패하면 false — "저장됐다"고 말하기 전에 확인할 수 있게 */
+function lsSet(k,v) { try { localStorage.setItem(k, typeof v==='object' ? JSON.stringify(v) : String(v)); return true; } catch { return false; } }
 function lsArr(k) { const v = lsGet(k); return Array.isArray(v) ? v : []; }
 /* 정수 설정값: 숫자가 아니거나 범위를 벗어나면 기본값 */
 function lsInt(k, min, max, dflt) {

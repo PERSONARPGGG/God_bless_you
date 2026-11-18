@@ -163,6 +163,155 @@ scenario('첫 방문: 인트로 → 이름 입력 → 메인', { intro: true }, 
     p.eq(await p.eval(`__t.txt('#app-version')`), 'v' + (await p.eval('APP_VERSION')), '설정의 버전 표기');
 });
 
+scenario('일기: 쓰는 동안 기기에 저장(마치기 전에 앱이 닫혀도 남음), 저장 실패를 속이지 않음', { seed: { userName: '은혜' } }, async p => {
+    await p.goto();
+    await p.flow('아픔', '가족', '위로');
+    await p.eval(`(() => { const i = document.getElementById('diary-input'); i.value = '버스에서 쓰던 일기'; i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+    await sleep(900);
+    p.eq(await p.eval(`__t.ls('moodHistory')[0].diary`), '버스에서 쓰던 일기', '입력 0.6초 뒤 마치기 전에 기기에 저장');
+    await p.eval(`document.getElementById('diary-input').value = '버스에서 쓰던 일기, 한 줄 더'`);
+    await p.eval(`window.dispatchEvent(new Event('pagehide'))`);
+    p.eq(await p.eval(`__t.ls('moodHistory')[0].diary`), '버스에서 쓰던 일기, 한 줄 더', '앱이 닫히는 순간(pagehide)에도 저장');
+    p.eq(await p.eval(`__t.ls('moodHistory').length`), 1, '기록이 늘어나지 않음 (같은 줄에 덧씀)');
+    await p.reload();   // 앱이 완전히 닫혔다 다시 열림
+    await p.eval(`openVault()`);
+    p.ok((await p.eval(`__t.txt('#mood-list .mood-diary')`)).includes('한 줄 더'), '다시 열어도 보관함에 일기가 있음');
+    // 저장 공간이 막혀 있으면 "저장됐다"고 하지 않는다
+    await p.eval(`hideOverlay('overlay-vault'); localStorage.setItem = () => { throw new Error('QuotaExceededError'); }`);
+    await p.eval(`sel = { emotion: '아픔', topic: '가족', need: '위로' }; document.getElementById('diary-input').value = '못 저장될 글'; autoSaveDiary()`);
+    p.ok(/저장하지 못했/.test(await p.eval(`__t.txt('#toast')`)) && !/저장되었습니다/.test(await p.eval(`__t.txt('#toast')`)), '저장 실패 안내 — 실제: ' + await p.eval(`__t.txt('#toast')`));
+});
+
+scenario('오프라인에서 쓴 일기: 인터넷이 돌아오면 묻고, 허락하면 클라우드로 올림', { now: '2026-11-17T21:00:00+09:00', seed: { userName: '', dataOwner: 'u1',
+    moodHistory: JSON.stringify([{ date: '2026-11-17', emotion: '걱정', topic: '일', need: '힘', emoji: '😔', diary: '지하철에서 쓴 일기' }]) } }, async p => {
+    await p.goto();
+    await p.eval(`sb = ${FAKE_SB}({
+        mood_history: [{ id: 9, user_id: 'u1', date: '2026-11-17', emotion: '걱정', topic: '일', need: '힘', diary_text: null }],
+        saved_verses: [], visit_dates: [], profiles: [], subscriptions: [] });
+        sbUser = { id: 'u1', email: 'u1@example.com' }; updateAuthUI(); _syncedUser = null; _syncAsked = null; window.dispatchEvent(new Event('online'))`);
+    await p.waitFor(`__t.vis('#sync-modal')`, '인터넷이 돌아오면 기기에만 있는 일기를 알려 줌');
+    p.ok(/1/.test(await p.eval(`__t.txt('#sync-modal-desc')`)), '기기에만 있는 기록 1건');
+    p.eq(await p.eval(`__srv.mood_history[0].diary_text`), null, '묻는 동안에는 서버를 바꾸지 않음');
+    await p.eval(`__t.click('#sync-yes')`);
+    await p.waitFor(`__srv.mood_history[0].diary_text === '지하철에서 쓴 일기'`, '허락하면 일기가 클라우드로 올라감');
+    p.eq(await p.eval(`__srv.mood_history.length`), 1, '기록이 중복되지 않음');
+});
+
+scenario('질문 단계: 뒤로 가기, 건너뛰고 말씀 보기(2번 만에), 작은 화면에서도 버튼이 보임', { width: 375, height: 667, seed: { userName: '은혜' } }, async p => {
+    const ready = `typeof _picking === 'undefined' || !_picking`;
+    await p.goto();
+    // 뒤로 가기: 감정 → 주제 → (뒤로) → 감정 선택이 비워진 첫 화면
+    await p.eval(`__t.click('.em-지침')`);
+    await p.waitFor(`__t.vis('#step2') && (${ready})`, '주제 화면');
+    const fit = async (id, what) => { await sleep(500); const b = await p.eval(`(() => { const r = document.querySelector('#${id} .step-skip').getBoundingClientRect(); return [Math.round(r.bottom), innerHeight]; })()`);
+        p.ok(b[0] <= b[1] - 8, `${what}: 건너뛰기 버튼 아래끝 ${b[0]}px가 화면 높이 ${b[1]}px 안에 들어와야 함`); };
+    await fit('step2', '주제 화면 375×667');
+    await p.eval(`__t.click('.bc-일')`);
+    await p.waitFor(`__t.vis('#step3') && (${ready})`, '필요 화면');
+    await fit('step3', '필요 화면 375×667');
+    await p.eval(`__t.click('#step3 .step-back')`);
+    await p.waitFor(`__t.vis('#step2') && (${ready})`, '필요 → 뒤로 → 주제 화면');
+    p.eq(await p.eval(`sel.topic`), null, '뒤로 가면 주제 선택이 비워짐');
+    await p.eval(`__t.click('#step2 .step-back')`);
+    await p.waitFor(`__t.vis('#step1') && (${ready})`, '주제 → 뒤로 → 감정 화면');
+    p.eq(await p.eval(`sel.emotion`), null, '첫 화면으로 돌아가면 감정 선택도 비워짐');
+    p.eq(await p.eval(`__t.ls('resumeSel')`), null, '첫 화면으로 돌아가면 이어하기 기록도 지움');
+    // 감정만 누르고 건너뛰기 → 결과, 기록은 주제 '모름' + 감정별 기본 필요
+    await p.eval(`__t.click('.em-아픔')`);
+    await p.waitFor(`__t.vis('#step2') && (${ready})`, '주제 화면');
+    await p.eval(`__t.click('#step2 .step-skip')`);
+    await p.waitFor(`__t.vis('#step4') && !__t.vis('#step2')`, '주제 화면에서 건너뛰면 결과 화면');
+    const h = await p.eval(`__t.ls('moodHistory')[0]`);
+    p.eq([h.emotion, h.topic, h.need], ['아픔', '모름', '위로'], '건너뛴 기록: 주제 모름 · 아픔의 기본 필요(위로)');
+    await p.waitFor(`__t.txt('#r-verse').length > 8 && !document.getElementById('r-verse').classList.contains('typing')`, '말씀 타이핑이 끝남', 12000);
+    p.ok((await p.eval(`__t.txt('#r-reflection')`)).length > 5, '건너뛰어도 말씀·묵상이 나옴');
+    // 주제는 고르고 필요에서 건너뛰기
+    await p.eval(`restart()`);
+    await p.waitFor(`__t.vis('#step1') && (${ready})`, '처음으로');
+    await p.eval(`__t.click('.em-감사')`);
+    await p.waitFor(`__t.vis('#step2') && (${ready})`, '주제 화면');
+    await p.eval(`__t.click('.bc-가족')`);
+    await p.waitFor(`__t.vis('#step3') && (${ready})`, '필요 화면');
+    await p.eval(`__t.click('#step3 .step-skip')`);
+    await p.waitFor(`__t.vis('#step4') && !__t.vis('#step3')`, '필요 화면에서 건너뛰면 결과 화면');
+    const h2 = await p.eval(`__t.ls('moodHistory')[0]`);
+    p.eq([h2.emotion, h2.topic, h2.need], ['감사', '가족', '쉼'], '고른 주제는 유지, 필요는 감사의 기본값(쉼)');
+});
+
+/* 글과 글, 글과 입력칸·버튼이 겹치는지 모든 화면에서 찾는다. 보이는 글(또는 입력칸·버튼)의 네모를 서로 비교해
+   (조상-자손 관계, 장식 요소, 스크롤 영역 밖으로 잘린 것은 뺌) 겹친 쌍을 알려 준다 */
+const FIND_OVERLAPS = `(() => {
+    const decor = '#stars,.aurora,#sheep,.moon-wrap,.moon-orbital,#welcome-particles,#night-intro,.sheep-el,.card-blessing,[aria-hidden="true"]';
+    const shown = el => { const r = el.getBoundingClientRect(), cs = getComputedStyle(el); return r.width > 2 && r.height > 2 && cs.visibility !== 'hidden' && cs.display !== 'none' && +cs.opacity > 0.05; };
+    const tops = [...document.querySelectorAll('.overlay:not(.hidden), #premium-modal:not(.hidden), #consent-modal:not(.hidden), #sync-modal:not(.hidden), #devpw-modal:not(.hidden)')];
+    const root = tops.sort((a, b) => (parseInt(getComputedStyle(a).zIndex) || 0) - (parseInt(getComputedStyle(b).zIndex) || 0)).pop() || document.querySelector('.page-wrap');
+    const boxOf = el => {
+        if (/^(INPUT|TEXTAREA|BUTTON|SELECT)$/.test(el.tagName)) return el.getBoundingClientRect();
+        const rs = []; [...el.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim()).forEach(n => { const g = document.createRange(); g.selectNodeContents(n); rs.push(...g.getClientRects()); });
+        if (!rs.length) return null;
+        return { left: Math.min(...rs.map(r => r.left)), right: Math.max(...rs.map(r => r.right)), top: Math.min(...rs.map(r => r.top)), bottom: Math.max(...rs.map(r => r.bottom)) };
+    };
+    const clipped = (el, b) => { for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) { const o = getComputedStyle(a).overflow + getComputedStyle(a).overflowY; if (/hidden|auto|scroll/.test(o)) { const r = a.getBoundingClientRect(); const cx = (b.left + b.right) / 2, cy = (b.top + b.bottom) / 2; if (cx < r.left || cx > r.right || cy < r.top || cy > r.bottom) return true; } } return false; };
+    const items = [];
+    root.querySelectorAll('*').forEach(el => {
+        if (!shown(el) || el.closest(decor)) return;
+        const ctl = /^(INPUT|TEXTAREA|BUTTON|SELECT)$/.test(el.tagName);
+        if (!ctl && ![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) return;
+        const b = boxOf(el); if (!b || clipped(el, b)) return;
+        items.push({ el, b });
+    });
+    const name = el => el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (el.className && typeof el.className === 'string' ? '.' + el.className.trim().split(/\\s+/)[0] : '') + '「' + (el.textContent || el.placeholder || '').trim().slice(0, 12) + '」';
+    const out = [];
+    for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) {
+        const A = items[i], B = items[j];
+        if (A.el.contains(B.el) || B.el.contains(A.el)) continue;
+        const w = Math.min(A.b.right, B.b.right) - Math.max(A.b.left, B.b.left), h = Math.min(A.b.bottom, B.b.bottom) - Math.max(A.b.top, B.b.top);
+        if (w > 3 && h > 3) out.push(name(A.el) + ' ↔ ' + name(B.el) + ' (' + Math.round(w) + '×' + Math.round(h) + 'px)');
+    }
+    return out;
+})()`;
+scenario('화면 겹침: 모든 화면에서 글·입력칸·버튼이 서로 겹치지 않음 (폰 4종 + 태블릿 + PC, 글자 크기 3단계)', { seed: { userName: '은혜' } }, async p => {
+    const ready = `typeof _picking === 'undefined' || !_picking`;
+    const sizes = [[360, 640, true, 0], [375, 667, true, 0], [390, 844, true, 0], [412, 915, true, 0], [768, 1024, false, 0], [1366, 768, false, 0], [1920, 1080, false, 0], [360, 740, true, 2], [390, 844, true, 1]];
+    await p.goto();
+    const past = await p.eval(`ymd(monthsAgo(1))`), d1 = await p.eval(`ymd(addDays(new Date(), -1))`), d2 = await p.eval(`ymd(addDays(new Date(), -2))`);
+    await p.eval(`localStorage.setItem('moodHistory', JSON.stringify([
+        { date: '${d1}', emotion: '걱정', topic: '일', need: '힘', emoji: '😔', diary: '어제 쓴 일기가 조금 길어서 두 줄이 되도록 이어서 쓰고 있어요', ref: '시편 56:3' },
+        { date: '${d2}', emotion: '감사', topic: '가족', need: '쉼', emoji: '😊' },
+        { date: '${past}', emotion: '평안', topic: '일', need: '쉼', emoji: '😌', diary: '한 달 전 일기' }]));
+        localStorage.setItem('savedVerses', JSON.stringify([{ verse: '여호와는 나의 목자시니 내가 부족함이 없으리로다', ref: '시편 23:1', emotion: '평안', need: '쉼', savedAt: new Date().toISOString() }]))`);
+    const seen = new Set();
+    for (const [w, h, mobile, level] of sizes) {
+        await p.S('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile });
+        await p.eval(`localStorage.setItem('fontLevel', '${level}')`);
+        await p.reload();
+        await sleep(900);
+        const tag = `${w}×${h}${level ? ' 글자' + level : ''}`;
+        const check = async what => {
+            await sleep(450);
+            const o = await p.eval(FIND_OVERLAPS);
+            for (const line of o) { const k = what + '|' + line.replace(/\(\d+×\d+px\)/, ''); if (!seen.has(k)) { seen.add(k); p.fails.push(`겹침 [${tag}] ${what}: ${line}`); } }
+        };
+        await check('첫 화면');
+        await p.eval(`showOverlay('overlay-name')`); await check('이름 입력(첫 방문)'); await p.eval(`hideOverlay('overlay-name')`);
+        await p.eval(`__t.click('.em-걱정')`); await p.waitFor(`__t.vis('#step2') && (${ready})`, '주제'); await check('주제');
+        await p.eval(`__t.click('.bc-일')`); await p.waitFor(`__t.vis('#step3') && (${ready})`, '필요'); await check('필요');
+        await p.eval(`__t.click('.bc-위로')`); await p.waitFor(`__t.vis('#step4')`, '결과');
+        await p.waitFor(`__t.txt('#r-verse').length > 8 && !document.getElementById('r-verse').classList.contains('typing')`, '말씀 타이핑', 12000);
+        await sleep(900); await check('결과');
+        await p.eval(`document.getElementById('diary-input').value = '오늘의 일기 한 줄'; __t.click('.btn-restart')`); await check('마무리');
+        for (const [what, open, close] of [
+            ['설정', `openSettings()`, `hideOverlay('overlay-settings')`], ['보관함', `openVault()`, `hideOverlay('overlay-vault')`],
+            ['나의 이야기', `openDashboard()`, `hideOverlay('overlay-dashboard')`], ['프리미엄 안내', `openPremiumModal()`, `closePremiumModal()`],
+            ['처리방침', `openPolicy('privacy')`, `hideOverlay('overlay-policy')`], ['로그인 동의', `openConsent()`, `closeConsent && closeConsent()`],
+            ['기록 맞추기 확인', `askSync(2, 3)`, `closeSyncAsk()`]]) {
+            await p.eval(open); await check(what); await p.eval(`try { ${close} } catch (e) {}`);
+        }
+        await p.eval(`restart()`); await sleep(500);
+    }
+    await p.eval(`localStorage.removeItem('fontLevel')`);
+});
+
 scenario('언어: 영어·일본어는 잠겨 있고(저장된 설정이 en이어도) 한국어로 켜지며, 데이터는 남아 있음', { seed: { userName: '은혜', appLang: 'en' } }, async p => {
     await p.goto();
     p.eq(await p.eval('appLang'), 'ko', '저장된 언어가 en이어도 잠겨 있으면 한국어');
@@ -581,6 +730,18 @@ scenario('클라우드 기록 맞추기(가짜 서버): 올리기·내려받기�
         profiles: [{ id: 'u1', name: '은혜' }],
         subscriptions: [],
     }); sbUser = { id: 'u1', email: 'u1@example.com' }; updateAuthUI(); syncWithServer()`);
+    // 기기와 클라우드가 다르면 말없이 합치지 않고 먼저 묻는다
+    await p.waitFor(`__t.vis('#sync-modal')`, '기록이 다르면 맞출지 묻는 창');
+    p.ok(/2.*2/.test(await p.eval(`__t.txt('#sync-modal-desc')`)), '묻는 창에 기기에만 2건·클라우드에만 2건 — 실제: ' + await p.eval(`__t.txt('#sync-modal-desc')`));
+    await p.eval(`__t.click('#sync-no')`);
+    await sleep(200);
+    p.ok(!(await p.eval(`__t.vis('#sync-modal')`)) && (await p.eval(`__t.ls('dataOwner')`)) == null, '"나중에"를 누르면 아무것도 바꾸지 않음');
+    p.eq(await p.eval(`__srv.mood_history.filter(r => r.user_id === 'u1').length`), 3, '"나중에" → 서버도 그대로');
+    await p.eval(`syncWithServer()`); await sleep(150);
+    p.ok(!(await p.eval(`__t.vis('#sync-modal')`)), '"나중에" 뒤에는 이번 접속에서 다시 묻지 않음');
+    await p.eval(`syncNow()`);
+    await p.waitFor(`__t.vis('#sync-modal')`, '설정의 "지금 맞추기"로 다시 확인');
+    await p.eval(`__t.click('#sync-yes')`);
     await p.waitFor(`__t.ls('dataOwner') === 'u1'`, '기록 맞추기 완료');
     const moods = await p.eval(`__t.ls('moodHistory')`);
     p.eq(moods.map(m => m.date), ['2026-11-16', '2026-11-15', '2026-11-10'], '기기 기록 = 기기 2건 + 서버에만 있던 1건 (62일 지난 것은 내려받지 않음)');
@@ -705,6 +866,8 @@ scenario('프리미엄(가짜 서버): 지난 해 기록 달력·월간·연간�
         saved_verses: [], visit_dates: [], profiles: [],
         subscriptions: [{ user_id: 'u1', status: 'active', current_period_end: '2026-12-17T00:00:00Z' }],
     }); sbUser = { id: 'u1', email: 'u1@example.com' }; updateAuthUI(); syncWithServer()`);
+    await p.waitFor(`__t.vis('#sync-modal')`, '클라우드에만 있는 기록이 있어 맞출지 묻는 창');
+    await p.eval(`__t.click('#sync-yes')`);
     await p.waitFor(`__t.ls('dataOwner') === 'u1' && isPremium()`, '로그인 + 구독 확인');
     p.eq((await p.eval(`__t.ls('moodHistory')`)).map(m => [m.date, m.ref]), [['2026-11-10', ref]], '기기에는 최근 기록만, 말씀 출처도 함께 내려옴');
     await p.eval(`openVault()`);
@@ -785,6 +948,8 @@ scenario('구독 결제·해지·AI 돌아보기 화면(가짜 서버·가짜 �
         saved_verses: [], visit_dates: [], profiles: [], subscriptions: [] });
         sb.auth.getSession = async () => ({ data: { session: { access_token: 'tok-u1' } } });
         sbUser = { id: 'u1', email: 'u1@example.com' }; updateAuthUI(); syncWithServer()`);
+    await p.waitFor(`__t.vis('#sync-modal')`, '클라우드에만 있는 기록이 있어 맞출지 묻는 창');
+    await p.eval(`__t.click('#sync-yes')`);
     await p.waitFor(`__t.ls('dataOwner') === 'u1'`, '로그인');
     await p.eval(`openSettings()`);
     p.ok(await p.eval(`__t.vis('#row-sub') && __t.txt('#row-sub-sub').length > 2`), '설정에 구독 줄 (구독하지 않음)');

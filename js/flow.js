@@ -174,9 +174,38 @@ function pick(type, value) {
         go('step2','step3');
     } else if (type==='need') {
         safe('clearResume', () => clearResume());
+        const from = visibleQStep();   // 질문을 건너뛰었다면 지금 보이는 화면은 2단계일 수 있음
         safe('buildResult', buildResult);
-        go('step3','step4');
+        go(from,'step4');
         later('spawnBlessing', () => spawnBlessing(), 400);
+    }
+}
+
+/* ═══════════════════════════════════════
+   질문 단계: 뒤로 가기 · 건너뛰고 말씀 보기
+   감정 → 주제 → 필요 → 말씀, 세 번 묻는 것이 지친 사람에게 부담이라 "건너뛰기"를 둔다 (감정만 눌러도 2번 만에 말씀).
+   건너뛰면 주제는 '모름', 필요는 감정별 기본값 (목사님 검토 필요 — 3단계에서 구절과 함께 다시 봄)
+═══════════════════════════════════════ */
+const DEFAULT_NEED = { 감사:'쉼', 평안:'쉼', 걱정:'위로', 지침:'쉼', 아픔:'위로', 기도:'위로' };
+function visibleQStep() { return ['step3', 'step2'].find(id => !document.getElementById(id).classList.contains('hidden')) || 'step3'; }
+function skipToResult() {
+    if (_picking || !sel.emotion) return;
+    if (!sel.topic) sel.topic = '모름';
+    pick('need', DEFAULT_NEED[sel.emotion] || '위로');
+}
+function goBack(from) {
+    if (_picking) return;
+    _picking = true; setTimeout(() => { _picking = false; }, 340);
+    safe('haptic', () => { if (navigator.vibrate && navigator.userActivation && navigator.userActivation.isActive) navigator.vibrate(10); });
+    if (from === 'step2') {
+        sel.emotion = null; sel.topic = null;
+        safe('clearResume', () => clearResume());
+        document.body.classList.remove('emo-tinted');
+        go('step2', 'step1');
+    } else {
+        sel.topic = null;
+        safe('saveResume', () => saveResume());
+        go('step3', 'step2');
     }
 }
 
@@ -348,7 +377,7 @@ function saveMood() {
     const entry = {date:today, emotion, topic, need, emoji:E_EMOJI[emotion]};
     if (curVerse && curVerse.r) entry.ref = curVerse.r;   // 그날 본 말씀 (달력·PDF 일기장에서 다시 보여 줌)
     hist.unshift(entry);
-    lsSet('moodHistory', trimMoods(hist));
+    if (!lsSet('moodHistory', trimMoods(hist))) toast((LANG_DATA[appLang]||LANG_DATA.ko).toast_store_fail);
     safe('history.cache', () => clearHistoryCache());
     if (sbUser && sb) insertMoodRows([moodToRow(entry, sbUser.id)], true)
         .then(r => { if (r && r.error) logErr('mood.insert', r.error); else curMoodRowId = (r && r.data && r.data.id) || null; },
@@ -565,21 +594,48 @@ function autoSaveDiary() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const text = document.getElementById('diary-input').value.trim();
     if (!text) return;
-    const hist = getMoods();
-    if (!hist.length) return; // 붙일 기록이 없으면 "저장됐다"고 말하지 않는다
-    hist[0].diary = text;
-    lsSet('moodHistory', hist);
-    safe('history.cache', () => clearHistoryCache());
-    if (sbUser && sb) {
-        // 방금 넣은 그 줄에만 일기를 붙인다 (id를 모르면 같은 날·같은 선택의 줄)
-        let q = sb.from('mood_history').update({diary_text:text}).eq('user_id',sbUser.id);
-        q = curMoodRowId != null ? q.eq('id', curMoodRowId)
-            : q.eq('date', hist[0].date).eq('emotion', hist[0].emotion).eq('topic', hist[0].topic).eq('need', hist[0].need);
-        q.then(r => { if (r && r.error) logErr('diary.update', r.error); }, e => logErr('diary.update', e));
-    }
+    if (!saveDiaryLocal(text)) { toast(L.toast_store_fail); return; }   // 저장하지 못했는데 "저장됐다"고 말하지 않는다
+    pushDiaryToCloud(text);
     document.getElementById('diary-saved-msg').style.display='block';
     toast(L.toast_diary_saved);
 }
+
+/* 지금 보고 있는 결과의 기록(오늘·감정·주제·필요가 같은 가장 최근 줄)에 일기를 적는다.
+   이 기기에만 — 인터넷이 없어도 된다. 클라우드에는 pushDiaryToCloud()가, 못 올린 것은 나중에 syncWithServer()가 */
+function saveDiaryLocal(text) {
+    const hist = getMoods(), today = todayStr();
+    const h = hist.find(x => x.date === today && x.emotion === sel.emotion && x.topic === sel.topic && x.need === sel.need);
+    if (!h) return false;                       // 붙일 기록이 없음
+    if ((h.diary || '') === text) return true;  // 이미 같은 글
+    if (text) h.diary = text; else delete h.diary;
+    if (!lsSet('moodHistory', hist)) return false;
+    safe('history.cache', () => clearHistoryCache());
+    return true;
+}
+function pushDiaryToCloud(text) {
+    if (!(sbUser && sb)) return;
+    // 방금 넣은 그 줄에만 일기를 붙인다 (id를 모르면 같은 날·같은 선택의 줄). 실패(오프라인 등)하면 다음 맞추기 때 올라감
+    let q = sb.from('mood_history').update({diary_text:text}).eq('user_id',sbUser.id);
+    q = curMoodRowId != null ? q.eq('id', curMoodRowId)
+        : q.eq('date', todayStr()).eq('emotion', sel.emotion).eq('topic', sel.topic).eq('need', sel.need);
+    q.then(r => { if (r && r.error) logErr('diary.update', r.error); }, e => logErr('diary.update', e));
+}
+
+/* 쓰는 동안 이 기기에 조용히 저장한다. 이전에는 "마치기"를 눌러야만 저장돼서, 앱이 닫히면 쓰던 글이 사라졌다 */
+let _diaryDraftTimer = null;
+function saveDiaryDraft() {
+    clearTimeout(_diaryDraftTimer); _diaryDraftTimer = null;
+    const input = document.getElementById('diary-input'), s4 = document.getElementById('step4');
+    if (!input || !s4 || s4.classList.contains('hidden') || !sel.emotion || closingTriggered) return;
+    const text = input.value.trim();
+    if (text) saveDiaryLocal(text);   // 비운 경우는 건드리지 않는다 — 쓰다 만 글을 빈 값으로 덮지 않음
+}
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('diary-input');
+    if (input) input.addEventListener('input', () => { clearTimeout(_diaryDraftTimer); _diaryDraftTimer = setTimeout(() => safe('diary.draft', saveDiaryDraft), 600); });
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden) safe('diary.flush', saveDiaryDraft); });
+window.addEventListener('pagehide', () => safe('diary.flush', saveDiaryDraft));
 
 /* 중복 방지 말씀 선택
    한국어 묶음과 영어 묶음은 구절 수가 서로 다르므로(같은 번호가 같은 구절이 아님)

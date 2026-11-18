@@ -206,6 +206,13 @@
                     </div>
                     <button class="btn-setting-action btn-setting-danger" id="row-logout-btn" onclick="sbLogout()">로그아웃</button>
                 </div>
+                <div class="setting-row" id="row-sync" style="display:none">
+                    <div>
+                        <div class="setting-row-label" id="row-sync-label">기록 맞추기</div>
+                        <div class="setting-row-sub" id="row-sync-sub">기기와 클라우드의 기록을 비교해요</div>
+                    </div>
+                    <button class="btn-setting-action" id="row-sync-btn" onclick="syncNow()">지금 맞추기</button>
+                </div>
                 <div class="setting-row" id="row-sub" style="display:none">
                     <div>
                         <div class="setting-row-label" id="row-sub-label">프리미엄 구독</div>
@@ -542,6 +549,15 @@
 </div>
 
 <!-- ══ AI 돌아보기 이용 동의 (js/aireport.js) ══ -->
+<!-- 기기와 클라우드의 기록이 다를 때 맞출지 묻는 창 (js/auth.js askSync) -->
+<div id="sync-modal" class="hidden" onclick="if(event.target===this)closeSyncAsk()">
+    <div class="consent-box">
+        <div class="consent-title" id="sync-modal-title"></div>
+        <div class="consent-desc" id="sync-modal-desc"></div>
+        <button type="button" class="consent-agree" id="sync-yes" onclick="confirmSync()"></button>
+        <button type="button" class="consent-cancel" id="sync-no" onclick="closeSyncAsk()"></button>
+    </div>
+</div>
 <div id="ai-modal" class="hidden" onclick="if(event.target===this)closeAiConsent()">
     <div class="consent-box">
         <div class="consent-title" id="ai-consent-title"></div>
@@ -673,9 +689,13 @@
                     <span class="bc-text">사람</span>
                 </button>
                 <button class="btn-choice bc-모름" type="button" onclick="pick('topic','모름')">
-                    <span class="bc-emoji">🤷</span>
+                    <span class="bc-emoji">🌫️</span>
                     <span class="bc-text">잘 모르겠어요</span>
                 </button>
+            </div>
+            <div class="step-nav">
+                <button type="button" class="step-back" onclick="goBack('step2')">← 이전</button>
+                <button type="button" class="step-skip" onclick="skipToResult()">건너뛰고 말씀 보기</button>
             </div>
         </div>
     </div>
@@ -702,6 +722,10 @@
                     <span class="bc-emoji">🕊️</span>
                     <span class="bc-text">그냥 쉬고 싶어요</span>
                 </button>
+            </div>
+            <div class="step-nav">
+                <button type="button" class="step-back" onclick="goBack('step3')">← 이전</button>
+                <button type="button" class="step-skip" onclick="skipToResult()">건너뛰고 말씀 보기</button>
             </div>
         </div>
     </div>

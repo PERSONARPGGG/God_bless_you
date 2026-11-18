@@ -1,0 +1,22 @@
+# Supabase 무료 플랜은 7일 동안 거의 쓰이지 않으면 프로젝트를 자동으로 일시정지한다(→ 주소가 사라져 로그인·동기화가 멈춤).
+# 3일마다 가볍게 한 번 부르고, 응답이 없으면 이 작업이 실패해서 GitHub이 메일로 알려 준다(= 간단한 감시 겸용).
+# URL·공개 키는 js/core.js에서 읽는다 (비밀 키는 쓰지 않음). 유료(Pro) 플랜으로 올리면 이 파일은 지워도 된다.
+name: supabase-keepalive
+on:
+  schedule:
+    - cron: '17 3 */3 * *'
+  workflow_dispatch: {}
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ping Supabase
+        run: |
+          URL=$(grep -oP "SUPABASE_URL\s*=\s*'\K[^']+" js/core.js)
+          KEY=$(grep -oP "SUPABASE_KEY\s*=\s*'\K[^']+" js/core.js)
+          for T in visit_dates profiles; do
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" -m 20 "$URL/rest/v1/$T?select=*&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
+            echo "$T -> $CODE"
+            if [ "$CODE" != "200" ]; then echo "::error::Supabase 응답 이상($CODE) — 프로젝트가 정지됐을 수 있음. 대시보드에서 Restore project 하세요"; exit 1; fi
+          done

@@ -21,6 +21,10 @@ const LANG_DATA = {
         btn_copy:'📋 복사', btn_share:'📤 공유', btn_save:'⭐ 즐겨찾기', btn_saved:'★ 저장됨', btn_restart:'처음으로',
         btn_finish:'오늘 묵상 마치기', closing_extend_hint:'· 연장하기', closing_extended:'5분 더 볼게요',
         drive_note:'운전 중에는 화면을 보지 마세요', resume_text:'방금 하던 묵상을 이어서 할까요?', resume_go:'이어하기', resume_no:'처음부터',
+        toast_store_fail:'이 기기에 저장하지 못했어요. 저장 공간이나 시크릿 모드를 확인해 주세요', step_back:'← 이전', step_skip:'건너뛰고 말씀 보기',
+        sync_ask_title:'기기와 클라우드의 기록이 달라요', sync_ask_desc:'이 기기에만 있는 기록 {up}건, 클라우드에만 있는 기록 {down}건이 있어요. 지금 서로 맞출까요? 인터넷이 없을 때 남긴 기록도 안전하게 합쳐져요.',
+        sync_ask_yes:'지금 맞추기', sync_ask_no:'나중에', row_sync:'기록 맞추기', row_sync_sub:'기기와 클라우드의 기록을 비교해요', row_sync_btn:'지금 맞추기',
+        sync_uptodate:'기기와 클라우드가 같아요', sync_offline:'인터넷에 연결되면 맞춰 드릴게요',
         btn_vault_closing:'📖 보관함 보기',
         pm_title:'프리미엄', pm_desc:'무료는 최근 두 달을 함께해요.\n프리미엄은 당신의 모든 밤을 평생 간직해요.',
         pm_f1:'📔 일기·감정 기록 평생 보관 — 달력으로 언제든 다시 보기', pm_f2:'📄 PDF 내보내기 — 나의 신앙 일기장',
@@ -140,6 +144,10 @@ const LANG_DATA = {
         btn_copy:'📋 Copy', btn_share:'📤 Share', btn_save:'⭐ Bookmark', btn_saved:'★ Saved', btn_restart:'Back to Start',
         btn_finish:'Finish Today’s Reflection', closing_extend_hint:'· Extend', closing_extended:'5 more minutes',
         drive_note:'Please don\'t look at the screen while driving', resume_text:'Continue where you left off?', resume_go:'Continue', resume_no:'Start over',
+        toast_store_fail:'Could not save on this device. Please check storage space or private mode', step_back:'← Back', step_skip:'Skip to the Word',
+        sync_ask_title:'Your device and the cloud differ', sync_ask_desc:'{up} entries exist only on this device and {down} only in the cloud. Sync them now? Entries made while offline will be merged safely.',
+        sync_ask_yes:'Sync now', sync_ask_no:'Later', row_sync:'Sync records', row_sync_sub:'Compare this device with the cloud', row_sync_btn:'Sync now',
+        sync_uptodate:'Device and cloud are the same', sync_offline:'Will sync when you are back online',
         btn_vault_closing:'📖 View Saved Verses',
         pm_title:'Premium', pm_desc:'Free keeps your last two months.\nPremium keeps every night, forever.',
         pm_f1:'📔 Every record kept — revisit any night on the calendar', pm_f2:'📄 PDF export — My Faith Journal',
@@ -259,6 +267,10 @@ const LANG_DATA = {
         btn_copy:'📋 コピー', btn_share:'📤 共有', btn_save:'⭐ お気に入り', btn_saved:'★ 保存済み', btn_restart:'はじめに戻る',
         btn_finish:'今日の黙想を終える', closing_extend_hint:'· 延長する', closing_extended:'あと5分見ます',
         drive_note:'運転中は画面を見ないでください', resume_text:'さっきの黙想を続けますか？', resume_go:'続ける', resume_no:'最初から',
+        toast_store_fail:'この端末に保存できませんでした。保存容量やプライベートモードをご確認ください', step_back:'← 戻る', step_skip:'飛ばしてみことばを見る',
+        sync_ask_title:'端末とクラウドの記録が違います', sync_ask_desc:'この端末だけにある記録が{up}件、クラウドだけにある記録が{down}件あります。今すぐ合わせますか？オフライン中の記録も安全に統合されます。',
+        sync_ask_yes:'今すぐ合わせる', sync_ask_no:'あとで', row_sync:'記録を合わせる', row_sync_sub:'端末とクラウドの記録を比べます', row_sync_btn:'今すぐ合わせる',
+        sync_uptodate:'端末とクラウドは同じです', sync_offline:'オンラインになったら合わせます',
         btn_vault_closing:'📖 保管箱を見る',
         pm_title:'プレミアム', pm_desc:'無料は直近2か月をともに。\nプレミアムはすべての夜を永久保存。',
         pm_f1:'📔 日記・感情記録を永久保存 — カレンダーでいつでも', pm_f2:'📄 PDFエクスポート — 私の信仰日記',
@@ -400,6 +412,8 @@ function applyLang(lang) {
     // 히어로 티저 라벨
     if(L.ht_label) s('ht-label', L.ht_label);
     s('drive-note', L.drive_note); s('resume-go', L.resume_go); s('resume-no', L.resume_no);
+    s('row-sync-label', L.row_sync); s('row-sync-sub', L.row_sync_sub); s('row-sync-btn', L.row_sync_btn);
+    q('.step-back', el => { el.textContent = L.step_back; }); q('.step-skip', el => { el.textContent = L.step_skip; });
     // 스텝 제목
     const s1t=document.querySelector('#step1 .s1-title'), s1s=document.querySelector('#step1 .s1-sub');
     const s2t=document.querySelector('#step2 .step-title'), s3t=document.querySelector('#step3 .step-title');

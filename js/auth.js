@@ -45,6 +45,8 @@ function updateAuthUI() {
     const rowLogin  = document.getElementById('row-login');
     const rowLogout = document.getElementById('row-logout');
     const rowDelete = document.getElementById('row-delete');
+    const rowSync   = document.getElementById('row-sync');
+    if (rowSync) rowSync.style.display = sbUser ? 'flex' : 'none';
     const emailEl   = document.getElementById('auth-email');
     const privEl    = document.getElementById('privacy-text');
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
@@ -94,9 +96,14 @@ async function insertMoodRows(rows, one) {
     return res;
 }
 
-let _syncedUser = null, _syncing = false;
-async function syncWithServer() {
-    if (!sb || !sbUser || _syncing || _syncedUser === sbUser.id) return;
+let _syncedUser = null, _syncing = false, _syncAsked = null;
+/* opts.confirmed: 사용자가 "지금 맞추기"를 눌렀음 → 묻지 않고 바로 맞춤
+   opts.force: 이미 맞췄거나 "나중에"를 골랐어도 다시 확인 (설정의 버튼 · 인터넷이 다시 연결됐을 때)
+   기기와 클라우드가 다르면(오프라인에서 쓴 기록·일기 등) 먼저 물어본다 — 말없이 합치지 않는다 */
+async function syncWithServer(opts) {
+    opts = opts || {};
+    if (!sb || !sbUser || _syncing) return;
+    if (!opts.force && !opts.confirmed && (_syncedUser === sbUser.id || _syncAsked === sbUser.id)) return;
     _syncing = true;
     const uid = sbUser.id;
     try {
@@ -112,35 +119,25 @@ async function syncWithServer() {
         const failed = m.error || s.error || v.error;
         if (failed) throw failed;
         if (!sbUser || sbUser.id !== uid) return; // 그 사이 로그아웃함
-        let pulled = 0, pushed = 0;
 
-        /* 감정 기록 */
+        /* ── 1) 먼저 비교만 한다 (아직 아무것도 바꾸지 않음) ── */
         const mKey = h => [h.date, h.emotion, h.topic, h.need].join('|');
-        const serverMoods = new Map();
+        const serverMoods = new Map(), serverIds = new Map();
         (m.data || []).forEach(r => {
             if (!isYmd(r.date) || !r.emotion) return;
             const h = { date:r.date, emotion:r.emotion, topic:r.topic, need:r.need, emoji:E_EMOJI[r.emotion] || '' };
             if (r.diary_text) h.diary = r.diary_text;
             if (r.verse_ref) h.ref = r.verse_ref;
             const k = mKey(h), old = serverMoods.get(k);
-            if (!old || (!old.diary && h.diary)) serverMoods.set(k, h);
+            if (!old || (!old.diary && h.diary)) { serverMoods.set(k, h); serverIds.set(k, r.id); }
         });
         const localMoods = mine ? getMoods() : [];
         const localKeys = new Set(localMoods.map(mKey));
         const upMoods = localMoods.filter(h => h.date >= cut && !serverMoods.has(mKey(h)));
-        if (upMoods.length) {
-            const { error } = await insertMoodRows(upMoods.map(h => moodToRow(h, uid)), false);
-            if (error) throw error;
-            pushed += upMoods.length;
-        }
-        localMoods.forEach(h => { const r = serverMoods.get(mKey(h)); if (!r) return; if (!h.diary && r.diary) h.diary = r.diary; if (!h.ref && r.ref) h.ref = r.ref; });
+        // 같은 기록인데 클라우드 쪽에만 일기가 없는 것 — 오프라인에서 쓴 일기
+        const upDiaries = localMoods.filter(h => h.diary && serverMoods.has(mKey(h)) && !serverMoods.get(mKey(h)).diary && serverIds.get(mKey(h)) != null);
         const downMoods = [...serverMoods.values()].filter(h => !localKeys.has(mKey(h)));
-        pulled += downMoods.length;
-        // 기기 기록의 순서(최근에 한 것이 앞)를 지키면서 날짜순으로
-        const moods = [...localMoods, ...downMoods].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
-        lsSet('moodHistory', trimMoods(moods));
 
-        /* 즐겨찾기 말씀 */
         const vKey = x => x.ref + '|' + x.verse;
         const serverSaved = new Map();
         (s.data || []).forEach(r => {
@@ -154,18 +151,44 @@ async function syncWithServer() {
         const localSaved = mine ? getSaved() : [];
         const localSavedKeys = new Set(localSaved.map(vKey));
         const upSaved = localSaved.filter(x => !serverSaved.has(vKey(x)));
+        const downSaved = [...serverSaved.values()].filter(x => !localSavedKeys.has(vKey(x)))
+            .sort((a, b) => String(b.savedAt || '').localeCompare(String(a.savedAt || '')));
+
+        const nUp = upMoods.length + upDiaries.length + upSaved.length, nDown = downMoods.length + downSaved.length;
+        if (mine && (nUp || nDown) && !opts.confirmed) {
+            _syncAsked = uid;            // 이번 접속에서는 한 번만 묻는다 ("나중에"를 고르면 다음에 앱을 열 때 다시)
+            askSync(nUp, nDown);
+            return;
+        }
+
+        /* ── 2) 맞춘다 ── */
+        let pulled = 0, pushed = 0;
+        if (upMoods.length) {
+            const { error } = await insertMoodRows(upMoods.map(h => moodToRow(h, uid)), false);
+            if (error) throw error;
+            pushed += upMoods.length;
+        }
+        for (const h of upDiaries) {
+            const { error } = await sb.from('mood_history').update({ diary_text: h.diary }).eq('id', serverIds.get(mKey(h)));
+            if (error) throw error;
+            pushed++;
+        }
+        localMoods.forEach(h => { const r = serverMoods.get(mKey(h)); if (!r) return; if (!h.diary && r.diary) h.diary = r.diary; if (!h.ref && r.ref) h.ref = r.ref; });
+        pulled += downMoods.length;
+        // 기기 기록의 순서(최근에 한 것이 앞)를 지키면서 날짜순으로
+        const moods = [...localMoods, ...downMoods].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+        lsSet('moodHistory', trimMoods(moods));
+
         if (upSaved.length) {
             const { error } = await sb.from('saved_verses').insert(upSaved.map(x => ({
                 user_id: uid, verse_text: x.verse, verse_ref: x.ref, emotion: x.emotion || x.context || null, need: x.need || null })));
             if (error) throw error;
             pushed += upSaved.length;
         }
-        const downSaved = [...serverSaved.values()].filter(x => !localSavedKeys.has(vKey(x)))
-            .sort((a, b) => String(b.savedAt || '').localeCompare(String(a.savedAt || '')));
         pulled += downSaved.length;
         lsSet('savedVerses', [...localSaved, ...downSaved].slice(0, SAVED_MAX));
 
-        /* 방문일(연속 출석) */
+        /* 방문일(연속 출석) — 조용히 */
         const serverVisits = (v.data || []).map(r => r.visit_date).filter(isYmd);
         const localVisits = mine ? getVisits() : [todayStr()];
         const upVisits = localVisits.filter(d => !serverVisits.includes(d));
@@ -184,13 +207,39 @@ async function syncWithServer() {
         if (up && up.error) logErr('sync.profile', up.error);
 
         lsSet('dataOwner', uid);
-        _syncedUser = uid;
+        _syncedUser = uid; _syncAsked = null;
+        safe('history.cache', () => clearHistoryCache());
         safe('sync.render', () => { updateStreak(); setWelcome(); renderOnThisDay(); refreshVaultIfOpen(); refreshHistoryIfOpen(); });
         const L = LANG_DATA[appLang]||LANG_DATA.ko;
-        if (pulled) toast(L.sync_pulled); else if (pushed) toast(L.sync_pushed);
+        if (pulled) toast(L.sync_pulled); else if (pushed) toast(L.sync_pushed); else if (opts.manual) toast(L.sync_uptodate);
     } catch (e) {
-        logErr('sync', e); // 다음에 앱을 열 때 다시 시도
+        logErr('sync', e); // 인터넷이 다시 연결되거나 다음에 앱을 열 때 다시 시도
+        if (opts.manual || opts.confirmed) toast((LANG_DATA[appLang]||LANG_DATA.ko).sync_offline);
     } finally {
         _syncing = false;
     }
 }
+
+/* ── 맞출지 묻는 창 ── */
+function askSync(nUp, nDown) {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko, m = document.getElementById('sync-modal');
+    if (!m) { syncWithServer({ confirmed: true }); return; }
+    document.getElementById('sync-modal-title').textContent = L.sync_ask_title;
+    document.getElementById('sync-modal-desc').textContent = L.sync_ask_desc.replace('{up}', nUp).replace('{down}', nDown);
+    document.getElementById('sync-yes').textContent = L.sync_ask_yes;
+    document.getElementById('sync-no').textContent = L.sync_ask_no;
+    m.classList.remove('hidden');
+}
+function confirmSync() { closeSyncAsk(); syncWithServer({ confirmed: true }); }
+function closeSyncAsk() { const m = document.getElementById('sync-modal'); if (m) m.classList.add('hidden'); }
+/* 설정의 "지금 맞추기" */
+function syncNow() {
+    if (!navigator.onLine) { toast((LANG_DATA[appLang]||LANG_DATA.ko).sync_offline); return; }
+    syncWithServer({ force: true, manual: true });
+}
+/* 오프라인이었다가 인터넷이 다시 연결되면, 로그인한 사용자에게 다시 확인 */
+window.addEventListener('online', () => {
+    if (!sbUser) return;
+    _syncedUser = null; _syncAsked = null;
+    syncWithServer();
+});

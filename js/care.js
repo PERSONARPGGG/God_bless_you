@@ -368,7 +368,7 @@ function applyLangV27() {
 
 /* ── 접근성: 대화상자 역할, Esc로 닫기, 장식 요소 숨김 ── */
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.overlay, #premium-modal, #devpw-modal, #consent-modal, #ai-modal').forEach(el => {
+    document.querySelectorAll('.overlay, #premium-modal, #devpw-modal, #consent-modal, #ai-modal, #sync-modal').forEach(el => {
         el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
         const title = el.querySelector('.overlay-title, .pm-title, .consent-title, .devpw-label');
         if (title) { if (!title.id) title.id = el.id + '-heading'; el.setAttribute('aria-labelledby', title.id); }
@@ -384,7 +384,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Esc: 가장 위에 떠 있는 창 하나만 닫음 (첫 방문 이름 입력창은 제외 — 닫으면 시작할 방법이 없음)
     document.addEventListener('keydown', e => {
         if (e.key !== 'Escape') return;
-        const open = [...document.querySelectorAll('#ai-modal, #consent-modal, #devpw-modal, #premium-modal, .overlay')]
+        const open = [...document.querySelectorAll('#ai-modal, #sync-modal, #consent-modal, #devpw-modal, #premium-modal, .overlay')]
             .filter(el => !el.classList.contains('hidden') && el.id !== 'overlay-name')
             .sort((a, b) => (parseInt(getComputedStyle(b).zIndex) || 0) - (parseInt(getComputedStyle(a).zIndex) || 0));
         if (open[0]) open[0].classList.add('hidden');

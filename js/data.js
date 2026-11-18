@@ -35,17 +35,14 @@ const VERSE_POOL = {
         {v:'하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 저를 믿는 자마다 멸망치 않고 영생을 얻게 하려 하심이니라',r:'요한복음 3:16'}
     ],
     '감사_힘':[
-        {v:'내게 능력 주시는 자 안에서 내가 모든 것을 할수 있느니라',r:'빌립보서 4:13'},
         {v:'오직 여호와를 앙망하는 자는 새 힘을 얻으리니 독수리의 날개치며 올라감 같을 것이요',r:'이사야 40:31'},
-        {v:'나의 하나님이 그리스도 예수 안에서 영광 가운게 그 풍성한대로 너희 모든 쓸것을 채우시리라',r:'빌립보서 4:19'},
+        {v:'나의 하나님이 그리스도 예수 안에서 영광 가운데 그 풍성한대로 너희 모든 쓸것을 채우시리라',r:'빌립보서 4:19'},
         {v:'마음을 강하게 하고 담대히 하라 두려워 말며 놀라지 말라 네가 어디로 가든지 네 하나님 여호와가 너와 함께 하느니라',r:'여호수아 1:9'},
         {v:'하나님은 우리의 피난처시요 힘이시니 환난 중에 만날 큰 도움이시라',r:'시편 46:1'},
         {v:'주 안에서 항상 기뻐하라 내가 다시 말하노니 기뻐하라',r:'빌립보서 4:4'},
         {v:'여호와는 나의 반석이시요 나의 요새시요 나를 건지시는 자시요 나의 하나님이시요 나의 피할 바위시요 나의 방패시요 나의 구원의 뿔이시요 나의 산성이시로다',r:'시편 18:2'},
         {v:'그러므로 우리가 믿음으로 의롭다 하심을 얻었은즉 우리 주 예수 그리스도로 말미암아 하나님으로 더불어 화평을 누리자',r:'로마서 5:1'},
-        {v:'사람의 마음에는 많은 계획이 있어도 오직 여호와의 뜻이 완전히 서리라',r:'잠언 19:21'},
         {v:'너는 내게 부르짖으라 내가 네게 응답하겠고 네가 알지 못하는 크고 비밀한 일을 네게 보이리라',r:'예레미야 33:3'},
-        {v:'내 이름으로 일컫는 내 백성이 그 악한 길에서 떠나 스스로 겸비하고 기도하여 내 얼굴을 구하면 내가 하늘에서 듣고 그 죄를 사하고 그 땅을 고칠지라',r:'역대하 7:14'},
         {v:'하나님이 우리에게 주신 것은 두려워하는 마음이 아니요 오직 능력과 사랑과 근신하는 마음이니',r:'디모데후서 1:7'},
         {v:'우리가 선을 행하되 낙심하지 말지니 피곤하지 아니하면 때가 이르매 거두리라',r:'갈라디아서 6:9'},
         {v:'이 날은 여호와의 정하신 것이라 이 날에 우리가 즐거워하고 기뻐하리로다',r:'시편 118:24'}
@@ -59,7 +56,6 @@ const VERSE_POOL = {
         {v:'여호와를 경외하는 것이 지혜의 근본이요 거룩하신 자를 아는 것이 명철이니라',r:'잠언 9:10'},
         {v:'지혜로운 자는 위로 향한 생명길로 말미암음으로 그 아래 있는 음부를 떠나게 되느니라',r:'잠언 15:24'},
         {v:'명철한 자의 마음은 지식을 얻고 지혜로운 자의 귀는 지식을 구하느니라',r:'잠언 18:15'},
-        {v:'청년이 무엇으로 그 행실을 깨끗케 하리이까 주의 말씀을 따라 삼갈 것이니이다',r:'시편 119:9'},
         {v:'지혜 있는 자는 강하고 지식 있는 자는 힘을 더하나니',r:'잠언 24:5'},
         {v:'사람이 마음으로 자기의 길을 계획할지라도 그 걸음을 인도하는 자는 여호와시니라',r:'잠언 16:9'},
         {v:'내 아들아 나의 법을 잊어버리지 말고 네 마음으로 나의 명령을 지키라',r:'잠언 3:1'},
@@ -75,7 +71,6 @@ const VERSE_POOL = {
         {v:'그는 목자같이 양무리를 먹이시며 어린 양을 그 팔로 모아 품에 안으시며',r:'이사야 40:11'},
         {v:'사람이 여호와의 구원을 바라고 잠잠히 기다림이 좋도다',r:'예레미야애가 3:26'},
         {v:'여호와여 주는 나의 방패시요 나의 영광이시요 나의 머리를 드시는 자니이다',r:'시편 3:3'},
-        {v:'주의 말씀의 강령은 진리오니 주의 의로운 모든 규례가 영원하리이다',r:'시편 119:160'},
         {v:'만군의 여호와여 주께 의지하는 자는 복이 있나이다',r:'시편 84:12'},
         {v:'내가 산을 향하여 눈을 들리라 나의 도움이 어디서 올꼬 나의 도움이 천지를 지으신 여호와에게서로다',r:'시편 121:1-2'},
         {v:'주를 두려워하는 자를 위하여 쌓아 두신 은혜 곧 인생 앞에서 주께 피하는 자를 위하여 베푸신 은혜가 어찌 그리 큰지요',r:'시편 31:19'},
@@ -94,14 +89,10 @@ const VERSE_POOL = {
         {v:'예수 그리스도는 어제나 오늘이나 영원토록 동일하시니라',r:'히브리서 13:8'},
         {v:'나의 대적이여 나로 인하여 기뻐하지 말지어다 나는 엎드러질지라도 일어날 것이요 어두운데 앉을지라도 여호와께서 나의 빛이되실 것임이로다',r:'미가 7:8'},
         {v:'의인이 외치매 여호와께서 들으시고 저희의 모든 환난에서 건지셨도다',r:'시편 34:17'},
-        {v:'너희를 해할 자가 결단코 없으리라',r:'누가복음 10:19'},
-        {v:'내게 능력 주시는 자 안에서 내가 모든 것을 할수 있느니라',r:'빌립보서 4:13'},
-        {v:'우리가 알거니와 하나님을 사랑하는 자 곧 그 뜻대로 부르심을 입은 자들에게는 모든 것이 합력하여 선을 이루느니라',r:'로마서 8:28'}
     ],
     '평안_힘':[
         {v:'여호와는 나의 빛이요 나의 구원이시니 내가 누구를 두려워하리요 여호와는 내 생명의 능력이시니 내가 누구를 무서워하리요',r:'시편 27:1'},
         {v:'하나님이 우리에게 주신 것은 두려워하는 마음이 아니요 오직 능력과 사랑과 근신하는 마음이니',r:'디모데후서 1:7'},
-        {v:'내게 능력 주시는 자 안에서 내가 모든 것을 할수 있느니라',r:'빌립보서 4:13'},
         {v:'오직 여호와를 앙망하는 자는 새 힘을 얻으리니 독수리의 날개치며 올라감 같을 것이요',r:'이사야 40:31'},
         {v:'마음을 강하게 하고 담대히 하라 두려워 말며 놀라지 말라 네가 어디로 가든지 네 하나님 여호와가 너와 함께 하느니라',r:'여호수아 1:9'},
         {v:'하나님은 우리의 피난처시요 힘이시니 환난 중에 만날 큰 도움이시라',r:'시편 46:1'},
@@ -122,11 +113,9 @@ const VERSE_POOL = {
         {v:'여호와를 경외하는 것이 지혜의 근본이요 거룩하신 자를 아는 것이 명철이니라',r:'잠언 9:10'},
         {v:'나의 영혼이 잠잠히 하나님만 바람이여 나의 구원이 그에게서 나는도다',r:'시편 62:1'},
         {v:'지혜로운 자와 동행하면 지혜를 얻고 미련한 자와 사귀면 해를 받느니라',r:'잠언 13:20'},
-        {v:'지혜 있는 자는 궁창의 빛과 같이 빛날 것이요 많은 사람을 옳은데로 돌아오게 한 자는 별과 같이 영원토록 비취리라',r:'다니엘 12:3'},
         {v:'여호와의 율법은 완전하여 영혼을 소성케 하고 여호와의 증거는 확실하여 우둔한 자로 지혜롭게 하며',r:'시편 19:7'},
         {v:'아들들아 아비의 훈계를 들으며 명철을 얻기에 주의하라',r:'잠언 4:1'},
         {v:'오직 위로부터 난 지혜는 첫째 성결하고 다음에 화평하고 관용하고 양순하며 긍휼과 선한 열매가 가득하고 편벽과 거짓이 없나니',r:'야고보서 3:17'},
-        {v:'마음이 청결한 자는 복이 있나니 저희가 하나님을 볼 것임이요',r:'마태복음 5:8'},
         {v:'아침에 주의 인자하심을 나타내며 밤마다 주의 성실하심을 베풂이 좋으니이다',r:'시편 92:2'},
         {v:'사람이 마음으로 자기의 길을 계획할지라도 그 걸음을 인도하는 자는 여호와시니라',r:'잠언 16:9'}
     ],
@@ -138,10 +127,8 @@ const VERSE_POOL = {
         {v:'평안을 너희에게 끼치노니 곧 나의 평안을 너희에게 주노라',r:'요한복음 14:27'},
         {v:'수고하고 무거운 짐진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라 나는 마음이 온유하고 겸손하니 나의 멍에를 메고 내게 배우라 그러면 너희 마음이 쉼을 얻으리니',r:'마태복음 11:28-29'},
         {v:'나는 마음이 온유하고 겸손하니 나의 멍에를 메고 내게 배우라',r:'마태복음 11:29'},
-        {v:'너희는 내 백성이 되겠고 나는 너희 하나님이 되리라',r:'예레미야 30:22'},
         {v:'내 육체와 마음은 쇠잔하나 하나님은 내 마음의 반석이시요 영원한 분깃이시라',r:'시편 73:26'},
         {v:'이르시기를 너희는 가만히 있어 내가 하나님 됨을 알지어다 내가 열방과 세계 중에서 높임을 받으리라 하시도다',r:'시편 46:10'},
-        {v:'여호와를 사랑하는 너희여 악을 미워하라 저가 그 성도의 영혼을 보전하사 악인의 손에서 건지시느니라',r:'시편 97:10'},
         {v:'이는 나 여호와 너의 하나님이 네 오른손을 붙들고 네게 이르기를 두려워 말라 내가 너를 도우리라 할 것임이니라',r:'이사야 41:13'},
         {v:'여호와는 그 얼굴로 네게 비취사 은혜 베푸시기를 원하며 여호와는 그 얼굴을 네게로 향하여 드사 평강주시기를 원하노라',r:'민수기 6:25-26'},
         {v:'사랑은 여기 있으니 우리가 하나님을 사랑한 것이 아니요 오직 하나님이 우리를 사랑하사 우리 죄를 위하여 화목제로 그 아들을 보내셨음이니라',r:'요한일서 4:10'}
@@ -160,7 +147,6 @@ const VERSE_POOL = {
         {v:'내 마음이 눌릴 때에 땅 끝에서부터 주께 부르짖으오리니 나보다 높은 바위에 나를 인도하소서',r:'시편 61:2'},
         {v:'마음이 상한 자를 고치며 포로 된 자에게 자유를, 갇힌 자에게 놓임을 전파하며',r:'이사야 61:1'},
         {v:'이 큰 무리로 인하여 두려워하거나 놀라지 말라 이 전쟁이 너희에게 속한 것이 아니요 하나님께 속한 것이니라',r:'역대하 20:15'},
-        {v:'만일 너희 속에 하나님의 영이 거하시면 너희가 육신에 있지 아니하고 영에 있나니',r:'로마서 8:9'}
     ],
     '걱정_힘':[
         {v:'내가 두려워하는 날에는 주를 의지하리이다',r:'시편 56:3'},
@@ -171,11 +157,9 @@ const VERSE_POOL = {
         {v:'여호와는 나의 빛이요 나의 구원이시니 내가 누구를 두려워하리요',r:'시편 27:1'},
         {v:'우리가 사방으로 우겨쌈을 당하여도 싸이지 아니하며 답답한 일을 당하여도 낙심하지 아니하며',r:'고린도후서 4:8'},
         {v:'그러므로 내가 그리스도를 위하여 약한 것들과 능욕과 궁핍과 핍박과 곤란을 기뻐하노니 이는 내가 약할 그 때에 곧 강함이니라',r:'고린도후서 12:10'},
-        {v:'너희는 세상의 빛이라 산위에 있는 동네가 숨기우지 못할 것이요',r:'마태복음 5:14'},
         {v:'볼찌어다 내가 세상 끝날까지 너희와 항상 함께 있으리라',r:'마태복음 28:20'},
         {v:'내가 여호와를 항상 내 앞에 모심이여 그가 내 우편에 계시므로 내가 요동치 아니하리로다',r:'시편 16:8'},
         {v:'마음을 강하게 하고 담대히 하라 두려워 말며 놀라지 말라',r:'여호수아 1:9'},
-        {v:'우리가 알거니와 하나님을 사랑하는 자 곧 그 뜻대로 부르심을 입은 자들에게는 모든 것이 합력하여 선을 이루느니라',r:'로마서 8:28'},
         {v:'내가 누워 자고 깨었으니 여호와께서 나를 붙드심이로다',r:'시편 3:5'}
     ],
     '걱정_지혜':[
@@ -189,7 +173,6 @@ const VERSE_POOL = {
         {v:'너희는 먼저 그의 나라와 그의 의를 구하라 그리하면 이 모든 것을 너희에게 더하시리라',r:'마태복음 6:33'},
         {v:'공중의 새를 보라 심지도 않고 거두지도 않고 창고에 모아 들이지도 아니하되 너희 천부께서 기르시나니 너희는 이것들보다 귀하지 아니하냐',r:'마태복음 6:26'},
         {v:'네 짐을 여호와께 맡겨 버리라 너를 붙드시고 의인의 요동함을 영영히 허락지 아니하시리로다',r:'시편 55:22'},
-        {v:'가슴 속의 지혜는 누가 준 것이냐 마음 속의 총명은 누가 준 것이냐',r:'욥기 38:36'},
         {v:'여호와여 내 기도를 들으시며 내 간구에 귀를 기울이시고 주의 진실과 의로 내게 응답하소서',r:'시편 143:1'},
         {v:'주의 증거는 영원히 의로우시니 나로 깨닫게 하사 살게 하소서',r:'시편 119:144'},
         {v:'지혜가 제일이니 지혜를 얻으라 무릇 너의 얻은 것을 가져 명철을 얻을지니라',r:'잠언 4:7'}
@@ -207,7 +190,6 @@ const VERSE_POOL = {
         {v:'예수께서 깨어 바람을 꾸짖으시며 바다더러 이르시되 잠잠하라 고요하라 하시니 바람이 그치고 아주 잔잔하여 지더라',r:'마가복음 4:39'},
         {v:'하나님을 찬송하리로다 저가 내 기도를 물리치지 아니하시고 그 인자하심을 내게서 거두지도 아니하셨도다',r:'시편 66:20'},
         {v:'주여 나의 모든 소원이 주의 앞에 있사오며 나의 탄식이 주의 앞에 감추이지 아니하나이다',r:'시편 38:9'},
-        {v:'우리가 알거니와 하나님을 사랑하는 자 곧 그 뜻대로 부르심을 입은 자들에게는 모든 것이 합력하여 선을 이루느니라',r:'로마서 8:28'},
         {v:'여호와께서 그 사랑하시는 자에게는 잠을 주시는도다',r:'시편 127:2'}
     ],
     '지침_위로':[
@@ -228,7 +210,6 @@ const VERSE_POOL = {
     '지침_힘':[
         {v:'오직 여호와를 앙망하는 자는 새 힘을 얻으리니 독수리의 날개치며 올라감 같을 것이요 달음박질하여도 곤비치 아니하겠고 걸어 가도 피곤치 아니하리로다',r:'이사야 40:31'},
         {v:'우리가 선을 행하되 낙심하지 말지니 피곤하지 아니하면 때가 이르매 거두리라',r:'갈라디아서 6:9'},
-        {v:'내게 능력 주시는 자 안에서 내가 모든 것을 할수 있느니라',r:'빌립보서 4:13'},
         {v:'내가 간구하는 날에 주께서 응답하시고 내 영혼을 장려하여 강하게 하셨나이다',r:'시편 138:3'},
         {v:'마음을 강하게 하고 담대히 하라 두려워 말며 놀라지 말라 네가 어디로 가든지 네 하나님 여호와가 너와 함께 하느니라',r:'여호수아 1:9'},
         {v:'하나님이 우리에게 주신 것은 두려워하는 마음이 아니요 오직 능력과 사랑과 근신하는 마음이니',r:'디모데후서 1:7'},
@@ -286,28 +267,22 @@ const VERSE_POOL = {
         {v:'세상에서는 너희가 환난을 당하나 담대하라 내가 세상을 이기었노라',r:'요한복음 16:33'},
         {v:'우리가 사방으로 우겨쌈을 당하여도 싸이지 아니하며 답답한 일을 당하여도 낙심하지 아니하며',r:'고린도후서 4:8'},
         {v:'인내를 온전히 이루라 이는 너희로 온전하고 구비하여 조금도 부족함이 없게 하려 함이라',r:'야고보서 1:4'},
-        {v:'내게 능력 주시는 자 안에서 내가 모든 것을 할수 있느니라',r:'빌립보서 4:13'},
         {v:'의인은 고난이 많으나 여호와께서 그 모든 고난에서 건지시는도다',r:'시편 34:19'},
         {v:'하나님이 우리에게 주신 것은 두려워하는 마음이 아니요 오직 능력과 사랑과 근신하는 마음이니',r:'디모데후서 1:7'},
         {v:'그러나 이 모든 일에 우리를 사랑하시는 이로 말미암아 우리가 넉넉히 이기느니라',r:'로마서 8:37'},
         {v:'믿음의 주요 또 온전케 하시는 이인 예수를 바라보자 저는 그 앞에 있는 즐거움을 위하여 십자가를 참으사',r:'히브리서 12:2'},
         {v:'여호와는 나의 힘이요 노래시며 나의 구원이시로다',r:'출애굽기 15:2'},
         {v:'의인은 일곱번 넘어질지라도 다시 일어나려니와',r:'잠언 24:16'},
-        {v:'우리가 알거니와 하나님을 사랑하는 자 곧 그 뜻대로 부르심을 입은 자들에게는 모든 것이 합력하여 선을 이루느니라',r:'로마서 8:28'},
         {v:'두려워 말라 내가 너와 함께 함이니라 놀라지 말라 나는 네 하나님이 됨이니라 내가 너를 굳세게 하리라 참으로 너를 도와 주리라 참으로 나의 의로운 오른손으로 너를 붙들리라',r:'이사야 41:10'},
         {v:'그러므로 우리가 낙심하지 아니하노니 겉사람은 후패하나 우리의 속은 날로 새롭도다',r:'고린도후서 4:16'},
         {v:'주께서 내 영혼을 사망에서, 내 눈을 눈물에서, 내 발을 넘어짐에서 건지셨나이다',r:'시편 116:8'}
     ],
     '아픔_지혜':[
-        {v:'우리가 알거니와 하나님을 사랑하는 자 곧 그 뜻대로 부르심을 입은 자들에게는 모든 것이 합력하여 선을 이루느니라',r:'로마서 8:28'},
-        {v:'우리의 잠시 받는 환난의 경한 것이 지극히 크고 영원한 영광의 중한 것을 우리에게 이루게 함이니',r:'고린도후서 4:17'},
         {v:'하나님의 도는 완전하고 여호와의 말씀은 정미하니 저는 자기에게 피하는 모든 자의 방패시로다',r:'시편 18:30'},
         {v:'여호와여 주의 도로 내게 가르치소서 내가 주의 진리에 행하오리니 일심으로 주의 이름을 경외하게 하소서',r:'시편 86:11'},
         {v:'너는 마음을 다하여 여호와를 의뢰하고 네 명철을 의지하지 말라',r:'잠언 3:5'},
         {v:'내 육체와 마음은 쇠잔하나 하나님은 내 마음의 반석이시요 영원한 분깃이시라',r:'시편 73:26'},
-        {v:'고난 당한 것이 내게 유익이라 이로 인하여 내가 주의 율례를 배우게 되었나이다',r:'시편 119:71'},
         {v:'이 말씀은 나의 곤란 중에 위로라 주의 말씀이 나를 살리셨음이니이다',r:'시편 119:50'},
-        {v:'나의 가는 길을 오직 그가 아시나니 그가 나를 단련하신 후에는 내가 정금 같이 나오리라',r:'욥기 23:10'},
         {v:'주의 말씀의 강령은 진리오니 주의 의로운 모든 규례가 영원하리이다',r:'시편 119:160'},
         {v:'사람의 걸음은 여호와께로서 말미암나니 사람이 어찌 자기의 길을 알 수 있으랴',r:'잠언 20:24'},
         {v:'나는 네게 유익하도록 가르치고 너를 마땅히 행할 길로 인도하는 너희 하나님 여호와라',r:'이사야 48:17'},
@@ -326,9 +301,7 @@ const VERSE_POOL = {
         {v:'나는 마음이 온유하고 겸손하니 나의 멍에를 메고 내게 배우라',r:'마태복음 11:29'},
         {v:'내가 환난에서 여호와께 아뢰며 나의 하나님께 부르짖었더니 저가 그 전에서 내 소리를 들으심이여',r:'시편 18:6'},
         {v:'내가 사망의 음침한 골짜기로 다닐지라도 해를 두려워하지 않을 것은 주께서 나와 함께 하심이라',r:'시편 23:4'},
-        {v:'오라 우리가 여호와께로 돌아가자 여호와께서 우리를 찢으셨으나 도로 낫게 하실 것이요 우리를 치셨으나 싸매어 주실 것임이라',r:'호세아 6:1'},
         {v:'너는 두려워말라 내가 너를 구속하였고 내가 너를 지명하여 불렀나니 너는 내 것이라 네가 물 가운데로 지날 때에 내가 함께할 것이라',r:'이사야 43:1-2'},
-        {v:'내게 능력 주시는 자 안에서 내가 모든 것을 할수 있느니라',r:'빌립보서 4:13'}
     ],
     '기도_위로':[
         {v:'여호와께서는 자기에게 간구하는 모든 자 곧 진실하게 간구하는 모든 자에게 가까이 하시는도다',r:'시편 145:18'},
@@ -337,7 +310,6 @@ const VERSE_POOL = {
         {v:'여호와는 마음이 상한 자에게 가까이 하시고 중심에 통회하는 자를 구원하시는도다',r:'시편 34:18'},
         {v:'그를 향하여 우리의 가진 바 담대한 것이 이것이니 그의 뜻대로 무엇을 구하면 들으심이라',r:'요한일서 5:14'},
         {v:'너는 내게 부르짖으라 내가 네게 응답하겠고 네가 알지 못하는 크고 비밀한 일을 네게 보이리라',r:'예레미야 33:3'},
-        {v:'나는 너희를 위하여 기도하기를 쉬는 죄를 여호와 앞에 결단코 범치 아니하고',r:'사무엘상 12:23'},
         {v:'항상 기뻐하라 쉬지 말고 기도하라 범사에 감사하라',r:'데살로니가전서 5:16-18'},
         {v:'나의 기도로 주의 앞에 달하게 하시며 주의 귀를 나의 부르짖음에 기울이소서',r:'시편 88:2'},
         {v:'의인의 간구는 역사하는 힘이 많으니라',r:'야고보서 5:16'},
@@ -348,9 +320,7 @@ const VERSE_POOL = {
     ],
     '기도_힘':[
         {v:'모든 기도와 간구로 하되 무시로 성령 안에서 기도하고',r:'에베소서 6:18'},
-        {v:'진실로 다시 너희에게 이르노니 너희 중에 두 사람이 땅에서 합심하여 무엇이든지 구하면 하늘에 계신 내 아버지께서 저희를 위하여 이루게 하시리라',r:'마태복음 18:19'},
         {v:'기도를 항상 힘쓰고 기도에 감사함으로 깨어 있으라',r:'골로새서 4:2'},
-        {v:'내게 능력 주시는 자 안에서 내가 모든 것을 할수 있느니라',r:'빌립보서 4:13'},
         {v:'너는 내게 부르짖으라 내가 네게 응답하겠고 네가 알지 못하는 크고 비밀한 일을 네게 보이리라',r:'예레미야 33:3'},
         {v:'쉬지 말고 기도하라',r:'데살로니가전서 5:17'},
         {v:'항상 기도하고 낙망치 말아야 될 것을 저희에게 비유로 하여',r:'누가복음 18:1'},
@@ -391,7 +361,6 @@ const VERSE_POOL = {
         {v:'사람이 여호와의 구원을 바라고 잠잠히 기다림이 좋도다',r:'예레미야애가 3:26'},
         {v:'주께서 심지가 견고한 자를 평강에 평강으로 지키시리니 이는 그가 주를 의뢰함이니이다',r:'이사야 26:3'},
         {v:'여호와 앞에 잠잠하고 참아 기다리라',r:'시편 37:7'},
-        {v:'불의의 재물은 무익하여도 의리는 죽음에서 건지느니라',r:'잠언 10:2'},
         {v:'모든 지각에 뛰어난 하나님의 평강이 그리스도 예수 안에서 너희 마음과 생각을 지키시리라',r:'빌립보서 4:7'}
     ]
 };
@@ -413,7 +382,6 @@ const VERSE_POOL_EN = {
         {v:'For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.',r:'John 3:16'}
     ],
     '감사_힘':[
-        {v:'I can do all things through him who strengthens me.',r:'Philippians 4:13'},
         {v:'But they who wait for the LORD shall renew their strength; they shall mount up with wings like eagles',r:'Isaiah 40:31'},
         {v:'And my God will supply every need of yours according to his riches in glory in Christ Jesus.',r:'Philippians 4:19'},
         {v:'Be strong and courageous. Do not be frightened, and do not be dismayed, for the LORD your God is with you wherever you go.',r:'Joshua 1:9'},
@@ -421,7 +389,6 @@ const VERSE_POOL_EN = {
         {v:'Rejoice in the Lord always; again I will say, rejoice.',r:'Philippians 4:4'},
         {v:'The LORD is my rock and my fortress and my deliverer, my God, my rock, in whom I take refuge.',r:'Psalm 18:2'},
         {v:'Therefore, since we have been justified by faith, we have peace with God through our Lord Jesus Christ.',r:'Romans 5:1'},
-        {v:'Many are the plans in the mind of a man, but it is the purpose of the LORD that will stand.',r:'Proverbs 19:21'},
         {v:'Call to me and I will answer you, and will tell you great and hidden things that you have not known.',r:'Jeremiah 33:3'},
         {v:'For God gave us a spirit not of fear but of power and love and self-control.',r:'2 Timothy 1:7'},
         {v:'And let us not grow weary of doing good, for in due season we will reap, if we do not give up.',r:'Galatians 6:9'},
@@ -437,7 +404,6 @@ const VERSE_POOL_EN = {
         {v:'The fear of the LORD is the beginning of wisdom, and knowledge of the Holy One is insight.',r:'Proverbs 9:10'},
         {v:'The path of life leads upward for the prudent, that he may turn away from Sheol beneath.',r:'Proverbs 15:24'},
         {v:'An intelligent heart acquires knowledge, and the ear of the wise seeks knowledge.',r:'Proverbs 18:15'},
-        {v:'How can a young man keep his way pure? By guarding it according to your word.',r:'Psalm 119:9'},
         {v:'A wise man is full of strength, and a man of knowledge enhances his might.',r:'Proverbs 24:5'},
         {v:'He will make straight your paths.',r:'Proverbs 3:6'},
         {v:'My son, do not forget my teaching, but let your heart keep my commandments.',r:'Proverbs 3:1'},
@@ -453,7 +419,6 @@ const VERSE_POOL_EN = {
         {v:'He will tend his flock like a shepherd; he will gather the lambs in his arms',r:'Isaiah 40:11'},
         {v:'It is good that one should wait quietly for the salvation of the LORD.',r:'Lamentations 3:26'},
         {v:'But you, O LORD, are a shield about me, my glory, and the lifter of my head.',r:'Psalm 3:3'},
-        {v:'The sum of your word is truth, and every one of your righteous rules endures forever.',r:'Psalm 119:160'},
         {v:'Blessed are all who take refuge in him.',r:'Psalm 84:12'},
         {v:'I lift up my eyes to the hills. From where does my help come? My help comes from the LORD.',r:'Psalm 121:1-2'},
         {v:'For God alone my soul waits in silence; from him comes my salvation.',r:'Psalm 62:1'},
@@ -479,7 +444,6 @@ const VERSE_POOL_EN = {
     '평안_힘':[
         {v:'The LORD is my light and my salvation; whom shall I fear? The LORD is the stronghold of my life; of whom shall I be afraid?',r:'Psalm 27:1'},
         {v:'For God gave us a spirit not of fear but of power and love and self-control.',r:'2 Timothy 1:7'},
-        {v:'I can do all things through him who strengthens me.',r:'Philippians 4:13'},
         {v:'But they who wait for the LORD shall renew their strength; they shall mount up with wings like eagles',r:'Isaiah 40:31'},
         {v:'Be strong and courageous. Do not be frightened, and do not be dismayed, for the LORD your God is with you wherever you go.',r:'Joshua 1:9'},
         {v:'God is our refuge and strength, a very present help in trouble.',r:'Psalm 46:1'},
@@ -489,7 +453,6 @@ const VERSE_POOL_EN = {
         {v:'I have set the LORD always before me; because he is at my right hand, I shall not be shaken.',r:'Psalm 16:8'},
         {v:'The LORD is my light and my salvation; whom shall I fear? The LORD is the stronghold of my life; of whom shall I be afraid?',r:'Psalm 27:1'},
         {v:'For everyone who has been born of God overcomes the world. And this is the victory that has overcome the world — our faith.',r:'1 John 5:4'},
-        {v:'God made me strong in the LORD who strengthens me.',r:'Philippians 4:13'},
         {v:'Now to him who is able to do far more abundantly than all that we ask or think.',r:'Ephesians 3:20'}
     ],
     '평안_지혜':[
@@ -500,11 +463,9 @@ const VERSE_POOL_EN = {
         {v:'The fear of the LORD is the beginning of wisdom, and knowledge of the Holy One is insight.',r:'Proverbs 9:10'},
         {v:'For God alone my soul waits in silence; from him comes my salvation.',r:'Psalm 62:1'},
         {v:'The heart of him who has understanding seeks knowledge.',r:'Proverbs 15:14'},
-        {v:'And those who are wise shall shine like the brightness of the sky above; and those who turn many to righteousness, like the stars forever and ever.',r:'Daniel 12:3'},
         {v:'The law of the LORD is perfect, reviving the soul; the testimony of the LORD is sure, making wise the simple.',r:'Psalm 19:7'},
         {v:'Blessed is the one who finds wisdom, and the one who gets understanding.',r:'Proverbs 3:13'},
         {v:'Hear, O sons, a father\'s instruction, and be attentive, that you may gain insight.',r:'Proverbs 4:1'},
-        {v:'Blessed are the pure in heart, for they shall see God.',r:'Matthew 5:8'},
         {v:'The plans of the heart belong to man, but the answer of the tongue is from the LORD.',r:'Proverbs 16:1'},
         {v:'In all your ways acknowledge him, and he will make straight your paths.',r:'Proverbs 3:6'}
     ],
@@ -538,7 +499,6 @@ const VERSE_POOL_EN = {
         {v:'From the end of the earth I call to you when my heart is faint. Lead me to the rock that is higher than I.',r:'Psalm 61:2'},
         {v:'He has sent me to bind up the brokenhearted.',r:'Isaiah 61:1'},
         {v:'The LORD your God is in your midst, a mighty one who will save.',r:'Zephaniah 3:17'},
-        {v:'The Spirit of God dwells in you.',r:'Romans 8:9'}
     ],
     '걱정_힘':[
         {v:'When I am afraid, I put my trust in you.',r:'Psalm 56:3'},
@@ -607,7 +567,6 @@ const VERSE_POOL_EN = {
     '지침_힘':[
         {v:'But they who wait for the LORD shall renew their strength; they shall mount up with wings like eagles; they shall run and not be weary; they shall walk and not faint.',r:'Isaiah 40:31'},
         {v:'And let us not grow weary of doing good, for in due season we will reap, if we do not give up.',r:'Galatians 6:9'},
-        {v:'I can do all things through him who strengthens me.',r:'Philippians 4:13'},
         {v:'On the day I called, you answered me; my strength of soul you increased.',r:'Psalm 138:3'},
         {v:'Be strong and courageous. Do not be frightened, and do not be dismayed, for the LORD your God is with you wherever you go.',r:'Joshua 1:9'},
         {v:'For God gave us a spirit not of fear but of power and love and self-control.',r:'2 Timothy 1:7'},
@@ -671,7 +630,6 @@ const VERSE_POOL_EN = {
         {v:'In the world you will have tribulation. But take heart; I have overcome the world.',r:'John 16:33'},
         {v:'We are afflicted in every way, but not crushed; perplexed, but not driven to despair',r:'2 Corinthians 4:8'},
         {v:'And let steadfastness have its full effect, that you may be perfect and complete, lacking in nothing.',r:'James 1:4'},
-        {v:'I can do all things through him who strengthens me.',r:'Philippians 4:13'},
         {v:'Many are the afflictions of the righteous, but the LORD delivers him out of them all.',r:'Psalm 34:19'},
         {v:'For God gave us a spirit not of fear but of power and love and self-control.',r:'2 Timothy 1:7'},
         {v:'In all these things we are more than conquerors through him who loved us.',r:'Romans 8:37'},
@@ -684,8 +642,6 @@ const VERSE_POOL_EN = {
         {v:'He delivered me from my strong enemy and from those who hated me, for they were too mighty for me.',r:'Psalm 18:17'}
     ],
     '아픔_지혜':[
-        {v:'And we know that for those who love God all things work together for good, for those who are called according to his purpose.',r:'Romans 8:28'},
-        {v:'For this light momentary affliction is preparing for us an eternal weight of glory beyond all comparison',r:'2 Corinthians 4:17'},
         {v:'This God — his way is perfect; the word of the LORD proves true; he is a shield for all those who take refuge in him.',r:'Psalm 18:30'},
         {v:'Teach me your way, O LORD, that I may walk in your truth; unite my heart to fear your name.',r:'Psalm 86:11'},
         {v:'Trust in the LORD with all your heart, and do not lean on your own understanding.',r:'Proverbs 3:5'},
@@ -710,7 +666,6 @@ const VERSE_POOL_EN = {
         {v:'The LORD is my shepherd; I shall not want.',r:'Psalm 23:1'},
         {v:'When I called, you answered me; you made me bold and stouthearted.',r:'Psalm 138:3'},
         {v:'Fear not, for I have redeemed you; I have called you by name, you are mine. When you pass through the waters, I will be with you.',r:'Isaiah 43:1-2'},
-        {v:'I can do all things through him who strengthens me.',r:'Philippians 4:13'},
         {v:'He heals the brokenhearted and binds up their wounds.',r:'Psalm 147:3'},
         {v:'So we do not lose heart. Our inner self is being renewed day by day.',r:'2 Corinthians 4:16'}
     ],
@@ -721,7 +676,6 @@ const VERSE_POOL_EN = {
         {v:'The LORD is near to the brokenhearted and saves the crushed in spirit.',r:'Psalm 34:18'},
         {v:'And this is the confidence that we have toward him, that if we ask anything according to his will he hears us.',r:'1 John 5:14'},
         {v:'Call to me and I will answer you, and will tell you great and hidden things that you have not known.',r:'Jeremiah 33:3'},
-        {v:'Do not cease to pray for you.',r:'1 Samuel 12:23'},
         {v:'Rejoice always, pray without ceasing, give thanks in all circumstances.',r:'1 Thessalonians 5:16-18'},
         {v:'Let my cry come before you; incline your ear to my cry!',r:'Psalm 88:2'},
         {v:'The prayer of a righteous person has great power as it is working.',r:'James 5:16'},
@@ -732,14 +686,11 @@ const VERSE_POOL_EN = {
     ],
     '기도_힘':[
         {v:'On the day I called, you answered me; my strength of soul you increased.',r:'Psalm 138:3'},
-        {v:'Again I say to you, if two of you agree on earth about anything they ask, it will be done for them by my Father in heaven.',r:'Matthew 18:19'},
         {v:'Continue steadfastly in prayer, being watchful in it with thanksgiving.',r:'Colossians 4:2'},
-        {v:'I can do all things through him who strengthens me.',r:'Philippians 4:13'},
         {v:'Call to me and I will answer you, and will tell you great and hidden things that you have not known.',r:'Jeremiah 33:3'},
         {v:'Pray without ceasing.',r:'1 Thessalonians 5:17'},
         {v:'And he told them a parable to the effect that they ought always to pray and not lose heart.',r:'Luke 18:1'},
         {v:'Continue steadfastly in prayer, being watchful in it with thanksgiving.',r:'Colossians 4:2'},
-        {v:'Again I say to you, if two of you agree on earth about anything they ask, it will be done for them by my Father in heaven.',r:'Matthew 18:19'},
         {v:'Ask, and it will be given to you; seek, and you will find.',r:'Matthew 7:7'},
         {v:'On the day I called, you answered me; my strength of soul you increased.',r:'Psalm 138:3'},
         {v:'And if we know that he hears us in whatever we ask, we know that we have the requests that we have asked of him.',r:'1 John 5:15'},

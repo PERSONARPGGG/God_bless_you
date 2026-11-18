@@ -1660,3 +1660,22 @@
     .drive-note { margin:14px 0 0; text-align:center; font-size:var(--fs-2xs); color:rgba(255,255,255,.58); }
     /* 감정 버튼 글자는 단어 단위로 줄을 바꾼다 — 큰 글씨에서 "있었어/요"처럼 한 글자가 떨어지지 않게 */
     #step1 .e-text { word-break:keep-all; overflow-wrap:break-word; text-wrap:balance; }
+
+    /* 기록 맞추기 확인 창 — 인공지능 동의 창과 같은 모양 */
+    #sync-modal{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:20px;}
+    #sync-modal.hidden{display:none;}
+
+    /* 질문 단계 아래쪽 줄: 뒤로 가기 · 건너뛰고 말씀 보기 */
+    .step-nav { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:12px; }
+    .step-nav button { min-height:44px; padding:8px 14px; border-radius:12px; font:inherit; font-size:var(--fs-sm); cursor:pointer; }
+    .step-back { background:transparent; border:1px solid #d8d2c4; color:#6b5f48; }
+    .step-skip { background:#efe7d3; border:1px solid #d9c9a0; color:#5a4720; font-weight:600; }
+
+    /* ═══════════════════════════════════════════════════════
+       겹침 수정 (2026-11-18) — tools/smoke.mjs '화면 겹침'이 모든 화면·기기 크기에서 잰다
+    ═══════════════════════════════════════════════════════ */
+    /* 결과 화면은 달을 숨기므로(위 .moon-wrap 규칙) 위쪽 여백을 줄이면 인사말이 오른쪽 위 아이콘 버튼과 겹침 */
+    body:has(#step4:not(.hidden)) .top-bar { padding-top:70px; }
+    body:has(#step4:not(.hidden)) .date-text { display:block; }
+    /* "오늘 묵상 마치기"를 화면에 띄워 두면 일기 입력칸·글을 덮고, 모바일에서 키보드가 올라오면 입력칸을 가림 → 맨 아래 제자리에 둔다 */
+    .btn-restart { position:static; margin-top:14px; }
