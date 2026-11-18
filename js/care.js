@@ -261,7 +261,7 @@ async function deleteAccount() {
         toast(L.del_fail);
         return;
     }
-    ['savedVerses','moodHistory','visitDates','consent','premiumActive','dataOwner','aiConsent'].forEach(k => localStorage.removeItem(k));
+    ['savedVerses','moodHistory','visitDates','consent','premiumActive','dataOwner','aiConsent','resumeSel'].forEach(k => localStorage.removeItem(k));
     try { await sb.auth.signOut(); } catch (e) {}
     sbUser = null;
     _syncedUser = null;

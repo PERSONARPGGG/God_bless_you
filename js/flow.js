@@ -162,7 +162,8 @@ function pick(type, value) {
     _picking = true;
     setTimeout(() => { _picking = false; }, 340); // go()가 화면을 바꾸는 시점(320ms) 직후
     sel[type] = value;
-    safe('haptic', () => { if (navigator.vibrate) navigator.vibrate(10); });   // 흔들리는 차 안에서 눌렸는지 손끝으로 확인 (Android)
+    // 흔들리는 차 안에서 눌렸는지 손끝으로 확인 (Android). 직접 누른 경우에만 — 바로가기·이어하기로 자동 선택될 땐 브라우저가 막고 오류를 남김
+    safe('haptic', () => { if (navigator.vibrate && navigator.userActivation && navigator.userActivation.isActive) navigator.vibrate(10); });
     if (type !== 'need') safe('saveResume', () => saveResume());
     if (type==='emotion') {
         safe('applyEmoTint', () => applyEmoTint(value));
@@ -206,7 +207,8 @@ function offerResume() {
     if (!bar) return;
     if (!r || sel.emotion || document.getElementById('step1').classList.contains('hidden')) { bar.classList.add('hidden'); return; }
     const L = LANG_DATA[appLang] || LANG_DATA.ko;
-    document.getElementById('resume-text').textContent = L.resume_text.replace('{emo}', eLabel(r.emotion));
+    // 감정 이름을 문장에 끼우면 조사가 어색해져서(걱정이 있었어요에서…) 그림만 앞에 붙인다
+    document.getElementById('resume-text').textContent = (E_EMOJI[r.emotion] || '') + ' ' + L.resume_text;
     bar.classList.remove('hidden');
 }
 function resumeFlow() {

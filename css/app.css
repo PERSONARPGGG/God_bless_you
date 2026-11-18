@@ -1658,3 +1658,5 @@
     body:has(.resume-bar:not(.hidden)) #step1 .s1-sub { display:none; }
     /* 운전 안내 — 화면 맨 아래에 조용히 (고정 요소가 아니라 흐름 안에 둔다) */
     .drive-note { margin:14px 0 0; text-align:center; font-size:var(--fs-2xs); color:rgba(255,255,255,.58); }
+    /* 감정 버튼 글자는 단어 단위로 줄을 바꾼다 — 큰 글씨에서 "있었어/요"처럼 한 글자가 떨어지지 않게 */
+    #step1 .e-text { word-break:keep-all; overflow-wrap:break-word; text-wrap:balance; }

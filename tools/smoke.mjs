@@ -190,7 +190,7 @@ scenario('출퇴근길: 끊겼다 돌아오면 이어하기, 홈 화면 바로�
     p.eq(await p.eval(`__t.ls('resumeSel').emotion + '/' + __t.ls('resumeSel').topic`), '걱정/일', '선택이 적혀 있음');
     await p.reload();
     await p.waitFor(`__t.vis('#resume-bar')`, '다시 열면 이어하기 바', 4000);
-    p.ok((await p.eval(`__t.txt('#resume-text')`)).includes('걱정'), '이어하기 문구에 고르던 감정');
+    p.ok((await p.eval(`__t.txt('#resume-text')`)).includes('😔'), '이어하기 문구에 고르던 감정의 그림');
     await p.eval(`__t.click('#resume-go')`);
     await p.waitFor(`__t.vis('#step3') && (${ready})`, '이어하기 → 필요 화면으로 바로');
     p.eq(await p.eval(`sel.emotion + '/' + sel.topic`), '걱정/일', '감정·주제가 되살아남');
@@ -254,6 +254,43 @@ scenario('감정 화면: 여러 기기에서 스크롤 없이 한 화면', { see
         p.ok(m.over <= 0, `${name}: 가로로 넘치면 안 됨 (${m.over}px)`);
         if (w >= 768) p.ok(m.cardW <= 640, `${name}: 큰 화면에서 카드가 너무 퍼지면 안 됨 (${m.cardW}px)`);
         await p.shot('fit-' + w + 'x' + h);
+    }
+    // 글자 크기를 키운 사용자(설정의 가+, 가++)도 폰에서 한 화면에 들어와야 함
+    const measure = `(() => { const r = s => document.querySelector(s).getBoundingClientRect();
+        return { pray: Math.round(r('.emotion-pray .btn-emotion').bottom), vh: innerHeight, over: document.documentElement.scrollWidth - innerWidth }; })()`;
+    for (const level of [1, 2]) {
+        await p.eval(`localStorage.setItem('fontLevel', '${level}')`);
+        for (const [name, w, h] of devices.filter(d => d[3])) {
+            await p.S('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: true });
+            await p.reload();
+            const m = await p.eval(measure);
+            p.ok(m.pray <= m.vh - 8, `글자 크기 ${level} · ${name} ${w}×${h}: 기도 버튼 아래끝 ${m.pray}px가 화면 높이 ${m.vh}px 안에 들어와야 함`);
+            p.ok(m.over <= 0, `글자 크기 ${level} · ${name}: 가로로 넘치면 안 됨 (${m.over}px)`);
+            if (level === 2 && h === 667) await p.shot('fit-font2-' + w + 'x' + h);
+        }
+    }
+    await p.eval(`localStorage.removeItem('fontLevel')`);
+    // 이어하기 바가 떠 있어도 (끊겼다 돌아온 날) 한 화면
+    await p.eval(`localStorage.setItem('resumeSel', JSON.stringify({ emotion: '걱정', topic: null, date: todayStr(), t: Date.now() }))`);
+    for (const [name, w, h] of devices.filter(d => d[3])) {
+        await p.S('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: true });
+        await p.reload();
+        await p.waitFor(`__t.vis('#resume-bar')`, name + ': 이어하기 바', 4000);
+        const m = await p.eval(measure);
+        p.ok(m.pray <= m.vh - 8, `이어하기 바가 떠 있을 때 · ${name} ${w}×${h}: 기도 버튼 아래끝 ${m.pray}px가 화면 높이 ${m.vh}px 안에 들어와야 함`);
+        if (h === 667) await p.shot('fit-resume-' + w + 'x' + h);
+    }
+    await p.eval(`localStorage.removeItem('resumeSel')`);
+    // 가로로 눕힌 폰(차량 거치대): 겹치거나 옆으로 넘치지 않고, 스크롤로 모두 닿을 수 있어야 함
+    for (const [w, h] of [[844, 390], [740, 360]]) {
+        await p.S('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: true });
+        await p.reload();
+        const m = await p.eval(measure);
+        p.ok(m.over <= 0, `가로 모드 ${w}×${h}: 옆으로 넘치면 안 됨 (${m.over}px)`);
+        await p.eval(`document.querySelector('.emotion-pray .btn-emotion').scrollIntoView({ block: 'end' })`);
+        await sleep(700);   // 첫 화면 등장 연출(0.5초)이 끝난 뒤에 잰다
+        p.ok(await p.eval(`document.querySelector('.emotion-pray .btn-emotion').getBoundingClientRect().bottom <= innerHeight + 2`), `가로 모드 ${w}×${h}: 스크롤하면 기도 버튼까지 닿아야 함`);
+        await p.shot('fit-landscape-' + w + 'x' + h);
     }
 });
 

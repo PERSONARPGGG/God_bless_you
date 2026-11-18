@@ -165,7 +165,7 @@ async function clearData() {
             return;
         }
     }
-    ['savedVerses','moodHistory','visitDates'].forEach(k=>localStorage.removeItem(k));
+    ['savedVerses','moodHistory','visitDates','resumeSel'].forEach(k=>localStorage.removeItem(k));
     safe('reset.render', () => { updateStreak(); renderOnThisDay(); refreshVaultIfOpen(); });
     toast(L.toast_reset);
     hideOverlay('overlay-settings');
