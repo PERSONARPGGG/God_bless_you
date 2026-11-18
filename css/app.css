@@ -346,6 +346,12 @@
         .btn-emotion:hover,.btn-emotion:active { transform:translateY(-4px) scale(1.04);box-shadow:0 8px 24px rgba(0,0,0,.16); }
         .e-emoji { font-size:28px;line-height:1;margin:2px 0; }
         .e-text  { font-size:var(--fs-sm);font-weight:600;line-height:1.3; }
+        /* 감정 5개 중 짝이 없는 마지막 칸은 한 줄을 다 쓴다 */
+        .emotion-grid .btn-emotion:last-child:nth-child(odd) { grid-column:1 / -1; }
+        /* 기도 입구: 감정 칸 아래, 가로로 긴 버튼 */
+        .emotion-pray { margin-top:14px;padding-top:14px;border-top:1px dashed rgba(0,0,0,.12); }
+        .emotion-pray .btn-emotion { width:100%;flex-direction:row;justify-content:center;gap:10px;padding:14px 10px; }
+        .emotion-pray .e-emoji { margin:0; }
 
         /* ── STEP 2·3 버튼 그리드 ── */
         .two-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
@@ -1331,7 +1337,7 @@
         from { opacity:0; transform:scale(.92); }
         to   { opacity:1; transform:scale(1); }
     }
-    .emotion-grid { animation:emoGridIn .5s cubic-bezier(.22,1,.36,1) both; }
+    .emotion-grid, .emotion-pray { animation:emoGridIn .5s cubic-bezier(.22,1,.36,1) both; }
 
     /* ── 결과 컨텍스트 배지 glow ── */
     .result-context { animation:encTwinkle 6s ease-in-out 1s infinite; }
@@ -1605,3 +1611,50 @@
     .closing-timer { background:rgba(10,14,40,.72); color:rgba(255,255,255,.72); border:1px solid rgba(255,255,255,.14); }
     /* 설치 안내가 떠 있는 동안 맨 아래 내용이 가려지지 않게 */
     body:has(.install-nudge.visible) .page-wrap { padding-bottom:150px; }
+
+    /* ═══════════════════════════════════════════════════════
+       v3.0 — 감정 화면을 어떤 기기에서든 한 화면에 (2026-11-18)
+       모바일 기준. 감정 버튼 전부(기도 버튼까지)가 스크롤 없이 보이고, PC·태블릿에서도 어색하지 않게.
+       tools/smoke.mjs '감정 화면: 여러 기기에서 스크롤 없이 한 화면'이 크기별로 잰다
+    ═══════════════════════════════════════════════════════ */
+    /* 감정 버튼: 그림+글자를 가로로 → 높이가 절반. 화면 높이에 따라 부드럽게 커지고 줄어듦 (엄지로 누르기 좋은 크기 유지) */
+    #step1 .btn-emotion { flex-direction:row; justify-content:center; gap:10px; padding:9px 12px; min-height:56px; text-align:left; line-height:1.3; }
+    #step1 .e-emoji { margin:0; flex:none; font-size:24px; }
+    #step1 .emotion-grid { gap:9px; }
+    #step1 .emotion-pray { margin-top:10px; padding-top:10px; }
+    @supports (height:1dvh) {
+        #step1 .btn-emotion { min-height:clamp(54px, 7.2dvh, 76px); }
+        #step1 .e-emoji { font-size:clamp(22px, 3.1dvh, 30px); }
+        #step1 .emotion-grid { gap:clamp(8px, 1.2dvh, 12px); }
+        #step1 .emotion-pray { margin-top:clamp(8px, 1.4dvh, 14px); padding-top:clamp(8px, 1.4dvh, 14px); }
+    }
+    /* 출석 표시는 작게. 화면이 낮으면 감정 버튼이 우선이라 뺀다 */
+    #step1 .checkin-pill { margin-top:10px; padding:7px 14px; }
+    /* 회고 카드는 감정 버튼 아래 */
+    #step1 .otd-card { margin:12px 0 0; }
+    /* 위쪽(달·인사·오늘의 묵상)은 화면 높이에 따라 줄인다 */
+    .top-bar { padding-top:60px; }
+    .hero-teaser { margin:8px 0 12px; padding:11px 16px 9px; }
+    .s1-sub { margin-bottom:14px; }
+    @media (max-height:860px) {
+        .top-bar { padding-top:50px; }
+        .moon-icon { font-size:44px; }
+        .date-text { display:none; }
+        .hero-teaser { margin:6px 0 8px; padding:8px 14px 7px; }
+        .ht-text { font-size:var(--fs-xs); line-height:1.5; }
+        .s1-decoline { display:none; }
+        .s1-sub { margin-bottom:10px; }
+    }
+    @media (max-height:800px) { #step1 .checkin-pill { display:none; } }
+    @media (max-height:760px) { .hero-teaser { display:none; } .s1-sub { display:none; } }
+    @media (max-height:700px) { .top-bar { padding-top:44px; } .moon-icon { font-size:38px; } }
+    /* PC·태블릿: 한 줄이 너무 길어지지 않는 선에서 조금 넓게, 가운데 정렬 */
+    @media (min-width:768px) { .page-wrap { max-width:540px; } }
+    /* 이어하기 바 — 첫 화면 카드 안, 부제 자리. 끊겼다 돌아온 때만 나타남 */
+    .resume-bar { display:flex; align-items:center; flex-wrap:wrap; gap:8px 10px; justify-content:center; margin:0 0 10px; padding:9px 12px; border-radius:14px; background:#f3efe6; border:1px solid #e2d6bb; font-size:var(--fs-sm); color:#4a3f2a; line-height:1.4; }
+    .resume-bar.hidden { display:none; }
+    .resume-bar button { min-height:40px; padding:6px 14px; border-radius:10px; border:1.5px solid #b88a2e; background:#b88a2e; color:#fff; font:inherit; font-weight:700; cursor:pointer; }
+    .resume-bar .rb-no { background:transparent; color:#6b5a38; border-color:#cdbf9c; font-weight:600; }
+    body:has(.resume-bar:not(.hidden)) #step1 .s1-sub { display:none; }
+    /* 운전 안내 — 화면 맨 아래에 조용히 (고정 요소가 아니라 흐름 안에 둔다) */
+    .drive-note { margin:14px 0 0; text-align:center; font-size:var(--fs-2xs); color:rgba(255,255,255,.58); }

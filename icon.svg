@@ -1,42 +1,81 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- 밤의 목장 — 달빛 아래 엎드린 양 (시편 23:2) -->
-  <rect width="512" height="512" rx="100" fill="#0e1842"/>
-  <!-- 별들 -->
-  <circle cx="100" cy="90"  r="3"   fill="white" opacity="0.8"/>
-  <circle cx="180" cy="60"  r="2"   fill="white" opacity="0.6"/>
-  <circle cx="255" cy="105" r="2.5" fill="white" opacity="0.7"/>
-  <circle cx="430" cy="90"  r="2"   fill="white" opacity="0.5"/>
-  <circle cx="70"  cy="180" r="1.5" fill="white" opacity="0.5"/>
-  <circle cx="455" cy="210" r="2"   fill="white" opacity="0.6"/>
-  <circle cx="130" cy="250" r="2"   fill="#f5e6c8" opacity="0.6"/>
-  <!-- 초승달 -->
-  <circle cx="340" cy="150" r="64" fill="#f5e6c8"/>
-  <circle cx="368" cy="128" r="54" fill="#0e1842"/>
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- 밤의 목장 — 초승달 요람에 누워 잠든 양 (시편 23:2 "나를 푸른 풀밭에 누이시며")
+       주요 그림은 가운데 지름 80% 안에 두어 마스크(동그라미·둥근 사각) 아이콘에서도 잘리지 않게 함 -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#25357f"/>
+      <stop offset="0.55" stop-color="#131d52"/>
+      <stop offset="1" stop-color="#0a1033"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="256" cy="262" r="235" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f7e3b5" stop-opacity="0.2"/>
+      <stop offset="0.5" stop-color="#f7e3b5" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#f7e3b5" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="moon" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff6de"/>
+      <stop offset="1" stop-color="#ecc985"/>
+    </linearGradient>
+    <linearGradient id="wool" x1="0" y1="226" x2="0" y2="336" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e2d9c8"/>
+    </linearGradient>
+    <clipPath id="frame"><rect width="512" height="512" rx="112"/></clipPath>
+    <clipPath id="moon-clip"><circle cx="256" cy="242" r="152"/></clipPath>
+    <mask id="crescent">
+      <rect width="512" height="512" fill="#fff"/>
+      <circle cx="256" cy="194" r="142" fill="#000"/>
+    </mask>
+    <!-- 양털 모양 (테두리용·채움용으로 두 번 씀) -->
+    <g id="wool-shape">
+      <ellipse cx="248" cy="296" rx="92" ry="46"/>
+      <circle cx="176" cy="292" r="26"/>
+      <circle cx="194" cy="264" r="30"/>
+      <circle cx="232" cy="246" r="34"/>
+      <circle cx="274" cy="248" r="32"/>
+      <circle cx="304" cy="268" r="26"/>
+    </g>
+  </defs>
+
+  <g clip-path="url(#frame)">
+  <rect width="512" height="512" fill="url(#sky)"/>
+  <rect width="512" height="512" fill="url(#glow)"/>
+
+  <!-- 별 -->
+  <g fill="#fff">
+    <circle cx="112" cy="128" r="3.2" opacity="0.85"/>
+    <circle cx="168" cy="86"  r="2.2" opacity="0.6"/>
+    <circle cx="262" cy="74"  r="2.6" opacity="0.7"/>
+    <circle cx="438" cy="168" r="2.4" opacity="0.6"/>
+    <circle cx="84"  cy="232" r="2"   opacity="0.5"/>
+    <circle cx="452" cy="262" r="1.8" opacity="0.45"/>
+  </g>
+  <!-- 반짝이는 큰 별 -->
+  <path d="M376 96 Q379.5 114.5 398 118 Q379.5 121.5 376 140 Q372.5 121.5 354 118 Q372.5 114.5 376 96 Z" fill="#fff3d2"/>
+
   <!-- 언덕 (푸른 초장) -->
-  <ellipse cx="256" cy="452" rx="270" ry="86" fill="#16255c"/>
-  <!-- 달빛 웅덩이 -->
-  <ellipse cx="235" cy="402" rx="130" ry="20" fill="#f5e6c8" opacity="0.13"/>
-  <!-- 엎드린 양 -->
-  <g>
-    <!-- 몸통 (구름 형태) -->
-    <ellipse cx="225" cy="358" rx="88" ry="50" fill="#f3efe6"/>
-    <circle cx="158" cy="336" r="26" fill="#f3efe6"/>
-    <circle cx="192" cy="320" r="30" fill="#f3efe6"/>
-    <circle cx="232" cy="314" r="32" fill="#f3efe6"/>
-    <circle cx="272" cy="322" r="28" fill="#f3efe6"/>
-    <!-- 꼬리 -->
-    <circle cx="138" cy="362" r="14" fill="#f3efe6"/>
-    <!-- 몸 음영 -->
-    <ellipse cx="200" cy="392" rx="70" ry="18" fill="#d9d2c2" opacity="0.5"/>
-    <!-- 접은 앞다리 -->
-    <ellipse cx="268" cy="400" rx="26" ry="9" fill="#3e3630"/>
-    <!-- 머리 (오른쪽으로 살짝 숙임) -->
-    <ellipse cx="303" cy="356" rx="31" ry="27" fill="#3e3630" transform="rotate(8 303 356)"/>
-    <!-- 귀 -->
-    <ellipse cx="278" cy="344" rx="13" ry="7" fill="#3e3630" transform="rotate(-30 278 344)"/>
-    <!-- 머리 위 털 -->
-    <circle cx="292" cy="330" r="15" fill="#f3efe6"/>
-    <!-- 감은 눈 (평안히 쉼) -->
-    <path d="M 305 352 q 6 6 13 1" stroke="#f5e6c8" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+  <path d="M0 418 Q120 382 250 410 T512 398 V512 H0 Z" fill="#1a2b66"/>
+  <path d="M0 462 Q170 430 320 456 T512 448 V512 H0 Z" fill="#111c4a"/>
+
+  <!-- 요람 달 + 양 (살짝 기울임) -->
+  <g transform="rotate(-8 256 262)">
+    <!-- 잠든 양 (몸은 달 앞 테두리 뒤에 놓여 '안긴' 모습, 머리는 테두리 위에) -->
+    <g>
+     <use href="#wool-shape" fill="none" stroke="#c9b48c" stroke-width="6"/>
+      <use href="#wool-shape" fill="url(#wool)"/>
+      <!-- 머리 -->
+      <ellipse cx="336" cy="270" rx="29" ry="24" fill="#3d332d" transform="rotate(14 336 270)"/>
+      <ellipse cx="311" cy="262" rx="15" ry="7" fill="#3d332d" transform="rotate(-28 311 262)"/>
+      <circle cx="327" cy="248" r="14" fill="#fbf8f1"/>
+      <circle cx="340" cy="245" r="10" fill="#fbf8f1"/>
+      <!-- 감은 눈 -->
+      <path d="M334 269 q7 7 15 1" stroke="#f7e3b5" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+      <circle cx="354" cy="281" r="5" fill="#e9a59b" opacity="0.5"/>
+    </g>
+    <!-- 초승달 요람 -->
+    <circle cx="256" cy="242" r="152" fill="url(#moon)" mask="url(#crescent)"/>
+    <!-- 테두리 안쪽 그늘 (입체감) -->
+    <circle cx="256" cy="194" r="145" fill="none" stroke="#b9853c" stroke-opacity="0.35" stroke-width="7" clip-path="url(#moon-clip)"/>
+  </g>
   </g>
 </svg>

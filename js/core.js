@@ -27,6 +27,12 @@ let curMoodRowId = null;   // 방금 서버에 넣은 감정 기록의 id (일�
 let fontLevel = 0;
 
 /* 결과화면 마무리(클로징) 상태 */
+/* 지금 열려 있는 언어. 영어·일본어는 말씀 번역본의 이용 조건을 확인하기 전까지 잠시 닫아 둔다.
+   데이터(LANG_DATA의 en·ja, VERSE_POOL_EN 등)는 지우지 않고 그대로 있음 — 다시 열 때는 'en', 'ja'를 이 목록에 넣기만 하면 된다.
+   저장된 언어 설정(appLang)도 지우지 않으므로, 다시 열면 이전 선택이 살아난다 */
+const ENABLED_LANGS = ['ko'];
+function langEnabled(l) { return ENABLED_LANGS.includes(l); }
+
 const CLOSING_TIMEOUT = 300;   // 5분
 const CLOSING_WARN_AT = 30;    // 마지막 30초 경고
 let closingTriggered = false;

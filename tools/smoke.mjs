@@ -19,6 +19,8 @@ const REMOTE = args.find(a => a.startsWith('--url='))?.slice(6);
 const FILTER = args.filter(a => !a.startsWith('--'));
 const SHOTS = args.find(a => a.startsWith('--shots='))?.slice(8);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+/* 영어·일본어는 평소 잠겨 있음(core.js ENABLED_LANGS). 그 데이터가 망가지지 않았는지 보는 시나리오에서만 연다 */
+const OPEN_LANGS = `['en','ja'].forEach(l => { if (!ENABLED_LANGS.includes(l)) ENABLED_LANGS.push(l); }); syncLangChoices();`;
 
 /* ── 임시 서버 ── */
 const MIME = { html: 'text/html; charset=utf-8', js: 'text/javascript; charset=utf-8', css: 'text/css; charset=utf-8',
@@ -161,6 +163,100 @@ scenario('첫 방문: 인트로 → 이름 입력 → 메인', { intro: true }, 
     p.eq(await p.eval(`__t.txt('#app-version')`), 'v' + (await p.eval('APP_VERSION')), '설정의 버전 표기');
 });
 
+scenario('언어: 영어·일본어는 잠겨 있고(저장된 설정이 en이어도) 한국어로 켜지며, 데이터는 남아 있음', { seed: { userName: '은혜', appLang: 'en' } }, async p => {
+    await p.goto();
+    p.eq(await p.eval('appLang'), 'ko', '저장된 언어가 en이어도 잠겨 있으면 한국어');
+    p.eq(await p.eval('document.documentElement.lang'), 'ko', '문서 언어');
+    await p.eval(`setLang('en'); setLang('ja')`);
+    p.eq(await p.eval('appLang'), 'ko', 'setLang은 잠긴 언어를 받지 않음');
+    p.eq(await p.eval(`__t.ls('appLang')`), 'en', '저장된 설정은 지우지 않음 (다시 열면 되살아남)');
+    p.ok(await p.eval(`getComputedStyle(document.getElementById('lbl-lang').closest('.settings-section')).display === 'none'`), '설정의 언어 줄이 보이지 않음');
+    p.ok(await p.eval(`getComputedStyle(document.querySelector('.lang-select')).display === 'none'`), '첫 화면의 언어 버튼이 보이지 않음');
+    p.ok(await p.eval(`Object.keys(VERSE_POOL_EN).length > 20 && !!LANG_DATA.en && !!LANG_DATA.ja`), '영어·일본어 데이터는 그대로 남아 있음');
+    await p.eval(OPEN_LANGS);
+    p.ok(await p.eval(`getComputedStyle(document.getElementById('lbl-lang').closest('.settings-section')).display !== 'none'`), '다시 열면 언어 줄이 나타남');
+});
+
+scenario('출퇴근길: 끊겼다 돌아오면 이어하기, 홈 화면 바로가기(?e=)로 감정 선택 건너뛰기, 운전 안내', { seed: { userName: '은혜' } }, async p => {
+    const ready = `typeof _picking === 'undefined' || !_picking`;
+    await p.goto();
+    p.ok(/운전 중/.test(await p.eval(`__t.txt('#drive-note')`)), '운전 중 사용 안내 문구가 있음');
+    p.ok(!(await p.eval(`__t.vis('#resume-bar')`)), '처음 열면 이어하기 바가 없음');
+    // 감정·주제를 고른 뒤 앱이 닫혔다 다시 열림
+    await p.eval(`__t.click('.em-걱정')`);
+    await p.waitFor(`__t.vis('#step2') && (${ready})`, '주제 화면');
+    await p.eval(`__t.click('.bc-일')`);
+    await p.waitFor(`__t.vis('#step3') && (${ready})`, '필요 화면');
+    p.eq(await p.eval(`__t.ls('resumeSel').emotion + '/' + __t.ls('resumeSel').topic`), '걱정/일', '선택이 적혀 있음');
+    await p.reload();
+    await p.waitFor(`__t.vis('#resume-bar')`, '다시 열면 이어하기 바', 4000);
+    p.ok((await p.eval(`__t.txt('#resume-text')`)).includes('걱정'), '이어하기 문구에 고르던 감정');
+    await p.eval(`__t.click('#resume-go')`);
+    await p.waitFor(`__t.vis('#step3') && (${ready})`, '이어하기 → 필요 화면으로 바로');
+    p.eq(await p.eval(`sel.emotion + '/' + sel.topic`), '걱정/일', '감정·주제가 되살아남');
+    await p.eval(`__t.click('.bc-위로')`);
+    await p.waitFor(`__t.vis('#step4')`, '결과 화면');
+    p.eq(await p.eval(`__t.ls('resumeSel')`), null, '결과까지 가면 이어하기 기록이 지워짐');
+    // 오래된 기록·깨진 기록은 무시
+    await p.eval(`localStorage.setItem('resumeSel', JSON.stringify({ emotion: '걱정', topic: null, date: todayStr(), t: Date.now() - 3 * 3600 * 1000 }))`);
+    await p.reload(); await sleep(1600);
+    p.ok(!(await p.eval(`__t.vis('#resume-bar')`)), '3시간 지난 기록은 묻지 않음');
+    await p.eval(`localStorage.setItem('resumeSel', 'garbage{')`);
+    await p.reload(); await sleep(1600);
+    p.ok(!(await p.eval(`__t.vis('#resume-bar')`)) && await p.eval(`__t.vis('#step1')`), '깨진 기록이어도 첫 화면은 정상');
+    // 홈 화면 바로가기
+    const origin = await p.eval('location.origin');
+    await p.goto(origin + '/?e=hurt');
+    await p.waitFor(`__t.vis('#step2') && sel.emotion === '아픔'`, '?e=hurt → 아픔을 고른 상태로 주제 화면', 12000);
+    p.ok(!(await p.eval(`location.search`)), '주소에서 ?e= 가 정리됨');
+    await p.goto(origin + '/?e=nonsense');
+    await sleep(1500);
+    p.ok(await p.eval(`__t.vis('#step1')`), '모르는 값이면 무시하고 첫 화면');
+    const man = await (await fetch(origin + '/manifest.json').catch(() => null))?.json?.();
+    if (man) p.ok(Array.isArray(man.shortcuts) && man.shortcuts.length === 4 && man.shortcuts.every(s => /\?e=(worry|tired|hurt|pray)$/.test(s.url)), 'manifest 바로가기 4개');
+});
+
+scenario('감정 화면: 기도 버튼은 감정 칸과 분리되고 누르면 그대로 진행', { seed: { userName: '은혜' } }, async p => {
+    await p.goto();
+    p.eq(await p.eval(`document.querySelectorAll('.emotion-grid .btn-emotion').length`), 5, '감정 칸에는 감정 5개만');
+    p.ok(await p.eval(`!document.querySelector('.emotion-grid .em-기도') && !!document.querySelector('.emotion-pray .em-기도')`), '기도 버튼은 감정 칸 밖(.emotion-pray)에 있어야 함');
+    // 언어 적용은 .e-text 순서(6번째=기도)에 기대므로 순서가 깨지면 안 됨
+    p.eq(await p.eval(`[...document.querySelectorAll('.e-text')].map(e=>e.textContent.trim()).pop()`), '기도하고 싶어요', '여섯 번째 문구가 기도');
+    await p.eval(`document.querySelector('.emotion-pray').scrollIntoView({ block: 'end' })`);
+    await sleep(700);
+    await p.shot('emotion-grid');
+    await p.eval(`__t.click('.em-기도')`);
+    await p.waitFor(`__t.vis('#step2')`, '기도를 눌러도 주제 화면으로 넘어감');
+    p.eq(await p.eval(`sel.emotion`), '기도', '선택값은 기존과 같은 "기도"');
+});
+
+/* 여러 기기에서 감정 버튼 전부(기도 버튼까지)가 스크롤 없이 한 화면에 들어오는지.
+   가장 불리한 날(한 달 전 회고 카드가 뜨는 날)로 잰다. 모바일이 기준, PC·태블릿도 어색하지 않아야 함 */
+scenario('감정 화면: 여러 기기에서 스크롤 없이 한 화면', { seed: { userName: '은혜' } }, async p => {
+    const devices = [
+        ['아이폰 SE', 375, 667, true], ['갤럭시 소형', 360, 740, true], ['아이폰 14', 390, 844, true],
+        ['갤럭시 S25', 412, 915, true], ['태블릿 세로', 768, 1024, false], ['노트북', 1366, 768, false], ['데스크톱', 1920, 1080, false],
+    ];
+    await p.goto();
+    const past = await p.eval(`ymd(monthsAgo(1))`);
+    await p.eval(`localStorage.setItem('moodHistory', JSON.stringify([{ date: '${past}', emotion: '평안', topic: '일', need: '쉼', emoji: '😌', diary: '한 달 전 일기' }]))`);
+    for (const [name, w, h, mobile] of devices) {
+        await p.S('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile });
+        await p.reload();
+        await p.waitFor(`__t.vis('#otd-card')`, name + ': 회고 카드가 떠 있는 상태', 4000);
+        const m = await p.eval(`(() => {
+            const r = s => document.querySelector(s).getBoundingClientRect();
+            return { pray: Math.round(r('.emotion-pray .btn-emotion').bottom), vh: innerHeight,
+                     over: document.documentElement.scrollWidth - innerWidth,
+                     grid: Math.round(r('.emotion-grid').width), cardW: Math.round(r('#step1 .card').width) };
+        })()`);
+        p.ok(m.pray <= m.vh - 8, `${name} ${w}×${h}: 기도 버튼 아래끝 ${m.pray}px가 화면 높이 ${m.vh}px 안에 들어와야 함`);
+        p.ok(m.over <= 0, `${name}: 가로로 넘치면 안 됨 (${m.over}px)`);
+        if (w >= 768) p.ok(m.cardW <= 640, `${name}: 큰 화면에서 카드가 너무 퍼지면 안 됨 (${m.cardW}px)`);
+        await p.shot('fit-' + w + 'x' + h);
+    }
+});
+
 scenario('핵심 플로우: 감정→주제→필요→결과→일기→마치기→보관함', { seed: { userName: '은혜' } }, async p => {
     await p.goto();
     await p.flow('걱정', '일', '위로');
@@ -196,6 +292,7 @@ scenario('핵심 플로우: 감정→주제→필요→결과→일기→마치�
 
 scenario('전 조합 120개 × 3개 언어: 빈 카드·undefined·언어 섞임 없음', { seed: { userName: '' } }, async p => {
     await p.goto();
+    await p.eval(OPEN_LANGS);
     const bad = await p.eval(`(() => {
         const bad = [], E = ['감사','평안','걱정','지침','아픔','기도'], T = ['일','가족','공부','사람','모름'], N = ['위로','힘','지혜','쉼'];
         const tw = typewriterVerse; window.typewriterVerse = t => { document.getElementById('r-verse').textContent = t; };
@@ -255,9 +352,10 @@ scenario('날짜: 한국 새벽 0시 30분에도 오늘 날짜로 기록', {
 
 scenario('날짜: 미국 시간대에서도 하루가 밀리지 않음', {
     now: '2026-11-16T22:00:00-05:00', tz: 'America/New_York',
-    seed: { userName: '', appLang: 'en', moodHistory: JSON.stringify([{ date: '2026-11-16', emotion: '감사', topic: '일', need: '힘', emoji: '😊' }]) },
+    seed: { userName: '', moodHistory: JSON.stringify([{ date: '2026-11-16', emotion: '감사', topic: '일', need: '힘', emoji: '😊' }]) },
 }, async p => {
     await p.goto();
+    await p.eval(OPEN_LANGS + `setLang('en')`);
     p.eq(await p.eval('todayStr()'), '2026-11-16', '오늘 날짜(뉴욕 밤 10시)');
     await p.eval('openVault()');
     p.ok((await p.eval(`__t.txt('.mood-date')`)).includes('16'), '보관함 기록 날짜가 16일로 보여야 함 — 실제: ' + await p.eval(`__t.txt('.mood-date')`));
@@ -294,6 +392,7 @@ scenario('연쇄 차단: 한 기능이 고장 나도 나머지는 동작', { see
     await p.eval(`(() => {
         const boom = n => () => { throw new Error('test: ' + n + ' 고장'); };
         for (const n of ['checkSeason','updateStreak','initHeroTeaser','generateStars','renderOnThisDay']) window[n] = boom(n);
+        if (!ENABLED_LANGS.includes('en')) ENABLED_LANGS.push('en');
         localStorage.setItem('appLang', 'en');
         init();
     })()`);
@@ -544,6 +643,7 @@ scenario('나의 이야기(무료·게스트): 달력은 지난달까지, 그날
     p.eq(await p.eval(`document.querySelectorAll('#pm-feats li').length`), 5, '프리미엄 안내: 구현된 5가지만');
     p.ok(!/챌린지|꾸미기/.test(await p.eval(`__t.txt('#premium-modal')`)), '안내 문구에 미구현 기능이 없음');
     await p.eval(`closePremiumModal()`);
+    await p.eval(OPEN_LANGS);
     for (const lang of ['en', 'ja']) {
         await p.eval(`setLang('${lang}'); openDashboard()`);
         await p.waitFor(`document.querySelectorAll('#hist-cal .hc-day').length > 27`, lang + ' 달력');
@@ -760,6 +860,7 @@ scenario('좁은 화면(360px)·매우 큰 글씨: 가로로 넘치지 않음', 
         const w = await p.eval(`document.documentElement.scrollWidth - window.innerWidth`);
         p.ok(w <= 1, `${where}: 가로로 ${w}px 넘침`);
     };
+    await p.eval(OPEN_LANGS);
     for (const lang of ['ko', 'en', 'ja']) {
         await p.eval(`setLang('${lang}')`);
         await over(`${lang} 메인`);

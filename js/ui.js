@@ -48,7 +48,7 @@ function openSettings() {
 
 /* 언어 변경 */
 function setLang(lang) {
-    if (!LANG_DATA[lang]) return;
+    if (!LANG_DATA[lang] || !langEnabled(lang)) return;   // 닫혀 있는 언어는 선택되지 않음 (core.js ENABLED_LANGS)
     appLang = lang;
     lsSet('appLang', lang);
     applyLang(lang);
@@ -207,6 +207,7 @@ function restart() {
     document.querySelectorAll('#step4 .card').forEach(c=>c.classList.remove('closing-collapsed'));
     safe('setWelcome', () => setWelcome());
     safe('renderOnThisDay', () => renderOnThisDay());
+    safe('clearResume', () => clearResume());
     go('step4','step1');
 }
 

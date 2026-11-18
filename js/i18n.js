@@ -20,6 +20,7 @@ const LANG_DATA = {
         /* 결과 버튼 */
         btn_copy:'📋 복사', btn_share:'📤 공유', btn_save:'⭐ 즐겨찾기', btn_saved:'★ 저장됨', btn_restart:'처음으로',
         btn_finish:'오늘 묵상 마치기', closing_extend_hint:'· 연장하기', closing_extended:'5분 더 볼게요',
+        drive_note:'운전 중에는 화면을 보지 마세요', resume_text:'방금 고르던 {emo}에서 이어서 할까요?', resume_go:'이어하기', resume_no:'처음부터',
         btn_vault_closing:'📖 보관함 보기',
         pm_title:'프리미엄', pm_desc:'무료는 최근 두 달을 함께해요.\n프리미엄은 당신의 모든 밤을 평생 간직해요.',
         pm_f1:'📔 일기·감정 기록 평생 보관 — 달력으로 언제든 다시 보기', pm_f2:'📄 PDF 내보내기 — 나의 신앙 일기장',
@@ -138,6 +139,7 @@ const LANG_DATA = {
         /* 결과 버튼 */
         btn_copy:'📋 Copy', btn_share:'📤 Share', btn_save:'⭐ Bookmark', btn_saved:'★ Saved', btn_restart:'Back to Start',
         btn_finish:'Finish Today’s Reflection', closing_extend_hint:'· Extend', closing_extended:'5 more minutes',
+        drive_note:'Please don\'t look at the screen while driving', resume_text:'Continue from {emo}?', resume_go:'Continue', resume_no:'Start over',
         btn_vault_closing:'📖 View Saved Verses',
         pm_title:'Premium', pm_desc:'Free keeps your last two months.\nPremium keeps every night, forever.',
         pm_f1:'📔 Every record kept — revisit any night on the calendar', pm_f2:'📄 PDF export — My Faith Journal',
@@ -256,6 +258,7 @@ const LANG_DATA = {
         /* 결과 버튼 */
         btn_copy:'📋 コピー', btn_share:'📤 共有', btn_save:'⭐ お気に入り', btn_saved:'★ 保存済み', btn_restart:'はじめに戻る',
         btn_finish:'今日の黙想を終える', closing_extend_hint:'· 延長する', closing_extended:'あと5分見ます',
+        drive_note:'運転中は画面を見ないでください', resume_text:'先ほどの{emo}から続けますか？', resume_go:'続ける', resume_no:'最初から',
         btn_vault_closing:'📖 保管箱を見る',
         pm_title:'プレミアム', pm_desc:'無料は直近2か月をともに。\nプレミアムはすべての夜を永久保存。',
         pm_f1:'📔 日記・感情記録を永久保存 — カレンダーでいつでも', pm_f2:'📄 PDFエクスポート — 私の信仰日記',
@@ -362,7 +365,19 @@ const LANG_DATA = {
 };
 let appLang = 'ko';
 
+/* 열려 있는 언어의 선택 버튼만 보이게. 하나만 열려 있으면 언어 고르는 줄 자체를 숨김 */
+function syncLangChoices() {
+    const codes = ['ko', 'en', 'ja'], only = ENABLED_LANGS.length <= 1;
+    const show = (el, on) => { if (el) el.style.display = on ? '' : 'none'; };
+    document.querySelectorAll('.lang-btn').forEach((b, i) => show(b, langEnabled(codes[i])));
+    document.querySelectorAll('.lang-opt-btn').forEach(b => show(b, langEnabled(b.id.replace('lo-', ''))));
+    show(document.querySelector('.lang-select'), !only);
+    const sec = document.getElementById('lbl-lang');
+    show(sec && sec.closest('.settings-section'), !only);
+}
+
 function setWelcomeLang(lang) {
+    if (!langEnabled(lang)) lang = 'ko';
     appLang = lang;
     document.querySelectorAll('.lang-btn').forEach((btn,i)=>btn.classList.toggle('active',['ko','en','ja'][i]===lang));
     const L = LANG_DATA[lang]||LANG_DATA.ko;
@@ -384,6 +399,7 @@ function applyLang(lang) {
     document.body.className = document.body.className.replace(/\blang-\S+/g,'').trim() + ' lang-'+lang;
     // 히어로 티저 라벨
     if(L.ht_label) s('ht-label', L.ht_label);
+    s('drive-note', L.drive_note); s('resume-go', L.resume_go); s('resume-no', L.resume_no);
     // 스텝 제목
     const s1t=document.querySelector('#step1 .s1-title'), s1s=document.querySelector('#step1 .s1-sub');
     const s2t=document.querySelector('#step2 .step-title'), s3t=document.querySelector('#step3 .step-title');

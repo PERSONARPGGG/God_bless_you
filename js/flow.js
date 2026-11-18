@@ -162,6 +162,8 @@ function pick(type, value) {
     _picking = true;
     setTimeout(() => { _picking = false; }, 340); // go()가 화면을 바꾸는 시점(320ms) 직후
     sel[type] = value;
+    safe('haptic', () => { if (navigator.vibrate) navigator.vibrate(10); });   // 흔들리는 차 안에서 눌렸는지 손끝으로 확인 (Android)
+    if (type !== 'need') safe('saveResume', () => saveResume());
     if (type==='emotion') {
         safe('applyEmoTint', () => applyEmoTint(value));
         safe('badge2', () => { document.getElementById('badge2').textContent = eLabel(value); });
@@ -170,10 +172,66 @@ function pick(type, value) {
         safe('badge3', () => { document.getElementById('badge3').textContent = eLabel(sel.emotion)+' · '+tLabel(value); });
         go('step2','step3');
     } else if (type==='need') {
+        safe('clearResume', () => clearResume());
         safe('buildResult', buildResult);
         go('step3','step4');
         later('spawnBlessing', () => spawnBlessing(), 400);
     }
+}
+
+/* ═══════════════════════════════════════
+   이어하기 · 홈 화면 바로가기
+   출퇴근길처럼 자주 끊기는 환경: 정류장·알림·통화로 앱이 닫히면 선택이 사라져 처음부터 다시 해야 했다.
+   감정·주제를 고를 때마다 적어 두고, 45분 안에 같은 날 다시 열면 "이어서 할까요?"를 묻는다.
+═══════════════════════════════════════ */
+const RESUME_MAX_AGE = 45 * 60 * 1000;
+function saveResume() {
+    lsSet('resumeSel', { emotion: sel.emotion, topic: sel.topic || null, date: todayStr(), t: Date.now() });
+}
+function clearResume() {
+    try { localStorage.removeItem('resumeSel'); } catch {}
+    const bar = document.getElementById('resume-bar'); if (bar) bar.classList.add('hidden');
+}
+/* 저장값을 믿지 않는다: 모양·감정·주제·날짜·시간이 모두 맞을 때만 */
+function readResume() {
+    const r = lsGet('resumeSel');
+    if (!r || typeof r !== 'object') return null;
+    if (!(r.emotion in _EMO_IDX)) return null;
+    if (r.topic != null && !(r.topic in _TOP_IDX)) return null;
+    if (r.date !== todayStr() || !(Date.now() - Number(r.t) < RESUME_MAX_AGE)) return null;
+    return r;
+}
+function offerResume() {
+    const r = readResume(), bar = document.getElementById('resume-bar');
+    if (!bar) return;
+    if (!r || sel.emotion || document.getElementById('step1').classList.contains('hidden')) { bar.classList.add('hidden'); return; }
+    const L = LANG_DATA[appLang] || LANG_DATA.ko;
+    document.getElementById('resume-text').textContent = L.resume_text.replace('{emo}', eLabel(r.emotion));
+    bar.classList.remove('hidden');
+}
+function resumeFlow() {
+    const r = readResume();
+    clearResume();
+    if (!r) return;
+    pick('emotion', r.emotion);
+    if (r.topic) setTimeout(() => pick('topic', r.topic), 400);   // 첫 화면 전환(0.34초)이 끝난 뒤
+}
+function dismissResume() { clearResume(); }
+
+/* 홈 화면 아이콘을 길게 눌러 고르는 바로가기 (manifest.json shortcuts, Android). 주소의 ?e=… 로 들어오면 그 감정을 고른 상태로 시작 */
+const SHORTCUT_EMO = { worry:'걱정', tired:'지침', hurt:'아픔', pray:'기도', thanks:'감사', peace:'평안' };
+function applyShortcut() {
+    let e = null;
+    try { e = SHORTCUT_EMO[new URLSearchParams(location.search).get('e')] || null; } catch {}
+    if (!e) return;
+    try { history.replaceState(null, '', location.pathname + location.hash); } catch {}
+    // 오프닝·이름 입력이 끝나 첫 화면이 열릴 때까지 기다렸다가 누른 것처럼 진행 (최대 12초)
+    let tries = 0;
+    const t = setInterval(() => {
+        const intro = document.getElementById('night-intro'), nm = document.getElementById('overlay-name');
+        const ready = (!intro || intro.classList.contains('gone')) && (!nm || nm.classList.contains('hidden')) && !document.getElementById('step1').classList.contains('hidden');
+        if (ready || ++tries > 40) { clearInterval(t); if (ready) pick('emotion', e); }
+    }, 300);
 }
 
 function cascadeResultCards() {

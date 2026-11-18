@@ -33,7 +33,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `node tools/api-test.mjs` — 서버 함수 점검 (1초). `lib/server.mjs`를 그대로 돌리고 Supabase·토스·OpenRouter만 가짜로 바꿔 결제·해지·갱신·AI 규칙을 확인. `api/`·`lib/`를 고치면 반드시 실행
   - 버그를 고칠 때는 **먼저 그 버그를 재현하는 시나리오를 `tools/smoke.mjs`에 추가**하고 고친다. 새 기능도 시나리오를 함께 추가
 - **배포**: `main` 브랜치 push → Vercel 자동 배포. 별도 빌드 스텝 없음. 다른 브랜치를 push하면 Vercel이 미리보기 주소를 만들어 주므로, 큰 변경은 브랜치 → 미리보기에서 `--url=`로 점검 → main 병합 순서를 권장. 웹에 공개하지 않을 파일은 `.vercelignore`
-- **캐시 무효화**: Service Worker 캐시를 갱신하려면 `sw.js`의 `CACHE` 상수(현재 `'god-app-v27'`) 버전 문자열을 올려야 함. 사용자 화면에 보이는 버전은 `js/core.js`의 `APP_VERSION` (CHANGELOG 최신 항목과 맞출 것)
+- **캐시 무효화**: Service Worker 캐시를 갱신하려면 `sw.js`의 `CACHE` 상수(현재 `'god-app-v28'`) 버전 문자열을 올려야 함. 사용자 화면에 보이는 버전은 `js/core.js`의 `APP_VERSION` (CHANGELOG 최신 항목과 맞출 것)
 
 ## 아키텍처 (Architecture)
 `index.html`에는 마크업과 스크립트 목록만 있음. 코드 안의 `═══...═══` 배너 주석이 섹션 구분자.

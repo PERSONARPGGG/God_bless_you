@@ -18,7 +18,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="밤의 목장">
-    <link rel="apple-touch-icon" href="icon.svg">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="icon" href="icon.svg" type="image/svg+xml">
     <!-- 글꼴 (둘 다 SIL OFL — 웹 임베딩·상업 이용 가능). 교체 시 아래 --font-ui / --font-verse 변수만 바꾸면 됨 -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -597,12 +597,16 @@
 
     <!-- STEP 1: 감정 -->
     <div id="step1" class="step">
-        <!-- 회고 카드: 1년·6개월·3개월·1개월 전 오늘의 기록이 있을 때만 표시 -->
-        <div id="otd-card" class="otd-card hidden"></div>
         <div class="card">
             <p class="s1-decoline">✦ &nbsp; ✦ &nbsp; ✦</p>
             <h1 class="s1-title">오늘은 어땠나요?</h1>
             <p class="s1-sub">하루를 돌아보는 작은 쉼표</p>
+            <!-- 이어하기: 정류장·알림 등으로 앱이 끊겼을 때, 방금 고르던 곳에서 계속 (js/flow.js offerResume) -->
+            <div id="resume-bar" class="resume-bar hidden" role="group">
+                <span id="resume-text"></span>
+                <button id="resume-go" type="button" onclick="resumeFlow()">이어하기</button>
+                <button id="resume-no" type="button" class="rb-no" onclick="dismissResume()">처음부터</button>
+            </div>
             <div class="emotion-grid">
                 <button class="btn-emotion em-감사" type="button" onclick="pickEmo('emotion','감사',event)">
                     <span class="e-emoji">😊</span>
@@ -624,6 +628,9 @@
                     <span class="e-emoji">😢</span>
                     <span class="e-text">마음이 아팠어요</span>
                 </button>
+            </div>
+            <!-- 기도는 '감정'이 아니라 기도로 들어가는 문 — 감정 칸과 떼어 둠. 데이터 키(기도)와 e-text 순서(6번째)는 그대로 -->
+            <div class="emotion-pray">
                 <button class="btn-emotion em-기도" type="button" onclick="pickEmo('emotion','기도',event)">
                     <span class="e-emoji">🙏</span>
                     <span class="e-text">기도하고 싶어요</span>
@@ -637,6 +644,10 @@
                 <span id="cp-streak">1일 연속</span>
             </div>
         </div>
+        <!-- 회고 카드: 1년·6개월·3개월·1개월 전 오늘의 기록이 있을 때만 표시.
+             감정 버튼 아래에 둔다 — 위에 두면 버튼이 화면 밖으로 밀려 한 화면에 선택할 수 없음 -->
+        <div id="otd-card" class="otd-card hidden"></div>
+        <p id="drive-note" class="drive-note">운전 중에는 화면을 보지 마세요</p>
     </div>
 
     <!-- STEP 2: 주제 -->

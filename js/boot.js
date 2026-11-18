@@ -13,7 +13,7 @@ function init() {
     });
     safe('settings', () => {
         const lang = lsGet('appLang');
-        appLang = LANG_DATA[lang] ? lang : 'ko';
+        appLang = (LANG_DATA[lang] && langEnabled(lang)) ? lang : 'ko';
         fontLevel = lsInt('fontLevel', 0, 2, 0);
         const verEl = document.getElementById('app-version');
         if (verEl) verEl.textContent = 'v' + APP_VERSION;
@@ -26,6 +26,7 @@ function init() {
     safe('initHeroTeaser', () => initHeroTeaser());
     safe('checkSeason', () => checkSeason());
     safe('applyLang', () => applyLang(appLang));
+    safe('langChoices', () => syncLangChoices());
     safe('registerSW', () => registerSW());
     safe('installBanner', () => { if (isIOS() && !isStandalone()) scheduleInstallBanner(); });
     safe('billingReturn', () => captureBillingReturn());   // 결제창에서 돌아온 주소 정리 — 반드시 Supabase 시작보다 먼저
@@ -43,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('name-input').addEventListener('keydown', e => { if (e.key === 'Enter') saveName(); });
     });
     safe('restoreDevMode', () => restoreDevMode());
+    safe('shortcut', () => applyShortcut());
+    later('offerResume', () => offerResume(), 1200);
     // "출시 알림 받기"를 눌렀던 사람에게는 판매가 열린 뒤 한 번 프리미엄 안내를 보여 준다 (약속한 알림)
     later('launchNotice', () => {
         if (paymentsOn() && lsGet('premiumInterest') === true && !lsGet('premiumNotified') && !isPremium()) {
