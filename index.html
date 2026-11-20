@@ -28,6 +28,8 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&display=swap"></noscript>
     <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/fx.css">
+    <link rel="stylesheet" href="css/features.css">
 </head>
 <body>
 
@@ -689,6 +691,18 @@
                     <span class="bc-emoji">🤝</span>
                     <span class="bc-text">사람</span>
                 </button>
+                <button class="btn-choice bc-건강" type="button" onclick="pick('topic','건강')">
+                    <span class="bc-emoji">🌿</span>
+                    <span class="bc-text">건강</span>
+                </button>
+                <button class="btn-choice bc-자녀" type="button" onclick="pick('topic','자녀')">
+                    <span class="bc-emoji">👶</span>
+                    <span class="bc-text">자녀</span>
+                </button>
+                <button class="btn-choice bc-신앙" type="button" onclick="pick('topic','신앙')">
+                    <span class="bc-emoji">🕊️</span>
+                    <span class="bc-text">신앙</span>
+                </button>
                 <button class="btn-choice bc-모름" type="button" onclick="pick('topic','모름')">
                     <span class="bc-emoji">🌫️</span>
                     <span class="bc-text">잘 모르겠어요</span>
@@ -753,6 +767,7 @@
                 <p class="verse-ref"  id="r-ref"></p>
             </div>
             <div class="verse-actions">
+                <button class="action-btn" id="btn-next" onclick="nextVerse()">🔄 다른 말씀</button>
                 <button class="action-btn" id="btn-copy"  onclick="copyVerse()">📋 복사</button>
                 <button class="action-btn" id="btn-share" onclick="shareVerse()">📤 공유</button>
                 <button class="action-btn" id="btn-save"  onclick="toggleSave()">⭐ 즐겨찾기</button>
@@ -780,9 +795,9 @@
             <p class="care-line" id="care-line"></p>
         </div>
 
-        <!-- 감사 한 줄 일기 (저장 버튼 없음 — "오늘 묵상 마치기" 시점에 자동 저장) -->
+        <!-- 오늘의 한 줄 일기 (저장 버튼 없음 — "오늘 묵상 마치기" 시점에 자동 저장) -->
         <div class="card">
-            <div class="section-header"><span id="sec-diary" class="section-label">감사 한 줄 일기</span><div class="section-line"></div></div>
+            <div class="section-header"><span id="sec-diary" class="section-label">오늘의 한 줄</span><div class="section-line"></div></div>
             <p id="diary-label" class="diary-label">오늘 딱 한 줄, 마음에 남는 것을 남겨보세요.</p>
             <textarea id="diary-input" class="diary-input" rows="3" placeholder="아무리 작은 것도 괜찮아요..."></textarea>
             <p id="diary-saved-msg" class="diary-saved-msg">✓ 저장되었어요. 그 마음, 하나님이 받으셨어요.</p>
@@ -839,13 +854,18 @@
 </script>
 <!-- 앱 스크립트: 순서가 중요합니다 (뒤 파일이 앞 파일의 값을 씁니다). 구조 설명은 CLAUDE.md -->
 <script src="js/data.js"></script>
+<script src="js/data-verses.js"></script>
+<script src="js/data-text.js"></script>
 <script src="js/core.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/effects.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/pwa.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/home.js"></script>
 <script src="js/flow.js"></script>
+<script src="js/share.js"></script>
+<script src="js/diary.js"></script>
 <script src="js/vault.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/premium.js"></script>

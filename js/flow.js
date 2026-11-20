@@ -1,148 +1,5 @@
-/* 밤의 목장 — js/flow.js : 이름·글자 크기·스트릭·절기·스텝 전환·결과 생성·복사/공유/저장·감사 일기·말씀 선택·연속 감정 인식
+/* 밤의 목장 — js/flow.js : 묵상 흐름 · 감정→주제→필요 단계 전환 · 이어하기 · 결과 화면 만들기 · 말씀 고르기(getVerseForMood) · 기록 저장
    (일반 스크립트. index.html 맨 아래에 적힌 순서대로 불러옵니다) */
-
-/* ═══════════════════════════════════════
-   이름 설정
-═══════════════════════════════════════ */
-function checkFirstVisit() {
-    if (localStorage.getItem('userName') === null) {
-        showOverlay('overlay-name');
-        later('startWelcomeParticles', () => startWelcomeParticles(), 600);
-    }
-}
-
-function saveName() {
-    const val = document.getElementById('name-input').value.trim();
-    lsSet('userName', val || '');
-    lsSet('appLang', appLang);
-    hideOverlay('overlay-name');
-    applyLang(appLang);
-    setWelcome();
-}
-
-function skipName() {
-    lsSet('userName', '');
-    lsSet('appLang', appLang);
-    hideOverlay('overlay-name');
-    applyLang(appLang);
-}
-
-function changeName() {
-    hideOverlay('overlay-settings');
-    document.getElementById('name-input').value = lsGet('userName') || '';
-    setWelcomeLang(appLang);
-    showOverlay('overlay-name');
-    later('startWelcomeParticles', () => startWelcomeParticles(), 400);
-}
-
-/* ── 환영 문구 ── */
-function setWelcome() {
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    const name = lsGet('userName');
-    const base = rand(L.welcome_msgs);
-    let text;
-    if (name) {
-        text = appLang==='en' ? `${name}, ${base}` : appLang==='ja' ? `${name}さん、${base}` : `${name}님, ${base}`;
-    } else {
-        text = base;
-    }
-    const el = document.getElementById('welcome-text');
-    el.textContent = text;
-    el.classList.remove('welcome-bloom');
-    void el.offsetWidth; // reflow to restart animation
-    el.classList.add('welcome-bloom');
-}
-
-function setDate() {
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    const now = new Date();
-    document.getElementById('date-text').textContent =
-        now.toLocaleDateString(L.locale||'ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
-}
-
-/* ═══════════════════════════════════════
-   글자 크기
-═══════════════════════════════════════ */
-function applyFont(level) {
-    document.body.classList.remove('sz-lg','sz-xl');
-    if (level===1) document.body.classList.add('sz-lg');
-    if (level===2) document.body.classList.add('sz-xl');
-    const ind = document.getElementById('fs-indicator');
-    if (ind) ind.textContent = ['●','●●','●●●'][level] || '●';
-    // 설정 버튼 active 상태
-    ['fo-sm','fo-md','fo-lg'].forEach((id,i)=>{
-        const el=document.getElementById(id);
-        if(el) el.classList.toggle('active', i===level);
-    });
-}
-
-function setFont(level) { fontLevel=level; applyFont(level); lsSet('fontLevel',level); }
-
-function cycleFont(dir) {
-    fontLevel = Math.max(0, Math.min(2, fontLevel + dir));
-    applyFont(fontLevel); lsSet('fontLevel',fontLevel);
-}
-
-/* ═══════════════════════════════════════
-   스트릭 (컴팩트 체크인)
-═══════════════════════════════════════ */
-function updateStreak() {
-    const today = todayStr();
-    let dates = getVisits();
-    if (!dates.includes(today)) {
-        dates.push(today);
-        if (sbUser && sb) sb.from('visit_dates').upsert({user_id:sbUser.id, visit_date:today},{onConflict:'user_id,visit_date'})
-            .then(r => { if (r && r.error) logErr('visit.upsert', r.error); }, e => logErr('visit.upsert', e));
-    }
-    const cutoff = ymd(addDays(new Date(), -LOCAL_KEEP_DAYS));
-    dates = dates.filter(d => d >= cutoff).sort();
-    lsSet('visitDates', dates);
-
-    const streak = calcStreak(dates);
-    const pill = document.getElementById('checkin-pill');
-    if (!pill) return;
-
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    const icon = streak >= 7 ? '🔥' : streak >= 3 ? '🌟' : '🌱';
-    document.getElementById('cp-icon').textContent   = icon;
-    document.getElementById('cp-text').textContent   = L.cp_text;
-    document.getElementById('cp-streak').textContent = streak + L.streak_unit;
-    pill.classList.remove('hidden');
-
-    checkInstallNudge(streak);
-}
-
-/* 가장 최근 방문일부터 거슬러 올라가며 하루도 빠지지 않은 날 수 */
-function calcStreak(dates) {
-    const sorted = [...new Set((dates || []).filter(isYmd))].sort().reverse();
-    if (!sorted.length) return 0;
-    let streak = 1;
-    for (let i = 1; i < sorted.length; i++) {
-        if (sorted[i] === ymd(addDays(parseYmd(sorted[i-1]), -1))) streak++; else break;
-    }
-    return streak;
-}
-
-/* ═══════════════════════════════════════
-   절기 감지
-═══════════════════════════════════════ */
-function checkSeason() {
-    const now=new Date(), m=now.getMonth()+1, d=now.getDate();
-    let season=null, icon='';
-    if (m===12&&d>=20&&d<=26)              { season='christmas'; icon='⭐'; }
-    else if (m===1&&d<=5)                  { season='newyear';   icon='🌟'; }
-    else if ((m===3&&d>=28)||(m===4&&d<=10)){ season='easter';   icon='🌸'; }
-    else if (m===9&&d>=14&&d<=17)          { season='chuseok';   icon='🌕'; }
-    if (season) {
-        document.body.classList.add('season-'+season);
-        document.getElementById('main-icon').textContent = icon;
-        const L = LANG_DATA[appLang]||LANG_DATA.ko;
-        const msg = (L.season_msg||LANG_DATA.ko.season_msg)[season]||'';
-        const banner = document.getElementById('season-banner');
-        banner.innerHTML = msg.replace('\n','<br>');
-        banner.classList.add('visible');
-    }
-}
 
 /* ═══════════════════════════════════════
    스텝 전환
@@ -157,6 +14,7 @@ function pickEmo(type, value, event) {
 
 /* 화면이 넘어가는 동안의 두 번째 탭은 무시한다 (빠르게 두 번 누르면 기록이 두 건 생기던 문제) */
 let _picking = false;
+/* 주제/필요 버튼 선택 → 다음 단계로 (연타 방지) */
 function pick(type, value) {
     if (_picking) return;
     _picking = true;
@@ -177,7 +35,7 @@ function pick(type, value) {
         const from = visibleQStep();   // 질문을 건너뛰었다면 지금 보이는 화면은 2단계일 수 있음
         safe('buildResult', buildResult);
         go(from,'step4');
-        later('spawnBlessing', () => spawnBlessing(), 400);
+        if (!HEAVY_EMOS.includes(sel.emotion)) later('spawnBlessing', () => spawnBlessing(), 400);   // 마음이 무거운 날에는 축하 연출을 하지 않는다
     }
 }
 
@@ -187,13 +45,16 @@ function pick(type, value) {
    건너뛰면 주제는 '모름', 필요는 감정별 기본값 (목사님 검토 필요 — 3단계에서 구절과 함께 다시 봄)
 ═══════════════════════════════════════ */
 const DEFAULT_NEED = { 감사:'쉼', 평안:'쉼', 걱정:'위로', 지침:'쉼', 아픔:'위로', 기도:'위로' };
+/* 지금 보이는 질문 단계(주제 또는 필요) */
 function visibleQStep() { return ['step3', 'step2'].find(id => !document.getElementById(id).classList.contains('hidden')) || 'step3'; }
+/* 질문을 건너뛰고 기본값으로 결과 화면 보기 */
 function skipToResult() {
     if (_picking || !sel.emotion) return;
     if (!sel.topic) sel.topic = '모름';
     sel.skipped = true;   // 필요는 직접 고른 게 아니라 기본값 → 통계(자주 필요했던 것)에서 뺀다
     pick('need', DEFAULT_NEED[sel.emotion] || '위로');
 }
+/* 질문 단계에서 이전 단계로 */
 function goBack(from) {
     if (_picking) return;
     _picking = true; setTimeout(() => { _picking = false; }, 340);
@@ -216,9 +77,11 @@ function goBack(from) {
    감정·주제를 고를 때마다 적어 두고, 45분 안에 같은 날 다시 열면 "이어서 할까요?"를 묻는다.
 ═══════════════════════════════════════ */
 const RESUME_MAX_AGE = 45 * 60 * 1000;
+/* 고른 감정을 45분간 기억 (끊겼다 돌아오면 이어하기) */
 function saveResume() {
     lsSet('resumeSel', { emotion: sel.emotion, topic: sel.topic || null, date: todayStr(), t: Date.now() });
 }
+/* 이어하기 정보 지움 */
 function clearResume() {
     try { localStorage.removeItem('resumeSel'); } catch {}
     const bar = document.getElementById('resume-bar'); if (bar) bar.classList.add('hidden');
@@ -232,6 +95,7 @@ function readResume() {
     if (r.date !== todayStr() || !(Date.now() - Number(r.t) < RESUME_MAX_AGE)) return null;
     return r;
 }
+/* 이어하기 바 보여주기 (45분·같은 날 안에서만) */
 function offerResume() {
     const r = readResume(), bar = document.getElementById('resume-bar');
     if (!bar) return;
@@ -241,6 +105,7 @@ function offerResume() {
     document.getElementById('resume-text').textContent = (E_EMOJI[r.emotion] || '') + ' ' + L.resume_text;
     bar.classList.remove('hidden');
 }
+/* 이어하기 눌렀을 때 그 감정에서 다시 시작 */
 function resumeFlow() {
     const r = readResume();
     clearResume();
@@ -248,10 +113,12 @@ function resumeFlow() {
     pick('emotion', r.emotion);
     if (r.topic) setTimeout(() => pick('topic', r.topic), 400);   // 첫 화면 전환(0.34초)이 끝난 뒤
 }
+/* 이어하기 안내 닫기 */
 function dismissResume() { clearResume(); }
 
 /* 홈 화면 아이콘을 길게 눌러 고르는 바로가기 (manifest.json shortcuts, Android). 주소의 ?e=… 로 들어오면 그 감정을 고른 상태로 시작 */
 const SHORTCUT_EMO = { worry:'걱정', tired:'지침', hurt:'아픔', pray:'기도', thanks:'감사', peace:'평안' };
+/* ?e=감정 주소(홈 화면 바로가기)로 열렸으면 그 감정을 고른 상태로 시작 */
 function applyShortcut() {
     let e = null;
     try { e = SHORTCUT_EMO[new URLSearchParams(location.search).get('e')] || null; } catch {}
@@ -266,6 +133,7 @@ function applyShortcut() {
     }, 300);
 }
 
+/* 결과 카드들을 차례로 나타나게 하는 연출 */
 function cascadeResultCards() {
     const cards = document.querySelectorAll('#step4 .card');
     cards.forEach(c => { c.classList.add('card-cascade'); c.classList.remove('revealed'); });
@@ -274,6 +142,7 @@ function cascadeResultCards() {
     });
 }
 
+/* 화면 단계 전환(fromId → toId). 전환 연출과 상태 정리를 함께 한다 */
 function go(fromId, toId) {
     const from=document.getElementById(fromId), to=document.getElementById(toId);
     safe('nudge.hide', () => dismissNudge());
@@ -342,7 +211,10 @@ function buildResult() {
 
     // 일기 초기화
     document.getElementById('diary-input').value = '';
+    _diaryEmptied = false;
     document.getElementById('diary-saved-msg').style.display='none';
+    const dlEl = document.getElementById('diary-label');
+    if (dlEl) dlEl.textContent = ((Lb.diary_label_emo||{})[emotion]) || Lb.diary_label;
 
     // 저장 버튼 초기화
     const btn=document.getElementById('btn-save');
@@ -362,6 +234,7 @@ function buildResult() {
     if (br) br.textContent = (LANG_DATA[appLang]||LANG_DATA.ko).btn_finish;
 
     // ② 여기부터는 하나가 실패해도 나머지와 결과 화면에 영향이 없어야 하는 일들
+    safe('welcome', () => setWelcome(emotion));
     safe('saveMood', () => saveMood());
     // 연속 감정 인식 라인 (기록 저장 후 계산해야 오늘 포함됨)
     safe('renderEmotionPattern', () => renderEmotionPattern());
@@ -371,6 +244,28 @@ function buildResult() {
     safe('startClosingTimer', () => startClosingTimer());
 }
 
+/* "다른 말씀": 같은 마음(감정·필요)의 다른 구절로 바꾼다. 기록의 말씀 표시도 함께 바꾼다 */
+function nextVerse() {
+    if (!sel.emotion || !sel.need || !curVerse) return;
+    let v = getVerseForMood(sel.emotion, sel.need);
+    for (let k = 0; k < 4 && v.r === curVerse.r && v.v === curVerse.v; k++) v = getVerseForMood(sel.emotion, sel.need);
+    if (!v.v || (v.r === curVerse.r && v.v === curVerse.v)) return;
+    curVerse = v; verseSaved = false;
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    document.getElementById('r-ref').textContent = '— ' + v.r;
+    document.getElementById('r-verse').textContent = v.v;
+    safe('typewriterVerse', () => typewriterVerse(v.v));
+    const btn = document.getElementById('btn-save'); btn.textContent = L.btn_save; btn.classList.remove('saved');
+    safe('nextVerse.record', () => {
+        const hist = getMoods(), today = todayStr();
+        const h = hist.find(x => x.date === today && x.emotion === sel.emotion && x.topic === sel.topic && x.need === sel.need);
+        if (h) { h.ref = v.r; lsSet('moodHistory', hist); clearHistoryCache(); }
+        if (sbUser && sb && curMoodRowId != null) sb.from('mood_history').update({verse_ref: v.r}).eq('user_id', sbUser.id).eq('id', curMoodRowId)
+            .then(r => { if (r && r.error) logErr('verse.update', r.error); }, e => logErr('verse.update', e));
+    });
+}
+
+/* 오늘의 감정 기록을 기기에 저장하고 로그인했으면 클라우드에도 올림 */
 function saveMood() {
     const {emotion,topic,need}=sel;
     const today = todayStr();
@@ -386,259 +281,7 @@ function saveMood() {
               e => logErr('mood.insert', e));
 }
 
-/* ═══════════════════════════════════════
-   말씀 복사
-═══════════════════════════════════════ */
-function copyVerse() {
-    if (!curVerse) return;
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    const text = `"${curVerse.v}"\n${curVerse.r}`;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text)
-            .then(()=>toast(L.toast_copied))
-            .catch(()=>legacyCopy(text));
-    } else {
-        legacyCopy(text);
-    }
-}
 
-/* ═══════════════════════════════════════
-   QR 공유
-═══════════════════════════════════════ */
-function toggleQR() {
-    const panel = document.getElementById('qr-panel');
-    if (!panel) return;
-    const open = panel.style.display !== 'none';
-    if (open) { panel.style.display = 'none'; return; }
-    const img = document.getElementById('qr-img');
-    if (img && !img.dataset.loaded) {
-        img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=' + encodeURIComponent(SHARE_URL);
-        img.dataset.loaded = '1';
-    }
-    panel.style.display = 'block';
-}
-
-function copyShareLink() {
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(SHARE_URL).then(()=>toast(L.qr_copied)).catch(()=>legacyCopyText(SHARE_URL));
-    } else { legacyCopyText(SHARE_URL); }
-}
-
-function openFeedback() {
-    window.open('https://forms.gle/3tHkJoimqctvvCt1A', '_blank', 'noopener,noreferrer');
-}
-
-function legacyCopyText(text) {
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.cssText = 'position:fixed;top:-999px;left:-999px;opacity:0;';
-    document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); toast(L.qr_copied); } catch {}
-    document.body.removeChild(ta);
-}
-
-/* ═══════════════════════════════════════
-   말씀 공유
-═══════════════════════════════════════ */
-/* ── 말씀 카드 이미지 생성 (밤하늘 감성 캔버스) ── */
-function makeVerseCardBlob() {
-    return new Promise((resolve, reject) => {
-        try {
-            const W = 1080, H = 1350;
-            const c = document.createElement('canvas');
-            c.width = W; c.height = H;
-            const x = c.getContext('2d');
-            const FAM = "'Apple SD Gothic Neo','Pretendard','Malgun Gothic','맑은 고딕',sans-serif";
-            // 배경 그라데이션 (앱 배경과 동일 톤)
-            const g = x.createLinearGradient(0, 0, 0, H);
-            g.addColorStop(0,'#0e1842'); g.addColorStop(.35,'#132050');
-            g.addColorStop(.65,'#0a1030'); g.addColorStop(1,'#050a1e');
-            x.fillStyle = g; x.fillRect(0, 0, W, H);
-            // 오로라
-            const aurora = (cx, cy, r, col) => {
-                const rg = x.createRadialGradient(cx, cy, 0, cx, cy, r);
-                rg.addColorStop(0, col); rg.addColorStop(1, 'rgba(0,0,0,0)');
-                x.fillStyle = rg; x.fillRect(0, 0, W, H);
-            };
-            aurora(160, 220, 520, 'rgba(40,70,210,.28)');
-            aurora(940, 1140, 470, 'rgba(90,20,190,.2)');
-            aurora(540, 680, 420, 'rgba(180,140,30,.1)');
-            // 별
-            for (let i = 0; i < 90; i++) {
-                x.globalAlpha = .12 + Math.random() * .55;
-                x.fillStyle = '#fff';
-                x.beginPath();
-                x.arc(Math.random() * W, Math.random() * H, .6 + Math.random() * 2.2, 0, 7);
-                x.fill();
-            }
-            x.globalAlpha = 1;
-            x.textAlign = 'center';
-            // 달
-            x.font = '110px serif';
-            x.fillText('✦', W / 2, 250);
-            // 말씀 본문 (단어 단위 줄바꿈, 길면 글자 단위)
-            const words = ('“' + curVerse.v + '”').split(' ');
-            const maxW = 860, lines = [];
-            x.font = '500 52px ' + FAM;
-            let line = '';
-            words.forEach(w => {
-                const t = line ? line + ' ' + w : w;
-                if (x.measureText(t).width > maxW && line) { lines.push(line); line = w; }
-                else line = t;
-            });
-            if (line) lines.push(line);
-            const lh = 92;
-            let y = Math.max(430, (H - lines.length * lh) / 2 - 60);
-            x.fillStyle = 'rgba(255,252,245,.95)';
-            lines.forEach(l => { x.fillText(l, W / 2, y); y += lh; });
-            // 출처
-            x.fillStyle = '#c8a870';
-            x.font = 'italic 40px ' + FAM;
-            x.fillText('— ' + curVerse.r, W / 2, y + 30);
-            // 푸터
-            x.fillStyle = 'rgba(255,255,255,.42)';
-            x.font = '30px ' + FAM;
-            x.fillText('밤의 목장 · ' + SHARE_URL.replace(/^https?:\/\//, '').replace(/\/$/, ''), W / 2, H - 80);
-            c.toBlob(b => b ? resolve(b) : reject(new Error('toBlob failed')), 'image/png');
-        } catch (e) { reject(e); }
-    });
-}
-
-async function shareVerse() {
-    if (!curVerse) return;
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    const text = `"${curVerse.v}"\n— ${curVerse.r}\n\n${L.share_app}`;
-    // 1순위: 이미지 카드 공유 (Web Share Level 2)
-    if (navigator.canShare && location.protocol !== 'file:') {
-        try {
-            const blob = await makeVerseCardBlob();
-            const file = new File([blob], 'verse-card.png', { type: 'image/png' });
-            if (navigator.canShare({ files: [file] })) {
-                await navigator.share({ files: [file], title: L.share_title, text });
-                return;
-            }
-        } catch (err) {
-            if (err && err.name === 'AbortError') return; // 사용자가 공유 취소
-        }
-    }
-    // 2순위: 텍스트 공유
-    if (navigator.share && location.protocol !== 'file:') {
-        navigator.share({ title: L.share_title, text, url: SHARE_URL })
-            .catch(err => { if (err && err.name !== 'AbortError') downloadVerseCard(text); });
-    } else {
-        downloadVerseCard(text);
-    }
-}
-
-/* 공유 API 없는 환경(데스크톱 등): 이미지 다운로드 + 텍스트 복사 */
-function downloadVerseCard(text) {
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    makeVerseCardBlob().then(blob => {
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'verse-card.png';
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(a.href), 3000);
-        toast(L.toast_img_saved);
-    }).catch(() => fallbackShare(text));
-}
-
-function fallbackShare(text) {
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text)
-            .then(()=>toast(L.toast_copied))
-            .catch(()=>legacyCopy(text));
-    } else {
-        legacyCopy(text);
-    }
-}
-
-function legacyCopy(text) {
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.cssText = 'position:fixed;top:-999px;left:-999px;opacity:0;pointer-events:none;';
-    document.body.appendChild(ta);
-    ta.focus(); ta.select();
-    let ok = false;
-    try { ok = document.execCommand('copy'); } catch {}
-    ta.remove();
-    toast(ok ? L.toast_copied : (appLang==='en' ? 'Please select and copy the text manually' : appLang==='ja' ? 'テキストを手動でコピーしてください' : '텍스트를 직접 선택하여 복사해주세요'));
-}
-
-/* ═══════════════════════════════════════
-   말씀 저장 (♡)
-═══════════════════════════════════════ */
-function toggleSave() {
-    if (!curVerse||verseSaved) return;
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    const {emotion,need}=sel;
-    // 표시용 글(날짜·감정 이름)은 저장하지 않고 원래 값만 저장 → 보관함이 그때그때 현재 언어로 보여 줌
-    const saved = getSaved().filter(x => !(x.ref === curVerse.r && x.verse === curVerse.v));
-    saved.unshift({ verse: curVerse.v, ref: curVerse.r, emotion, need, savedAt: new Date().toISOString() });
-    lsSet('savedVerses', saved.slice(0, SAVED_MAX));
-    lsSet('savedDeleted', lsArr('savedDeleted').filter(k => k !== curVerse.r + '|' + curVerse.v));   // 다시 저장하면 삭제 기록을 지움
-    if (sbUser && sb) sb.from('saved_verses').insert({user_id:sbUser.id, verse_text:curVerse.v, verse_ref:curVerse.r, emotion, need})
-        .then(r => { if (r && r.error) logErr('saved.insert', r.error); }, e => logErr('saved.insert', e));
-    verseSaved=true;
-    const btn=document.getElementById('btn-save');
-    btn.textContent=L.btn_saved; btn.classList.add('saved');
-    toast(L.toast_saved_verse);
-}
-
-/* ═══════════════════════════════════════
-   감사 일기
-═══════════════════════════════════════ */
-/* 클로징 시점에 일기 내용이 있으면 자동 저장 (저장 버튼 없음) */
-function autoSaveDiary() {
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    const text = document.getElementById('diary-input').value.trim();
-    if (!text) return;
-    if (!saveDiaryLocal(text)) { toast(L.toast_store_fail); return; }   // 저장하지 못했는데 "저장됐다"고 말하지 않는다
-    pushDiaryToCloud(text);
-    document.getElementById('diary-saved-msg').style.display='block';
-    toast(L.toast_diary_saved);
-}
-
-/* 지금 보고 있는 결과의 기록(오늘·감정·주제·필요가 같은 가장 최근 줄)에 일기를 적는다.
-   이 기기에만 — 인터넷이 없어도 된다. 클라우드에는 pushDiaryToCloud()가, 못 올린 것은 나중에 syncWithServer()가 */
-function saveDiaryLocal(text) {
-    const hist = getMoods(), today = todayStr();
-    const h = hist.find(x => x.date === today && x.emotion === sel.emotion && x.topic === sel.topic && x.need === sel.need);
-    if (!h) return false;                       // 붙일 기록이 없음
-    if ((h.diary || '') === text) return true;  // 이미 같은 글
-    if (text) h.diary = text; else delete h.diary;
-    if (!lsSet('moodHistory', hist)) return false;
-    safe('history.cache', () => clearHistoryCache());
-    return true;
-}
-function pushDiaryToCloud(text) {
-    if (!(sbUser && sb)) return;
-    // 방금 넣은 그 줄에만 일기를 붙인다 (id를 모르면 같은 날·같은 선택의 줄). 실패(오프라인 등)하면 다음 맞추기 때 올라감
-    let q = sb.from('mood_history').update({diary_text:text}).eq('user_id',sbUser.id);
-    q = curMoodRowId != null ? q.eq('id', curMoodRowId)
-        : q.eq('date', todayStr()).eq('emotion', sel.emotion).eq('topic', sel.topic).eq('need', sel.need);
-    q.then(r => { if (r && r.error) logErr('diary.update', r.error); }, e => logErr('diary.update', e));
-}
-
-/* 쓰는 동안 이 기기에 조용히 저장한다. 이전에는 "마치기"를 눌러야만 저장돼서, 앱이 닫히면 쓰던 글이 사라졌다 */
-let _diaryDraftTimer = null;
-function saveDiaryDraft() {
-    clearTimeout(_diaryDraftTimer); _diaryDraftTimer = null;
-    const input = document.getElementById('diary-input'), s4 = document.getElementById('step4');
-    if (!input || !s4 || s4.classList.contains('hidden') || !sel.emotion || closingTriggered) return;
-    const text = input.value.trim();
-    if (text) saveDiaryLocal(text);   // 비운 경우는 건드리지 않는다 — 쓰다 만 글을 빈 값으로 덮지 않음
-}
-document.addEventListener('DOMContentLoaded', () => {
-    const input = document.getElementById('diary-input');
-    if (input) input.addEventListener('input', () => { clearTimeout(_diaryDraftTimer); _diaryDraftTimer = setTimeout(() => safe('diary.draft', saveDiaryDraft), 600); });
-});
-document.addEventListener('visibilitychange', () => { if (document.hidden) safe('diary.flush', saveDiaryDraft); });
-window.addEventListener('pagehide', () => safe('diary.flush', saveDiaryDraft));
 
 /* 중복 방지 말씀 선택
    한국어 묶음과 영어 묶음은 구절 수가 서로 다르므로(같은 번호가 같은 구절이 아님)
@@ -667,71 +310,3 @@ function getVerseForMood(emotion, need) {
     return pool[picked];
 }
 
-/* ── 히어로 묵상 초기화 ── */
-const TEASER_POOL = [
-    { t:'여호와는 나의 목자시니 내게 부족함이 없으리로다', r:'시편 23:1', te:'The LORD is my shepherd; I shall not want.', re:'Psalm 23:1' },
-    { t:'수고하고 무거운 짐 진 자들아 다 내게로 오라 내가 너희를 쉬게 하리라', r:'마태복음 11:28', te:'Come to me, all who labor and are heavy laden, and I will give you rest.', re:'Matthew 11:28' },
-    { t:'내가 너희에게 평안을 끼치노니 곧 나의 평안을 너희에게 주노라', r:'요한복음 14:27', te:'Peace I leave with you; my peace I give to you.', re:'John 14:27' },
-    { t:'모든 것이 협력하여 선을 이루느니라', r:'로마서 8:28', te:'All things work together for good for those who love God.', re:'Romans 8:28' },
-    { t:'하나님은 우리의 피난처시요 힘이시니 환난 중에 만날 큰 도움이시라', r:'시편 46:1', te:'God is our refuge and strength, a very present help in trouble.', re:'Psalm 46:1' },
-    { t:'내가 세상 끝날까지 너희와 항상 함께 있으리라', r:'마태복음 28:20', te:'I am with you always, to the end of the age.', re:'Matthew 28:20' },
-    { t:'주님의 인자하심이 영원하시며 그의 진실하심이 대대에 이르리로다', r:'시편 100:5', te:'The LORD is good; his steadfast love endures forever, and his faithfulness to all generations.', re:'Psalm 100:5' },
-    { t:'너희는 마음에 근심하지 말라 하나님을 믿으니 또 나를 믿으라', r:'요한복음 14:1', te:'Let not your hearts be troubled. Believe in God; believe also in me.', re:'John 14:1' },
-    { t:'여호와를 앙망하는 자는 새 힘을 얻으리니', r:'이사야 40:31', te:'They who wait for the LORD shall renew their strength.', re:'Isaiah 40:31' },
-    { t:'주의 말씀은 내 발에 등이요 내 길에 빛이니이다', r:'시편 119:105', te:'Your word is a lamp to my feet and a light to my path.', re:'Psalm 119:105' },
-    { t:'사랑은 오래 참고 사랑은 온유하며 시기하지 아니하며', r:'고린도전서 13:4', te:'Love is patient and kind; love does not envy or boast', re:'1 Corinthians 13:4' },
-    { t:'항상 기뻐하라 쉬지 말고 기도하라 범사에 감사하라', r:'데살로니가전서 5:16-18', te:'Rejoice always, pray without ceasing, give thanks in all circumstances.', re:'1 Thessalonians 5:16-18' },
-];
-
-function initHeroTeaser() {
-    const storeKey = 'shownTeaser';
-    let shown = lsArr(storeKey);
-    const allIdx = TEASER_POOL.map((_,i)=>i);
-    let avail = allIdx.filter(i=>!shown.includes(i));
-    if (!avail.length) { shown=[]; avail=allIdx; lsSet(storeKey,[]); }
-    const picked = avail[Math.floor(Math.random()*avail.length)];
-    lsSet(storeKey, [...shown, picked]);
-    const item = TEASER_POOL[picked];
-    const tEl = document.getElementById('ht-text');
-    const rEl = document.getElementById('ht-ref');
-    const useEn = appLang==='en' && item.te;
-    if (tEl) tEl.textContent = `"${useEn ? item.te : item.t}"`;
-    if (rEl) rEl.textContent = `— ${useEn ? item.re : item.r}`;
-}
-
-/* ═══════════════════════════════════════
-   연속 감정 인식 — moodHistory 기반, AI 없이 "나를 아는" 문장
-═══════════════════════════════════════ */
-const EMO_CATEGORY = { 걱정:'neg', 지침:'neg', 아픔:'neg', 감사:'pos', 평안:'pos', 기도:'pray' };
-
-/* 오늘 감정과 같은 결(카테고리)이 며칠째 이어지는지 (오늘 포함) */
-function calcEmotionRun() {
-    const hist = getMoods();
-    if (!hist.length) return null;
-    const today = todayStr();
-    if (hist[0].date !== today) return null;
-    const cat = EMO_CATEGORY[hist[0].emotion];
-    if (!cat) return null;
-    // 날짜별 최신 감정 (hist는 최신순)
-    const byDay = {};
-    hist.forEach(h => { if (!(h.date in byDay)) byDay[h.date] = EMO_CATEGORY[h.emotion]; });
-    let n = 0;
-    for (let d = new Date(); n <= LOCAL_KEEP_DAYS && byDay[ymd(d)] === cat; d = addDays(d, -1)) n++;
-    return { cat, n };
-}
-
-function renderEmotionPattern() {
-    const el = document.getElementById('r-pattern');
-    if (!el) return;
-    el.classList.add('hidden');
-    const run = calcEmotionRun();
-    if (!run || run.n < 2) return;
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    let msg = null;
-    if (run.cat === 'neg')  msg = run.n === 2 ? L.pat_neg_2 : L.pat_neg_n;
-    if (run.cat === 'pos')  msg = L.pat_pos_n;
-    if (run.cat === 'pray') msg = L.pat_pray_n;
-    if (!msg) return;
-    el.textContent = msg.replace('{n}', run.n);
-    el.classList.remove('hidden');
-}

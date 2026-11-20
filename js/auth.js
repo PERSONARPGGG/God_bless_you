@@ -32,6 +32,7 @@ async function loginWithGoogle() {
     } catch (e) { logErr('login', e); toast(L.login_unavailable); }
 }
 
+/* 로그아웃 */
 async function sbLogout() {
     if (!sb) return;
     try { await sb.auth.signOut(); } catch (e) { logErr('logout', e); }
@@ -41,6 +42,7 @@ async function sbLogout() {
     toast((LANG_DATA[appLang]||LANG_DATA.ko).logout_done);
 }
 
+/* 로그인 상태에 맞게 설정의 로그인/로그아웃 줄 표시 */
 function updateAuthUI() {
     const rowLogin  = document.getElementById('row-login');
     const rowLogout = document.getElementById('row-logout');
@@ -83,6 +85,7 @@ function moodToRow(h, uid) {
 /* 감정 기록 넣기. 서버 테이블에 verse_ref 열이 아직 없으면(docs/supabase_schema.sql 실행 전) 그 열만 빼고 다시 넣는다
    — 열 하나 때문에 기록 저장 전체가 실패하지 않게. one=true면 넣은 줄의 id를 돌려받는다 */
 let _noVerseRefCol = false;
+/* 감정 기록을 클라우드에 넣음 (verse_ref 열이 없는 서버면 그 열을 빼고 재시도) */
 async function insertMoodRows(rows, one) {
     const run = list => { const q = sb.from('mood_history').insert(one ? list[0] : list); return one ? q.select('id').single() : q; };
     const strip = list => list.map(r => { const c = { ...r }; delete c.verse_ref; return c; });
@@ -243,7 +246,9 @@ function askSync(nUp, nDown) {
     document.getElementById('sync-no').textContent = L.sync_ask_no;
     m.classList.remove('hidden');
 }
+/* "기록 맞추기" 확인창에서 허락 → 맞추기 실행 */
 function confirmSync() { closeSyncAsk(); syncWithServer({ confirmed: true }); }
+/* 기록 맞추기 확인창 닫기 */
 function closeSyncAsk() { const m = document.getElementById('sync-modal'); if (m) m.classList.add('hidden'); }
 /* 설정의 "지금 맞추기" */
 function syncNow() {

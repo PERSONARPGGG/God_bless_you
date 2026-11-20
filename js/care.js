@@ -7,7 +7,7 @@
 ═══════════════════════════════════════════════════════════════ */
 
 /* 운영자 정보 — 사업자등록 후 채우면 처리방침·약관 하단에 자동 표시됨 (비어 있으면 '베타 운영 중' 안내) */
-const OPERATOR = { name:'', bizNo:'', email:'' };
+const OPERATOR = { name:'Garry', bizNo:'', email:'personarpg7501@gmail.com' };
 const POLICY_DATE = '2026-11-16';
 /* 동의 문구가 바뀌면 이 값을 올려 다시 동의받는다 */
 const CONSENT_VERSION = '2026-11-v1';
@@ -26,7 +26,7 @@ const V27_TEXT = {
         reset_fail:'클라우드 기록을 지우지 못해 초기화를 중단했어요. 다시 시도해 주세요.',
         consent_title:'로그인 전에 확인해 주세요',
         consent_desc:'로그인하면 이 기기의 기록이 클라우드에 저장되어 다른 기기에서도 이어볼 수 있어요.',
-        consent_c1:'(필수) 개인정보 수집·이용에 동의합니다 — 이메일, 감정 기록, 감사 일기, 즐겨찾기 말씀',
+        consent_c1:'(필수) 개인정보 수집·이용에 동의합니다 — 이메일, 감정 기록, 일기, 즐겨찾기 말씀',
         consent_c2:'(필수) 신앙과 마음 상태가 드러날 수 있는 기록(민감정보)을 저장하는 데 동의합니다',
         consent_c3:'(필수) 만 14세 이상입니다',
         consent_view:'개인정보 처리방침 전문 보기', consent_agree:'동의하고 Google로 로그인', consent_cancel:'로그인 없이 계속 쓰기',
@@ -116,12 +116,12 @@ const POLICY_HTML = {
         ko: () => `
 <p>시행일: ${POLICY_DATE}</p>
 <h3>1. 로그인하지 않고 쓰는 경우</h3>
-<p>감정 기록, 감사 일기, 즐겨찾기 말씀, 방문 날짜, 설정은 이 기기(브라우저 저장소)에만 저장되며 서버로 전송되지 않습니다.</p>
+<p>감정 기록, 일기, 즐겨찾기 말씀, 방문 날짜, 설정은 이 기기(브라우저 저장소)에만 저장되며 서버로 전송되지 않습니다.</p>
 <h3>2. Google로 로그인한 경우 수집하는 항목</h3>
 <ul>
 <li>Google 계정 이메일과 계정 식별자</li>
 <li>입력한 호칭(이름), 언어·테마·글자 크기 설정</li>
-<li>감정 기록(감정·주제·필요), 감사 일기, 즐겨찾기 말씀, 방문 날짜</li>
+<li>감정 기록(감정·주제·필요), 일기, 즐겨찾기 말씀, 방문 날짜</li>
 </ul>
 <h3>3. 민감정보</h3>
 <p>이 앱의 기록에는 신앙과 마음 상태가 드러날 수 있습니다. 이런 기록은 로그인 전에 별도로 동의하신 경우에만 서버에 저장합니다.</p>
@@ -209,7 +209,7 @@ ${operatorHtml()}`,
 <p>한국어 말씀은 「성경전서 개역한글판」(대한성서공회)을 본문 그대로 인용합니다. 번역본의 저작권 보호기간이 지난 판이며, 본문을 고쳐 쓰지 않습니다. 영어·일본어는 번역본 이용 조건을 확인하는 동안 제공하지 않습니다.</p>
 <h3>2. 기록은 어디에 보관되나요</h3>
 <ul>
-<li>로그인하지 않으면 모든 기록이 이 기기에만 있고, 기기에는 최근 62일의 감정 기록과 방문 날짜를 둡니다. 더 오래 남기려면 로그인하세요.</li>
+<li>로그인하지 않으면 모든 기록이 이 기기에만 있고, 기기에는 최근 62일의 감정 기록과 방문 날짜를 두고, 일기를 쓴 기록은 1년간 둡니다. 모든 기록을 더 오래 남기려면 로그인하세요.</li>
 <li>로그인하면 기록이 클라우드에도 저장됩니다. 기기와 클라우드의 내용이 다르면 합치기 전에 먼저 물어봅니다.</li>
 <li>같은 날 두 곳에 서로 다른 일기가 있으면 어느 쪽도 지우지 않고 이어 붙입니다.</li>
 <li>인터넷이 없어도 묵상과 기록은 됩니다. 연결되면 맞출 수 있습니다.</li>
@@ -226,6 +226,7 @@ ${operatorHtml()}`,
     },
 };
 
+/* 처리방침/서비스 운영 기준 등 문서 창 열기(kind: privacy·terms·standards 등) */
 function openPolicy(kind) {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const set = POLICY_HTML[kind] || POLICY_HTML.privacy;
@@ -239,6 +240,7 @@ function openPolicy(kind) {
 
 /* ── 로그인 전 동의 ── */
 function hasConsent() { const c = lsGet('consent'); return !!(c && c.v === CONSENT_VERSION); }
+/* 로그인 전 필수 동의창 열기 */
 function openConsent() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const s = (id,t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
@@ -249,11 +251,14 @@ function openConsent() {
     updateConsentBtn();
     document.getElementById('consent-modal').classList.remove('hidden');
 }
+/* 동의창 닫기 */
 function closeConsent() { document.getElementById('consent-modal').classList.add('hidden'); }
+/* 세 항목이 모두 체크되어야 "동의" 버튼이 켜짐 */
 function updateConsentBtn() {
     const ok = ['consent-c1','consent-c2','consent-c3'].every(id => document.getElementById(id).checked);
     document.getElementById('consent-agree').disabled = !ok;
 }
+/* 동의를 기기에 기록(버전·시각)하고 로그인 진행 */
 function agreeConsent() {
     lsSet('consent', { v: CONSENT_VERSION, at: new Date().toISOString() });
     closeConsent();
@@ -305,6 +310,7 @@ function otdTargets() {
     ];
 }
 let _otdSeq = 0;
+/* "한 달 전 오늘 밤" 회고 카드 (무료 3개월 이내, 프리미엄은 더 오래) */
 async function renderOnThisDay() {
     const el = document.getElementById('otd-card');
     if (!el) return;
@@ -344,6 +350,7 @@ async function renderOnThisDay() {
     }
     el.classList.remove('hidden');
 }
+/* 회고 카드를 오늘은 다시 안 보이게 */
 function dismissOnThisDay() {
     lsSet('otdDismissed', todayStr());
     const el = document.getElementById('otd-card');

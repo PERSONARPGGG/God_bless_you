@@ -9,7 +9,7 @@ const AI_TEXT = {
     ko: {
         ai_btn:'✨ AI 돌아보기', ai_title:'AI 돌아보기',
         ai_consent_title:'AI 돌아보기를 쓰기 전에',
-        ai_consent_desc:'이 달의 감정 기록과 감사 일기를 AI가 읽고 한 편의 글로 돌아봐 드려요. 이를 위해 그 달의 기록이 해외의 AI 서비스 사업자에게 전달됩니다. 이름과 이메일은 보내지 않으며, 전달된 기록은 AI 학습에 쓰이지 않도록 설정되어 있어요.',
+        ai_consent_desc:'이 달의 감정 기록과 일기를 AI가 읽고 한 편의 글로 돌아봐 드려요. 이를 위해 그 달의 기록이 해외의 AI 서비스 사업자에게 전달됩니다. 이름과 이메일은 보내지 않으며, 전달된 기록은 AI 학습에 쓰이지 않도록 설정되어 있어요.',
         ai_consent_check:'(선택) 신앙과 마음 상태가 드러날 수 있는 기록을 AI 돌아보기를 위해 해외 AI 사업자에게 전달하는 데 동의합니다',
         ai_consent_agree:'동의하고 만들기', ai_consent_cancel:'취소',
         ai_loading:'기록을 읽으며 글을 쓰는 중이에요…',
@@ -48,6 +48,7 @@ const AI_TEXT = {
 };
 Object.keys(AI_TEXT).forEach(k => Object.assign(LANG_DATA[k], AI_TEXT[k]));
 
+/* AI 돌아보기 기능이 켜져 있는가 (AI_REPORT.on + 웹에서만) */
 function aiReportOn() { return !!(AI_REPORT.on && location.protocol !== 'file:'); }
 const aiPeriod = () => histY + '-' + String(histM).padStart(2, '0');
 
@@ -60,6 +61,7 @@ function aiReportButtonHtml() {
 }
 
 let _aiBusy = false, _aiSeq = 0;
+/* AI 돌아보기 실행: 동의 확인 → 서버(/api/ai-report) 호출 → 결과 표시 */
 async function openAiReport(regenerate) {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     if (!aiReportOn() || _aiBusy) return;
@@ -106,10 +108,13 @@ function openAiConsent() {
     document.getElementById('ai-consent-agree').disabled = true;
     m.classList.remove('hidden');
 }
+/* AI 동의창 닫기 */
 function closeAiConsent() { const m = document.getElementById('ai-modal'); if (m) m.classList.add('hidden'); }
+/* 동의 체크가 되어야 "동의" 버튼이 켜짐 */
 function updateAiConsentBtn() {
     document.getElementById('ai-consent-agree').disabled = !document.getElementById('ai-consent-check').checked;
 }
+/* AI 동의를 서버(profiles)에 기록 */
 async function agreeAiConsent() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     if (!sbUser || !sb) { closeAiConsent(); toast(L.ai_err_login); return; }
@@ -124,6 +129,7 @@ async function agreeAiConsent() {
     closeAiConsent();
     openAiReport();
 }
+/* AI 동의 철회 */
 async function withdrawAiConsent() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     if (!sbUser || !sb) return;
@@ -142,7 +148,7 @@ function aiPrivacyHtml(lang) {
     if (!aiReportOn()) return '';
     return ({
         ko: `<h3>AI 돌아보기 이용 시 (선택)</h3>
-<p>AI 돌아보기는 별도로 동의하신 경우에만 동작합니다. 글을 만들 때 선택한 달의 감정 기록과 감사 일기가 OpenRouter, Inc.(미국)와 그가 연결하는 AI 모델 제공 사업자에게 전송되어 처리됩니다. 이름·이메일·계정 식별값은 전송하지 않으며, 전송된 내용을 AI 학습에 사용하지 않는 사업자로만 보내도록 설정합니다. 만들어진 글은 이 서비스의 데이터베이스에 저장되며 계정을 삭제하면 함께 삭제됩니다. 동의는 AI 돌아보기 화면에서 언제든 철회할 수 있고, 동의하지 않아도 다른 기능은 그대로 이용할 수 있습니다.</p>`,
+<p>AI 돌아보기는 별도로 동의하신 경우에만 동작합니다. 글을 만들 때 선택한 달의 감정 기록과 일기가 OpenRouter, Inc.(미국)와 그가 연결하는 AI 모델 제공 사업자에게 전송되어 처리됩니다. 이름·이메일·계정 식별값은 전송하지 않으며, 전송된 내용을 AI 학습에 사용하지 않는 사업자로만 보내도록 설정합니다. 만들어진 글은 이 서비스의 데이터베이스에 저장되며 계정을 삭제하면 함께 삭제됩니다. 동의는 AI 돌아보기 화면에서 언제든 철회할 수 있고, 동의하지 않아도 다른 기능은 그대로 이용할 수 있습니다.</p>`,
         en: `<h3>AI look-back (optional)</h3>
 <p>AI look-back works only with your separate consent. When a text is created, the selected month's mood records and gratitude notes are sent to OpenRouter, Inc. (USA) and the AI model provider it routes to. Your name, email and account identifier are not sent, and requests are limited to providers that do not use the content for training. The resulting text is stored in this service's database and deleted with your account. You can withdraw consent anytime on the AI look-back screen; other features work without it.</p>`,
         ja: `<h3>AIふりかえり（任意）</h3>

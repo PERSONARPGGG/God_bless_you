@@ -71,6 +71,15 @@ const swAssets = [...(sw.match(/const ASSETS = \[([\s\S]*?)\];/)?.[1] ?? '').mat
 for (const f of [...scripts, ...cssFiles]) if (!swAssets.includes(f)) err(`sw.js ASSETS에 ${f} 가 없음 (오프라인에서 화면이 깨짐)`);
 for (const f of swAssets) if (f && !fs.existsSync(path.join(ROOT, f))) err(`sw.js ASSETS의 ${f} 파일이 없음 (Service Worker 설치가 통째로 실패함)`);
 
+/* ── 2b. 파일 길이 (코드가 한없이 길어지는 것을 막는 경고. 콘텐츠 data-*.js는 제외) ──
+   경고가 뜨면 그 파일을 주제별로 쪼개고 index.html·sw.js에 함께 넣는다. 기준: 코드 800줄, 스타일 1200줄 */
+for (const f of [...scripts, ...cssFiles]) {
+    if (/^js\/data/.test(f)) continue;
+    const n = read(f).split('\n').length, max = f.endsWith('.css') ? 1200 : 800;
+    if (n > max) warn(`${f}: ${n}줄 — 너무 길어지고 있음 (${max}줄 넘으면 주제별로 쪼개기)`);
+    else if (n > max * 0.9) info(`${f}: ${n}줄 — 곧 ${max}줄 (쪼갤 준비)`);
+}
+
 /* ── 3. 문법 검사 ── */
 for (const f of [...scripts, 'sw.js']) {
     try { execFileSync(process.execPath, ['--check', path.join(ROOT, f)], { stdio: 'pipe' }); }
@@ -199,7 +208,7 @@ else {
     if (dead.length) warn(`쓰이지 않는 문구 키 ${dead.length}개 (ko/en/ja 각각): ${dead.join(', ')}`);
 }
 
-const EMO = ['감사', '평안', '걱정', '지침', '아픔', '기도'], TOPIC = ['일', '가족', '공부', '사람', '모름'], NEED = ['위로', '힘', '지혜', '쉼'];
+const EMO = ['감사', '평안', '걱정', '지침', '아픔', '기도'], TOPIC = ['일', '가족', '공부', '사람', '건강', '자녀', '신앙', '모름'], NEED = ['위로', '힘', '지혜', '쉼'];
 function checkPool(name, keysA, keysB, { minLen = 1 } = {}) {
     const pool = get(name);
     if (!pool) { err(`${name} 을(를) 읽지 못함`); return; }

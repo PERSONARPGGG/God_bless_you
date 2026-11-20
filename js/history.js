@@ -18,7 +18,7 @@ const HIST_TEXT = {
         hm_total:'{m}, <b>{n}일 밤</b>을 목장에서 보내셨어요.',
         hm_heavy:'마음이 무거웠던 <b>{n}일</b>에도, 매일 말씀이 함께했어요.',
         hm_top:'가장 자주 머문 마음은 <b>‘{e}’</b>({n}일)이었어요.',
-        hm_diary:'감사 일기를 <b>{n}편</b> 남기셨어요.',
+        hm_diary:'일기를 <b>{n}편</b> 남기셨어요.',
         hm_pdf:'📄 PDF로 내보내기 — 나의 신앙 일기장', hm_pdf_none:'이 달의 기록이 아직 없어요',
         hy_none:'{y}년의 기록이 아직 없어요.',
         hy_total:'{y}년, <b>{n}일 밤</b>을 함께했어요.',
@@ -37,7 +37,7 @@ const HIST_TEXT = {
         hm_total:'In {m}, you spent <b>{n} nights</b> at the pasture.',
         hm_heavy:'Even on the <b>{n} heavy days</b>, the Word was with you.',
         hm_top:'The heart you stayed in most was <b>{e}</b> ({n} days).',
-        hm_diary:'You left <b>{n}</b> gratitude notes.',
+        hm_diary:'You left <b>{n}</b> journal notes.',
         hm_pdf:'📄 Export as PDF — My Faith Journal', hm_pdf_none:'No records for this month yet',
         hy_none:'No records yet for {y}.',
         hy_total:'In {y}, we spent <b>{n} nights</b> together.',
@@ -56,7 +56,7 @@ const HIST_TEXT = {
         hm_total:'{m}、<b>{n}日の夜</b>を牧場で過ごしました。',
         hm_heavy:'心が重かった<b>{n}日</b>にも、毎日みことばがともにありました。',
         hm_top:'いちばん多かった気持ちは<b>「{e}」</b>（{n}日）でした。',
-        hm_diary:'感謝日記を<b>{n}件</b>残しました。',
+        hm_diary:'日記を<b>{n}件</b>残しました。',
         hm_pdf:'📄 PDFで書き出す — 私の信仰日記', hm_pdf_none:'この月の記録はまだありません',
         hy_none:'{y}年の記録はまだありません。',
         hy_total:'{y}年、<b>{n}日の夜</b>をともに過ごしました。',
@@ -82,7 +82,9 @@ const moodKey = h => [h.date, h.emotion, h.topic, h.need].join('|');
 /* 그 해의 기록 (날짜순). 프리미엄 + 로그인이면 클라우드 기록에 기기 기록을 합치고, 아니면 기기 기록만.
    돌려주는 값: { list, failed } — failed는 클라우드를 읽지 못해 기기 기록으로 대신했다는 뜻 */
 const _histCache = new Map();
+/* 연도별 기록 캐시 비우기 (기록이 바뀌었을 때) */
 function clearHistoryCache() { _histCache.clear(); }
+/* 그 해 기록 읽기 — 프리미엄+로그인이면 클라우드, 아니면 기기 (기록 읽기는 여기 하나로) */
 async function loadYear(y) {
     const pre = String(y) + '-';
     const local = getMoods().filter(h => h.date.startsWith(pre));
@@ -141,14 +143,17 @@ let histSel = null;                // 달력에서 고른 날짜
 let _histSeq = 0, _histList = [];  // 지금 보고 있는 해의 기록
 
 const ymNum = (y, m) => y * 12 + (m - 1);
+/* 이번 달을 숫자로 (연*12+월) */
 function histNowNum() { const n = new Date(); return ymNum(n.getFullYear(), n.getMonth() + 1); }
 /* 무료가 볼 수 있는 가장 이른 달 = 지난달 */
 function histFreeFloor() { return histNowNum() - 1; }
 
+/* 기록 달력 화면이 열려 있는가 */
 function histIsOpen() {
     const ov = document.getElementById('overlay-dashboard');
     return !!ov && !ov.classList.contains('hidden');
 }
+/* 기록 달력 열기 (이번 달부터) */
 function openHistory() {
     const n = new Date();
     histY = n.getFullYear(); histM = n.getMonth() + 1; histSel = null;
@@ -161,6 +166,7 @@ function refreshHistoryIfOpen() {
     if (!isPremium() && ymNum(histY, histM) < histFreeFloor()) { openHistory(); return; } // 자격이 사라졌으면 볼 수 있는 달로
     renderHistory();
 }
+/* 달력 달 이동 (미래로는 못 감, 무료는 지난달까지) */
 function histMove(step) {
     const next = ymNum(histY, histM) + step;
     if (next > histNowNum()) return;
@@ -168,11 +174,13 @@ function histMove(step) {
     histY = Math.floor(next / 12); histM = next % 12 + 1; histSel = null;
     renderHistory();
 }
+/* 달력에서 날짜 선택/해제 */
 function histPick(ds) {
     histSel = histSel === ds ? null : ds;
     safe('hist.calendar', () => renderHistCalendar());
 }
 
+/* 달력·월간 리포트 전체 다시 그리기 */
 async function renderHistory() {
     const seq = ++_histSeq, y = histY;
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
@@ -199,6 +207,7 @@ async function renderHistory() {
         : isPremium() ? '' : (sbUser ? L.hc_note_free : L.hc_note_guest);
 }
 
+/* 지금 보는 달의 기록만 */
 function histMonthList() {
     const pre = histY + '-' + String(histM).padStart(2, '0');
     return _histList.filter(h => h.date.startsWith(pre));
@@ -258,6 +267,7 @@ function histSummary(list) {
     return { total: days.length, heavy: days.filter(m => HEAVY_EMOS.includes(m.emotion)).length,
              top: Object.entries(cnt).sort((a, b) => b[1] - a[1])[0], diaries: list.filter(m => m.diary).length };
 }
+/* 월간 리포트 그리기 (프리미엄) */
 function renderHistMonthly() {
     const el = document.getElementById('hist-monthly');
     if (!el) return;

@@ -52,6 +52,7 @@ const PERSONA_DATA = {
     ],
 };
 
+/* 체험 페르소나(시연용 가짜 기록)를 불러옴 */
 function loadPersona(type, btn) {
     const data = PERSONA_DATA[type];
     if (!data) return;
@@ -118,6 +119,7 @@ function isDevMode() {
 
 /* 비밀번호 모달 열기 — purpose: 'dev'(개발자 모드) | 'premium'(프리미엄 체험) */
 let _devPwPurpose = 'dev';
+/* 개발자 모드/프리미엄 체험용 비밀번호창 열기 */
 function openDevPwModal(purpose) {
     _devPwPurpose = purpose;
     const labels = {
@@ -132,6 +134,7 @@ function openDevPwModal(purpose) {
     setTimeout(() => inp.focus(), 100);
 }
 
+/* 시연 비밀번호 확인 (브라우저 코드에 보이는 시연용. 실결제를 열 때 DEMO_UNLOCK=false) */
 function checkDevPw() {
     const inp = document.getElementById('devpw-input');
     if (inp.value !== '7501') {

@@ -7,6 +7,7 @@
 let moodPage = 0, savedPage = 0;
 const MOOD_PER_PAGE = 4, SAVED_PER_PAGE = 5;
 
+/* 페이지 이동 버튼 그리기 */
 function renderPagination(containerId, cur, total, onChange) {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const el = document.getElementById(containerId);
@@ -24,6 +25,7 @@ function renderPagination(containerId, cur, total, onChange) {
     el.append(prev, info, next);
 }
 
+/* 보관함 열기 (감정 기록 탭부터) */
 function openVault() {
     moodPage = 0; savedPage = 0;
     safe('vault.tab', () => switchTab('mood'));
@@ -43,10 +45,12 @@ function refreshVaultIfOpen() {
 /* 즐겨찾기 한 건의 표시용 글 — 저장된 원래 값(감정·필요·시각)으로 현재 언어에 맞춰 만든다.
    예전 방식으로 저장된 것(표시용 글이 통째로 들어 있음)은 그 글을 그대로 쓴다. */
 const SAVED_MAX = 200;
+/* 즐겨찾기 줄의 부가 글(감정·필요) */
 function savedContext(v) {
     if (v.emotion && _EMO_IDX[v.emotion] != null) return eLabel(v.emotion) + (v.need ? ' · ' + nLabel(v.need) : '');
     return v.context || '';
 }
+/* 즐겨찾기를 저장한 날짜 글 */
 function savedDateText(v) {
     if (v.savedAt) {
         const d = new Date(v.savedAt);
@@ -78,6 +82,7 @@ function renderVaultBanner() {
     }
 }
 
+/* 보관함 탭 전환(감정 기록/즐겨찾기) */
 function switchTab(tab) {
     document.querySelectorAll('.vault-tab').forEach((t,i)=>t.classList.toggle('active',
         (i===0&&tab==='mood')||(i===1&&tab==='saved')));
@@ -87,6 +92,7 @@ function switchTab(tab) {
     if (tab==='mood')  { moodPage=0; safe('renderStats', () => renderStats()); renderMood(); }
 }
 
+/* 즐겨찾기 말씀 목록 그리기 */
 function renderSaved() {
     const list = getSaved();
     const el   = document.getElementById('saved-list');
@@ -131,6 +137,7 @@ function renderSaved() {
     renderPagination('saved-pagination', savedPage, totalPages, p => { savedPage = p; renderSaved(); });
 }
 
+/* 즐겨찾기 삭제 (삭제 기록을 남겨 동기화 때 되살아나지 않게) */
 function deleteSaved(idx) {
     const list = getSaved();
     const [gone] = list.splice(idx,1); lsSet('savedVerses',list);
@@ -146,6 +153,7 @@ function deleteSaved(idx) {
     renderSaved();
 }
 
+/* 감정 기록 목록 그리기 (페이지 단위) */
 function renderMood() {
     const hist = getMoods();
     const el   = document.getElementById('mood-list');

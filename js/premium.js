@@ -17,6 +17,7 @@
 const DEMO_UNLOCK = true;
 let serverPremium = false;
 let serverSub = null;   // 서버의 구독 한 줄 { status, current_period_end, plan } — 결제 화면(billing.js)이 다음 결제일 표시에 씀
+/* 프리미엄 여부는 이 함수로만 묻는다 (서버 구독 판정 또는 시연용 체험) */
 function isPremium() { return serverPremium || (DEMO_UNLOCK && lsGet('premiumActive') === true); }
 
 /* 구독 한 줄이 "지금 프리미엄인가"
@@ -32,6 +33,7 @@ function subscriptionIsActive(row, now) {
 }
 
 let _entSeq = 0;
+/* 서버 subscriptions 행을 읽어 프리미엄 여부 갱신 */
 async function refreshEntitlement() {
     const seq = ++_entSeq;
     let active = false, row = null;
@@ -58,6 +60,7 @@ function onPremiumChanged() {
     safe('premium.paybox',  () => { const m = document.getElementById('premium-modal'); if (m && !m.classList.contains('hidden')) renderPayBox(); });
 }
 
+/* 프리미엄 안내창 열기 */
 function openPremiumModal() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     document.getElementById('pm-title').textContent = L.pm_title;
@@ -70,7 +73,9 @@ function openPremiumModal() {
     safe('premium.paybox', () => renderPayBox());   // 결제가 켜져 있으면 요금제 선택·구독 상태로 바뀜 (billing.js)
     document.getElementById('premium-modal').classList.remove('hidden');
 }
+/* 프리미엄 안내창 닫기 */
 function closePremiumModal() { document.getElementById('premium-modal').classList.add('hidden'); }
+/* 결제가 꺼져 있을 때 "관심 있어요" 기록 */
 function premiumInterest() {
     lsSet('premiumInterest', true);
     toast((LANG_DATA[appLang]||LANG_DATA.ko).pm_cta_done);

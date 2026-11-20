@@ -10,12 +10,13 @@ const DB_TEXT = {
         db_sec_emo:'이번 주 감정', db_sec_flow:'요일별 감정 흐름', db_sec_pattern:'이런 때 이런 마음이었어요', db_sec_diary:'이번 주 일기',
         db_more:'상세히 보기 ▾', db_less:'간략히 보기 ▴',
         db_emo:['감사','평안','걱정','지침','아픔','기도'],
-        db_when:['일할 때','가족과 함께일 때','공부할 때','사람들과 있을 때','무언가 있었을 때'],
+        db_when:['일할 때','가족과 함께일 때','공부할 때','사람들과 있을 때','건강을 생각할 때','자녀를 생각할 때','신앙을 생각할 때','무언가 있었을 때'],
         db_needing:['위로가 필요해서','힘이 필요해서','지혜가 필요해서','쉬고 싶어서'],
         db_nar_main:['이번 주, 감사가 넘쳤던 한 주를 보냈군요','이번 주, 마음이 평안했군요','이번 주, 걱정이 마음에 있었군요',
                      '이번 주, 많이 지치셨군요','이번 주, 마음이 많이 아팠군요','이번 주, 기도로 하루를 마쳤네요'],
         db_nar_sub:['감사한 마음이 하나님께 닿았을 거예요.','하나님의 평안이 함께했던 한 주예요.','그래도 여기 오셨네요. 그것만으로 충분해요.',
                     '정말 수고하셨어요. 오늘 밤은 푹 쉬세요.','그 아픔도 하나님이 아세요. 혼자가 아니에요.','하나님이 그 기도를 들으셨어요.'],
+        db_nar_mix:'이번 주, 여러 마음이 오갔군요', db_nar_mix_sub:'어떤 마음이든 하나님 앞에 가져오신 것이 귀해요.',
         db_nar_none:'이번 주 아직 기록이 없어요', db_nar_none_sub:'오늘 하루를 남겨보세요 ✦',
         db_times:'{n}회',
         db_pat_combo:'{w} <strong style="color:{c}">{e}</strong>의 마음이 많았어요',
@@ -28,12 +29,13 @@ const DB_TEXT = {
         db_sec_emo:'This week', db_sec_flow:'Day by day', db_sec_pattern:'When you felt this way', db_sec_diary:'Notes this week',
         db_more:'Show details ▾', db_less:'Show less ▴',
         db_emo:['Grateful','At peace','Worried','Worn out','Hurting','Prayerful'],
-        db_when:['At work,','With family,','While studying,','Around people,','On hard-to-name days,'],
+        db_when:['At work,','With family,','While studying,','Around people,','Thinking of health,','Thinking of children,','In matters of faith,','On hard-to-name days,'],
         db_needing:['needing comfort','needing strength','needing wisdom','needing rest'],
         db_nar_main:['A week overflowing with thanks','A week of a quiet heart','A week with worry on your heart',
                      'A week that wore you out','A week when your heart hurt','A week you closed in prayer'],
         db_nar_sub:['Your thanks has reached God.','God\'s peace was with you this week.','And still you came here. That is enough.',
                     'You have done so much. Rest well tonight.','God knows that pain. You are not alone.','God has heard those prayers.'],
+        db_nar_mix:'Many feelings passed through this week', db_nar_mix_sub:'Whatever you felt, bringing it here matters.',
         db_nar_none:'No records yet this week', db_nar_none_sub:'Leave a note about today ✦',
         db_times:'{n}×',
         db_pat_combo:'{w} you were often <strong style="color:{c}">{e}</strong>',
@@ -46,12 +48,13 @@ const DB_TEXT = {
         db_sec_emo:'今週の気持ち', db_sec_flow:'曜日ごとの流れ', db_sec_pattern:'こんなとき、こんな気持ちでした', db_sec_diary:'今週の日記',
         db_more:'くわしく見る ▾', db_less:'かんたんに見る ▴',
         db_emo:['感謝','平安','心配','疲れ','痛み','祈り'],
-        db_when:['仕事のとき、','家族といるとき、','勉強のとき、','人といるとき、','言葉にしにくい日、'],
+        db_when:['仕事のとき、','家族といるとき、','勉強のとき、','人といるとき、','健康を思うとき、','子どものことを思うとき、','信仰を思うとき、','言葉にしにくい日、'],
         db_needing:['慰めを求めて','力を求めて','知恵を求めて','休みを求めて'],
         db_nar_main:['今週は、感謝があふれた一週間でしたね','今週は、心が平安でしたね','今週は、心配が心にありましたね',
                      '今週は、とても疲れましたね','今週は、心がとても痛みましたね','今週は、祈りで一日を終えましたね'],
         db_nar_sub:['その感謝は神様に届いています。','神様の平安がともにあった一週間です。','それでもここに来ましたね。それだけで十分です。',
                     '本当におつかれさまでした。今夜はゆっくり休んでください。','その痛みも神様はご存じです。ひとりではありません。','神様はその祈りを聞いておられます。'],
+        db_nar_mix:'今週はいろいろな気持ちがありましたね', db_nar_mix_sub:'どんな気持ちでも、ここに来たことが大切です。',
         db_nar_none:'今週はまだ記録がありません', db_nar_none_sub:'今日のことを残してみましょう ✦',
         db_times:'{n}回',
         db_pat_combo:'{w}<strong style="color:{c}">{e}</strong>の気持ちが多かったです',
@@ -63,7 +66,7 @@ const DB_TEXT = {
 Object.keys(DB_TEXT).forEach(k => Object.assign(LANG_DATA[k], DB_TEXT[k]));
 
 const DB_EMO_LIST = ['감사','평안','걱정','지침','아픔','기도'];
-const DB_TOPIC_LIST = ['일','가족','공부','사람','모름'];
+const DB_TOPIC_LIST = ['일','가족','공부','사람','건강','자녀','신앙','모름'];
 const DB_NEED_LIST = ['위로','힘','지혜','쉼'];
 const DB_EMO_COLORS = {감사:'#f59e0b',평안:'#10b981',걱정:'#6366f1',지침:'#8b5cf6',아픔:'#ef4444',기도:'#3b82f6'};
 const HEAVY_EMOS = ['걱정', '지침', '아픔'];
@@ -148,11 +151,14 @@ function renderDbNarrative(data, range) {
     }
     const cnt = {};
     data.forEach(m => { cnt[m.emotion] = (cnt[m.emotion]||0)+1; });
-    const top = Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0][0];
-    const i = Math.max(0, DB_EMO_LIST.indexOf(top));
+    const ranked = Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+    const tied = ranked.length > 1 && ranked[0][1] === ranked[1][1];   // 동률이면 한 감정으로 단정하지 않는다
+    const i = Math.max(0, DB_EMO_LIST.indexOf(ranked[0][0]));
+    const main = tied ? L.db_nar_mix : L.db_nar_main[i];
+    const sub  = tied ? L.db_nar_mix_sub : L.db_nar_sub[i];
     el.innerHTML = `<div class="db-narrative-week">${wl}</div>
-        <div class="db-narrative-main">${L.db_nar_main[i]}</div>
-        <div class="db-narrative-sub">${L.db_nar_sub[i]}</div>`;
+        <div class="db-narrative-main">${main}</div>
+        <div class="db-narrative-sub">${sub}</div>`;
 }
 
 /* 감정 막대 */

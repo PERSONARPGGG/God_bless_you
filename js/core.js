@@ -5,7 +5,7 @@
 /* ═══════════════════════════════════════
    상태
 ═══════════════════════════════════════ */
-const APP_VERSION = '2.9';
+const APP_VERSION = '2.10';
 /* 앱 주소 — 도메인을 바꿀 때 여기와 index.html의 og:url, sitemap.xml을 함께 바꾼다 (tools/check.mjs가 서로 다르면 알려 줌).
    Supabase(Authentication > URL Configuration)와 Google OAuth의 허용 주소에도 새 주소를 추가해야 로그인이 된다. */
 const SHARE_URL = 'https://god-bless-you.vercel.app/';
@@ -31,6 +31,7 @@ let fontLevel = 0;
    데이터(LANG_DATA의 en·ja, VERSE_POOL_EN 등)는 지우지 않고 그대로 있음 — 다시 열 때는 'en', 'ja'를 이 목록에 넣기만 하면 된다.
    저장된 언어 설정(appLang)도 지우지 않으므로, 다시 열면 이전 선택이 살아난다 */
 const ENABLED_LANGS = ['ko'];
+/* 이 언어가 지금 열려 있는가 (ENABLED_LANGS) */
 function langEnabled(l) { return ENABLED_LANGS.includes(l); }
 
 const CLOSING_TIMEOUT = 300;   // 5분
@@ -47,6 +48,7 @@ let closingWarned = false;
    잡힌 오류는 조용히 사라지지 않고 기기에 최근 30건이 남는다 (콘솔에서 errLog()).
 ═══════════════════════════════════════ */
 const ERR_KEEP = 30;
+/* 잡힌 오류를 기기에 30건까지 남김 (콘솔에서 errLog()로 확인) */
 function logErr(where, e) {
     try {
         const list = lsArr('errLog');
@@ -57,6 +59,7 @@ function logErr(where, e) {
     } catch (_) {}
     try { console.warn('[밤의 목장] ' + where + ' 에서 문제가 생겼지만 계속 진행합니다:', e); } catch (_) {}
 }
+/* 남겨 둔 오류 목록 */
 function errLog() { return lsArr('errLog'); }
 
 /* fn을 실행하고, 실패하면 기록만 남기고 fallback을 돌려준다 */
@@ -79,6 +82,7 @@ window.addEventListener('unhandledrejection', e => { logErr('promise', e && e.re
 function lsGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { try { return localStorage.getItem(k); } catch { return null; } } }
 /* 저장에 성공하면 true. 저장 공간이 가득 찼거나 시크릿 모드라 실패하면 false — "저장됐다"고 말하기 전에 확인할 수 있게 */
 function lsSet(k,v) { try { localStorage.setItem(k, typeof v==='object' ? JSON.stringify(v) : String(v)); return true; } catch { return false; } }
+/* 저장소에서 배열로 읽기 (모양이 깨졌으면 빈 배열) */
 function lsArr(k) { const v = lsGet(k); return Array.isArray(v) ? v : []; }
 /* 정수 설정값: 숫자가 아니거나 범위를 벗어나면 기본값 */
 function lsInt(k, min, max, dflt) {
@@ -87,6 +91,7 @@ function lsInt(k, min, max, dflt) {
 }
 
 const isYmd = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
+const DIARY_KEEP_DAYS = 365;  // 일기를 쓴 기록은 기기에 1년 둔다 (손으로 쓴 글이 두 달 만에 사라지면 안 됨)
 const LOCAL_KEEP_DAYS = 62;   // 기기에 남기는 감정 기록·방문일 기간 (이번 달 리포트와 "한 달 전 오늘 밤"에 필요한 만큼)
 
 /* 감정 기록 — 최신순 [{date:'YYYY-MM-DD', emotion, topic, need, emoji, diary?, ref?(그날 본 말씀의 출처)}] */
@@ -96,16 +101,21 @@ function getSaved()  { return lsArr('savedVerses').filter(v => v && typeof v ===
 /* 방문일 ['YYYY-MM-DD', …] (중복 없음) */
 function getVisits() { return [...new Set(lsArr('visitDates').filter(isYmd))]; }
 /* 기기 보관 기간이 지난 기록을 덜어 낸 목록 */
-function trimMoods(list) { const cut = ymd(addDays(new Date(), -LOCAL_KEEP_DAYS)); return list.filter(h => h.date >= cut); }
+function trimMoods(list) {
+    const cut = ymd(addDays(new Date(), -LOCAL_KEEP_DAYS)), cutDiary = ymd(addDays(new Date(), -DIARY_KEEP_DAYS));
+    return list.filter(h => h.date >= cut || (h.diary && h.date >= cutDiary));
+}
 
 /* ═══════════════════════════════════════
    날짜 — 전부 "이 기기의 현지 날짜" 기준
    toISOString()은 UTC라서 한국에서는 자정~오전 9시에 어제 날짜가 나온다. 쓰지 말 것.
 ═══════════════════════════════════════ */
 function ymd(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+/* 오늘 날짜 YYYY-MM-DD (현지 기준) */
 function todayStr() { return ymd(new Date()); }
 /* 'YYYY-MM-DD' → 현지 자정의 Date (new Date('YYYY-MM-DD')는 UTC 자정이라 서쪽 시간대에서 전날이 됨) */
 function parseYmd(s) { const p = String(s).split('-').map(Number); return new Date(p[0], (p[1] || 1) - 1, p[2] || 1); }
+/* 날짜에 n일 더하기 (현지 자정 기준 새 Date) */
 function addDays(d, n) { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; }
 /* n개월 전 같은 날. 그 달에 그 날짜가 없으면 말일 (3월 31일의 한 달 전 = 2월 28일) */
 function monthsAgo(n, from) {

@@ -76,6 +76,7 @@ async function apiPost(name, body) {
     }
 }
 
+/* ISO 날짜 → 현지 날짜 글자 (잘못된 값이면 빈 글) */
 function billDate(iso) {
     const d = new Date(iso);
     if (isNaN(d)) return '';
@@ -86,6 +87,7 @@ function billDate(iso) {
    프리미엄 안내 모달 안의 결제 영역 (openPremiumModal이 부름)
 ═══════════════════════════════════════ */
 let _billPlan = 'monthly', _billBusy = false;
+/* 프리미엄 안내창의 결제 영역(요금제·버튼) 그리기 */
 function renderPayBox() {
     const box = document.getElementById('pm-pay'), cta = document.getElementById('pm-cta');
     if (!box || !cta) return;
@@ -115,10 +117,12 @@ function renderPayBox() {
     }
     updatePayBtn();
 }
+/* 월간/연간 요금제 선택 버튼 HTML */
 function billPlanHtml(L) {
     return `<div class="bl-plans" role="radiogroup">${['monthly', 'yearly'].map(p =>
         `<button type="button" role="radio" aria-checked="${p === _billPlan}" class="bl-plan${p === _billPlan ? ' on' : ''}" onclick="pickPlan('${p}')">${escHtml(L['bl_' + p])}</button>`).join('')}</div>`;
 }
+/* 요금제 선택(월간/연간) 반영 */
 function pickPlan(p) {
     _billPlan = p === 'yearly' ? 'yearly' : 'monthly';
     document.querySelectorAll('#pm-pay .bl-plan').forEach((b, i) => {
@@ -146,6 +150,7 @@ function loadTossSdk() {
         document.head.appendChild(s);
     });
 }
+/* 구독 시작: 토스 결제창 호출 (금액·대상은 서버가 정함) */
 async function startSubscribe() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     if (!paymentsOn() || _billBusy) return;
@@ -183,6 +188,7 @@ function captureBillingReturn() {
     } catch (e) {}
     history.replaceState(null, '', location.pathname + location.hash);
 }
+/* 결제창에서 돌아온 정보(sessionStorage) 읽기 */
 function readBillingReturn() {
     try { return JSON.parse(sessionStorage.getItem('billingReturn')); } catch (e) { return null; }
 }

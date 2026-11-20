@@ -61,10 +61,13 @@ function setLang(lang) {
 /* 배경 테마 — 밤하늘(night)만 무료, 나머지 4종은 프리미엄 */
 const THEMES = ['night', 'dawn', 'forest', 'ocean', 'ember'];
 const PREMIUM_THEMES = ['dawn', 'forest', 'ocean', 'ember'];
+/* 배경 테마를 body 클래스로 적용 */
 function applyTheme(theme) {
     THEMES.forEach(t => document.body.classList.toggle('theme-' + t, t === theme && t !== 'night'));
 }
+/* 지금 적용된 테마 이름 */
 function currentTheme() { return THEMES.find(t => document.body.classList.contains('theme-' + t)) || 'night'; }
+/* 설정의 테마 버튼 중 현재 것을 강조 */
 function markActiveTheme(theme) {
     THEMES.forEach(t => { const b = document.getElementById('th-' + t); if (b) b.classList.toggle('active', t === theme); });
 }
@@ -79,6 +82,7 @@ function restoreTheme() {
     markActiveTheme(t);
     updateThemeLocks();
 }
+/* 테마 선택 (프리미엄 전용 테마는 안내창을 띄움) */
 function setTheme(theme) {
     if (!THEMES.includes(theme)) return;
     if (PREMIUM_THEMES.includes(theme) && !isPremium()) {
@@ -133,7 +137,7 @@ function exportData() {
         });
     }
     if (hist.length) {
-        lines.push('[ 감정 기록 · 감사 일기 ]');
+        lines.push('[ 감정 기록 · 일기 ]');
         hist.forEach(h => {
             lines.push(`${h.date}  ${h.emoji||''} ${h.emotion||''} · ${h.topic||''} · ${h.need||''}`);
             if (h.diary) lines.push(`    일기: ${h.diary}`);
@@ -150,6 +154,7 @@ function exportData() {
     }
 }
 
+/* 설정 > 데이터 초기화 (확인 후 기록·설정 삭제) */
 async function clearData() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     if (!confirm(L.confirm_reset)) return;
@@ -182,12 +187,14 @@ function showOverlay(id) {
     el.classList.add('overlay-anim');
     setTimeout(() => el.classList.remove('overlay-anim'), 500);
 }
+/* 오버레이(보관함·설정 등) 닫기 */
 function hideOverlay(id) { const el = document.getElementById(id); if (el) el.classList.add('hidden'); }
 
 /* ═══════════════════════════════════════
    Toast
 ═══════════════════════════════════════ */
 let toastTimer;
+/* 하단에 잠깐 뜨는 안내 글 */
 function toast(msg) {
     const el=document.getElementById('toast'); if (!el || !msg) return; el.textContent=msg;
     el.classList.add('show'); clearTimeout(toastTimer);
@@ -226,12 +233,14 @@ function startClosingTimer() {
     closingTimerId = setInterval(tickClosingTimer, 1000);
 }
 
+/* 마무리 5분 타이머 정지 */
 function stopClosingTimer() {
     if (closingTimerId) { clearInterval(closingTimerId); closingTimerId = null; }
     const el = document.getElementById('closing-timer');
     if (el) el.classList.add('hidden');
 }
 
+/* 활동이 있으면 타이머를 5분으로 되돌림 */
 function resetClosingActivity() {
     if (closingTriggered || !closingTimerId) return;
     closingCountdown = CLOSING_TIMEOUT;
@@ -241,6 +250,7 @@ function resetClosingActivity() {
     renderClosingTimer();
 }
 
+/* 1초마다: 카운트다운, 마지막 30초 경고, 0이 되면 자동 마무리 */
 function tickClosingTimer() {
     closingCountdown--;
     if (closingCountdown <= CLOSING_WARN_AT && !closingWarned) {
@@ -252,6 +262,7 @@ function tickClosingTimer() {
     if (closingCountdown <= 0) triggerClosing();
 }
 
+/* 타이머 칩(남은 시간) 그리기 */
 function renderClosingTimer() {
     const el = document.getElementById('closing-timer');
     if (!el || el.classList.contains('hidden')) return;
@@ -261,12 +272,14 @@ function renderClosingTimer() {
     el.textContent = closingWarned ? `${timeStr} ${L.closing_extend_hint}` : timeStr;
 }
 
+/* "조금 더" 눌러 타이머 연장 */
 function extendClosingTimer() {
     if (closingTriggered || !closingWarned) return;
     resetClosingActivity();
     toast((LANG_DATA[appLang]||LANG_DATA.ko).closing_extended);
 }
 
+/* 마무리(클로징): 일기 저장 → 카드 접기 → 축복 문구 (단계마다 safe) */
 function triggerClosing() {
     if (closingTriggered) return;
     closingTriggered = true;
@@ -295,6 +308,7 @@ function triggerClosing() {
     if (bd) { bd.textContent = L.db_btn; bd.classList.remove('hidden'); }
 }
 
+/* "오늘 묵상 마치기/처음으로" 버튼: 마무리 전이면 마무리, 후면 처음으로 */
 function onFinishClick() {
     if (!closingTriggered) triggerClosing();
     else restart();

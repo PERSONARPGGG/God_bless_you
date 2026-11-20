@@ -17,15 +17,18 @@ window.addEventListener('appinstalled', () => {
     if (banner) banner.classList.add('hidden');
 });
 
+/* 아이폰/아이패드인가 */
 function isIOS() {
     return /iphone|ipad|ipod/i.test(navigator.userAgent);
 }
 
+/* 홈 화면에 설치된 앱으로 실행 중인가 */
 function isStandalone() {
     return window.navigator.standalone === true ||
            window.matchMedia('(display-mode: standalone)').matches;
 }
 
+/* 설치 안내 배너를 적당한 때 보여주기 (이미 설치했거나 최근에 닫았으면 안 함) */
 function scheduleInstallBanner() {
     if (isStandalone()) return;
     const ts = lsGet('installDismissed');
@@ -36,6 +39,7 @@ function scheduleInstallBanner() {
     }, 2500);
 }
 
+/* 설치 시도 (안드로이드는 설치창, iOS는 안내 오버레이) */
 function doInstall() {
     if (deferredInstall) {
         deferredInstall.prompt();
@@ -50,6 +54,7 @@ function doInstall() {
     }
 }
 
+/* 설치 배너 닫기 */
 function dismissInstall() {
     const banner = document.getElementById('install-banner');
     if (banner) banner.classList.add('hidden');
@@ -60,6 +65,7 @@ function dismissInstall() {
    Service Worker 등록 · 새 버전 감지
 ═══════════════════════════════════════ */
 let _swRegistered = false, _updateRequested = false;
+/* Service Worker 등록 (file:// 이면 안 함) */
 function registerSW() {
     if (_swRegistered || !('serviceWorker' in navigator) || location.protocol === 'file:') return;
     _swRegistered = true;
@@ -104,6 +110,7 @@ function checkInstallNudge(streak) {
     }, 1600);
 }
 let _nudgeTimer = null;
+/* 출석 연속일에 맞춰 설치를 권하는 작은 안내 */
 function showInstallNudge(streak) {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const nudge = document.getElementById('install-nudge');
@@ -118,6 +125,7 @@ function showInstallNudge(streak) {
     clearTimeout(_nudgeTimer);
     _nudgeTimer = later('nudge.auto', () => dismissNudge(), 12000);
 }
+/* 설치 넛지 내리기 (화면이 바뀔 때도 호출됨) */
 function dismissNudge() {
     const nudge = document.getElementById('install-nudge');
     if (!nudge || nudge.classList.contains('hidden')) return;
@@ -125,6 +133,7 @@ function dismissNudge() {
     nudge.classList.remove('visible');
     setTimeout(() => nudge.classList.add('hidden'), 380);
 }
+/* 넛지의 설치 버튼 */
 function nudgeInstall() {
     dismissNudge();
     setTimeout(() => triggerInstall(), 420);
@@ -170,10 +179,12 @@ function checkUpdateManual() {
     });
 }
 
+/* 설정의 업데이트 상태 글 */
 function _setUpdateStatus(msg) {
     const el = document.getElementById('update-status-text');
     if (el) el.textContent = msg;
 }
+/* 업데이트 확인 버튼을 원래대로 */
 function _resetUpdateBtn() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const btn = document.getElementById('btn-check-update');

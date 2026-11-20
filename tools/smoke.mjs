@@ -163,6 +163,39 @@ scenario('첫 방문: 인트로 → 이름 입력 → 메인', { intro: true }, 
     p.eq(await p.eval(`__t.txt('#app-version')`), 'v' + (await p.eval('APP_VERSION')), '설정의 버전 표기');
 });
 
+scenario('다른 말씀 보기 + 감정별 일기 안내문 + 동률인 주의 이야기', { seed: { userName: '은혜' } }, async p => {
+    await p.goto();
+    await p.flow('걱정', '일', '위로');
+    p.ok((await p.eval(`__t.txt('#diary-label')`)).includes('맡겨'), '걱정이면 일기 안내문이 "맡겨 보세요"');
+    p.ok(!(await p.eval(`__t.txt('#sec-diary')`)).includes('감사'), '일기 제목이 감사로 고정되어 있지 않음');
+    p.ok(!(await p.eval(`__t.txt('#welcome-text')`)).includes('은혜로운 하루'), '마음이 무거운 날 인사말이 "은혜로운 하루"가 아님');
+    const before = await p.eval(`curVerse.r + '|' + curVerse.v`);
+    await p.eval(`__t.click('#btn-save')`);
+    await p.eval(`__t.click('#btn-next')`);
+    const after = await p.eval(`curVerse.r + '|' + curVerse.v`);
+    p.ok(before !== after, '"다른 말씀"을 누르면 다른 구절로 바뀜');
+    p.eq(await p.eval(`__t.txt('#r-ref')`), '— ' + after.split('|')[0], '화면의 장절도 바뀜');
+    p.ok(!(await p.eval(`document.getElementById('btn-save').classList.contains('saved')`)), '새 구절은 즐겨찾기 표시가 풀림');
+    p.eq(await p.eval(`__t.ls('moodHistory')[0].ref`), after.split('|')[0], '기록의 말씀도 바뀐 구절');
+    p.eq(await p.eval(`__t.ls('moodHistory').length`), 1, '기록이 늘어나지 않음');
+    // 감정이 동률이면 한 감정으로 단정하지 않음
+    const t = await p.eval(`todayStr()`);
+    await p.eval(`localStorage.setItem('moodHistory', JSON.stringify([{date:'${t}',emotion:'감사',topic:'일',need:'쉼'},{date:'${t}',emotion:'걱정',topic:'일',need:'쉼'}])); openDashboard()`);
+    p.ok((await p.eval(`__t.txt('#db-narrative .db-narrative-main')`)).includes('여러 마음'), '동률이면 "여러 마음이 오갔군요"');
+});
+
+scenario('보관 기간: 62일 지난 기록은 덜어 내되, 일기를 쓴 기록은 1년 남음', { now: '2026-11-17T21:00:00+09:00', seed: { userName: '은혜', moodHistory: JSON.stringify([
+    { date: '2026-03-01', emotion: '감사', topic: '일', need: '쉼', diary: '오래된 일기' },
+    { date: '2026-03-02', emotion: '걱정', topic: '일', need: '쉼' },
+    { date: '2025-01-01', emotion: '감사', topic: '일', need: '쉼', diary: '1년도 더 된 일기' }]) } }, async p => {
+    await p.goto();
+    await p.flow('평안', '일', '쉼');   // 기록을 저장하는 순간 정리가 돌아감
+    const m = await p.eval(`__t.ls('moodHistory').map(h => h.date)`);
+    p.ok(m.includes('2026-03-01'), '일기가 있는 8개월 전 기록은 남음');
+    p.ok(!m.includes('2026-03-02'), '일기 없는 62일 지난 기록은 사라짐');
+    p.ok(!m.includes('2025-01-01'), '1년이 지난 일기 기록은 사라짐');
+});
+
 scenario('일기: 쓰는 동안 기기에 저장(마치기 전에 앱이 닫혀도 남음), 저장 실패를 속이지 않음', { seed: { userName: '은혜' } }, async p => {
     await p.goto();
     await p.flow('아픔', '가족', '위로');
@@ -173,6 +206,10 @@ scenario('일기: 쓰는 동안 기기에 저장(마치기 전에 앱이 닫혀�
     await p.eval(`window.dispatchEvent(new Event('pagehide'))`);
     p.eq(await p.eval(`__t.ls('moodHistory')[0].diary`), '버스에서 쓰던 일기, 한 줄 더', '앱이 닫히는 순간(pagehide)에도 저장');
     p.eq(await p.eval(`__t.ls('moodHistory').length`), 1, '기록이 늘어나지 않음 (같은 줄에 덧씀)');
+    // 쓴 글을 직접 모두 지우고 마치면 저장된 글도 사라져야 함 (지운 글이 기기·내보내기에 남지 않음)
+    await p.eval(`(() => { const i = document.getElementById('diary-input'); i.value = ''; i.dispatchEvent(new Event('input', { bubbles: true })); autoSaveDiary(); })()`);
+    p.ok(!(await p.eval(`__t.ls('moodHistory')[0].diary`)), '글을 모두 지우고 마치면 저장된 일기도 지워짐');
+    await p.eval(`(() => { const i = document.getElementById('diary-input'); i.value = '버스에서 쓰던 일기, 한 줄 더'; i.dispatchEvent(new Event('input', { bubbles: true })); saveDiaryDraft(); })()`);
     await p.reload();   // 앱이 완전히 닫혔다 다시 열림
     await p.eval(`openVault()`);
     p.ok((await p.eval(`__t.txt('#mood-list .mood-diary')`)).includes('한 줄 더'), '다시 열어도 보관함에 일기가 있음');
@@ -506,11 +543,11 @@ scenario('핵심 플로우: 감정→주제→필요→결과→일기→마치�
     p.ok(!(await p.eval(`document.getElementById('step4').classList.contains('closing')`)), '두 번째 결과 화면은 마무리 상태가 아니어야 함');
 });
 
-scenario('전 조합 120개 × 3개 언어: 빈 카드·undefined·언어 섞임 없음', { seed: { userName: '' } }, async p => {
+scenario('전 조합 192개 × 3개 언어: 빈 카드·undefined·언어 섞임 없음', { seed: { userName: '' } }, async p => {
     await p.goto();
     await p.eval(OPEN_LANGS);
     const bad = await p.eval(`(() => {
-        const bad = [], E = ['감사','평안','걱정','지침','아픔','기도'], T = ['일','가족','공부','사람','모름'], N = ['위로','힘','지혜','쉼'];
+        const bad = [], E = ['감사','평안','걱정','지침','아픔','기도'], T = ['일','가족','공부','사람','건강','자녀','신앙','모름'], N = ['위로','힘','지혜','쉼'];
         const tw = typewriterVerse; window.typewriterVerse = t => { document.getElementById('r-verse').textContent = t; };
         for (const lang of ['ko','en','ja']) {
             setLang(lang);
@@ -1084,6 +1121,24 @@ scenario('화면 둘러보기: 주요 화면이 모두 열리고 빈 글·undefi
     await p.waitFor(`__t.vis('#step1')`, '처음으로');
     await p.eval(`window.scrollTo(0, 0)`);
     await look('12-main-after');
+});
+
+scenario('주제 화면: 8칸이 작은 폰에서도 한 화면에 들어옴', { seed: { userName: '은혜' } }, async p => {
+    const devices = [['아이폰 SE', 375, 667], ['갤럭시 소형', 360, 740], ['아이폰 14', 390, 844]];
+    await p.goto();
+    for (const [name, w, h] of devices) {
+        await p.S('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: true });
+        await p.reload();
+        await p.eval(`pick('emotion','걱정')`);
+        await p.waitFor(`__t.vis('#step2')`, name + ': 주제 화면');
+        const m = await p.eval(`(() => { const r = s => document.querySelector(s).getBoundingClientRect();
+            return { skip: Math.round(r('#step2 .step-skip').bottom), vh: innerHeight, n: document.querySelectorAll('#step2 .btn-choice').length,
+                     over: document.documentElement.scrollWidth - innerWidth }; })()`);
+        p.eq(m.n, 8, name + ': 주제 칸 8개');
+        p.ok(m.skip <= m.vh - 8, name + ' ' + w + 'x' + h + ': 건너뛰기 버튼 아래끝 ' + m.skip + 'px가 화면 높이 ' + m.vh + 'px 안에 들어와야 함');
+        p.ok(m.over <= 0, name + ': 가로로 넘치면 안 됨 (' + m.over + 'px)');
+        await p.shot('topic-' + w + 'x' + h);
+    }
 });
 
 scenario('좁은 화면(360px)·매우 큰 글씨: 가로로 넘치지 않음', { width: 360, height: 640, seed: { userName: '아주긴이름열두글자까지입력', fontLevel: '2' } }, async p => {

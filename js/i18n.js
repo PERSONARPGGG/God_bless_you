@@ -15,10 +15,10 @@ const LANG_DATA = {
         s1_title:'오늘은 어땠나요?', s1_sub:'오늘 내 감정을, 말씀으로 만나요',
         s2_title:'무엇이 가장 마음에 남았나요?', s3_title:'지금 어떤 마음이 드세요?',
         emo:['감사했어요','평안했어요','걱정이 있었어요','지쳤어요','마음이 아팠어요','기도하고 싶어요'],
-        topic:['일','가족','공부','사람','잘 모르겠어요'],
+        topic:['일','가족','공부','사람','건강','자녀','신앙','잘 모르겠어요'],
         need:['위로받고 싶어요','힘을 얻고 싶어요','방향이 필요해요','그냥 쉬고 싶어요'],
         /* 결과 버튼 */
-        btn_copy:'📋 복사', btn_share:'📤 공유', btn_save:'⭐ 즐겨찾기', btn_saved:'★ 저장됨', btn_restart:'처음으로',
+        btn_next:'🔄 다른 말씀', btn_copy:'📋 복사', btn_share:'📤 공유', btn_save:'⭐ 즐겨찾기', btn_saved:'★ 저장됨', btn_restart:'처음으로',
         btn_finish:'오늘 묵상 마치기', closing_extend_hint:'· 연장하기', closing_extended:'5분 더 볼게요',
         drive_note:'운전 중에는 화면을 보지 마세요', resume_text:'방금 하던 묵상을 이어서 할까요?', resume_go:'이어하기', resume_no:'처음부터',
         toast_store_fail:'이 기기에 저장하지 못했어요. 저장 공간이나 시크릿 모드를 확인해 주세요', step_back:'← 이전', step_skip:'건너뛰고 말씀 보기',
@@ -42,14 +42,14 @@ const LANG_DATA = {
         pat_neg_2:'💙 어제도 오늘도 마음이 무거우셨네요. 그럴수록 곁에 계신 하나님을 기억해요.',
         pat_neg_n:'💙 벌써 {n}일째 이어지는 마음이에요. 혼자 견디지 마세요 — 하나님이 알고 계세요.',
         pat_pos_n:'✨ {n}일째 감사와 평안이 이어지고 있어요. 그 마음, 참 귀해요.',
-        pat_pray_n:'🙏 {n}일째 기도로 하루를 맺고 있어요. 그 기도, 하늘에 쌓이고 있습니다.',
+        pat_pray_n:'🙏 {n}일째 기도로 하루를 맺고 있어요. 그 기도를 하나님이 기억하고 계세요.',
         toast_img_saved:'🖼️ 말씀 카드 이미지가 저장됐어요',
         closing_title:'오늘도 수고하셨어요',
         closing_msgs:{
             감사:'감사하는 마음이 흘렀던 오늘,\n하나님이 그 마음을 기뻐하십니다.',
             평안:'평안했던 오늘 하루,\n그 고요함도 하나님의 선물입니다.',
             걱정:'걱정을 안고도 여기까지 오셨네요.\n하나님이 그 무거움을 아십니다.',
-            지침:'지친 몸과 마음으로 오늘을 버텨내셨어요.\n하나님이 당신의 쉼을 준비하십니다.',
+            지침:'지친 몸과 마음으로 오늘을 버텨내셨어요.\n하나님이 오늘 밤 당신의 쉼을 지키고 계세요.',
             아픔:'아팠던 오늘, 외롭지 않으셨으면 해요.\n하나님이 그 마음 곁에 계십니다.',
             기도:'기도하고 싶다는 그 마음,\n이미 하나님께 닿아 있습니다.'
         },
@@ -80,16 +80,18 @@ const LANG_DATA = {
         privacy:'🔒 저장된 기록은 기기 내에만 보관되며,<br>외부 서버로 수집되지 않습니다.',
         /* 결과 섹션 */
         sec_verse:'오늘의 말씀', sec_story:'오늘의 이야기',
-        sec_diary:'감사 한 줄 일기', sec_enc:'당신을 위한 응원',
+        sec_diary:'오늘의 한 줄', sec_enc:'당신을 위한 응원',
         /* 일기 */
         diary_label:'오늘 딱 한 줄, 마음에 남는 것을 남겨보세요.',
         diary_ph:'아무리 작은 것도 괜찮아요...',
-        diary_saved:'✓ 저장되었어요. 그 마음, 하나님이 받으셨어요.',
+        diary_saved:'✓ 저장되었어요. 오늘 밤은 편히 쉬세요.',
+        diary_label_emo:{감사:'오늘 감사했던 것을 한 줄 남겨보세요.',평안:'오늘 평안했던 순간을 한 줄 남겨보세요.',걱정:'마음에 걸리는 것을 한 줄 적고, 하나님께 맡겨 보세요.',지침:'오늘 애쓴 나를 위해 한 줄 남겨보세요.',아픔:'아픈 마음을 한 줄 적어 보세요. 쓰지 않아도 괜찮아요.',기도:'오늘 드리고 싶은 기도를 한 줄 적어보세요.'},
         /* 체크인 */
         cp_text:'오늘 출석 완료', streak_unit:'일 연속',
         /* 날짜·환영 */
         locale:'ko-KR',
-        welcome_msgs:['오늘도 수고 많으셨어요.','천천히, 지금 이 순간만요.','당신의 오늘을 들을게요.','잠시 내려놓아도 괜찮아요.','오늘 하루도 참 잘 버티셨어요.','하나님 앞에서, 있는 그대로요.','오늘도 은혜로운 하루였어요.'],
+        welcome_msgs:['오늘도 수고 많으셨어요.','천천히, 지금 이 순간만요.','당신의 오늘을 들을게요.','잠시 내려놓아도 괜찮아요.','오늘 하루도 참 잘 버티셨어요.','하나님 앞에서, 있는 그대로요.'],
+        welcome_heavy:['괜찮지 않아도 괜찮아요.','여기서는 있는 그대로 계셔도 돼요.','오늘 밤은 천천히 쉬어가요.','혼자 견디지 않으셔도 돼요.'],
         month_names:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
         day_names:['일','월','화','수','목','금','토'],
         /* 업데이트 */
@@ -101,7 +103,7 @@ const LANG_DATA = {
         upd_manual:'모바일 또는 웹 환경에서만 지원됩니다.', upd_click:'확인하려면 버튼을 누르세요.',
         /* 토스트·확인창 */
         toast_copied:'말씀이 복사되었습니다 📋', toast_saved_verse:'즐겨찾기에 저장되었습니다 ⭐',
-        toast_diary_saved:'감사 일기가 저장되었습니다 ✨',
+        toast_diary_saved:'오늘의 한 줄이 저장되었습니다 ✨',
         toast_exported:'클립보드에 복사되었습니다 📋', toast_reset:'초기화되었습니다',
         confirm_reset:'저장된 말씀, 감정 기록이 모두 삭제됩니다. 계속하시겠어요?',
         /* QR 공유 */
@@ -138,10 +140,10 @@ const LANG_DATA = {
         s1_title:'How was your day?', s1_sub:'A moment to reflect',
         s2_title:'What stayed on your mind?', s3_title:'What do you need right now?',
         emo:['Grateful','At peace','Worried','Exhausted','Heartbroken','Need prayer'],
-        topic:['Work','Family','Study','People','Not sure'],
+        topic:['Work','Family','Study','People','Health','Children','Faith','Not sure'],
         need:['Comfort','Strength','Direction','Rest'],
         /* 결과 버튼 */
-        btn_copy:'📋 Copy', btn_share:'📤 Share', btn_save:'⭐ Bookmark', btn_saved:'★ Saved', btn_restart:'Back to Start',
+        btn_next:'🔄 Another verse', btn_copy:'📋 Copy', btn_share:'📤 Share', btn_save:'⭐ Bookmark', btn_saved:'★ Saved', btn_restart:'Back to Start',
         btn_finish:'Finish Today’s Reflection', closing_extend_hint:'· Extend', closing_extended:'5 more minutes',
         drive_note:'Please don\'t look at the screen while driving', resume_text:'Continue where you left off?', resume_go:'Continue', resume_no:'Start over',
         toast_store_fail:'Could not save on this device. Please check storage space or private mode', step_back:'← Back', step_skip:'Skip to the Word',
@@ -203,16 +205,18 @@ const LANG_DATA = {
         privacy:'🔒 Your data stays on this device only.<br>Nothing is sent to external servers.',
         /* 결과 섹션 */
         sec_verse:'Today\'s Verse', sec_story:'Today\'s Story',
-        sec_diary:'Gratitude Journal', sec_enc:'Encouragement for You',
+        sec_diary:'One Line Today', sec_enc:'Encouragement for You',
         /* 일기 */
         diary_label:'Write one thing you\'re grateful for today.',
         diary_ph:'Even small things count...',
-        diary_saved:'✓ Saved. A grateful heart is beautiful.',
+        diary_saved:'✓ Saved. Rest well tonight.',
+        diary_label_emo:{감사:'Write one thing you are grateful for today.',평안:'Write down a moment of peace from today.',걱정:'Write one worry, and hand it over to God.',지침:'Leave one line for yourself, for how hard you tried today.',아픔:'Write down what hurts, if you wish. It is okay not to.',기도:'Write one prayer you want to offer today.'},
         /* 체크인 */
         cp_text:'Checked in today', streak_unit:'-day streak',
         /* 날짜·환영 */
         locale:'en-US',
         welcome_msgs:['Well done today.','Take a moment to look back at your day.','Your day matters.','It\'s okay to rest a while.','You made it through today.','Rest a moment with God.','I\'m here to listen.'],
+        welcome_heavy:['It is okay not to be okay.','You can just be as you are here.','Let us slow down tonight.','You do not have to carry it alone.'],
         month_names:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
         day_names:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
         /* 업데이트 */
@@ -261,10 +265,10 @@ const LANG_DATA = {
         s1_title:'今日はどんな一日でしたか？', s1_sub:'一日を振り返るひととき',
         s2_title:'一番心に残ったことは？', s3_title:'今、どんな気持ちですか？',
         emo:['感謝した','平和だった','心配があった','疲れた','悲しかった','祈りたい'],
-        topic:['仕事','家族','勉強','人間関係','わからない'],
+        topic:['仕事','家族','勉強','人間関係','健康','子ども','信仰','わからない'],
         need:['慰めがほしい','力がほしい','方向が必要','ただ休みたい'],
         /* 결과 버튼 */
-        btn_copy:'📋 コピー', btn_share:'📤 共有', btn_save:'⭐ お気に入り', btn_saved:'★ 保存済み', btn_restart:'はじめに戻る',
+        btn_next:'🔄 別のみ言葉', btn_copy:'📋 コピー', btn_share:'📤 共有', btn_save:'⭐ お気に入り', btn_saved:'★ 保存済み', btn_restart:'はじめに戻る',
         btn_finish:'今日の黙想を終える', closing_extend_hint:'· 延長する', closing_extended:'あと5分見ます',
         drive_note:'運転中は画面を見ないでください', resume_text:'さっきの黙想を続けますか？', resume_go:'続ける', resume_no:'最初から',
         toast_store_fail:'この端末に保存できませんでした。保存容量やプライベートモードをご確認ください', step_back:'← 戻る', step_skip:'飛ばしてみことばを見る',
@@ -326,16 +330,18 @@ const LANG_DATA = {
         privacy:'🔒 保存された記録はこのデバイス内にのみ保管され、<br>外部サーバーには送信されません。',
         /* 결과 섹션 */
         sec_verse:'今日のみことば', sec_story:'今日のお話',
-        sec_diary:'感謝の日記', sec_enc:'あなたへの励まし',
+        sec_diary:'今日の一行', sec_enc:'あなたへの励まし',
         /* 일기 */
         diary_label:'今日感謝したことを一つ書いてみましょう。',
         diary_ph:'小さなことでも大丈夫...',
-        diary_saved:'✓ 保存されました。感謝の心は美しいです。',
+        diary_saved:'✓ 保存されました。今夜はゆっくり休んでください。',
+        diary_label_emo:{감사:'今日感謝したことを一つ書いてみましょう。',평안:'今日の平安な瞬間を一行残しましょう。',걱정:'気がかりなことを一行書いて、神様に委ねましょう。',지침:'今日がんばった自分のために一行残しましょう。',아픔:'痛む心を一行書いてみましょう。書かなくても大丈夫です。',기도:'今日ささげたい祈りを一行書きましょう。'},
         /* 체크인 */
         cp_text:'今日のチェックイン完了', streak_unit:'日連続',
         /* 날짜·환영 */
         locale:'ja-JP',
         welcome_msgs:['今日もお疲れ様でした。','ゆっくり今日を振り返りましょう。','あなたの一日は大切です。','少し休んでも大丈夫です。','今日もよく頑張りました。','神様の前でひと息つきましょう。','あなたのお話を聞かせてください。'],
+        welcome_heavy:['大丈夫でなくても大丈夫です。','ここではありのままでいてください。','今夜はゆっくり休みましょう。','ひとりで抱えなくていいのです。'],
         month_names:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
         day_names:['日','月','火','水','木','金','土'],
         /* 업데이트 */
@@ -388,6 +394,7 @@ function syncLangChoices() {
     show(sec && sec.closest('.settings-section'), !only);
 }
 
+/* 환영 화면의 언어 설정 (잠긴 언어면 한국어) */
 function setWelcomeLang(lang) {
     if (!langEnabled(lang)) lang = 'ko';
     appLang = lang;
@@ -400,6 +407,7 @@ function setWelcomeLang(lang) {
     const inp=document.getElementById('name-input'); if(inp) inp.placeholder=L.wc_ph;
 }
 
+/* 선택한 언어로 화면 전체 문구 바꾸기 (단계마다 safe) */
 function applyLang(lang) {
     appLang = lang;
     const L = LANG_DATA[lang]||LANG_DATA.ko;
@@ -424,6 +432,7 @@ function applyLang(lang) {
     const bcAll=[...document.querySelectorAll('#step2 .bc-text'),...document.querySelectorAll('#step3 .bc-text')];
     [...L.topic,...L.need].forEach((t,i)=>{ if(bcAll[i]) bcAll[i].textContent=t; });
     // 결과 액션 버튼
+    const bn=document.getElementById('btn-next'); if(bn) bn.textContent=L.btn_next;
     const bc=document.getElementById('btn-copy'), bs=document.getElementById('btn-share');
     const bsv=document.getElementById('btn-save'), br=document.querySelector('.btn-restart');
     if(bc) bc.textContent=L.btn_copy; if(bs) bs.textContent=L.btn_share;

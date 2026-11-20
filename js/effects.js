@@ -22,7 +22,7 @@ function spawnEmoEffect(emotion, event) { // event: 누른 위치 {clientX, clie
         '평안': { icons:['🍃','🌿','💚','🕊️','🌾','🌱','🍀'], size:[16,20] },
         '걱정': { icons:['💙','🌀','💭','🌊','🔷','❄️','✦'],  size:[16,20] },
         '지침': { icons:['💜','✦','🕯️','🫧','🔮','🌫️'], size:[16,20] },
-        '아픔': { icons:['🌷','💗','🌸','🫶','💝','🌹','🥀'], size:[16,20] },
+        '아픔': { icons:['🌷','💗','🌸','🫶','💝','🌹','🕊️'], size:[16,20] },
         '기도': { icons:['🙏','✨','💛','⭐','🌟','🕊️','🌠'], size:[18,22] },
     };
     const e = map[emotion] || map['감사'];
@@ -57,7 +57,7 @@ function addRipple(btn, event) {
 
 /* ── 축복 파티클 (step 4 진입) ── */
 function spawnBlessing() {
-    const syms = ['✨','🌟','💫','⭐','🌸','🌺','💝','🎊','🌼','🌷'];
+    const syms = ['✨','🌟','💫','⭐','🌸','🌺','💝','🌼','🌷'];
     for (let i=0;i<14;i++) {
         setTimeout(()=>{
             const el = document.createElement('div');
@@ -82,6 +82,7 @@ const EMO_TINT = {
     아픔:['rgba(232,138,176,.55)','rgba(232,138,176,.30)'],
     기도:['rgba(144,216,144,.55)','rgba(144,216,144,.30)'],
 };
+/* 선택한 감정의 색을 화면 분위기에 입힘 */
 function applyEmoTint(e) {
     const t = EMO_TINT[e];
     if (!t) return;
@@ -90,6 +91,7 @@ function applyEmoTint(e) {
     document.body.classList.add('emo-tinted');
 }
 
+/* 환영 화면의 떠다니는 꽃잎 연출 시작 */
 function startWelcomeParticles() {
     const c=document.getElementById('welcome-particles'); if(!c) return;
     const sym=['🌸','✨','⭐','🌟','💫','🌷','🌺','🍀','🌼','💐'];

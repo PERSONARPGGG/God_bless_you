@@ -7,6 +7,7 @@
    종류: drop(일반 버튼) / chime(설정) / finish(묵상 마치기) / write(말씀 필사) / heart(양)
 ═══════════════════════════════════════ */
 let sfxCtx = null;
+/* 효과음 재생(name: 효과음 이름). 오디오가 막혀 있어도 조용히 넘어감 */
 function playSfx(name) {
     try {
         sfxCtx = sfxCtx || new (window.AudioContext || window.webkitAudioContext)();
@@ -84,6 +85,7 @@ const HYMN_TRACKS = [
 let trackEl = null, hymnOn = false, hymnPaused = false;
 let hymnCurIdx = 0, hymnVol = 60, hymnSong = 'all'; // restoreBgMusic()에서 복원
 
+/* 배경 찬송가용 <audio>를 한 번만 만든다 */
 function ensureTrackEl() {
     if (trackEl) return;
     trackEl = new Audio();
@@ -92,6 +94,7 @@ function ensureTrackEl() {
     trackEl.onerror = () => { if (hymnOn) toast('🎵 음원을 불러오지 못했어요'); };
 }
 
+/* idx번째 찬송가를 재생 (단일곡 선택이면 그 곡 반복) */
 function hymnPlay(idx) {
     if (!hymnOn) return;
     if (hymnSong !== 'all') idx = +hymnSong; // 단일곡 반복
@@ -108,6 +111,7 @@ function hymnPlay(idx) {
     });
 }
 
+/* 배경 찬송가 재생 시작 */
 function startHymns(startIdx) {
     hymnOn = true;
     hymnPlay(startIdx != null ? startIdx
@@ -115,11 +119,13 @@ function startHymns(startIdx) {
         : 6); // 전체 반복은 항상 '구주 예수 의지함이'부터
 }
 
+/* 배경 찬송가 정지 */
 function stopHymns() {
     hymnOn = false;
     if (trackEl) { try { trackEl.pause(); trackEl.currentTime = 0; } catch(e){} }
 }
 
+/* 설정의 배경 음악 켜기/끄기 */
 function toggleBgMusic(on) {
     const sub = document.getElementById('music-status-sub');
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
@@ -146,6 +152,7 @@ function hymnTitle(idx) {
     return L['song_' + idx] || 'Amazing Grace';
 }
 
+/* 미니 플레이어(곡명·재생 상태) 표시 갱신 */
 function updatePlayerUI() {
     const p = document.getElementById('hymn-player');
     if (!p) return;
@@ -156,6 +163,7 @@ function updatePlayerUI() {
     if (tg) tg.textContent = hymnOn ? '⏸' : '▶';
 }
 
+/* 미니 플레이어 재생/일시정지 */
 function playerToggle() {
     const L = LANG_DATA[appLang]||LANG_DATA.ko;
     const sub = document.getElementById('music-status-sub');
@@ -183,6 +191,7 @@ function playerToggle() {
     }
 }
 
+/* 다음 곡 */
 function playerNext() {
     const nxt = (hymnCurIdx + 1) % HYMN_TRACKS.length;
     if (hymnSong !== 'all') { hymnSong = String(nxt); lsSet('bgSong', hymnSong); updateMusicSettingsUI(); }
@@ -197,6 +206,7 @@ function setHymnVol(v) {
     if (trackEl) trackEl.volume = Math.min(hymnVol / 100, 1);
 }
 
+/* 곡 선택(전체 반복 또는 한 곡) 저장 */
 function setHymnSong(s) {
     hymnSong = s;
     lsSet('bgSong', s);
@@ -205,6 +215,7 @@ function setHymnSong(s) {
     else if (s !== 'all') { hymnCurIdx = +s; updatePlayerUI(); }
 }
 
+/* 설정 화면의 곡 선택 칩 강조 갱신 */
 function updateMusicSettingsUI() {
     ['all','0','1','2','3','4','5','6','7','8','9'].forEach(sn => {
         const c = document.getElementById('chip-song-' + sn);
