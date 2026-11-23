@@ -23,6 +23,8 @@ function init() {
     safe('generateStars', () => generateStars());
     safe('applyFont', () => applyFont(fontLevel));
     safe('theme', () => restoreTheme());
+    safe('deco', () => applyDeco());
+    safe('verseFont', () => { applyVerseFont(); renderFontPicker(); });
     safe('checkFirstVisit', () => checkFirstVisit());
     safe('updateStreak', () => updateStreak());
     safe('initHeroTeaser', () => initHeroTeaser());

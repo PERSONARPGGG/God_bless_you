@@ -226,7 +226,7 @@ function renderMood() {
         info.append(date, emoTag, needTag, topicTag);
         if (h.diary) {
             const diary = document.createElement('div');
-            diary.className = 'mood-diary'; diary.textContent = '"' + h.diary + '"';
+            diary.className = 'mood-diary'; diary.innerHTML = '"' + diaryHtml(h.diary) + '"';
             info.appendChild(diary);
         }
         item.append(emoji, info);

@@ -180,6 +180,8 @@ function devPremiumTap(ev) {
 function setDevUI(on) {
     const box = document.querySelector('.persona-demo');
     if (box) box.classList.toggle('hidden', !on);
+    const db = document.getElementById('dev-board-sec');
+    if (db) db.classList.toggle('hidden', !on);
 }
 /* 앱 시작 시: 개발자 모드였으면 복원 (매번 비밀번호 입력 불필요) */
 function restoreDevMode() { setDevUI(isDevMode()); }

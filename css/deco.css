@@ -1,0 +1,96 @@
+/* 밤의 목장 — css/deco.css : 테마·계절 배경 장식과 양 소품 (js/deco.js가 조각을 놓고, 여기서 그림). features.css 다음에 불러옴
+   색은 모두 파스텔 — 기존 밤하늘 분위기를 해치지 않게 낮은 채도·낮은 불투명도 */
+
+#theme-deco { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+#theme-deco i, #theme-deco div { position:absolute; display:block; }
+
+/* ── 양 새끼들: 크기·살짝 다른 털 색 ── */
+.sheep-extra { position:fixed; left:0; width:58px; height:46px; z-index:0; pointer-events:auto; cursor:pointer; opacity:.9; -webkit-tap-highlight-color:transparent; transform-origin:left bottom; }
+.sheep-extra.sz-m { scale:.82; } .sheep-extra.sz-s { scale:.66; }
+.sheep-extra .sh-scarf { display:none; }
+/* 풀 뜯는 모습: 고개를 숙임 */
+.sheep-el.grazing .sh-head { transform:translate(2px,10px) rotate(30deg); transform-origin:0 100%; }
+.sheep-el.grazing .sh-head::after { height:1.6px; top:5px; background:none; border-bottom:1.6px solid #fff; border-radius:0 0 4px 4px; animation:none; }
+
+/* ── 양 소품 (프리미엄 테마): 풀숲=탐험 모자, 새벽빛=꽃관, 바다=세일러 모자, 노을=털모자+목도리, 겨울에는 목도리 ── */
+.sh-hat { position:absolute; left:1px; top:-5px; width:13px; height:7px; display:none; }
+.sh-scarf { position:absolute; right:10px; top:15px; width:11px; height:6px; display:none; border-radius:3px;
+    background:repeating-linear-gradient(90deg,#e08a73 0 3px,#f6d3bd 3px 5px); }
+.sh-scarf::after { content:''; position:absolute; right:0; top:4px; width:3px; height:9px; border-radius:2px; background:repeating-linear-gradient(180deg,#e08a73 0 3px,#f6d3bd 3px 5px); }
+body.theme-forest .sheep-el .sh-hat { display:block; background:#dcc594; border-radius:7px 7px 1px 1px; }
+body.theme-forest .sheep-el .sh-hat::before { content:''; position:absolute; left:-3px; bottom:-1.5px; width:19px; height:3px; border-radius:50%; background:#c7ab75; }
+body.theme-forest .sheep-el .sh-hat::after { content:''; position:absolute; left:0; right:0; bottom:1px; height:2px; background:#8fb36f; }
+body.theme-dawn .sheep-el .sh-hat { display:block; top:-2px; left:0; width:15px; height:5px;
+    background:radial-gradient(circle at 15% 55%,#f8bccc 2.3px,transparent 2.8px),radial-gradient(circle at 50% 35%,#fff1ac 2.6px,transparent 3.1px),radial-gradient(circle at 85% 55%,#d0bcf3 2.3px,transparent 2.8px); }
+body.theme-dawn .sheep-el .sh-hat::before { content:''; position:absolute; left:0; right:0; top:2.5px; height:2px; border-radius:2px; background:#a5d4a2; z-index:-1; }
+body.theme-ocean .sheep-el .sh-hat { display:block; top:-4px; height:6px; background:#f6f9fd; border-bottom:2px solid #8fb9e3; border-radius:7px 7px 1px 1px; }
+body.theme-ocean .sheep-el .sh-hat::after { content:''; position:absolute; left:5px; top:-3px; width:3px; height:3px; border-radius:50%; background:#f2a7a0; }
+body.theme-ember .sheep-el .sh-hat { display:block; background:#eaae92; border-radius:7px 7px 2px 2px; }
+body.theme-ember .sheep-el .sh-hat::before { content:''; position:absolute; left:-1px; right:-1px; bottom:0; height:2.5px; border-radius:2px; background:#dc8f75; }
+body.theme-ember .sheep-el .sh-hat::after { content:''; position:absolute; left:4px; top:-4px; width:5px; height:5px; border-radius:50%; background:#fff2de; }
+body.theme-ember #sheep .sh-scarf, body.deco-on[data-season="winter"] #sheep .sh-scarf, body.deco-on[data-season="winter"] .sheep-extra .sh-scarf { display:block; }
+
+/* ── 계절 입자 (모든 테마에 조금, 프리미엄 테마는 더) ── */
+.dc-season .sp { top:-24px; width:calc(9px * var(--sz,1)); height:calc(9px * var(--sz,1)); opacity:0; animation:spFall linear infinite; }
+.sp-spring  { background:radial-gradient(ellipse at 30% 30%,#fcd5e0,#f4a9c0); border-radius:70% 0 70% 0; }
+.sp-autumn  { background:linear-gradient(135deg,#e8a76a,#c9763e); border-radius:0 80% 0 80%; }
+.sp-winter  { background:#fff; border-radius:50%; width:calc(5px * var(--sz,1)) !important; height:calc(5px * var(--sz,1)) !important; box-shadow:0 0 5px rgba(255,255,255,.7); }
+@keyframes spFall { 0%{transform:translate(0,0) rotate(0);opacity:0} 8%{opacity:.8} 50%{transform:translate(var(--dx),55vh) rotate(180deg)} 92%{opacity:.7} 100%{transform:translate(calc(var(--dx) * -.6),108vh) rotate(340deg);opacity:0} }
+/* 여름: 반딧불이 천천히 떠올라 깜박임 */
+.sp-summer { top:auto !important; bottom:6%; width:6px !important; height:6px !important; border-radius:50%; background:#fff6b0; box-shadow:0 0 9px 3px rgba(255,240,150,.65); animation:spFirefly ease-in-out infinite !important; }
+@keyframes spFirefly { 0%,100%{transform:translate(0,0);opacity:0} 20%{opacity:.9} 50%{transform:translate(var(--dx),-28vh);opacity:.35} 70%{opacity:.95} }
+
+/* ── 풀숲 ── */
+.dc-grass { left:0; right:0; bottom:0; height:30px; }
+.dc-grass .blade { bottom:0; width:5px; background:linear-gradient(180deg,rgba(150,205,150,.55),rgba(90,150,100,.35)); border-radius:60% 60% 0 0; transform-origin:50% 100%; animation:bladeSway ease-in-out infinite; }
+@keyframes bladeSway { 0%,100%{transform:rotate(-6deg)} 50%{transform:rotate(7deg)} }
+.dc-tree { bottom:0; width:74px; height:150px; transform-origin:50% 100%; animation:treeSway 7s ease-in-out infinite; opacity:.55; }
+.dc-tree.l { left:-14px; } .dc-tree.r { right:-14px; animation-delay:-3s; }
+.dc-tree::before { content:''; position:absolute; left:33px; bottom:0; width:8px; height:78px; background:#6f8a6a; border-radius:3px; }
+.dc-tree::after  { content:''; position:absolute; left:0; bottom:46px; width:74px; height:92px; background:radial-gradient(ellipse at 40% 35%,#9cc896,#6b9a70); border-radius:50% 50% 46% 46%; }
+@keyframes treeSway { 0%,100%{transform:rotate(-1.4deg)} 50%{transform:rotate(1.6deg)} }
+/* 여운 소품: 오른쪽 아래 들꽃 한 송이 */
+.dc-linger { right:16px; bottom:8px; width:30px; height:64px; }
+.dc-wildflower { transform-origin:50% 100%; animation:flowerSway 4.6s ease-in-out infinite; }
+.dc-wildflower .stem { left:14px; bottom:0; width:2px; height:46px; background:#86b383; border-radius:2px; }
+.dc-wildflower .leaf { bottom:10px; width:11px; height:6px; background:#9cc796; border-radius:0 100% 0 100%; }
+.dc-wildflower .leaf.a { left:15px; transform:rotate(-20deg); } .dc-wildflower .leaf.b { left:4px; bottom:20px; transform:scaleX(-1) rotate(-20deg); }
+.dc-wildflower .bloom { left:11px; top:6px; width:8px; height:8px; border-radius:50%; background:#ffe9a8;
+    box-shadow:0 -8px 0 -1px #f6bccd,7px -3px 0 -1px #f6bccd,4px 6px 0 -1px #f6bccd,-4px 6px 0 -1px #f6bccd,-7px -3px 0 -1px #f6bccd; }
+@keyframes flowerSway { 0%,100%{transform:rotate(-5deg)} 50%{transform:rotate(6deg)} }
+
+/* ── 새벽빛: 동틀 녘 빛과 구름, 민들레 ── */
+.dc-glow { left:0; right:0; bottom:0; height:38%; background:linear-gradient(0deg,rgba(255,196,170,.20),rgba(255,214,190,.07) 60%,transparent); }
+.dc-cloud { left:-120px; width:90px; height:22px; border-radius:20px; background:rgba(255,226,236,.14); box-shadow:26px -9px 0 4px rgba(255,226,236,.12),-18px -5px 0 0 rgba(255,226,236,.10); animation:cloudDrift linear infinite; }
+@keyframes cloudDrift { from{translate:0 0} to{translate:calc(100vw + 280px) 0} }
+.dc-dandelion { transform-origin:50% 100%; animation:flowerSway 5.2s ease-in-out infinite; }
+.dc-dandelion .stem { left:14px; bottom:0; width:2px; height:44px; background:#a9cf9f; border-radius:2px; }
+.dc-dandelion .puff { left:6px; top:6px; width:18px; height:18px; border-radius:50%; background:radial-gradient(circle,#fff 0 28%,rgba(255,255,255,.55) 30% 55%,transparent 58%); box-shadow:0 0 8px rgba(255,255,255,.5); }
+.dc-dandelion .seed { left:14px; top:12px; width:3px; height:3px; border-radius:50%; background:#fff; opacity:0; animation:seedFly 6s ease-in infinite; }
+.dc-dandelion .seed.s2 { animation-delay:2s; } .dc-dandelion .seed.s3 { animation-delay:4s; }
+@keyframes seedFly { 0%{transform:translate(0,0);opacity:0} 15%{opacity:.9} 100%{transform:translate(-46px,-70px);opacity:0} }
+
+/* ── 바다: 겹친 물결, 올라오는 물방울, 불가사리 ── */
+.dc-wave { left:0; right:0; bottom:0; height:44px; background-repeat:repeat-x; background-size:240px 44px; opacity:.5; }
+.dc-wave.w1 { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='44'%3E%3Cpath d='M0 22 Q30 6 60 22 T120 22 T180 22 T240 22 V44 H0Z' fill='%236fa8d8' fill-opacity='.35'/%3E%3C/svg%3E"); animation:waveMove 14s linear infinite; }
+.dc-wave.w2 { height:36px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='44'%3E%3Cpath d='M0 24 Q30 38 60 24 T120 24 T180 24 T240 24 V44 H0Z' fill='%238cc4e8' fill-opacity='.28'/%3E%3C/svg%3E"); animation:waveMove 19s linear infinite reverse; }
+@keyframes waveMove { from{background-position-x:0} to{background-position-x:240px} }
+.dc-bubble { bottom:-14px; border-radius:50%; border:1px solid rgba(190,225,250,.6); background:rgba(190,225,250,.12); animation:bubbleUp linear infinite; }
+@keyframes bubbleUp { 0%{transform:translateY(0) scale(.7);opacity:0} 12%{opacity:.8} 100%{transform:translateY(-92vh) scale(1.1);opacity:0} }
+.dc-starfish { bottom:14px; width:30px; height:30px; animation:starPulse 5s ease-in-out infinite; }
+.dc-starfish .star { inset:0; background:#f4b3a6; clip-path:polygon(50% 0,61% 35%,98% 38%,68% 59%,79% 95%,50% 73%,21% 95%,32% 59%,2% 38%,39% 35%); opacity:.85; }
+.dc-starfish .glint { left:12px; top:11px; width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,.7); }
+@keyframes starPulse { 0%,100%{transform:rotate(-4deg) scale(1);filter:drop-shadow(0 0 3px rgba(244,179,166,.4))} 50%{transform:rotate(5deg) scale(1.06);filter:drop-shadow(0 0 9px rgba(244,179,166,.75))} }
+
+/* ── 노을: 따뜻한 빛, 올라가는 불씨, 촛불 ── */
+.dc-emberglow { left:0; right:0; bottom:0; height:42%; background:radial-gradient(ellipse at 50% 110%,rgba(255,170,120,.22),rgba(255,150,110,.06) 55%,transparent 75%); }
+.dc-ember { bottom:-8px; width:4px; height:4px; border-radius:50%; background:#ffd2a0; box-shadow:0 0 6px 2px rgba(255,190,130,.55); animation:emberUp linear infinite; }
+@keyframes emberUp { 0%{transform:translate(0,0);opacity:0} 15%{opacity:.85} 100%{transform:translate(24px,-70vh);opacity:0} }
+.dc-candle { width:26px; height:62px; right:18px; }
+.dc-candle .wax { left:7px; bottom:0; width:12px; height:30px; border-radius:3px; background:linear-gradient(90deg,#f7ead2,#fff7e8 50%,#ecd9b8); }
+.dc-candle .flame { left:10px; bottom:32px; width:7px; height:14px; border-radius:50% 50% 50% 50% / 62% 62% 38% 38%; background:linear-gradient(180deg,#fff4c4,#ffc77a 60%,#f59a5b); transform-origin:50% 100%; animation:flameFlick 1.7s ease-in-out infinite; }
+.dc-candle .halo { left:-14px; bottom:14px; width:54px; height:54px; border-radius:50%; background:radial-gradient(circle,rgba(255,206,140,.32),transparent 68%); animation:haloPulse 3.4s ease-in-out infinite; }
+@keyframes flameFlick { 0%,100%{transform:scale(1,1) rotate(-2deg)} 30%{transform:scale(.92,1.08) rotate(2deg)} 60%{transform:scale(1.05,.94) rotate(-1deg)} }
+@keyframes haloPulse { 0%,100%{opacity:.7;transform:scale(1)} 50%{opacity:1;transform:scale(1.1)} }
+
+@media (prefers-reduced-motion: reduce) { #theme-deco { display:none; } }

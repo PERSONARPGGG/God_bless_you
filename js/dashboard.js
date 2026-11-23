@@ -248,7 +248,7 @@ function renderDbDiaries(data) {
         const col = DB_EMO_COLORS[m.emotion] || 'rgba(255,255,255,.2)';
         return `<div class="db-diary-item" style="border-left-color:${col}">
             <div class="db-diary-date">${escHtml(m.date.slice(5).replace('-','/'))} · ${escHtml(emoShort(m.emotion))}</div>
-            <div class="db-diary-txt">${escHtml(m.diary)}</div>
+            <div class="db-diary-txt">${diaryHtml(m.diary)}</div>
         </div>`;
     }).join('');
 }

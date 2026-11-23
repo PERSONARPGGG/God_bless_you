@@ -1,10 +1,10 @@
 // 캐시 버전 — 이름이 바뀌면 이전 캐시 자동 삭제
-const CACHE = 'god-app-v32';
+const CACHE = 'god-app-v33';
 // 오프라인 폴백용으로 캐싱할 에셋 (js 파일을 추가·삭제하면 여기도 함께 — tools/check.mjs가 확인)
-const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './css/app.css', './css/fx.css', './css/features.css',
+const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './css/app.css', './css/fx.css', './css/features.css', './css/deco.css',
     './js/data.js', './js/icons.js', './js/data-verses.js', './js/data-text.js', './js/core.js', './js/i18n.js', './js/effects.js', './js/audio.js', './js/pwa.js',
-    './js/auth.js', './js/home.js', './js/flow.js', './js/qr.js', './js/share.js', './js/diary.js', './js/vault.js', './js/ui.js', './js/premium.js', './js/billing.js', './js/dashboard.js', './js/history.js', './js/aireport.js',
-    './js/demo.js', './js/sheep.js', './js/care.js', './js/boot.js'];
+    './js/auth.js', './js/home.js', './js/flow.js', './js/qr.js', './js/share.js', './js/cards.js', './js/fonts.js', './js/diary.js', './js/vault.js', './js/ui.js', './js/premium.js', './js/billing.js', './js/dashboard.js', './js/history.js', './js/aireport.js',
+    './js/demo.js', './js/sheep.js', './js/deco.js', './js/devboard.js', './js/care.js', './js/boot.js'];
 
 self.addEventListener('install', e => {
     e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));

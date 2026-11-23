@@ -52,6 +52,7 @@ async function refreshEntitlement() {
 
 /* 프리미엄 여부에 따라 달라지는 화면을 모두 다시 맞춘다 */
 function onPremiumChanged() {
+    safe('premium.fonts',   () => { applyVerseFont(); renderFontPicker(); });   // 글꼴도 자격에 맞춰
     safe('premium.theme',   () => restoreTheme());        // 자격이 없으면 프리미엄 테마 → 기본, 있으면 저장된 테마로
     safe('premium.history', () => refreshHistoryIfOpen()); // 달력 범위, 월간·연간 리포트 잠금/해제
     safe('premium.vault',   () => refreshVaultIfOpen());  // 보관함 상단 안내

@@ -30,6 +30,7 @@
     <link rel="stylesheet" href="css/app.css">
     <link rel="stylesheet" href="css/fx.css">
     <link rel="stylesheet" href="css/features.css">
+    <link rel="stylesheet" href="css/deco.css">
 </head>
 <body>
 
@@ -256,6 +257,15 @@
                     <button class="theme-btn" id="th-ember"  onclick="setTheme('ember')">🔥<br><span id="th-ember-txt">노을</span></button>
                 </div>
             </div>
+        </div>
+
+        <!-- 말씀 글꼴 -->
+        <div class="settings-section" id="font-picker"></div>
+
+        <!-- 개발자 보드 (개발자 모드에서만 보임) -->
+        <div class="settings-section hidden" id="dev-board-sec">
+            <div class="settings-label">개발자</div>
+            <div class="settings-card"><button type="button" class="btn-setting-action" onclick="openDevBoard()">개발자 보드 열기</button></div>
         </div>
 
         <!-- 글자 크기 -->
@@ -841,7 +851,7 @@
         <div class="sh-tail"></div>
         <div class="sh-body"></div>
         <div class="sh-fluff"></div>
-        <div class="sh-head"><i class="sh-cheek"></i><i class="sh-brow"></i></div>
+        <div class="sh-head"><i class="sh-cheek"></i><i class="sh-brow"></i><i class="sh-hat"></i></div><i class="sh-scarf"></i>
         <div class="sh-leg l1"></div><div class="sh-leg l2"></div><div class="sh-leg l3"></div><div class="sh-leg l4"></div>
     </div></div>
 </div>
@@ -885,6 +895,8 @@
 <script src="js/flow.js"></script>
 <script src="js/qr.js"></script>
 <script src="js/share.js"></script>
+<script src="js/cards.js"></script>
+<script src="js/fonts.js"></script>
 <script src="js/diary.js"></script>
 <script src="js/vault.js"></script>
 <script src="js/ui.js"></script>
@@ -895,6 +907,8 @@
 <script src="js/aireport.js"></script>
 <script src="js/demo.js"></script>
 <script src="js/sheep.js"></script>
+<script src="js/deco.js"></script>
+<script src="js/devboard.js"></script>
 <script src="js/care.js"></script>
 <script src="js/boot.js"></script>
 <!-- 로그인용 Supabase 라이브러리: 화면을 막지 않도록 맨 뒤에서 따로 받는다 (CDN이 느리거나 죽어도 앱은 켜짐).

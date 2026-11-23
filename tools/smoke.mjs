@@ -625,6 +625,47 @@ scenario('자체 아이콘·QR·양 표정: 이모지 없이 그려지고, 칸�
     p.ok(await p.eval(`!document.getElementById('sheep').className.includes('face-')`), '다시 시작하면 기본 표정');
 });
 
+scenario('테마 장식·양 떼·카드 모양·글꼴·일기 스티커·개발자 보드', { now: '2026-11-17T21:30:00+09:00', seed: { userName: '은혜', devMode: '1',
+    moodHistory: JSON.stringify([{ date: '2026-11-16', emotion: '감사', topic: '가족', need: '쉼', diary: '오늘 케이크 🎂 먹었어요 ❤️' }]) } }, async p => {
+    await p.goto();
+    p.ok(await p.eval(`document.querySelectorAll('.sheep-el:not(.intro-sheep)').length === 3`), '양 떼: 주인공 + 새끼 양 2마리');
+    p.ok(await p.eval(`!!document.getElementById('theme-deco') && document.querySelectorAll('#theme-deco .sp').length >= 5`), '무료 밤하늘에도 계절 입자가 조금');
+    p.ok(await p.eval(`!document.querySelector('#theme-deco .dc-linger')`), '밤하늘에는 여운 소품·배경 장식이 없음(프리미엄 전용)');
+    for (const [th, linger] of [['forest', 'dc-wildflower'], ['dawn', 'dc-dandelion'], ['ocean', 'dc-starfish'], ['ember', 'dc-candle']]) {
+        await p.eval(`setTheme('${th}')`);
+        p.ok(await p.eval(`!!document.querySelector('#theme-deco .${linger}')`), th + ': 오른쪽 아래 여운 소품');
+        p.ok(await p.eval(`getComputedStyle(document.querySelector('#sheep .sh-hat')).display === 'block'`), th + ': 양이 모자를 씀');
+        await p.shot('theme-' + th);
+    }
+    await p.eval(`previewSeason('winter')`); await p.eval(`hideOverlay('overlay-devboard')`);
+    p.ok(await p.eval(`document.body.dataset.season === 'winter' && getComputedStyle(document.querySelector('#sheep .sh-scarf')).display === 'block'`), '겨울: 양이 목도리');
+    await p.eval(`previewSeason('auto')`); await p.eval(`hideOverlay('overlay-devboard')`);
+    /* 개발자 보드 */
+    await p.eval(`openSettings()`);
+    p.ok(await p.eval(`__t.vis('#dev-board-sec')`), '개발자 모드: 설정에 개발자 보드 버튼');
+    await p.eval(`openDevBoard()`);
+    p.ok((await p.eval(`__t.txt('#dv-body')`)).includes('방문 추이') && (await p.eval(`__t.txt('#dv-body')`)).includes('Supabase'), '개발자 보드 내용');
+    await p.shot('devboard');
+    await p.eval(`hideOverlay('overlay-devboard')`);
+    /* 말씀 글꼴 (프리미엄=개발자 모드) */
+    await p.eval(`pickVerseFont('gowunbatang')`);
+    p.ok((await p.eval(`getComputedStyle(document.documentElement).getPropertyValue('--font-verse')`)).includes('Gowun Batang'), '글꼴 선택이 말씀 글꼴 변수에 반영');
+    await p.eval(`pickVerseFont('myeongjo')`);
+    /* 일기 스티커 */
+    await p.eval(`openVault(); switchTab('mood')`);
+    p.ok(await p.eval(`document.querySelectorAll('.mood-diary .dstk').length === 2`), '일기 속 이모지 2개가 스티커로 보임');
+    await p.shot('diary-sticker');
+    await p.eval(`hideOverlay('overlay-vault')`);
+    /* 말씀 카드 모양 */
+    await p.flow('감사', '가족', '쉼');
+    await p.eval(`shareVerse()`);
+    await p.waitFor(`document.querySelectorAll('#cp-grid .cp-item').length === 5`, '카드 모양 5가지');
+    await new Promise(r => setTimeout(r, 2500));
+    await p.shot('card-picker');
+    const wh = await p.eval(`(async () => { const b = await makeVerseCardBlob(CARD_STYLES[3]); return b.size > 20000 && b.type === 'image/png'; })()`);
+    p.ok(wh, '편지지 카드 이미지 생성');
+});
+
 scenario('날짜: 미국 시간대에서도 하루가 밀리지 않음', {
     now: '2026-11-16T22:00:00-05:00', tz: 'America/New_York',
     seed: { userName: '', moodHistory: JSON.stringify([{ date: '2026-11-16', emotion: '감사', topic: '일', need: '힘', emoji: '😊' }]) },

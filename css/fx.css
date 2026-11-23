@@ -401,12 +401,12 @@
     @keyframes shWalkBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-1.5px)} }
     .sh-body {
         position:absolute; left:2px; top:12px; width:42px; height:24px;
-        background:#f3efe6; border-radius:14px;
-        box-shadow:-6px -6px 0 -4px #f3efe6, 8px -7px 0 -5px #f3efe6, 2px -9px 0 -5px #f3efe6,
+        background:var(--wool,#f3efe6); border-radius:14px;
+        box-shadow:-6px -6px 0 -4px var(--wool,#f3efe6), 8px -7px 0 -5px var(--wool,#f3efe6), 2px -9px 0 -5px var(--wool,#f3efe6),
                    inset -5px -4px 8px rgba(140,145,175,.4);
     }
-    .sh-tail { position:absolute; left:0; top:16px; width:8px; height:8px; background:#f3efe6; border-radius:50%; }
-    .sh-fluff { position:absolute; right:9px; top:2px; width:13px; height:9px; background:#f3efe6; border-radius:50%; }
+    .sh-tail { position:absolute; left:0; top:16px; width:8px; height:8px; background:var(--wool,#f3efe6); border-radius:50%; }
+    .sh-fluff { position:absolute; right:9px; top:2px; width:13px; height:9px; background:var(--wool,#f3efe6); border-radius:50%; }
     .sh-head {
         position:absolute; right:2px; top:6px; width:15px; height:13px;
         background:#3e3630; border-radius:7px 8px 6px 6px;
@@ -438,7 +438,7 @@
     @keyframes shBlink { 0%,93%,100%{transform:scaleY(1)} 96%{transform:scaleY(.1)} }
     /* 볼 홍조 · 눈썹(걱정) · 눈물(아픔) */
     .sh-cheek { position:absolute; right:6px; top:8px; width:4px; height:2.6px; border-radius:50%; background:rgba(255,150,165,.55); transition:all .3s ease; }
-    .sh-brow  { position:absolute; right:2px; top:1px; width:5px; height:1.4px; border-radius:2px; background:#f3efe6; opacity:0; transition:all .3s ease; }
+    .sh-brow  { position:absolute; right:2px; top:1px; width:5px; height:1.4px; border-radius:2px; background:var(--wool,#f3efe6); opacity:0; transition:all .3s ease; }
     /* 귀 · 꼬리 · 머리 움직임 */
     .sh-head::before { transform-origin:right center; animation:shEar 3.6s ease-in-out infinite; }
     @keyframes shEar { 0%,86%,100%{transform:rotate(-25deg)} 90%{transform:rotate(-5deg)} 94%{transform:rotate(-22deg)} 97%{transform:rotate(-8deg)} }
@@ -451,7 +451,7 @@
     .sheep-el.sitting .sh-head::after { height:2px; width:4.5px; top:5px; background:none; border-bottom:1.6px solid #fff; border-radius:0 0 4px 4px; animation:none; box-shadow:none; }
     .sheep-el.sitting .sh-bob { animation:shBreathe 3.2s ease-in-out infinite; transform-origin:50% 100%; }
     @keyframes shBreathe { 0%,100%{transform:scale(1)} 50%{transform:scale(1.035,1.05)} }
-    #sheep.sitting::after { content:'z Z'; position:absolute; right:-6px; top:-8px; font-size:var(--fs-2xs); font-weight:700; color:rgba(245,230,200,.85); animation:shZ 3s ease-in-out infinite; pointer-events:none; }
+    #sheep.sitting::after, .sheep-extra.sitting::after { content:'z Z'; position:absolute; right:-6px; top:-8px; font-size:var(--fs-2xs); font-weight:700; color:rgba(245,230,200,.85); animation:shZ 3s ease-in-out infinite; pointer-events:none; }
     @keyframes shZ { 0%{opacity:0;transform:translate(0,4px)} 40%,60%{opacity:.9} 100%{opacity:0;transform:translate(5px,-9px)} }
     /* 오프닝에서 달을 올려다봄 */
     .intro-sheep.look .sh-head { transform:rotate(-14deg); transform-origin:0 100%; animation:none; }

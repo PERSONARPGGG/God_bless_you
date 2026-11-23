@@ -60,3 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 document.addEventListener('visibilitychange', () => { if (document.hidden) safe('diary.flush', saveDiaryDraft); });
 window.addEventListener('pagehide', () => safe('diary.flush', saveDiaryDraft));
+
+/* 일기 글을 화면에 올릴 HTML로 — 사용자가 쓴 이모지는 다이어리에 붙인 스티커처럼 살짝 기울여 보여 줌 */
+function diaryHtml(text) {
+    let i = 0;
+    return escHtml(String(text || '')).replace(/(?:[\u{1F1E6}-\u{1F1FF}]{2}|\p{Extended_Pictographic}(?:\uFE0F|\u200d\p{Extended_Pictographic}\uFE0F?)*\uFE0F?)/gu,
+        m => '<span class="dstk" style="--r:' + [-7, 5, -3, 8, -5][i++ % 5] + 'deg">' + m + '</span>');
+}

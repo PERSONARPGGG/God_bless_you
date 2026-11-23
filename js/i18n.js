@@ -509,5 +509,6 @@ function applyLang(lang) {
     safe('applyLangV27', () => applyLangV27());
     // 화면에 떠 있는 것 중 언어에 따라 달라지는 것 다시 그리기
     safe('lang.vault', () => refreshVaultIfOpen());
+    safe('lang.fonts', () => renderFontPicker());
 }
 

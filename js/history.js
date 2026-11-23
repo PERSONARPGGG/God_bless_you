@@ -245,7 +245,7 @@ function renderHistCalendar() {
             <div class="hc-entry-date">${escHtml(dateTxt)}</div>
             <div class="hc-entry-meta">${escHtml(meta)}</div>
             ${v ? `<div class="hc-entry-verse">${v.v ? '“' + escHtml(v.v) + '” ' : ''}<span>— ${escHtml(v.r)}</span></div>` : ''}
-            ${h.diary ? `<div class="hc-entry-diary">${escHtml(h.diary)}</div>` : ''}
+            ${h.diary ? `<div class="hc-entry-diary">${diaryHtml(h.diary)}</div>` : ''}
         </div>`;
     }).join('')}</div>` : (byDay.size ? `<div class="hc-hint">${L.hc_pick}</div>` : '');
     el.innerHTML = `<div class="hc-nav">
@@ -344,7 +344,7 @@ function exportDiaryPdf() {
             <div class="pd-date">${escHtml(fmtDate(m.date))}</div>
             <div class="pd-emo">${iconHtml('emo', m.emotion)} ${escHtml(emoShort(m.emotion))}</div>
             ${v ? `<div class="pd-verse">${v.v ? '“' + escHtml(v.v) + '” ' : ''}<span class="pd-ref">— ${escHtml(v.r)}</span></div>` : ''}
-            ${m.diary ? `<div class="pd-diary">${escHtml(m.diary)}</div>` : ''}
+            ${m.diary ? `<div class="pd-diary">${diaryHtml(m.diary)}</div>` : ''}
         </div>`;
     }).join('');
     pd.innerHTML = `

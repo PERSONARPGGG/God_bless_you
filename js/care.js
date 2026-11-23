@@ -345,7 +345,7 @@ async function renderOnThisDay() {
     } else {
         const meta = [h.emotion && eLabel(h.emotion), h.topic && tLabel(h.topic), h.need && nLabel(h.need)].filter(Boolean).join(' · ');
         el.innerHTML = head + `<div class="otd-meta">${escHtml(dateTxt)} · ${escHtml(meta)}</div>
-            ${h.diary ? `<div class="otd-diary">“${escHtml(h.diary)}”</div>` : ''}
+            ${h.diary ? `<div class="otd-diary">“${diaryHtml(h.diary)}”</div>` : ''}
             <div class="otd-msg">${escHtml(L.otd_msg)}</div>`;
     }
     el.classList.remove('hidden');

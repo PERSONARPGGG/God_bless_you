@@ -9,6 +9,7 @@ function openSettings() {
     const name = lsGet('userName');
     document.getElementById('current-name-display').textContent = name ? `${L.name_prefix}${name}` : L.name_none;
     applyFont(fontLevel);
+    safe('fonts', () => renderFontPicker(true));
     // 언어 버튼 active 동기화
     ['lo-ko','lo-en','lo-ja'].forEach(id => {
         const lang = id.replace('lo-','');
@@ -64,6 +65,7 @@ const PREMIUM_THEMES = ['dawn', 'forest', 'ocean', 'ember'];
 /* 배경 테마를 body 클래스로 적용 */
 function applyTheme(theme) {
     THEMES.forEach(t => document.body.classList.toggle('theme-' + t, t === theme && t !== 'night'));
+    safe('deco', () => applyDeco());   // 테마에 맞는 배경 장식·양 소품·계절 입자
 }
 /* 지금 적용된 테마 이름 */
 function currentTheme() { return THEMES.find(t => document.body.classList.contains('theme-' + t)) || 'night'; }
