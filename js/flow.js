@@ -25,10 +25,11 @@ function pick(type, value) {
     if (type !== 'need') safe('saveResume', () => saveResume());
     if (type==='emotion') {
         safe('applyEmoTint', () => applyEmoTint(value));
-        safe('badge2', () => { document.getElementById('badge2').textContent = eLabel(value); });
+        safe('sheepFace', () => sheepFace(value));
+        safe('badge2', () => { document.getElementById('badge2').innerHTML = labelHtml('emo', value); });
         go('step1','step2');
     } else if (type==='topic') {
-        safe('badge3', () => { document.getElementById('badge3').textContent = eLabel(sel.emotion)+' · '+tLabel(value); });
+        safe('badge3', () => { document.getElementById('badge3').innerHTML = labelHtml('emo', sel.emotion)+' · '+labelHtml('topic', value); });
         go('step2','step3');
     } else if (type==='need') {
         safe('clearResume', () => clearResume());
@@ -102,7 +103,7 @@ function offerResume() {
     if (!r || sel.emotion || document.getElementById('step1').classList.contains('hidden')) { bar.classList.add('hidden'); return; }
     const L = LANG_DATA[appLang] || LANG_DATA.ko;
     // 감정 이름을 문장에 끼우면 조사가 어색해져서(걱정이 있었어요에서…) 그림만 앞에 붙인다
-    document.getElementById('resume-text').textContent = (E_EMOJI[r.emotion] || '') + ' ' + L.resume_text;
+    document.getElementById('resume-text').innerHTML = iconHtml('emo', r.emotion) + ' ' + escHtml(L.resume_text);
     bar.classList.remove('hidden');
 }
 /* 이어하기 눌렀을 때 그 감정에서 다시 시작 */
@@ -180,7 +181,7 @@ function buildResult() {
     verseSaved = false;
     curMoodRowId = null;
 
-    document.getElementById('r-context').textContent = eLabel(emotion)+' · '+tLabel(topic)+' · '+nLabel(need);
+    document.getElementById('r-context').innerHTML = labelHtml('emo', emotion)+' · '+labelHtml('topic', topic)+' · '+labelHtml('need', need);
     document.getElementById('r-ref').textContent = '— '+curVerse.r;
     document.getElementById('r-verse').textContent = curVerse.v; // 타이핑 연출이 실패해도 말씀은 보이도록 먼저 넣어 둠
     safe('typewriterVerse', () => typewriterVerse(curVerse.v));

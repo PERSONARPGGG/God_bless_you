@@ -27,7 +27,7 @@ function toggleQR() {
     if (open) { panel.style.display = 'none'; return; }
     const img = document.getElementById('qr-img');
     if (img && !img.dataset.loaded) {
-        img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=' + encodeURIComponent(SHARE_URL);
+        img.src = qrDataUrl(SHARE_URL, 8);  /* 앱 안에서 생성 — 외부 서버 안 씀 */
         img.dataset.loaded = '1';
     }
     panel.style.display = 'block';

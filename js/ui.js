@@ -209,6 +209,7 @@ function restart() {
     stopClosingTimer();
     document.body.classList.remove('closing-sky');
     document.body.classList.remove('emo-tinted');
+    safe('sheepFace', () => sheepFace(''));
     ['btn-vault-closing', 'btn-dashboard'].forEach(id => { const b = document.getElementById(id); if (b) b.classList.add('hidden'); });
     document.getElementById('step4').classList.remove('closing');
     document.querySelectorAll('#step4 .card').forEach(c=>c.classList.remove('closing-collapsed'));

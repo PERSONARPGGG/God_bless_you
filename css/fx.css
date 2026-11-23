@@ -218,16 +218,25 @@
     .ni-star { position:absolute;border-radius:50%;background:#fff;opacity:.55;animation:encTwinkle 4s ease-in-out infinite; }
     .ni-moon {
         position:absolute;top:16%;left:50%;transform:translateX(-50%);
-        font-size:58px;line-height:1;
+        width:58px;height:58px;font-size:58px;line-height:1;
+        display:flex;align-items:center;justify-content:center;z-index:2;
         filter:drop-shadow(0 0 14px rgba(245,230,200,.35));
         transition:filter 1.2s ease;
     }
+    /* 달 둘레의 은은한 후광 — 빛줄기가 여기서 시작해 보이게 */
+    .ni-moon::before {
+        content:'';position:absolute;left:50%;top:50%;width:170px;height:170px;margin:-85px 0 0 -85px;border-radius:50%;
+        background:radial-gradient(circle,rgba(245,230,200,.20),rgba(245,230,200,0) 68%);
+        opacity:.55;transition:opacity 1.4s ease;animation:niHalo 4.5s ease-in-out infinite;
+    }
+    #night-intro.lit .ni-moon::before { opacity:1; }
+    @keyframes niHalo { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
     #night-intro.lit .ni-moon { filter:drop-shadow(0 0 30px rgba(245,230,200,.75)); }
     .ni-beam {
-        position:absolute;top:calc(16% + 44px);left:50%;transform:translateX(-50%);
-        width:200px;height:46%;
-        background:linear-gradient(180deg,rgba(245,230,200,.30),rgba(245,230,200,0) 92%);
-        clip-path:polygon(40% 0,60% 0,100% 100%,0 100%);
+        position:absolute;top:calc(16% + 33px);left:calc(50% + 5px);transform:translateX(-50%);
+        width:230px;height:50%;z-index:1;
+        background:linear-gradient(180deg,rgba(245,230,200,.34),rgba(245,230,200,.08) 70%,rgba(245,230,200,0) 100%);
+        clip-path:polygon(47% 0,53% 0,100% 100%,0 100%);
         opacity:0;transition:opacity 1.4s ease;
     }
     #night-intro.lit .ni-beam { opacity:1; }
@@ -242,10 +251,14 @@
     }
     #night-intro.walkin .intro-sheep { left:calc(50% - 29px); }
     .ni-zzz {
-        position:absolute;bottom:calc(22% + 88px);left:calc(50% + 40px);
-        font-size:17px;opacity:0;transition:opacity 1s ease .2s;
+        position:absolute;bottom:calc(22% + 92px);left:calc(50% + 44px);
+        font-size:var(--fs-sm);font-weight:700;color:#f5e6c8;opacity:0;transition:opacity 1s ease .2s;
     }
-    #night-intro.asleep .ni-zzz { opacity:.8; }
+    .ni-zzz span { display:inline-block;opacity:0;animation:niZ 2.4s ease-in-out infinite; }
+    .ni-zzz span:nth-child(2) { animation-delay:.5s; font-size:1.15em; }
+    .ni-zzz span:nth-child(3) { animation-delay:1s; font-size:1.3em; }
+    @keyframes niZ { 0%{opacity:0;transform:translate(0,4px)} 35%,65%{opacity:.9} 100%{opacity:0;transform:translate(5px,-10px)} }
+    #night-intro.asleep .ni-zzz { opacity:1; }
     .ni-brand {
         position:absolute;bottom:9%;left:0;right:0;text-align:center;
         opacity:0;transform:translateY(8px);
@@ -415,3 +428,45 @@
     .sh-body, .sh-head, .sh-leg, .sh-fluff, .sh-tail { transition:all .45s ease; }
     @media (prefers-reduced-motion: reduce) { #sheep { display:none; } }
 
+
+    /* ═══════════════════════════════════════════════════════
+       양 다듬기 — 표정·깜박임·꼬리·귀·숨쉬기·그림자 (+ 감정에 따라 표정이 바뀜: sheep.js의 sheepFace)
+    ═══════════════════════════════════════════════════════ */
+    .sheep-el::before { content:''; position:absolute; left:5px; bottom:-3px; width:40px; height:6px; border-radius:50%; background:rgba(0,0,0,.28); filter:blur(2px); }
+    /* 눈: 깜박임 */
+    .sh-head::after { width:3px; height:3px; right:3.5px; top:3.5px; box-shadow:0 0 0 .5px rgba(255,255,255,.25); animation:shBlink 4.8s infinite; transition:all .3s ease; }
+    @keyframes shBlink { 0%,93%,100%{transform:scaleY(1)} 96%{transform:scaleY(.1)} }
+    /* 볼 홍조 · 눈썹(걱정) · 눈물(아픔) */
+    .sh-cheek { position:absolute; right:6px; top:8px; width:4px; height:2.6px; border-radius:50%; background:rgba(255,150,165,.55); transition:all .3s ease; }
+    .sh-brow  { position:absolute; right:2px; top:1px; width:5px; height:1.4px; border-radius:2px; background:#f3efe6; opacity:0; transition:all .3s ease; }
+    /* 귀 · 꼬리 · 머리 움직임 */
+    .sh-head::before { transform-origin:right center; animation:shEar 3.6s ease-in-out infinite; }
+    @keyframes shEar { 0%,86%,100%{transform:rotate(-25deg)} 90%{transform:rotate(-5deg)} 94%{transform:rotate(-22deg)} 97%{transform:rotate(-8deg)} }
+    .sh-tail { animation:shWag 1.4s ease-in-out infinite; }
+    .sheep-el.walking .sh-tail { animation-duration:.5s; }
+    @keyframes shWag { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-1.5px,-1.5px)} }
+    .sheep-el.walking .sh-head { animation:shNod .5s ease-in-out infinite; transform-origin:0 100%; }
+    @keyframes shNod { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
+    /* 앉아서 잘 때: 눈 감고 숨 쉬고 z가 떠오름 */
+    .sheep-el.sitting .sh-head::after { height:2px; width:4.5px; top:5px; background:none; border-bottom:1.6px solid #fff; border-radius:0 0 4px 4px; animation:none; box-shadow:none; }
+    .sheep-el.sitting .sh-bob { animation:shBreathe 3.2s ease-in-out infinite; transform-origin:50% 100%; }
+    @keyframes shBreathe { 0%,100%{transform:scale(1)} 50%{transform:scale(1.035,1.05)} }
+    #sheep.sitting::after { content:'z Z'; position:absolute; right:-6px; top:-8px; font-size:var(--fs-2xs); font-weight:700; color:rgba(245,230,200,.85); animation:shZ 3s ease-in-out infinite; pointer-events:none; }
+    @keyframes shZ { 0%{opacity:0;transform:translate(0,4px)} 40%,60%{opacity:.9} 100%{opacity:0;transform:translate(5px,-9px)} }
+    /* 오프닝에서 달을 올려다봄 */
+    .intro-sheep.look .sh-head { transform:rotate(-14deg); transform-origin:0 100%; animation:none; }
+    /* ── 감정 표정: 감정을 고르면 양도 같은 마음이 됨 ── */
+    .sheep-el.face-감사 .sh-head::after, .sheep-el.face-평안 .sh-head::after, .sheep-el.face-기도 .sh-head::after { background:none; width:4.5px; height:2px; top:4.6px; right:3px; animation:none; box-shadow:none; }
+    .sheep-el.face-감사 .sh-head::after { border-top:1.6px solid #fff; border-radius:4px 4px 0 0; }
+    .sheep-el.face-평안 .sh-head::after, .sheep-el.face-기도 .sh-head::after { border-bottom:1.6px solid #fff; border-radius:0 0 4px 4px; }
+    .sheep-el.face-감사 .sh-cheek, .sheep-el.face-평안 .sh-cheek, .sheep-el.face-기도 .sh-cheek { background:rgba(255,140,160,.8); width:5px; }
+    .sheep-el.face-걱정 .sh-head::after { width:3.6px; height:3.6px; }
+    .sheep-el.face-걱정 .sh-brow { opacity:.95; transform:rotate(16deg); }
+    .sheep-el.face-걱정 .sh-cheek { opacity:0; }
+    .sheep-el.face-지침 .sh-head::after { height:1.6px; width:4px; top:5px; border-radius:1px; animation:none; }
+    .sheep-el.face-지침 .sh-brow { opacity:.8; transform:rotate(-10deg); top:2px; }
+    .sheep-el.face-지침 .sh-cheek { opacity:0; }
+    .sheep-el.face-아픔 .sh-brow { opacity:.95; transform:rotate(16deg); }
+    .sheep-el.face-아픔 .sh-cheek { width:2.2px; height:3.4px; right:4px; top:7.5px; background:#8fc9ff; border-radius:50% 50% 50% 50% / 62% 62% 38% 38%; animation:shTear 2.2s ease-in infinite; }
+    @keyframes shTear { 0%{transform:translateY(-2px);opacity:0} 25%{opacity:1} 100%{transform:translateY(7px);opacity:0} }
+    @media (prefers-reduced-motion: reduce) { .sh-head::after, .sh-head::before, .sh-tail, .ni-moon::before { animation:none !important; } }

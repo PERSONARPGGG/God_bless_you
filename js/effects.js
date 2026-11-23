@@ -168,9 +168,9 @@ function playIntro() {
     intro.addEventListener('pointerdown', done);
     sheep.classList.add('walking');
     requestAnimationFrame(() => intro.classList.add('walkin'));   // 걸어 들어옴
-    timers.push(setTimeout(() => sheep.classList.remove('walking'), 2150)); // 달빛 아래 멈춤
-    timers.push(setTimeout(() => intro.classList.add('lit'), 2250));        // 달빛이 비춤
-    timers.push(setTimeout(() => { sheep.classList.add('sitting'); intro.classList.add('asleep'); }, 2750)); // 앉아 잠듦
+    timers.push(setTimeout(() => { sheep.classList.remove('walking'); sheep.classList.add('look'); }, 2150)); // 달빛 아래 멈춰 달을 올려다봄
+    timers.push(setTimeout(() => { intro.classList.add('lit'); sheep.classList.add('face-감사'); }, 2250)); // 달빛이 비추면 양이 웃음
+    timers.push(setTimeout(() => { sheep.classList.remove('look'); sheep.classList.add('sitting'); intro.classList.add('asleep'); }, 2900)); // 앉아 잠듦
     timers.push(setTimeout(() => intro.classList.add('brand'), 3300));      // 밤의 목장 · 오늘은 어땠나요?
     timers.push(setTimeout(done, 5100));
 }

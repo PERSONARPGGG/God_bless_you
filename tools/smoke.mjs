@@ -406,7 +406,7 @@ scenario('출퇴근길: 끊겼다 돌아오면 이어하기, 홈 화면 바로�
     p.eq(await p.eval(`__t.ls('resumeSel').emotion + '/' + __t.ls('resumeSel').topic`), '걱정/일', '선택이 적혀 있음');
     await p.reload();
     await p.waitFor(`__t.vis('#resume-bar')`, '다시 열면 이어하기 바', 4000);
-    p.ok((await p.eval(`__t.txt('#resume-text')`)).includes('😔'), '이어하기 문구에 고르던 감정의 그림');
+    p.ok(await p.eval(`!!document.querySelector('#resume-text svg.ic')`), '이어하기 문구에 고르던 감정의 그림');
     await p.eval(`__t.click('#resume-go')`);
     await p.waitFor(`__t.vis('#step3') && (${ready})`, '이어하기 → 필요 화면으로 바로');
     p.eq(await p.eval(`sel.emotion + '/' + sel.topic`), '걱정/일', '감정·주제가 되살아남');
@@ -601,6 +601,25 @@ scenario('날짜: 한국 새벽 0시 30분에도 오늘 날짜로 기록', {
     await p.waitFor(`document.querySelectorAll('#hist-cal .hc-day.has').length === 3`, '달력: 이번 달 기록 3일(15·16·17일)');
     p.eq(await p.eval(`[...document.querySelectorAll('#hist-cal .hc-day.has .hc-num')].map(e => e.textContent).join()`), '15,16,17', '달력 날짜');
     p.ok(await p.eval(`document.querySelector('#hist-cal .hc-day.today .hc-num').textContent === '17'`), '달력의 오늘 = 17일');
+});
+
+scenario('자체 아이콘·QR·양 표정: 이모지 없이 그려지고, 칸을 넘치지 않고, 외부 서버를 부르지 않음', { seed: { userName: '은혜' } }, async p => {
+    await p.goto();
+    p.eq(await p.eval(`[...document.querySelectorAll('[data-ic]')].filter(e => !e.querySelector('svg.ic')).length`), 0, '모든 자리에 아이콘이 채워짐');
+    p.ok(await p.eval(`document.querySelectorAll('[data-ic]').length >= 19`), '감정 6 + 주제 8 + 필요 4 + 기도 안내');
+    p.ok(!/[\u{1F300}-\u{1FAFF}]/u.test(await p.eval(`__t.txt('#step1 .emotion-grid') + __t.txt('.emotion-pray')`)), '감정 화면에 이모지가 없음');
+    p.eq(await p.eval(`[...document.querySelectorAll('#step1 .btn-emotion')].filter(b => { const i = b.querySelector('svg').getBoundingClientRect(), r = b.getBoundingClientRect(); return i.width < 12 || i.right > r.right || i.left < r.left || i.bottom > r.bottom || i.top < r.top; }).length`), 0, '감정 아이콘이 칸 안에 들어옴');
+    /* QR: 앱 안에서 그린 그림이어야 함 */
+    await p.eval(`toggleQR()`);
+    await p.waitFor(`document.getElementById('qr-img').src.startsWith('data:image/png')`, 'QR 그림 생성(외부 주소 아님)');
+    p.eq(await p.eval(`qrMatrix(SHARE_URL).length`), 29, '주소 길이에 맞는 QR 크기(버전 3)');
+    p.eq(await p.eval(`qrMatrix('a'.repeat(400))`), null, '너무 긴 글자는 만들지 않음');
+    /* 양 표정 */
+    await p.flow('걱정', '일', '위로');
+    p.ok(await p.eval(`document.getElementById('sheep').classList.contains('face-걱정')`), '걱정을 고르면 양도 걱정하는 표정');
+    p.ok(await p.eval(`!!document.querySelector('#r-context svg.ic')`), '결과 화면 배지에 아이콘');
+    await p.eval(`restart()`);
+    p.ok(await p.eval(`!document.getElementById('sheep').className.includes('face-')`), '다시 시작하면 기본 표정');
 });
 
 scenario('날짜: 미국 시간대에서도 하루가 밀리지 않음', {
@@ -829,7 +848,7 @@ scenario('클라우드 기록 맞추기(가짜 서버): 올리기·내려받기�
     p.eq(await p.eval(`[__t.ls('moodHistory').length, __srv.mood_history.length, __srv.saved_verses.length]`), [3, 5, 2], '다시 맞춰도 중복이 생기지 않음');
     // 보관함: 예전 방식 즐겨찾기와 새 방식이 함께 보이고, 지우면 서버에서도 지워짐
     await p.eval(`openVault(); switchTab('saved')`);
-    p.eq(await p.eval(`[...document.querySelectorAll('.svi-context')].map(e => e.textContent)`), ['😊 감사했어요 · 🌙 그냥 쉬고 싶어요', '😌 평안했어요 · 🍃 그냥 쉬고 싶어요'], '즐겨찾기 표시(예전 방식·서버에서 온 것)');
+    p.eq(await p.eval(`[...document.querySelectorAll('.svi-context')].map(e => e.textContent)`), ['😊 감사했어요 · 🌙 그냥 쉬고 싶어요', '평안했어요 · 그냥 쉬고 싶어요'], '즐겨찾기 표시(예전 방식·서버에서 온 것)');
     await p.eval(`document.querySelectorAll('#saved-list .svi-del')[1].click()`);
     await sleep(100);
     p.eq(await p.eval(`__srv.saved_verses.map(r => r.verse_ref)`), ['시편 23:1'], '즐겨찾기를 지우면 서버에서도 지워짐');

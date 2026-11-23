@@ -217,12 +217,12 @@ function renderMood() {
             el.appendChild(header);
         }
         const item = document.createElement('div'); item.className = 'mood-item';
-        const emoji = document.createElement('div'); emoji.className = 'mood-emoji'; emoji.textContent = h.emoji;
+        const emoji = document.createElement('div'); emoji.className = 'mood-emoji'; emoji.innerHTML = iconHtml('emo', h.emotion) || escHtml(h.emoji || '');
         const info  = document.createElement('div'); info.className  = 'mood-info';
         const date  = document.createElement('div'); date.className  = 'mood-date'; date.textContent = fmtDate(h.date);
-        const emoTag  = document.createElement('div'); emoTag.className  = 'mood-emo-tag';  emoTag.textContent  = eLabel(h.emotion);
-        const needTag = document.createElement('div'); needTag.className = 'mood-need-tag'; needTag.textContent = nLabel(h.need);
-        const topicTag= document.createElement('div'); topicTag.className= 'mood-topic-tag';topicTag.textContent= tLabel(h.topic);
+        const emoTag  = document.createElement('div'); emoTag.className  = 'mood-emo-tag';  emoTag.innerHTML  = labelHtml('emo', h.emotion);
+        const needTag = document.createElement('div'); needTag.className = 'mood-need-tag'; needTag.innerHTML = labelHtml('need', h.need);
+        const topicTag= document.createElement('div'); topicTag.className= 'mood-topic-tag';topicTag.innerHTML= labelHtml('topic', h.topic);
         info.append(date, emoTag, needTag, topicTag);
         if (h.diary) {
             const diary = document.createElement('div');
@@ -292,7 +292,7 @@ function renderStats() {
         const circle = document.createElement('div');
         circle.className = 'wc-circle' + (day.entry ? ' has-data' : '');
         if (day.entry) {
-            circle.textContent = day.entry.emoji || '';
+            circle.innerHTML = iconHtml('emo', day.entry.emotion) || escHtml(day.entry.emoji || '');
             circle.style.background = EMO_BG[day.entry.emotion] || 'rgba(255,255,255,.18)';
         }
         const dot = document.createElement('div');
@@ -326,7 +326,7 @@ function renderStats() {
 
         const emoGrid = document.createElement('div'); emoGrid.className = 'wc-emo-grid';
         sorted.forEach(([emo, cnt]) => {
-            const emoji = E_EMOJI[emo] || '💭';
+            const emoji = iconHtml('emo', emo) || '💭';
             const idx = _EMO_IDX[emo];
             const emoName = (idx != null) ? (LANG_DATA[appLang] || LANG_DATA.ko).emo[idx] : emo;
             const cntText = appLang === 'en' ? `${cnt} ${cnt === 1 ? 'day' : 'days'}` :

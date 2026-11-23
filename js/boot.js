@@ -19,6 +19,7 @@ function init() {
         const verEl = document.getElementById('app-version');
         if (verEl) verEl.textContent = 'v' + APP_VERSION;
     });
+    safe('fillIcons', () => fillIcons());
     safe('generateStars', () => generateStars());
     safe('applyFont', () => applyFont(fontLevel));
     safe('theme', () => restoreTheme());

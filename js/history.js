@@ -342,7 +342,7 @@ function exportDiaryPdf() {
         const v = verseByRef(m);
         return `<div class="pd-entry">
             <div class="pd-date">${escHtml(fmtDate(m.date))}</div>
-            <div class="pd-emo">${m.emoji || E_EMOJI[m.emotion] || ''} ${escHtml(emoShort(m.emotion))}</div>
+            <div class="pd-emo">${iconHtml('emo', m.emotion)} ${escHtml(emoShort(m.emotion))}</div>
             ${v ? `<div class="pd-verse">${v.v ? '“' + escHtml(v.v) + '” ' : ''}<span class="pd-ref">— ${escHtml(v.r)}</span></div>` : ''}
             ${m.diary ? `<div class="pd-diary">${escHtml(m.diary)}</div>` : ''}
         </div>`;

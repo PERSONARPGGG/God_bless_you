@@ -266,3 +266,19 @@
     body:has(#step4:not(.hidden)) .date-text { display:block; }
     /* "오늘 묵상 마치기"를 화면에 띄워 두면 일기 입력칸·글을 덮고, 모바일에서 키보드가 올라오면 입력칸을 가림 → 맨 아래 제자리에 둔다 */
     .btn-restart { position:static; margin-top:14px; }
+
+    /* ═══════════════════════════════════════════════════════
+       자체 아이콘(js/icons.js) — 이모지 대신 쓰는 선 그림.
+       글자 크기(1em)·글자색을 따라가므로 칸을 넘치지 않고, 줄바꿈·높이 변화도 없음
+    ═══════════════════════════════════════════════════════ */
+    .ic { width:1em; height:1em; flex:none; display:inline-block; vertical-align:-0.15em; overflow:visible; }
+    .ic + span { margin-left:.32em; }
+    .e-emoji, .bc-emoji { display:inline-flex; align-items:center; justify-content:center; }
+    .e-emoji .ic, .bc-emoji .ic { vertical-align:0; }
+    .blessing-icon .ic { width:38px; height:38px; vertical-align:0; }
+    .db-day-dot .ic { width:18px; height:18px; vertical-align:0; }
+    .wc-circle .ic { width:1.05em; height:1.05em; vertical-align:0; }
+    .context-badge { white-space:normal; line-height:1.5; }
+    .wc-emo-icon { color:rgba(255,255,255,.88); font-size:20px; display:inline-flex; }
+    .mood-emoji { color:rgba(255,255,255,.88); display:inline-flex; }
+    .bc-emoji { font-size:22px; line-height:0; }

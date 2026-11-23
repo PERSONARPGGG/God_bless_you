@@ -205,7 +205,7 @@ function renderDbDayFlow(data, startStr) {
         const col = m ? (DB_EMO_COLORS[m.emotion] || '#888') : '';
         return `<div class="db-day-col${ds === today ? ' db-day-today' : ''}">
             <div class="db-day-dot${m?'':' empty'}"
-                style="${m?`background:${col}22;border:2px solid ${col};`:''}">${m ? (E_EMOJI[m.emotion] || '·') : ''}</div>
+                style="${m?`background:${col}22;border:2px solid ${col};`:''}">${m ? (iconHtml('emo', m.emotion) || '·') : ''}</div>
             <div class="db-day-name">${L.day_names[i]}</div>
         </div>`;
     }).join('');

@@ -4,6 +4,14 @@
 /* ═══════════════════════════════════════
    밤의 목장 — 양 한 마리 배회 (걷기 → 멈춤 → 앉기)
 ═══════════════════════════════════════ */
+/* 양의 표정을 고른 감정에 맞춤 (빈 값이면 기본 표정). 걸어다니는 양(#sheep)에만 적용 */
+function sheepFace(emotion) {
+    const sh = document.getElementById('sheep');
+    if (!sh) return;
+    ['감사', '평안', '걱정', '지침', '아픔', '기도'].forEach(e => sh.classList.remove('face-' + e));
+    if (emotion && _EMO_IDX[emotion] != null) sh.classList.add('face-' + emotion);
+}
+
 (function(){
     const sh = document.getElementById('sheep');
     if (!sh || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -39,12 +47,12 @@
 
     /* ── 양 쓰다듬기: 탭하면 재롱 (하트/폴짝/살랑/빙글/말풍선) ── */
     let reacting = false;
-    function spawnFloat(emoji, delay) {
+    function spawnFloat(ch, delay, color) {
         setTimeout(() => {
             const r = sh.getBoundingClientRect();
             const el = document.createElement('div');
             el.className = 'sheep-float';
-            el.textContent = emoji;
+            el.textContent = ch; el.style.color = color || '#f0b6c4';
             el.style.left = (r.left + r.width/2 - 8 + (Math.random()*26 - 13)) + 'px';
             el.style.top  = (r.top - 8) + 'px';
             document.body.appendChild(el);
@@ -72,22 +80,22 @@
         const act = acts[Math.floor(Math.random()*acts.length)];
         if (act === 'heart') {
             playSfx('heart');
-            ['💕','💛','💗'].forEach((h, i) => spawnFloat(h, i*170));
+            [['♥','#f0a0b8'],['♥','#f6d58a'],['♥','#f0b6c4']].forEach(([h, c], i) => spawnFloat(h, i*170, c));
         } else if (act === 'hop') {
             playSfx('heart');
             sh.classList.add('hop');
             setTimeout(() => sh.classList.remove('hop'), 600);
-            spawnFloat('✨', 60);
+            spawnFloat('✦', 60, '#f6e7c1');
         } else if (act === 'wiggle') {
             sh.classList.add('wiggle');
             setTimeout(() => sh.classList.remove('wiggle'), 1000);
-            spawnFloat('🎵', 80);
+            spawnFloat('♪', 80, '#cdbdf2');
         } else if (act === 'spin') {
             playSfx('heart');
             sh.classList.add('spin');
             setTimeout(() => sh.classList.remove('spin'), 700);
         } else {
-            spawnBubble(['메에~ 🐑','오늘도 평안하세요','함께 있어요','메에에!'][Math.floor(Math.random()*4)]);
+            spawnBubble(['메에~','오늘도 평안하세요','함께 있어요','메에에!'][Math.floor(Math.random()*4)]);
         }
         setTimeout(() => { reacting = false; }, 800);
     });
