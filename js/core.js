@@ -5,7 +5,7 @@
 /* ═══════════════════════════════════════
    상태
 ═══════════════════════════════════════ */
-const APP_VERSION = '2.10';
+const APP_VERSION = '2.11';
 /* 앱 주소 — 도메인을 바꿀 때 여기와 index.html의 og:url, sitemap.xml을 함께 바꾼다 (tools/check.mjs가 서로 다르면 알려 줌).
    Supabase(Authentication > URL Configuration)와 Google OAuth의 허용 주소에도 새 주소를 추가해야 로그인이 된다. */
 const SHARE_URL = 'https://god-bless-you.vercel.app/';

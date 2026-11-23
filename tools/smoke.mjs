@@ -610,10 +610,13 @@ scenario('자체 아이콘·QR·양 표정: 이모지 없이 그려지고, 칸�
     p.ok(!/[\u{1F300}-\u{1FAFF}]/u.test(await p.eval(`__t.txt('#step1 .emotion-grid') + __t.txt('.emotion-pray')`)), '감정 화면에 이모지가 없음');
     p.eq(await p.eval(`[...document.querySelectorAll('#step1 .btn-emotion')].filter(b => { const i = b.querySelector('svg').getBoundingClientRect(), r = b.getBoundingClientRect(); return i.width < 12 || i.right > r.right || i.left < r.left || i.bottom > r.bottom || i.top < r.top; }).length`), 0, '감정 아이콘이 칸 안에 들어옴');
     /* QR: 앱 안에서 그린 그림이어야 함 */
-    await p.eval(`toggleQR()`);
+    await p.eval(`openSettings(); toggleQR(); document.getElementById('qr-panel').scrollIntoView({block:'center'})`);
+    await new Promise(r => setTimeout(r, 2600));
+    await p.shot('invitation');
     await p.waitFor(`document.getElementById('qr-img').src.startsWith('data:image/png')`, 'QR 그림 생성(외부 주소 아님)');
     p.eq(await p.eval(`qrMatrix(SHARE_URL).length`), 29, '주소 길이에 맞는 QR 크기(버전 3)');
     p.eq(await p.eval(`qrMatrix('a'.repeat(400))`), null, '너무 긴 글자는 만들지 않음');
+    p.eq(await p.eval(`qrMatrix(SHARE_URL).map(r => r.map(b => +b).join('')).join('').split('').reduce((h, c) => (h * 31 + +c + 1) % 1000003, 7)`), 53604, 'QR 모양이 바뀌면 안 됨 — 일부러 고쳤다면 폰으로 스캔해 확인한 뒤 이 값을 갱신');
     /* 양 표정 */
     await p.flow('걱정', '일', '위로');
     p.ok(await p.eval(`document.getElementById('sheep').classList.contains('face-걱정')`), '걱정을 고르면 양도 걱정하는 표정');
@@ -699,14 +702,20 @@ scenario('마무리 타이머: 활동하면 연장, 0초가 되면 자동 마무
 scenario('개발자 모드·대시보드·프리미엄 체험·회고 카드·PDF', { now: '2026-11-17T21:30:00+09:00', seed: { userName: '', devMode: '1' } }, async p => {
     await p.goto();
     p.ok(await p.eval(`__t.vis('#btn-dashboard-top')`), '나의 이야기 버튼 표시');
+    p.ok(await p.eval('isPremium()'), '개발자 모드에서는 프리미엄 기능도 그냥 열림(테마·PDF 시험용)');
+    await p.eval(`setTheme('ocean')`);
+    p.ok(await p.eval(`document.body.classList.contains('theme-ocean')`), '개발자 모드: 프리미엄 테마 적용');
+    await p.eval(`localStorage.removeItem('devMode'); sessionStorage.removeItem('devMode'); onPremiumChanged()`);
+    p.ok(!(await p.eval('isPremium()')) && !(await p.eval(`document.body.classList.contains('theme-ocean')`)), '개발자 모드를 끄면 다시 무료(테마도 기본)');
     await p.eval(`injectDemoData(); renderOnThisDay()`);
     await p.waitFor(`__t.vis('#otd-card')`, '회고 카드 표시');
     p.ok((await p.eval(`__t.txt('#otd-card')`)).includes('1년 전') && await p.eval(`!!document.querySelector('#otd-card .otd-btn')`), '무료: 1년 전 기록은 잠금 안내');
     await p.eval(`openDashboard()`);
     await p.waitFor(`__t.vis('#overlay-dashboard')`, '대시보드 열림');
     p.eq(await p.eval(`document.querySelectorAll('#db-day-flow .db-day-dot:not(.empty)').length`), 7, '데모 데이터 7일이 이번 주(일~토)에 모두 표시');
-    p.ok(await p.eval(`__t.vis('.persona-demo')`), '개발자 모드: 체험 데이터 선택이 보임');
     await p.waitFor(`!!document.querySelector('#hist-monthly .locked')`, '무료: 월간 리포트 잠금');
+    await p.eval(`localStorage.setItem('devMode', '1'); sessionStorage.setItem('devMode', '1'); onPremiumChanged(); openDashboard()`);
+    p.ok(await p.eval(`__t.vis('.persona-demo')`), '개발자 모드: 체험 데이터 선택이 보임');
     for (const who of ['male', 'female', 'housewife', 'pastor', 'foreigner']) {
         await p.eval(`loadPersona('${who}', null)`);
         p.ok((await p.eval(`__t.txt('#db-narrative')`)).length > 5, `페르소나 ${who} 서사 카드`);
@@ -715,6 +724,7 @@ scenario('개발자 모드·대시보드·프리미엄 체험·회고 카드·PD
     await p.eval(`__t.click('#db-detail-btn')`);
     p.ok(await p.eval(`__t.vis('#db-detail')`), '상세히 보기 펼침');
     p.ok(await p.eval(`document.querySelectorAll('#db-diaries .db-diary-item').length > 0`), '페르소나 일기 표시');
+    await p.eval(`localStorage.removeItem('devMode'); sessionStorage.removeItem('devMode'); onPremiumChanged()`);
     // 프리미엄 체험: 틀린 비밀번호 → 그대로, 맞는 비밀번호 → 열림
     await p.eval(`openDevPwModal('premium'); document.getElementById('devpw-input').value = '0000'; checkDevPw()`);
     p.ok(!(await p.eval('isPremium()')), '틀린 비밀번호로는 열리지 않음');
@@ -848,7 +858,7 @@ scenario('클라우드 기록 맞추기(가짜 서버): 올리기·내려받기�
     p.eq(await p.eval(`[__t.ls('moodHistory').length, __srv.mood_history.length, __srv.saved_verses.length]`), [3, 5, 2], '다시 맞춰도 중복이 생기지 않음');
     // 보관함: 예전 방식 즐겨찾기와 새 방식이 함께 보이고, 지우면 서버에서도 지워짐
     await p.eval(`openVault(); switchTab('saved')`);
-    p.eq(await p.eval(`[...document.querySelectorAll('.svi-context')].map(e => e.textContent)`), ['😊 감사했어요 · 🌙 그냥 쉬고 싶어요', '평안했어요 · 그냥 쉬고 싶어요'], '즐겨찾기 표시(예전 방식·서버에서 온 것)');
+    p.eq(await p.eval(`[...document.querySelectorAll('.svi-context')].map(e => e.textContent)`), ['감사했어요 · 그냥 쉬고 싶어요', '평안했어요 · 그냥 쉬고 싶어요'], '즐겨찾기 표시(예전 방식·서버에서 온 것)');
     await p.eval(`document.querySelectorAll('#saved-list .svi-del')[1].click()`);
     await sleep(100);
     p.eq(await p.eval(`__srv.saved_verses.map(r => r.verse_ref)`), ['시편 23:1'], '즐겨찾기를 지우면 서버에서도 지워짐');

@@ -108,6 +108,7 @@ const LANG_DATA = {
         confirm_reset:'저장된 말씀, 감정 기록이 모두 삭제됩니다. 계속하시겠어요?',
         /* QR 공유 */
         row_qr:'QR로 공유', row_qr_sub:'QR 코드로 앱을 공유하세요',
+        qr_inv_title:'당신을 초대합니다', qr_inv_msg:'마음이 무거운 날,<br>말씀 한 줄과 함께 쉬어 가요.', qr_inv_sign:'— 밤의 목장에서', qr_copy:'링크 복사', qr_share:'공유하기',
         qr_copied:'링크가 복사되었습니다 📋',
         row_fullscreen:'전체화면 보기', row_fullscreen_sub:'앱을 전체화면으로 전환',
         fullscreen_on:'켜기', fullscreen_off:'끄기',
@@ -233,6 +234,7 @@ const LANG_DATA = {
         confirm_reset:'All saved verses and mood history will be deleted. Continue?',
         /* QR 공유 */
         row_qr:'Share via QR', row_qr_sub:'Share the app with a QR code',
+        qr_inv_title:'You are invited', qr_inv_msg:'On heavy days,<br>rest with one line of Scripture.', qr_inv_sign:'— from Night Pasture', qr_copy:'Copy link', qr_share:'Share',
         qr_copied:'Link copied 📋',
         row_fullscreen:'Full Screen', row_fullscreen_sub:'Switch to fullscreen mode',
         fullscreen_on:'On', fullscreen_off:'Off',
@@ -358,6 +360,7 @@ const LANG_DATA = {
         confirm_reset:'保存されたみことばと記録がすべて削除されます。続けますか？',
         /* QR 공유 */
         row_qr:'QRで共有', row_qr_sub:'QRコードでアプリを共有',
+        qr_inv_title:'あなたをご招待します', qr_inv_msg:'心が重い日に、<br>み言葉ひとつと休みましょう。', qr_inv_sign:'— 夜の牧場より', qr_copy:'リンクをコピー', qr_share:'共有する',
         qr_copied:'リンクをコピーしました 📋',
         row_fullscreen:'全画面表示', row_fullscreen_sub:'アプリを全画面で表示',
         fullscreen_on:'オン', fullscreen_off:'オフ',
@@ -457,6 +460,8 @@ function applyLang(lang) {
     s('row-reset-label',L.row_reset); s('row-reset-sub',L.row_reset_sub); s('row-reset-btn',L.row_reset_btn);
     s('row-update-label',L.row_update); s('row-app-desc',L.row_app_desc);
     s('row-qr-label',L.row_qr); s('row-qr-sub',L.row_qr_sub);
+    s('qr-inv-title',L.qr_inv_title); s('qr-inv-sign',L.qr_inv_sign); s('qr-btn-copy',L.qr_copy); s('qr-btn-share',L.qr_share);
+    { const m = document.getElementById('qr-inv-msg'); if (m) m.innerHTML = L.qr_inv_msg; }
     s('row-fullscreen-label',L.row_fullscreen); s('row-fullscreen-sub',L.row_fullscreen_sub);
     s('row-install-label',L.row_install); s('row-install-sub',L.row_install_sub);
     const ib=document.getElementById('btn-install'); if(ib) ib.textContent=L.row_install_btn;

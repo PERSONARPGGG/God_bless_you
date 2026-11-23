@@ -358,10 +358,24 @@
                     </div>
                     <button class="btn-setting-action" onclick="toggleQR()">QR</button>
                 </div>
-                <div id="qr-panel" style="display:none;margin-top:6px;padding:14px;background:rgba(255,255,255,.06);border-radius:12px;text-align:center;">
-                    <img id="qr-img" src="" alt="QR" style="width:180px;height:180px;border-radius:10px;background:#fff;padding:6px;">
-                    <div style="margin-top:10px;display:flex;gap:8px;justify-content:center;">
-                        <button onclick="copyShareLink()" style="background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:10px;padding:7px 16px;font-size:13px;font-family:inherit;cursor:pointer;">🔗 링크 복사</button>
+                <div id="qr-panel" class="inv" style="display:none;">
+                    <div class="inv-stage" id="inv-stage">
+                        <div class="inv-back"></div>
+                        <div class="inv-flap"></div>
+                        <div class="inv-letter">
+                            <span class="inv-seal" data-ic="ui:heart"></span>
+                            <div class="inv-title" id="qr-inv-title">당신을 초대합니다</div>
+                            <div class="inv-msg" id="qr-inv-msg">마음이 무거운 날,<br>말씀 한 줄과 함께 쉬어 가요.</div>
+                            <div class="inv-qr"><img id="qr-img" alt="초대장 QR 코드"></div>
+                            <div class="inv-url">god-bless-you.vercel.app</div>
+                            <div class="inv-sign" id="qr-inv-sign">— 밤의 목장에서</div>
+                        </div>
+                        <div class="inv-front"></div>
+                        <i class="inv-spark s1">✦</i><i class="inv-spark s2">✦</i><i class="inv-spark s3">✦</i>
+                    </div>
+                    <div class="inv-actions">
+                        <button type="button" id="qr-btn-copy" onclick="copyShareLink()">링크 복사</button>
+                        <button type="button" id="qr-btn-share" onclick="shareInvite()">공유하기</button>
                     </div>
                 </div>
                 <div class="setting-row">
@@ -597,6 +611,10 @@
                 <button class="icon-btn" onclick="openVault()" title="보관함">
                     <span class="icon-emoji">📖</span>
                     <span class="icon-label">보관함</span>
+                </button>
+                <button id="btn-music-top" class="icon-btn off" type="button" onclick="quickMusic()" title="배경 음악" aria-pressed="false">
+                    <span class="icon-emoji" data-ic="ui:music"></span>
+                    <span class="icon-label" id="music-icon-label">음악</span>
                 </button>
                 <button class="icon-btn" onclick="openSettings()" title="설정">
                     <span class="icon-emoji">⚙️</span>

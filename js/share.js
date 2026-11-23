@@ -23,14 +23,23 @@ function copyVerse() {
 function toggleQR() {
     const panel = document.getElementById('qr-panel');
     if (!panel) return;
-    const open = panel.style.display !== 'none';
-    if (open) { panel.style.display = 'none'; return; }
+    const stage = document.getElementById('inv-stage');
+    if (panel.style.display !== 'none') { panel.style.display = 'none'; if (stage) stage.classList.remove('open'); return; }
     const img = document.getElementById('qr-img');
     if (img && !img.dataset.loaded) {
-        img.src = qrDataUrl(SHARE_URL, 8);  /* 앱 안에서 생성 — 외부 서버 안 씀 */
+        img.src = qrDataUrl(SHARE_URL, 8);  /* 앱 안에서 생성 — 외부 서버를 쓰지 않아 서비스가 끊겨도 안 깨짐. 주소는 core.js의 SHARE_URL 한 곳 */
         img.dataset.loaded = '1';
     }
     panel.style.display = 'block';
+    if (stage) { stage.classList.remove('open'); void stage.offsetWidth; later('invOpen', () => stage.classList.add('open'), 120); }   // 봉투가 열리며 편지가 올라옴
+}
+
+/* 초대장을 기기의 공유 창으로 보냄 (지원하지 않으면 링크 복사) */
+function shareInvite() {
+    const L = LANG_DATA[appLang]||LANG_DATA.ko;
+    if (navigator.share) {
+        navigator.share({ title: L.qr_inv_title, text: L.qr_inv_msg.replace(/<br>/g, ' '), url: SHARE_URL }).catch(() => {});
+    } else { copyShareLink(); }
 }
 
 /* 앱 주소(SHARE_URL)를 클립보드에 복사 */

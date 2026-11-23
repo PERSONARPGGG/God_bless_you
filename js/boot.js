@@ -29,6 +29,7 @@ function init() {
     safe('checkSeason', () => checkSeason());
     safe('applyLang', () => applyLang(appLang));
     safe('langChoices', () => syncLangChoices());
+    safe('emojiIcons', () => startEmojiIcons());   // 글자를 다 채운 뒤, 이모지를 그림으로 바꿈
     safe('registerSW', () => registerSW());
     safe('installBanner', () => { if (isIOS() && !isStandalone()) scheduleInstallBanner(); });
     safe('billingReturn', () => captureBillingReturn());   // 결제창에서 돌아온 주소 정리 — 반드시 Supabase 시작보다 먼저

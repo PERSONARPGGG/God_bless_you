@@ -125,6 +125,9 @@ function stopHymns() {
     if (trackEl) { try { trackEl.pause(); trackEl.currentTime = 0; } catch(e){} }
 }
 
+/* 메인 화면 음악 버튼: 재생 중이면 끄고, 아니면 켠다 */
+function quickMusic() { toggleBgMusic(!hymnOn); }
+
 /* 설정의 배경 음악 켜기/끄기 */
 function toggleBgMusic(on) {
     const sub = document.getElementById('music-status-sub');
@@ -161,6 +164,8 @@ function updatePlayerUI() {
     if (ti) ti.textContent = hymnTitle(hymnCurIdx);
     const tg = document.getElementById('hp-toggle');
     if (tg) tg.textContent = hymnOn ? '⏸' : '▶';
+    const mb = document.getElementById('btn-music-top');   // 메인 화면의 음악 버튼 상태
+    if (mb) { mb.classList.toggle('off', !hymnOn); mb.setAttribute('aria-pressed', hymnOn ? 'true' : 'false'); }
 }
 
 /* 미니 플레이어 재생/일시정지 */

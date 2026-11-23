@@ -282,3 +282,46 @@
     .wc-emo-icon { color:rgba(255,255,255,.88); font-size:20px; display:inline-flex; }
     .mood-emoji { color:rgba(255,255,255,.88); display:inline-flex; }
     .bc-emoji { font-size:22px; line-height:0; }
+
+    /* 이모지를 바꿔 넣은 그림(.eic): 글자 높이에 맞춰 앉고, 뒤 글자와 간격을 둠 */
+    .eic { display:inline-block; line-height:1; }
+    .eic.sp { margin-right:.34em; }
+    .eic .ic { vertical-align:-0.16em; }
+    /* 테마마다 감정·주제·필요 그림 색이 달라짐 (밝은 버튼 위) */
+    body { --ic-tint:#3a3450; }
+    body.theme-dawn { --ic-tint:#7a3f8f; } body.theme-forest { --ic-tint:#2f7a4d; } body.theme-ocean { --ic-tint:#2a6a9a; } body.theme-ember { --ic-tint:#b0562a; }
+    .e-emoji, .bc-emoji { color:var(--ic-tint); }
+    .icon-btn .icon-emoji { display:inline-flex; font-size:19px; color:rgba(255,255,255,.92); }
+    /* 메인 음악 켜기/끄기: 꺼져 있으면 사선 */
+    #btn-music-top .icon-emoji { position:relative; align-items:center; justify-content:center; }
+    #btn-music-top.off .icon-emoji::after { content:''; position:absolute; width:24px; height:2px; background:rgba(255,255,255,.9); transform:rotate(-45deg); border-radius:1px; }
+
+    /* ═══════════════════════════════════════════════════════
+       QR 초대장 — 봉투가 열리고 편지가 올라옴 (설정 > QR로 공유)
+    ═══════════════════════════════════════════════════════ */
+    .inv { margin-top:8px; text-align:center; }
+    .inv-stage { position:relative; width:250px; height:410px; margin:6px auto 0; perspective:900px; clip-path:inset(-100px -40px 0 -40px); }
+    .inv-back  { position:absolute; left:0; right:0; bottom:0; height:132px; background:#d9c9a6; border-radius:8px; box-shadow:0 8px 22px rgba(0,0,0,.35); }
+    .inv-flap  { position:absolute; left:0; right:0; bottom:62px; height:70px; z-index:4; background:#cdb98f; clip-path:polygon(0 0,100% 0,50% 100%);
+                 transform-origin:50% 0; transition:transform .65s cubic-bezier(.4,0,.2,1), z-index 0s .3s; }
+    .inv-front { position:absolute; left:0; right:0; bottom:0; height:104px; z-index:3; background:linear-gradient(180deg,#eadcb9,#e2d1a8);
+                 border-radius:0 0 8px 8px; clip-path:polygon(0 0,50% 56%,100% 0,100% 100%,0 100%); }
+    .inv-letter { position:absolute; left:14px; right:14px; bottom:70px; height:332px; z-index:2; background:#fffaf0; color:#4a3f2f; border-radius:6px;
+                  padding:16px 14px 0; box-shadow:0 2px 10px rgba(0,0,0,.18); transform:translateY(362px);
+                  transition:transform 1.15s cubic-bezier(.22,1,.36,1) .6s; }
+    .inv-stage.open .inv-flap   { transform:rotateX(180deg); z-index:1; }
+    .inv-stage.open .inv-letter { transform:translateY(0); }
+    .inv-seal  { display:inline-flex; font-size:22px; color:#c4636f; }
+    .inv-title { font-family:var(--font-verse); font-size:var(--fs-lg); font-weight:700; margin-top:4px; }
+    .inv-msg   { font-size:var(--fs-xs); line-height:1.6; color:#7a6a58; margin-top:6px; }
+    .inv-qr    { width:132px; height:132px; margin:10px auto 0; padding:5px; background:#fff; border:1px solid #e6d9b8; border-radius:8px; }
+    .inv-qr img { width:100%; height:100%; display:block; image-rendering:pixelated; }
+    .inv-url   { font-size:var(--fs-2xs); color:#9a8a70; margin-top:6px; letter-spacing:.3px; }
+    .inv-sign  { font-family:var(--font-verse); font-size:var(--fs-xs); color:#8a6d3b; margin-top:6px; }
+    .inv-spark { position:absolute; color:#f6e7c1; opacity:0; font-style:normal; font-size:var(--fs-sm); z-index:5; }
+    .inv-stage.open .inv-spark { animation:invSpark 2.2s ease-in-out 1.4s infinite; }
+    .inv-spark.s1 { left:6px; top:40px; } .inv-spark.s2 { right:4px; top:90px; animation-delay:2s; } .inv-spark.s3 { left:18px; top:170px; animation-delay:2.6s; }
+    @keyframes invSpark { 0%,100%{opacity:0;transform:scale(.6)} 50%{opacity:.95;transform:scale(1.15)} }
+    .inv-actions { display:flex; gap:8px; justify-content:center; margin-top:12px; }
+    .inv-actions button { background:rgba(255,255,255,.14); color:#fff; border:1px solid rgba(255,255,255,.2); border-radius:12px; padding:9px 18px; font-size:var(--fs-sm); font-family:inherit; cursor:pointer; }
+    @media (prefers-reduced-motion: reduce) { .inv-letter, .inv-flap { transition:none; } .inv-spark { animation:none !important; } }

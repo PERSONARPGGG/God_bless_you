@@ -18,7 +18,7 @@ const DEMO_UNLOCK = true;
 let serverPremium = false;
 let serverSub = null;   // 서버의 구독 한 줄 { status, current_period_end, plan } — 결제 화면(billing.js)이 다음 결제일 표시에 씀
 /* 프리미엄 여부는 이 함수로만 묻는다 (서버 구독 판정 또는 시연용 체험) */
-function isPremium() { return serverPremium || (DEMO_UNLOCK && lsGet('premiumActive') === true); }
+function isPremium() { return serverPremium || (DEMO_UNLOCK && (lsGet('premiumActive') === true || isDevMode())); }  /* 개발자 모드(시연 잠금 해제 중에만)는 테마·PDF 등을 시험하도록 프리미엄과 같음 */
 
 /* 구독 한 줄이 "지금 프리미엄인가"
    · active   : 이용 중 (기간 끝이 비어 있으면 운영자가 직접 준 무기한 이용권)

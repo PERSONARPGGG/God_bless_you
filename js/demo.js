@@ -110,7 +110,7 @@ function isDevMode() {
             if (tapCount >= 5) {
                 tapCount = 0;
                 clearTimeout(tapTimer);
-                if (isDevMode()) { localStorage.removeItem('devMode'); sessionStorage.removeItem('devMode'); setDevUI(false); toast('🔒 개발자 모드 해제됨'); return; }
+                if (isDevMode()) { localStorage.removeItem('devMode'); sessionStorage.removeItem('devMode'); setDevUI(false); toast('🔒 개발자 모드 해제됨'); onPremiumChanged(); return; }
                 openDevPwModal('dev');
             }
         });
@@ -159,6 +159,7 @@ function checkDevPw() {
     const mt = document.getElementById('music-toggle-input');
     if (mt && !mt.checked) { mt.checked = true; toggleBgMusic(true); }
     toast('🔓 개발자 모드 + 데모 데이터 적용');
+    onPremiumChanged();   // 개발자 모드는 프리미엄 기능도 열어 둠
 }
 
 /* 자물쇠 아이콘 탭 → 프리미엄 체험 토글 (개발자 비밀번호 7501, 시연용·결제 미연동)
