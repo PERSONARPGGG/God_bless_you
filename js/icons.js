@@ -10,7 +10,7 @@ const ICONS = {
         걱정: '<circle cx="12" cy="12" r="9"/><path d="M7.6 9l2.6-1M16.4 9l-2.6-1"/><circle cx="9.3" cy="11.5" r=".6" fill="currentColor"/><circle cx="14.7" cy="11.5" r=".6" fill="currentColor"/><path d="M9.5 16q2.5-1.6 5 0"/>',
         지침: '<circle cx="12" cy="12" r="9"/><path d="M7.8 11h3M13.2 11h3"/><path d="M9.5 16h5"/>',
         아픔: '<circle cx="12" cy="12" r="9"/><circle cx="9" cy="10.5" r=".7" fill="currentColor"/><circle cx="15" cy="10.5" r=".7" fill="currentColor"/><path d="M9.2 16q2.8-2.2 5.6 0"/><path d="M9 13.2q-.9 1.3 0 2" />',
-        기도: '<path d="M12 6.5v14"/><path d="M12 6.5L8.2 12c-1.3 1.8-.8 3.8.6 5l3.2 3.5"/><path d="M12 6.5L15.8 12c1.3 1.8.8 3.8-.6 5L12 20.5"/><path d="M12 3.2v1.4"/>'
+        기도: '<path d="M8 20.5C5.6 15.6 7.4 9.6 14.6 3.6c2 2.2 1 8-2.2 16.9z"/><path d="M12.2 7.6l1.8 1.8M10 11.2l2.4 1.6"/><path d="M10.6 17.4c.9-1.5 2.2-1.7 3-.8"/><path d="M7.2 20.6h6.6"/>'
     },
     topic: {
         일:   '<rect x="3" y="8" width="18" height="12" rx="2.2"/><path d="M9 8V6.2Q9 5 10.2 5h3.6Q15 5 15 6.2V8M3 13.5h18"/>',
@@ -95,11 +95,12 @@ ICONS.ui = {
     feather:'<path d="M18.5 4.5c-8 0-12 4.5-12 11v4M6.5 15.5c6 0 10-3 12-11M9 13l3-3"/>',
     bubble: '<path d="M5 6.5A2.5 2.5 0 017.5 4h9A2.5 2.5 0 0119 6.5v6a2.5 2.5 0 01-2.5 2.5H11l-4 3.5V15a2.5 2.5 0 01-2-2.4z"/>',
     snow:   '<path d="M12 3.5v17M4.6 7.8l14.8 8.4M19.4 7.8L4.6 16.2"/>',
+    moon:   '<path d="M19.5 14.2A8 8 0 019.8 4.5a8 8 0 109.7 9.7z"/>',
     moonfull:'<circle cx="12" cy="12" r="7.5"/>',
     bubbles:'<circle cx="9" cy="14" r="4"/><circle cx="16" cy="8" r="2.5"/>'
 };
 
-/* 이모지 → 그림 대응표. 표에 없는 이모지는 장식이라 지움. ✦ ★ ✓ ♥ ♪ 같은 글자 기호는 그대로 둠 */
+/* 이모지 → 그림 대응표. 표에 없는 이모지는 그대로 둠(사용자 이름·AI 글 속 이모지를 지우지 않기 위해). ✦ ★ ✓ ♥ ♪ 같은 글자 기호는 그대로 둠 */
 const EMOJI_ICON = {
     '⭐':'ui:star','🌟':'ui:sparkle','💫':'ui:sparkle','🌠':'ui:sparkle','✨':'ui:sparkle','🎉':'ui:sparkle','🎊':'ui:sparkle','🌌':'ui:sparkle',
     '☁':'ui:cloud','🌫':'ui:cloud','🔒':'ui:lock','🔓':'ui:unlock','📋':'ui:clipboard','📊':'ui:chart','📔':'ui:notebook','📖':'ui:book',
@@ -108,10 +109,10 @@ const EMOJI_ICON = {
     '🌱':'ui:sprout','📄':'ui:file','⚙':'ui:gear','💎':'ui:gem','🔮':'ui:gem','🔷':'ui:gem','🔄':'ui:refresh','📤':'ui:share','🕯':'ui:candle',
     '📞':'ui:phone','📱':'ui:mobile','🎨':'ui:palette','🗓':'ui:calendar','🔔':'ui:bell','🖼':'ui:image','🐑':'ui:sheep','🎄':'ui:tree',
     '⏸':'ui:pause','▶':'ui:play','⏭':'ui:next','➕':'ui:plus','⬆':'ui:up','🔗':'ui:link','🌐':'ui:globe','🌍':'ui:globe','☀':'ui:sun','🌅':'ui:dawn',
-    '🌊':'ui:wave','🕊':'ui:feather','💭':'ui:bubble','❄':'ui:snow','🌕':'ui:moonfull','🌀':'ui:moonfull','🫧':'ui:bubbles',
+    '🌊':'ui:wave','🕊':'ui:feather','💭':'ui:bubble','❄':'ui:snow','🌕':'ui:moonfull','\u{1F319}':'ui:moon','🌀':'ui:moonfull','🫧':'ui:bubbles',
     '🙏':'emo:기도','😊':'emo:감사','😌':'emo:평안','😔':'emo:걱정','😞':'emo:지침','😢':'emo:아픔','💼':'topic:일','👔':'topic:일','🏠':'topic:가족','✝':'topic:신앙'
 };
-const EMOJI_RE = new RegExp('(' + Object.keys(EMOJI_ICON).join('|') + ')\\uFE0F?[ ]?|[\\u{1F300}-\\u{1FAFF}]\\uFE0F?[ ]?|[\\u{1F1E6}-\\u{1F1FF}]{2}[ ]?', 'gu');
+const EMOJI_RE = new RegExp('(' + Object.keys(EMOJI_ICON).join('|') + ')\\uFE0F?[ ]?', 'gu');
 /* 이모지 변환을 건너뛸 곳: 사용자가 쓴 글(일기)·입력칸·그림 자체 */
 const EMOJI_SKIP = 'script,style,textarea,input,svg,[contenteditable],[data-ic],[data-no-ic],.otd-diary,.db-diary-txt,.hc-entry-diary,.pd-diary,.mood-diary';
 

@@ -19,7 +19,7 @@ const HIST_TEXT = {
         hm_heavy:'마음이 무거웠던 <b>{n}일</b>에도, 매일 말씀이 함께했어요.',
         hm_top:'가장 자주 머문 마음은 <b>‘{e}’</b>({n}일)이었어요.',
         hm_diary:'일기를 <b>{n}편</b> 남기셨어요.',
-        hm_pdf:'📄 PDF로 내보내기 — 나의 신앙 일기장', hm_pdf_none:'이 달의 기록이 아직 없어요',
+        hm_pdf:'📄 PDF로 내보내기 — 나의 신앙 일기장', hm_pdf_none:'이 달의 기록이 아직 없어요', hm_pdf_year:'이 해 전체 PDF', hm_csv:'엑셀용 CSV로 저장',
         hy_none:'{y}년의 기록이 아직 없어요.',
         hy_total:'{y}년, <b>{n}일 밤</b>을 함께했어요.',
         hy_best:'가장 자주 찾은 달은 <b>{m}</b>({n}일)이었어요.',
@@ -38,7 +38,7 @@ const HIST_TEXT = {
         hm_heavy:'Even on the <b>{n} heavy days</b>, the Word was with you.',
         hm_top:'The heart you stayed in most was <b>{e}</b> ({n} days).',
         hm_diary:'You left <b>{n}</b> journal notes.',
-        hm_pdf:'📄 Export as PDF — My Faith Journal', hm_pdf_none:'No records for this month yet',
+        hm_pdf:'📄 Export as PDF — My Faith Journal', hm_pdf_none:'No records for this month yet', hm_pdf_year:'Whole-year PDF', hm_csv:'Save as CSV (spreadsheet)',
         hy_none:'No records yet for {y}.',
         hy_total:'In {y}, we spent <b>{n} nights</b> together.',
         hy_best:'The month you came most was <b>{m}</b> ({n} days).',
@@ -57,7 +57,7 @@ const HIST_TEXT = {
         hm_heavy:'心が重かった<b>{n}日</b>にも、毎日みことばがともにありました。',
         hm_top:'いちばん多かった気持ちは<b>「{e}」</b>（{n}日）でした。',
         hm_diary:'日記を<b>{n}件</b>残しました。',
-        hm_pdf:'📄 PDFで書き出す — 私の信仰日記', hm_pdf_none:'この月の記録はまだありません',
+        hm_pdf:'📄 PDFで書き出す — 私の信仰日記', hm_pdf_none:'この月の記録はまだありません', hm_pdf_year:'この年全体のPDF', hm_csv:'CSVで保存（表計算用）',
         hy_none:'{y}年の記録はまだありません。',
         hy_total:'{y}年、<b>{n}日の夜</b>をともに過ごしました。',
         hy_best:'いちばん多く訪れた月は<b>{m}</b>（{n}日）でした。',
@@ -285,7 +285,10 @@ function renderHistMonthly() {
     const body = `<div class="db-month-body">${lines.map(l => `<div class="db-month-line">${l}</div>`).join('')}</div>`;
     if (isPremium()) {
         el.innerHTML = `<div class="db-month-wrap">${body}</div>
-            <button class="db-pdf-btn" type="button" onclick="exportDiaryPdf()">${L.hm_pdf}</button>` + safe('ai.button', () => aiReportButtonHtml(), '');
+            <div class="db-export-row">
+                <button class="db-pdf-btn" type="button" onclick="exportDiaryPdf('month')">${L.hm_pdf}</button>
+                <button class="db-pdf-btn alt" type="button" onclick="exportDiaryPdf('year')">${L.hm_pdf_year}</button>
+                <button class="db-pdf-btn alt" type="button" onclick="exportDiaryCsv('month')">${L.hm_csv}</button></div>` + safe('ai.button', () => aiReportButtonHtml(), '');
     } else {
         el.innerHTML = `<div class="db-month-wrap locked">${body}
             <button class="db-month-lock" type="button" onclick="openPremiumModal()">
@@ -324,37 +327,4 @@ function renderHistYearly() {
             <div class="hy-track"><div class="hy-fill" style="height:${Math.round(c / max * 100)}%"></div></div>
             <div class="hy-m">${i + 1}</div></div>`).join('')}</div>
         <div class="db-month-body">${lines.map(l => `<div class="db-month-line">${l}</div>`).join('')}</div>`;
-}
-
-/* ═══════════════════════════════════════
-   PDF 일기장: 보고 있는 달의 기록 → 인쇄 창 (PDF로 저장)
-═══════════════════════════════════════ */
-function exportDiaryPdf() {
-    const L = LANG_DATA[appLang]||LANG_DATA.ko;
-    if (!isPremium()) { openPremiumModal(); return; }
-    const list = histMonthList();
-    if (!list.length) { toast(L.hm_pdf_none); return; }
-    const pd = document.getElementById('print-diary');
-    if (!pd) return;
-    const ymLabel = fillText(L.hc_ym, { y: histY, m: appLang === 'ko' ? histM : L.month_names[histM - 1] });
-    const fmtDate = ds => parseYmd(ds).toLocaleDateString(L.locale || 'ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
-    const entryHtml = list.map(m => {
-        const v = verseByRef(m);
-        return `<div class="pd-entry">
-            <div class="pd-date">${escHtml(fmtDate(m.date))}</div>
-            <div class="pd-emo">${iconHtml('emo', m.emotion)} ${escHtml(emoShort(m.emotion))}</div>
-            ${v ? `<div class="pd-verse">${v.v ? '“' + escHtml(v.v) + '” ' : ''}<span class="pd-ref">— ${escHtml(v.r)}</span></div>` : ''}
-            ${m.diary ? `<div class="pd-diary">${diaryHtml(m.diary)}</div>` : ''}
-        </div>`;
-    }).join('');
-    pd.innerHTML = `
-        <div class="pd-cover">
-            <div class="pd-moon">✦</div>
-            <h1>${escHtml(L.pd_title)}</h1>
-            <div class="pd-sub">${escHtml(L.pd_sub)}</div>
-            <div class="pd-range">${escHtml(fillText(L.pd_range, { ym: ymLabel, n: onePerDay(list).length }))}</div>
-        </div>
-        ${entryHtml}
-        <div class="pd-foot">${escHtml(L.pd_foot)}</div>`;
-    window.print();
 }

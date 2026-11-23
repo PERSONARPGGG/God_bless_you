@@ -357,3 +357,49 @@
     .dv-kv { display:flex; justify-content:space-between; gap:10px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,.07); font-size:var(--fs-xs); } .dv-kv span { color:rgba(255,255,255,.6); } .dv-kv b { font-weight:600; text-align:right; word-break:break-all; }
     .dv-err { font-size:var(--fs-2xs); color:#f0a8a8; padding:4px 0; word-break:break-all; }
     .dv-note { margin-top:14px; font-size:var(--fs-2xs); color:rgba(255,255,255,.45); line-height:1.6; }
+
+    /* ═══════════════════════════════════════════════════════
+       헤더 재구성 — 메뉴 4개를 맨 위 한 줄(같은 너비)로 두고, 그 아래에 달·인사말을 둔다 (예전엔 메뉴가 달 위에 떠서 겹쳤음)
+    ═══════════════════════════════════════════════════════ */
+    body .top-bar { display:flex; flex-direction:column; align-items:stretch; padding-top:0; }
+    body .top-side:last-child { position:static; order:-1; width:100%; margin:10px 0 8px; }
+    body .top-icons { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; width:100%; }
+    body .icon-btn { min-width:0; width:100%; padding:7px 2px; }
+    body .icon-btn .icon-label { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+    body .moon-wrap { margin-top:2px; }
+    body:has(#step4:not(.hidden)) .top-bar { padding-top:0; }
+    @media (max-height:760px) { body .top-side:last-child { margin:6px 0 4px; } body .icon-btn { padding:4px 2px; gap:0; } }
+    .db-export-row { display:flex; flex-wrap:wrap; gap:8px; }
+    .db-export-row .db-pdf-btn { flex:1 1 100%; }
+    .db-export-row .db-pdf-btn.alt { flex:1 1 calc(50% - 4px); }
+
+    /* ── PDF 일기장 강화판: 한눈에 보기 · 기록 표 · 감정 달력 (인쇄 전용) ── */
+    @media print {
+        @page { margin:14mm; }
+        #print-diary, #print-diary * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+        #print-diary { font-family:var(--font-verse),'Noto Serif KR',serif; }
+        .pd-cover .pd-moon svg { width:70px; height:70px; color:#b69a6b; stroke-width:1.2; }
+        .pd-cover .pd-meta { margin-top:30px; font-size:12px; color:#8a7a66; line-height:1.9; }
+        #print-diary h2 { font-size:20px; margin:0 0 14px; padding-bottom:8px; border-bottom:2px solid #c8a86b; letter-spacing:1px; }
+        #print-diary h3 { font-size:13px; margin:16px 0 7px; color:#6b5d4f; letter-spacing:1px; }
+        .pd-sum { page-break-after:always; }
+        .pds-cards { display:flex; gap:8px; }
+        .pds-card { flex:1; border:1px solid #e5dccf; border-radius:8px; padding:10px 4px; text-align:center; background:#fbf8f2; }
+        .pds-card b { display:block; font-size:19px; color:#4a3b2a; } .pds-card span { font-size:12px; color:#8a7a66; }
+        .pds-cols { display:flex; gap:22px; } .pds-cols > div { flex:1; min-width:0; }
+        .pdb-row { display:flex; align-items:center; gap:6px; margin:4px 0; font-size:12px; } .pdb-lb { width:92px; flex:none; color:#5a4d3f; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .pdb-bar { flex:1; height:9px; background:#eee7da; border-radius:5px; overflow:hidden; } .pdb-bar i { display:block; height:100%; border-radius:5px; }
+        .pdb-n { width:84px; text-align:right; flex:none; color:#6b5d4f; font-size:12px; } .pdb-none { font-size:12px; color:#b0a48f; }
+        .pdv-row { display:flex; justify-content:space-between; font-size:12px; padding:3px 0; border-bottom:1px dotted #e5dccf; }
+        .pdc-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; max-width:420px; }
+        .pdc-h { text-align:center; font-size:12px; color:#8a7a66; } .pdc-d { height:34px; border:1px solid #efe8da; border-radius:6px; position:relative; }
+        .pdc-n { position:absolute; left:4px; top:2px; font-size:12px; color:#8a7a66; } .pdc-d i { position:absolute; right:5px; bottom:5px; width:14px; height:14px; border-radius:50%; }
+        .pdc-legend { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; font-size:12px; color:#6b5d4f; } .pdc-lg i { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:4px; }
+        .pd-tbl { page-break-after:always; } .pd-tbl table { width:100%; border-collapse:collapse; font-size:12px; }
+        .pd-tbl thead { display:table-header-group; } .pd-tbl th { background:#f3ecdf; text-align:left; padding:6px 6px; border-bottom:1.5px solid #c8a86b; }
+        .pd-tbl td { padding:5px 6px; border-bottom:1px solid #eee7da; } .pd-tbl tr { page-break-inside:avoid; }
+        .pd-note { margin-top:26px; font-size:12px; color:#a09480; text-align:center; line-height:1.7; }
+        .dstk { filter:none; }
+    }
+    #step2, #step3 { margin-top:13vh; }   /* 메뉴가 맨 위 줄로 내려오며 늘어난 만큼 주제·필요 화면 위쪽 여백을 줄임 */
+    @media (max-height:760px) { #step2, #step3 { margin-top:7vh; } }

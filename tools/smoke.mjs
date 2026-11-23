@@ -371,7 +371,9 @@ scenario('화면 겹침: 모든 화면에서 글·입력칸·버튼이 서로 �
             ['설정', `openSettings()`, `hideOverlay('overlay-settings')`], ['보관함', `openVault()`, `hideOverlay('overlay-vault')`],
             ['나의 이야기', `openDashboard()`, `hideOverlay('overlay-dashboard')`], ['프리미엄 안내', `openPremiumModal()`, `closePremiumModal()`],
             ['처리방침', `openPolicy('privacy')`, `hideOverlay('overlay-policy')`], ['로그인 동의', `openConsent()`, `closeConsent && closeConsent()`],
-            ['기록 맞추기 확인', `askSync(2, 3)`, `closeSyncAsk()`]]) {
+            ['기록 맞추기 확인', `askSync(2, 3)`, `closeSyncAsk()`],
+            ['QR 초대장', `openSettings(); toggleQR()`, `toggleQR(); hideOverlay('overlay-settings')`], ['개발자 보드', `openDevBoard()`, `hideOverlay('overlay-devboard')`],
+            ['카드 모양 고르기', `openCardPicker()`, `closeCardPicker()`]]) {
             await p.eval(open); await check(what); await p.eval(`try { ${close} } catch (e) {}`);
         }
         await p.eval(`restart()`); await sleep(500);
@@ -666,6 +668,117 @@ scenario('테마 장식·양 떼·카드 모양·글꼴·일기 스티커·개�
     p.ok(wh, '편지지 카드 이미지 생성');
 });
 
+scenario('PDF·CSV: 한눈에 보기·기록 표·감정 달력·연간, 엑셀용 CSV', { now: '2026-11-17T21:30:00+09:00', seed: { userName: '은혜', devMode: '1',
+    moodHistory: JSON.stringify([
+        { date: '2026-11-02', emotion: '감사', topic: '가족', need: '쉼', diary: '아이와 저녁을 먹었다 😊' },
+        { date: '2026-11-03', emotion: '걱정', topic: '일', need: '힘', diary: '=SUM(1,2) 내일 발표가 걱정' },
+        { date: '2026-11-05', emotion: '지침', topic: '일', need: '쉼' },
+        { date: '2026-11-08', emotion: '평안', topic: '신앙', need: '쉼', diary: '예배가 좋았다, "감사"' },
+        { date: '2026-11-09', emotion: '걱정', topic: '건강', need: '위로' },
+        { date: '2026-11-12', emotion: '아픔', topic: '사람', need: '위로', diary: '마음이 아팠다' },
+        { date: '2026-11-15', emotion: '감사', topic: '자녀', need: '쉼' },
+        { date: '2026-11-16', emotion: '기도', topic: '신앙', need: '지혜', diary: '기도하고 싶은 밤' },
+        { date: '2026-09-20', emotion: '평안', topic: '모름', need: '쉼' }]) } }, async p => {
+    await p.goto();
+    await p.eval(`openHistory()`);
+    await p.waitFor(`document.querySelectorAll('#hist-cal .hc-day.has').length === 8`, '달력에 11월 8일 표시');
+    await p.eval(`window.print = () => { window.__printed = (window.__printed || 0) + 1; }; exportDiaryPdf('month')`);
+    const t = await p.eval(`__t.txt('#print-diary')`);
+    p.ok(t.includes('한눈에 보기') && t.includes('기록 표') && t.includes('일기 상세'), 'PDF 구성: 한눈에 보기·기록 표·일기 상세');
+    p.eq(await p.eval(`document.querySelectorAll('#print-diary .pd-tbl tbody tr').length`), 8, '기록 표 8행(11월 8일)');
+    p.eq(await p.eval(`document.querySelectorAll('#print-diary .pdc-d i').length`), 8, '감정 달력에 8일 표시');
+    p.ok(await p.eval(`document.querySelectorAll('#print-diary .pds-card').length === 5 && document.querySelectorAll('#print-diary .pdb-row').length > 8`), '요약 카드·분포 막대');
+    p.ok(await p.eval(`window.__printed === 1`), '인쇄 창 호출');
+    await p.eval(`exportDiaryPdf('year')`);
+    p.eq(await p.eval(`document.querySelectorAll('#print-diary .pd-tbl tbody tr').length`), 9, '연간 PDF 기록 표 9행');
+    p.ok(!(await p.eval(`!!document.querySelector('#print-diary .pdc-grid')`)), '연간 PDF에는 월 달력 없음');
+    /* CSV: 수식으로 읽히지 않게, 따옴표·쉼표 안전하게 */
+    const csv = await p.eval(`(async () => { let blob; const orig = URL.createObjectURL; URL.createObjectURL = b => { blob = b; return orig.call(URL, b); }; exportDiaryCsv('month'); URL.createObjectURL = orig; const u = new Uint8Array(await blob.arrayBuffer()); return (u[0] === 239 && u[1] === 187 && u[2] === 191 ? 'BOM|' : 'NOBOM|') + await blob.text(); })()`);
+    p.ok(csv.startsWith('BOM|date,weekday,emotion') && csv.split('\r\n').length === 10, 'CSV: BOM·머리글·8행');
+    p.ok(csv.includes(`"'=SUM(1,2) 내일 발표가 걱정"`) && csv.includes('"예배가 좋았다, ""감사"""'), 'CSV: 수식 방지·따옴표 이스케이프');
+    if (process.env.PDF_OUT) { await p.eval(`exportDiaryPdf('month')`); fs.writeFileSync(process.env.PDF_OUT, await p.eval(`document.getElementById('print-diary').innerHTML`)); }
+});
+
+scenario('영어·일본어: 새 기능(QR 초대장·글꼴·카드·PDF·보드) 문구가 비지 않고 한글이 섞이지 않음', { now: '2026-11-17T21:30:00+09:00', seed: { userName: 'Grace', devMode: '1',
+    moodHistory: JSON.stringify([{ date: '2026-11-16', emotion: '감사', topic: '가족', need: '쉼', diary: 'thanks' }, { date: '2026-11-15', emotion: '걱정', topic: '일', need: '힘' }]) } }, async p => {
+    await p.goto();
+    await p.eval(OPEN_LANGS);
+    for (const lang of ['en', 'ja']) {
+        await p.eval(`setLang('${lang}')`);
+        await p.eval(`openSettings()`);
+        const set = await p.eval(`__t.txt('#overlay-settings')`);
+        p.ok(!/undefined|NaN|\[object/.test(set), lang + ': 설정 화면에 undefined 없음');
+        p.ok((await p.eval(`__t.txt('#font-picker')`)).includes(await p.eval(`FONT_TEXT.${lang}.label`)), lang + ': 글꼴 제목이 언어를 따라감');
+        p.ok((await p.eval(`__t.txt('#qr-inv-title')`)) === await p.eval(`LANG_DATA.${lang}.qr_inv_title`), lang + ': 초대장 제목');
+        p.ok(!/[가-힣]/.test(await p.eval(`__t.txt('#qr-inv-msg') + __t.txt('#qr-inv-sign') + __t.txt('#qr-btn-copy') + __t.txt('#qr-btn-share')`)), lang + ': 초대장에 한글이 섞이지 않음');
+        await p.eval(`hideOverlay('overlay-settings'); openHistory()`);
+        await p.waitFor(`document.querySelectorAll('#hist-cal .hc-day.has').length >= 2`, lang + ': 달력');
+        const hm = await p.eval(`__t.txt('#hist-monthly')`);
+        p.ok(!/undefined|NaN/.test(hm) && !/[가-힣]/.test(hm), lang + ': 월간 리포트·내보내기 버튼 문구 — ' + hm.slice(0, 80));
+        await p.eval(`window.print = () => {}; exportDiaryPdf('month')`);
+        const pdf = await p.eval(`__t.txt('#print-diary')`);
+        p.ok(!/undefined|NaN/.test(pdf) && !/[가-힣]/.test(pdf.replace(/Grace|thanks/g, '')), lang + ': PDF에 한글·undefined가 섞이지 않음 — ' + (pdf.match(/[가-힣]+/g) || []).slice(0, 4).join(','));
+        await p.eval(`hideOverlay('overlay-dashboard'); hideOverlay('overlay-history')`);
+        await p.flow('감사', '가족', '쉼');
+        await p.eval(`shareVerse()`);
+        await p.waitFor(`document.querySelectorAll('#cp-grid .cp-item').length === 5`, lang + ': 카드 모양 창');
+        p.ok(!/[가-힣]/.test(await p.eval(`__t.txt('#card-picker')`)), lang + ': 카드 모양 창에 한글 없음');
+        await p.eval(`closeCardPicker(); restart()`);
+    }
+});
+
+scenario('무료 사용자: 잠긴 카드·글꼴·CSV는 안내만, 장식 없음, 양은 화면 안에서만 움직임', { now: '2026-03-10T21:00:00+09:00', seed: { userName: '은혜🐶' } }, async p => {
+    await p.goto();
+    p.eq(await p.eval(`currentSeason()`), 'spring', '3월은 봄');
+    p.ok(await p.eval(`!document.querySelector('#theme-deco .dc-linger') && !document.body.classList.contains('deco-on')`), '무료: 배경 장식·소품 없음');
+    p.ok(await p.eval(`getComputedStyle(document.querySelector('#sheep .sh-hat')).display === 'none'`), '무료: 양 소품 없음');
+    p.ok((await p.eval(`__t.txt('#welcome-text')`)).includes('🐶') || (await p.eval(`__t.txt('#welcome-text')`)).length > 0, '이름 속 표에 없는 이모지는 지워지지 않음');
+    await p.flow('감사', '가족', '쉼');
+    await p.eval(`shareVerse()`);
+    await p.waitFor(`document.querySelectorAll('#cp-grid .cp-item').length === 5`, '카드 모양 창');
+    p.eq(await p.eval(`document.querySelectorAll('#cp-grid .cp-item svg.ic').length`), 4, '잠긴 모양 4개에 자물쇠');
+    await p.eval(`document.querySelector('#cp-grid .cp-item[data-id="forest"]').click(); goCardShare()`);
+    p.ok(await p.eval(`__t.vis('#premium-modal')`), '잠긴 카드 모양 → 프리미엄 안내');
+    p.eq(await p.eval(`cardStyleNow().id`), 'night', '무료는 항상 밤하늘 카드');
+    await p.eval(`closePremiumModal(); pickVerseFont('penscript')`);
+    p.ok(await p.eval(`__t.vis('#premium-modal')`) && !(await p.eval(`getComputedStyle(document.documentElement).getPropertyValue('--font-verse')`)).includes('Pen Script'), '잠긴 글꼴 → 안내, 글꼴은 그대로');
+    await p.eval(`closePremiumModal(); exportDiaryCsv('month')`);
+    p.ok(await p.eval(`__t.vis('#premium-modal')`), '무료: CSV → 프리미엄 안내');
+    await p.eval(`closePremiumModal()`);
+    /* 양은 화면 밖으로 나가지 않음 + 눌러도 오류 없음 */
+    await new Promise(r => setTimeout(r, 3500));
+    p.ok(await p.eval(`[...document.querySelectorAll('.sheep-el:not(.intro-sheep)')].every(e => { const r = e.getBoundingClientRect(); return r.left >= -2 && r.right <= innerWidth + 2; })`), '양 3마리가 화면 안에 있음');
+    await p.eval(`document.querySelectorAll('.sheep-el:not(.intro-sheep)').forEach(e => e.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })))`);
+    await new Promise(r => setTimeout(r, 300));
+});
+
+scenario('계절: 달에 따라 봄·여름·가을·겨울, 겨울 프리미엄 테마는 양이 목도리', { now: '2026-12-20T21:00:00+09:00', seed: { userName: '', devMode: '1' } }, async p => {
+    await p.goto();
+    p.eq(await p.eval(`currentSeason()`), 'winter', '12월은 겨울');
+    for (const [m, s] of [['2026-03-01', 'spring'], ['2026-05-31', 'spring'], ['2026-06-01', 'summer'], ['2026-08-31', 'summer'], ['2026-09-01', 'autumn'], ['2026-11-30', 'autumn'], ['2026-12-01', 'winter'], ['2027-02-28', 'winter']]) {
+        p.eq(await p.eval(`(() => { const D = Date; const t = new D('${m}T12:00:00').getTime(); window.Date = class extends D { constructor(...a) { a.length ? super(...a) : super(t); } static now() { return t; } }; const r = currentSeason(); window.Date = D; return r; })()`), s, m + ' → ' + s);
+    }
+    await p.eval(`setTheme('forest')`);
+    p.ok(await p.eval(`getComputedStyle(document.querySelector('#sheep .sh-scarf')).display === 'block' && document.querySelectorAll('#theme-deco .sp-winter').length >= 10`), '겨울 + 프리미엄 테마: 눈 입자·양 목도리');
+    /* 프리미엄이 끝나면(개발자 모드 해제) 테마·글꼴·장식이 모두 기본으로 */
+    await p.eval(`pickVerseFont('gowunbatang')`);
+    await p.eval(`localStorage.removeItem('devMode'); sessionStorage.removeItem('devMode'); onPremiumChanged()`);
+    p.ok(!(await p.eval(`document.body.classList.contains('theme-forest')`)) && !(await p.eval(`document.body.classList.contains('deco-on')`)), '프리미엄이 끝나면 테마·장식이 기본으로');
+    p.ok((await p.eval(`getComputedStyle(document.documentElement).getPropertyValue('--font-verse')`)).includes('Nanum Myeongjo'), '프리미엄이 끝나면 말씀 글꼴도 기본으로');
+});
+
+scenario('아주 좁은 화면(320px): 가로로 밀리지 않음 — 메인·설정·QR 초대장·카드 고르기·개발자 보드·PDF 버튼', { now: '2026-11-17T21:30:00+09:00', seed: { userName: '은혜', devMode: '1', fontLevel: 2,
+    moodHistory: JSON.stringify([{ date: '2026-11-16', emotion: '감사', topic: '가족', need: '쉼', diary: '아주 긴 일기 ' + 'ㅁ'.repeat(120) }]) } }, async p => {
+    await p.S('Emulation.setDeviceMetricsOverride', { width: 320, height: 568, deviceScaleFactor: 1, mobile: true });
+    await p.goto();
+    const wide = async what => { await new Promise(r => setTimeout(r, 500)); const w = await p.eval(`(() => { const o = [...document.querySelectorAll('body *')].filter(e => { const r = e.getBoundingClientRect(), cs = getComputedStyle(e); return r.width > 0 && cs.position !== 'fixed' && cs.visibility !== 'hidden' && e.offsetParent && (r.right > innerWidth + 1) && !e.closest('#theme-deco,.sheep-el,.overlay.hidden,.hidden,.moon-wrap,#night-intro,#stars,.aurora'); }); return o.slice(0, 3).map(e => e.tagName + '.' + e.className + ' ' + Math.round(e.getBoundingClientRect().right)); })()`); p.eq(w, [], what + ': 오른쪽으로 삐져나온 것 없음'); };
+    await wide('메인');
+    await p.eval(`openSettings(); toggleQR()`); await wide('설정+QR');
+    await p.eval(`toggleQR(); hideOverlay('overlay-settings'); openHistory()`); await new Promise(r => setTimeout(r, 600)); await wide('기록·PDF 버튼');
+    await p.eval(`hideOverlay('overlay-dashboard'); openDevBoard()`); await wide('개발자 보드');
+    await p.eval(`hideOverlay('overlay-devboard'); openVault(); switchTab('mood')`); await wide('보관함(긴 일기·스티커)');
+});
+
 scenario('날짜: 미국 시간대에서도 하루가 밀리지 않음', {
     now: '2026-11-16T22:00:00-05:00', tz: 'America/New_York',
     seed: { userName: '', moodHistory: JSON.stringify([{ date: '2026-11-16', emotion: '감사', topic: '일', need: '힘', emoji: '😊' }]) },
@@ -703,7 +816,7 @@ scenario('저장소가 깨져 있어도 앱이 켜지고 끝까지 진행됨', {
     p.ok(await p.eval(`document.getElementById('step4').classList.contains('closing')`), '마무리까지 도달');
 });
 
-scenario('연쇄 차단: 한 기능이 고장 나도 나머지는 동작', { seed: { userName: '' } }, async p => {
+scenario('연쇄 차단: 한 기능이 고장 나도 나머지는 동작', { allowErr: true, seed: { userName: '' } }, async p => {
     await p.goto();
     await p.eval(`(() => {
         const boom = n => () => { throw new Error('test: ' + n + ' 고장'); };
@@ -988,7 +1101,7 @@ scenario('나의 이야기(무료·게스트): 달력은 지난달까지, 그날
     }
 });
 
-scenario('프리미엄(가짜 서버): 지난 해 기록 달력·월간·연간·PDF, 구독이 끝나면 닫힘, verse_ref 열 없는 서버', {
+scenario('프리미엄(가짜 서버): 지난 해 기록 달력·월간·연간·PDF, 구독이 끝나면 닫힘, verse_ref 열 없는 서버', { allowErr: true,
     now: '2026-11-17T21:00:00+09:00', seed: { userName: '' },
 }, async p => {
     await p.goto();
@@ -1260,7 +1373,10 @@ for (const s of run) {
     const t0 = Date.now();
     try { await s.fn(p); } catch (e) { p.fails.push('시나리오 중단: ' + e.message); }
     await sleep(150);
-    const problems = [...p.fails.map(f => '✗ ' + f), ...[...new Set(p.errors)].map(e => '✗ 잡히지 않은 오류: ' + e)];
+    /* safe()가 삼킨 오류(errLog)도 실패로 센다 — 화면이 조용히 덜 그려지는 버그를 잡기 위함. 일부러 오류를 일으키는 시나리오는 opts.allowErr */
+    let hidden = [];
+    if (!(s.opts && s.opts.allowErr)) { try { hidden = await p.eval(`typeof errLog === 'function' ? errLog().map(e => e.where + ': ' + String(e.msg || e.message || e.err || '').slice(0, 120)) : []`) || []; } catch (e) {} }
+    const problems = [...p.fails.map(f => '✗ ' + f), ...[...new Set(p.errors)].map(e => '✗ 잡히지 않은 오류: ' + e), ...hidden.map(h => '✗ 삼켜진 오류(errLog): ' + h)];
     console.log(`${problems.length ? '✗' : '✓'} ${s.name}  (${((Date.now() - t0) / 1000).toFixed(1)}s)`);
     for (const m of problems) console.log('    ' + m);
     const nets = [...new Set(p.netFails)];

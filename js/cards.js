@@ -90,16 +90,18 @@ function cardBackground(x, id) {
 
 /* 말씀 카드 한 장을 캔버스로 그린다 (style = CARD_STYLES의 한 칸) */
 async function makeVerseCardCanvas(st) {
+    const verse = curVerse;   // 그리는 동안 다시 시작해 말씀이 바뀌어도 이 장은 처음 말씀으로 끝까지 그림
+    if (!verse) return null;
     const W = CARD_W, H = CARD_H;
     const vf = verseFontNow(), VF = vf.family;   // 앱 말씀과 같은 글꼴(설정에서 고른 것)
     ensureFontLink(vf);
-    try { await Promise.race([document.fonts.load('600 52px ' + vf.family.split(',')[0], curVerse.v), new Promise(r => setTimeout(r, 2000))]); } catch (e) {}   // 글꼴이 준비된 뒤 그림
+    try { await Promise.race([document.fonts.load('600 52px ' + vf.family.split(',')[0], verse.v), new Promise(r => setTimeout(r, 2000))]); } catch (e) {}   // 글꼴이 준비된 뒤 그림
     const c = document.createElement('canvas'); c.width = W; c.height = H;
     const x = c.getContext('2d');
     cardBackground(x, st.id);
     x.textAlign = 'center';
     /* 본문: 길수록 글자를 줄여 양 그림과 겹치지 않게 */
-    const maxW = st.id === 'letter' ? 700 : 820, text = '“' + curVerse.v + '”';
+    const maxW = st.id === 'letter' ? 700 : 820, text = '“' + verse.v + '”';
     let size = 54, lines, lh;
     for (; size >= 38; size -= 2) {
         x.font = '600 ' + size + 'px ' + VF; lines = []; let line = '';
@@ -113,7 +115,7 @@ async function makeVerseCardCanvas(st) {
     x.fillStyle = st.ink;
     lines.forEach(l => { x.fillText(l, W / 2, y); y += lh; });
     x.fillStyle = st.ref; x.font = '600 40px ' + VF;
-    x.fillText('— ' + curVerse.r, W / 2, y + 22);
+    x.fillText('— ' + verse.r, W / 2, y + 22);
     /* 양들 (큰 양 + 새끼 양) */
     const ly = H - 150;
     cardLamb(x, 210, ly, 3.6, st.wool, st.costume);
@@ -126,7 +128,7 @@ async function makeVerseCardCanvas(st) {
 /* 말씀 카드 이미지(PNG Blob). style 인자가 없으면 저장된 모양(없으면 밤하늘) */
 function makeVerseCardBlob(st) {
     st = st || cardStyleNow();
-    return makeVerseCardCanvas(st).then(c => new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('toBlob failed')), 'image/png')));
+    return makeVerseCardCanvas(st).then(c => new Promise((res, rej) => !c ? rej(new Error('no verse')) : c.toBlob(b => b ? res(b) : rej(new Error('toBlob failed')), 'image/png')));
 }
 
 /* 고른 카드 모양 (프리미엄이 아니면 잠긴 모양은 밤하늘로) */
@@ -160,7 +162,9 @@ async function openCardPicker() {
         grid.appendChild(b);
     });
     for (let i = 0; i < CARD_STYLES.length; i++) {   // 미리보기는 하나씩 천천히 그림(한꺼번에 그리면 느린 폰이 멈춤)
+        if (m.className === 'hidden' || !grid.isConnected) return;   // 그 사이 창을 닫았으면 그만
         const big = await makeVerseCardCanvas(CARD_STYLES[i]);
+        if (!big) return;
         const cv = grid.children[i] && grid.children[i].querySelector('canvas');
         if (cv) cv.getContext('2d').drawImage(big, 0, 0, 150, 188);
     }
